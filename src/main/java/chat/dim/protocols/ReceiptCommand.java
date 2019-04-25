@@ -4,7 +4,7 @@ import chat.dim.dkd.Envelope;
 import chat.dim.dkd.Utils;
 import chat.dim.dkd.content.CommandContent;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class ReceiptCommand extends CommandContent {
 
@@ -21,7 +21,7 @@ public class ReceiptCommand extends CommandContent {
         this.signature = content.signature;
     }
 
-    public ReceiptCommand(HashMap<String, Object> dictionary) {
+    public ReceiptCommand(Map<String, Object> dictionary) {
         super(dictionary);
         this.message = (String) dictionary.get("message");
         this.envelope = Envelope.getInstance(dictionary.get("envelope"));

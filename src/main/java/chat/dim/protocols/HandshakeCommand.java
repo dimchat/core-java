@@ -2,7 +2,7 @@ package chat.dim.protocols;
 
 import chat.dim.dkd.content.CommandContent;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class HandshakeCommand extends CommandContent {
 
@@ -25,7 +25,7 @@ public class HandshakeCommand extends CommandContent {
         this.state      = content.state;
     }
 
-    public HandshakeCommand(HashMap<String, Object> dictionary) {
+    public HandshakeCommand(Map<String, Object> dictionary) {
         super(dictionary);
         this.message    = (String) dictionary.get("message");
         this.sessionKey = (String) dictionary.get("session");

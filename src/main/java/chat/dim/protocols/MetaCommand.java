@@ -5,7 +5,7 @@ import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  *  Command message: {
@@ -28,7 +28,7 @@ public class MetaCommand extends CommandContent {
         this.meta       = content.meta;
     }
 
-    public MetaCommand(HashMap<String, Object> dictionary) throws UnsupportedEncodingException, ClassNotFoundException {
+    public MetaCommand(Map<String, Object> dictionary) throws UnsupportedEncodingException, ClassNotFoundException {
         super(dictionary);
         this.identifier = ID.getInstance(dictionary.get("ID"));
         this.meta       = Meta.getInstance(dictionary.get("meta"));
