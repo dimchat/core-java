@@ -1,5 +1,5 @@
-import chat.dim.dkd.Utils;
 import chat.dim.mkm.entity.ID;
+import chat.dim.protocols.GroupCommand;
 import chat.dim.protocols.JoinCommand;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -19,5 +19,6 @@ public class CommandTest extends TestCase {
         JoinCommand join = new JoinCommand(groupID);
         log("join:" + join);
         log("json:" + join.toJSONString());
+        assertEquals(GroupCommand.JOIN, join.command);
     }
 }

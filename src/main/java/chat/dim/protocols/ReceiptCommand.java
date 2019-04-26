@@ -6,6 +6,20 @@ import chat.dim.dkd.content.CommandContent;
 
 import java.util.Map;
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,  // the same serial number with the original message
+ *
+ *      command : "receipt",
+ *      message : "...",
+ *      // -- extra info
+ *      sender    : "...",
+ *      receiver  : "...",
+ *      time      : 0,
+ *      signature : "..." // the same signature with the original message
+ *  }
+ */
 public class ReceiptCommand extends CommandContent {
 
     public final String message;

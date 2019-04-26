@@ -4,6 +4,16 @@ import chat.dim.dkd.content.CommandContent;
 
 import java.util.Map;
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "handshake",    // command name
+ *      message : "Hello world!",
+ *      session : "{SESSION_KEY}" // session key
+ *  }
+ */
 public class HandshakeCommand extends CommandContent {
 
     //-------- states begin --------

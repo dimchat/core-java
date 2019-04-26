@@ -11,6 +11,18 @@ import chat.dim.mkm.entity.Meta;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command   : "profile",  // command name
+ *      ID        : "{ID}",     // entity ID
+ *      meta      : {...},      // only for handshaking with new friend
+ *      profile   : "{...}",    // json(profile); when profile is empty, means query for ID
+ *      signature : "{BASE64}", // sign(json(profile))
+ *  }
+ */
 public class ProfileCommand extends MetaCommand {
 
     public final Profile profile;
@@ -34,7 +46,7 @@ public class ProfileCommand extends MetaCommand {
             byte[] data = json.getBytes("UTF-8");
             byte[] signature = Utils.base64Decode(base64);
             // get public key with ID
-            PublicKey publicKey = Barrack.getPublicKey(identifier);
+            PublicKey publicKey = Barrack.getInstance().getPublicKey(identifier);
             if (publicKey != null && publicKey.verify(data, signature)) {
                 // convert JsON to profile
                 this.profile = Profile.getInstance(Utils.jsonDecode(json));
