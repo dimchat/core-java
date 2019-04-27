@@ -60,7 +60,7 @@ public class ReceiptCommand extends CommandContent {
         if (envelope == null) {
             this.dictionary.remove("envelope");
         } else {
-            this.dictionary.put("envelope", envelope.toDictionary());
+            this.dictionary.put("envelope", envelope);
         }
     }
 

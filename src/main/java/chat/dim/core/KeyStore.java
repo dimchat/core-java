@@ -84,7 +84,7 @@ public final class KeyStore {
             for (Address receiver :
                     receivers) {
                 key = keyMap.get(receiver);
-                map.put(receiver.toString(), key.toDictionary());
+                map.put(receiver.toString(), key);
             }
             table.put(sender.toString(), map);
         }

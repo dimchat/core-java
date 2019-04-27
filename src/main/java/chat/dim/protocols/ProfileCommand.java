@@ -85,7 +85,7 @@ public class ProfileCommand extends MetaCommand {
 
     public ProfileCommand(ID identifier, Meta meta, Profile profile, PrivateKey privateKey)
             throws UnsupportedEncodingException {
-        this(identifier, meta, Utils.jsonEncode(profile.toDictionary()), privateKey);
+        this(identifier, meta, Utils.jsonEncode(profile), privateKey);
     }
 
     public ProfileCommand(ID identifier, Profile profile, PrivateKey privateKey)

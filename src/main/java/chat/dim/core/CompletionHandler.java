@@ -1,6 +1,6 @@
 package chat.dim.core;
 
-public interface ICompletionHandler {
+public interface CompletionHandler {
 
     public void onSuccess();
 

@@ -2,7 +2,7 @@ package chat.dim.core;
 
 import chat.dim.dkd.InstantMessage;
 
-public interface ITransceiverDelegate {
+public interface TransceiverDelegate {
 
     /**
      *  Send out a data package onto network
@@ -11,12 +11,12 @@ public interface ITransceiverDelegate {
      *  @param handler - completion handler
      *  @return NO on data/delegate error
      */
-    public boolean sendPackage(byte[] data, ICompletionHandler handler);
+    public boolean sendPackage(byte[] data, CompletionHandler handler);
 
     /**
      *  Upload encrypted data to CDN
      *
-     *  @param CT - encrypted file data
+     *  @param data - encrypted file data
      *  @param iMsg - instant message
      *  @return download URL
      */

@@ -3,7 +3,7 @@ package chat.dim.core;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 
-public interface ICallback {
+public interface Callback {
 
-    public void onFinished(Error error);
+    public void onFinished(Object result, Error error);
 }

@@ -18,7 +18,6 @@ public class CommandTest extends TestCase {
         ID groupID = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
         JoinCommand join = new JoinCommand(groupID);
         log("join:" + join);
-        log("json:" + join.toJSONString());
         assertEquals(GroupCommand.JOIN, join.command);
     }
 }

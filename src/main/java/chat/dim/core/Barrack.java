@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class Barrack implements IMetaDataSource, IEntityDataSource, IUserDataSource, IGroupDataSource {
+public final class Barrack implements MetaDataSource, EntityDataSource, UserDataSource, GroupDataSource {
 
     private static Barrack ourInstance = new Barrack();
 
@@ -24,12 +24,12 @@ public final class Barrack implements IMetaDataSource, IEntityDataSource, IUserD
     }
 
     // delegates
-    public IBarrackDelegate  delegate         = null;
+    public BarrackDelegate  delegate         = null;
 
-    public IMetaDataSource   metaDataSource   = null;
-    public IEntityDataSource entityDataSource = null;
-    public IUserDataSource   userDataSource   = null;
-    public IGroupDataSource  groupDataSource  = null;
+    public MetaDataSource   metaDataSource   = null;
+    public EntityDataSource entityDataSource = null;
+    public UserDataSource   userDataSource   = null;
+    public GroupDataSource  groupDataSource  = null;
 
     // memory caches
     private Map<Address, Meta>    metaMap    = new HashMap<>();
@@ -86,7 +86,7 @@ public final class Barrack implements IMetaDataSource, IEntityDataSource, IUserD
 
         // save into JsON file
         FileOutputStream fos = new FileOutputStream(file);
-        String json = Utils.jsonEncode(meta.toDictionary());
+        String json = Utils.jsonEncode(meta);
         fos.write(json.getBytes("UTF-8"));
         fos.close();
         return true;

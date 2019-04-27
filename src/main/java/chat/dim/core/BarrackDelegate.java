@@ -6,7 +6,7 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
-public interface IBarrackDelegate {
+public interface BarrackDelegate {
 
     public boolean saveMeta(Meta meta, ID identifier);
 

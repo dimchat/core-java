@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class Transceiver implements IInstantMessageDelegate, ISecureMessageDelegate, IReliableMessageDelegate {
+public final class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 
     private static Transceiver ourInstance = new Transceiver();
 
@@ -31,7 +31,7 @@ public final class Transceiver implements IInstantMessageDelegate, ISecureMessag
     }
 
     // delegate
-    public ITransceiverDelegate delegate;
+    public TransceiverDelegate delegate;
 
     /**
      *  Send message (secured + certified) to target station
@@ -41,7 +41,7 @@ public final class Transceiver implements IInstantMessageDelegate, ISecureMessag
      *  @param split - if it's a group message, split it before sending out
      *  @return NO on data/delegate error
      */
-    public boolean sendMessage(InstantMessage iMsg, ICallback callback, boolean split)
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split)
             throws NoSuchFieldException, UnsupportedEncodingException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
@@ -89,18 +89,18 @@ public final class Transceiver implements IInstantMessageDelegate, ISecureMessag
         return OK;
     }
 
-    private boolean sendMessage(ReliableMessage rMsg, ICallback callback) throws UnsupportedEncodingException {
-        String json = Utils.jsonEncode(rMsg.toDictionary());
+    private boolean sendMessage(ReliableMessage rMsg, Callback callback) throws UnsupportedEncodingException {
+        String json = Utils.jsonEncode(rMsg);
         byte[] data = json.getBytes("UTF-8");
-        return delegate.sendPackage(data, new ICompletionHandler() {
+        return delegate.sendPackage(data, new CompletionHandler() {
             @Override
             public void onSuccess() {
-                callback.onFinished(null);
+                callback.onFinished(rMsg, null);
             }
 
             @Override
             public void onFailed(Error error) {
-                callback.onFinished(error);
+                callback.onFinished(rMsg, error);
             }
         });
     }
@@ -155,11 +155,11 @@ public final class Transceiver implements IInstantMessageDelegate, ISecureMessag
                 array.add(item.toString());
             }
             key = store.getKey(user.identifier, groupID);
-            sMsg = iMsg.encrypt(key.toDictionary(), array);
+            sMsg = iMsg.encrypt(key, array);
         } else {
             // personal message
             key = store.getKey(user.identifier, receiver);
-            sMsg = iMsg.encrypt(key.toDictionary());
+            sMsg = iMsg.encrypt(key);
         }
 
         // 2. sign 'data' by sender
@@ -284,7 +284,7 @@ public final class Transceiver implements IInstantMessageDelegate, ISecureMessag
             e.printStackTrace();
             return null;
         }
-        String json = Utils.jsonEncode(content.toDictionary());
+        String json = Utils.jsonEncode(content);
         byte[] data;
         try {
             data = json.getBytes("UTF-8");
@@ -342,7 +342,7 @@ public final class Transceiver implements IInstantMessageDelegate, ISecureMessag
             // if key data is empty, get it from key store
             key = store.getKey(from, to);
         }
-        return key.toDictionary();
+        return key;
     }
 
     @Override

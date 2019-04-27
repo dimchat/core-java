@@ -42,7 +42,7 @@ public class MetaCommand extends CommandContent {
         // meta
         this.meta = meta;
         if (meta != null) {
-            this.dictionary.put("meta", meta.toDictionary());
+            this.dictionary.put("meta", meta);
         }
     }
 }
