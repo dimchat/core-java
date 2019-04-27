@@ -7,6 +7,7 @@ import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         byte[] data = new byte[fis.available()];
         fis.read(data);
         fis.close();
-        String json = new String(data, "UTF-8");
+        String json = new String(data, StandardCharsets.UTF_8);
         return Meta.getInstance(Utils.jsonDecode(json));
     }
 
@@ -87,7 +88,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         // save into JsON file
         FileOutputStream fos = new FileOutputStream(file);
         String json = Utils.jsonEncode(meta);
-        fos.write(json.getBytes("UTF-8"));
+        fos.write(json.getBytes(StandardCharsets.UTF_8));
         fos.close();
         return true;
     }
@@ -321,7 +322,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
     }
 
     @Override
-    public List<ID> getContacts(User user) {
+    public List<Object> getContacts(User user) {
         if (userDataSource == null) {
             return null;
         }
@@ -387,7 +388,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
     }
 
     @Override
-    public List<ID> getMembers(Group group) {
+    public List<Object> getMembers(Group group) {
         if (groupDataSource == null) {
             return null;
         }

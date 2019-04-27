@@ -7,6 +7,7 @@ import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -50,43 +51,19 @@ public final class KeyStore {
         return key;
     }
 
-    public boolean setKey(SymmetricKey key, ID sender, ID receiver) {
-        return setKey(key, sender.address, receiver.address);
+    public void setKey(SymmetricKey key, ID sender, ID receiver) {
+        setKey(key, sender.address, receiver.address);
     }
 
-    private boolean setKey(SymmetricKey key, Address from, Address to) {
+    private void setKey(SymmetricKey key, Address from, Address to) {
         Map<Address, SymmetricKey> keyMap = keyTable.computeIfAbsent(from, k -> new HashMap<>());
         keyMap.put(to, key);
         isDirty = true;
-        return true;
     }
 
     public boolean flush(String path) throws IOException {
         if (!isDirty) {
             return false;
-        }
-
-        // transform Address -> String
-        // transform SymmetricKey -> Map
-        Map<Address, SymmetricKey> keyMap;
-        SymmetricKey key;
-
-        Map<String, Object> table = new HashMap<>();
-        Map<String, Object> map;
-
-        Set<Address> senders = keyTable.keySet();
-        Set<Address> receivers;
-
-        for (Address sender : senders) {
-            map = new HashMap<>();
-            keyMap = keyTable.get(sender);
-            receivers = keyMap.keySet();
-            for (Address receiver :
-                    receivers) {
-                key = keyMap.get(receiver);
-                map.put(receiver.toString(), key);
-            }
-            table.put(sender.toString(), map);
         }
 
         // write into key store file
@@ -95,8 +72,8 @@ public final class KeyStore {
             file.delete();
         }
         FileOutputStream fos = new FileOutputStream(file);
-        String json = Utils.jsonEncode(table);
-        fos.write(json.getBytes("UTF-8"));
+        String json = Utils.jsonEncode(keyTable);
+        fos.write(json.getBytes(StandardCharsets.UTF_8));
         fos.close();
         return true;
     }
@@ -110,9 +87,12 @@ public final class KeyStore {
         // load from key store file
         FileInputStream fis = new FileInputStream(file);
         byte[] data = new byte[fis.available()];
-        fis.read(data);
+        if (fis.read(data) <= 0) {
+            fis.close();
+            throw new EOFException("nothing read from the key store file:" + path);
+        }
         fis.close();
-        String json = new String(data, "UTF-8");
+        String json = new String(data, StandardCharsets.UTF_8);
         Map<String, Object> table = Utils.jsonDecode(json);
         boolean dirty = isDirty;
 

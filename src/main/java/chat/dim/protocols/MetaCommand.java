@@ -28,7 +28,7 @@ public class MetaCommand extends CommandContent {
         this.meta       = content.meta;
     }
 
-    public MetaCommand(Map<String, Object> dictionary) throws UnsupportedEncodingException, ClassNotFoundException {
+    public MetaCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
         this.identifier = ID.getInstance(dictionary.get("ID"));
         this.meta       = Meta.getInstance(dictionary.get("meta"));

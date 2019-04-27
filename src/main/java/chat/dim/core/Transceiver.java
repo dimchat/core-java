@@ -15,6 +15,7 @@ import chat.dim.mkm.entity.Meta;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      *  @param split - if it's a group message, split it before sending out
      *  @return NO on data/delegate error
      */
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split)
-            throws NoSuchFieldException, UnsupportedEncodingException {
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
         ID groupID = ID.getInstance(iMsg.content.group);
@@ -59,7 +59,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             Group group = barrack.getGroup(groupID);
             int count = barrack.getCountOfMembers(group);
             assert count > 0;
-            List<String> members = new ArrayList<>(count);
+            List<Object> members = new ArrayList<>(count);
             ID item;
             for (int index = 0; index < count; index++) {
                 item = barrack.getMemberAtIndex(index, group);
@@ -89,9 +89,9 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         return OK;
     }
 
-    private boolean sendMessage(ReliableMessage rMsg, Callback callback) throws UnsupportedEncodingException {
+    private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
         String json = Utils.jsonEncode(rMsg);
-        byte[] data = json.getBytes("UTF-8");
+        byte[] data = json.getBytes(StandardCharsets.UTF_8);
         return delegate.sendPackage(data, new CompletionHandler() {
             @Override
             public void onSuccess() {
@@ -140,7 +140,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
         if (groupID != null) {
             // group message
-            List<ID> members;
+            List<Object> members;
             if (receiver.getType().isCommunicator()) {
                 // split group message
                 members = new ArrayList<>();
@@ -150,12 +150,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
                 members = barrack.getMembers(group);
             }
             assert members != null;
-            List<String> array = new ArrayList<>(members.size());
-            for (ID item : members) {
-                array.add(item.toString());
-            }
             key = store.getKey(user.identifier, groupID);
-            sMsg = iMsg.encrypt(key, array);
+            sMsg = iMsg.encrypt(key, members);
         } else {
             // personal message
             key = store.getKey(user.identifier, receiver);
@@ -174,8 +170,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      *  @param users - my accounts
      *  @return InstantMessage object
      */
-    private InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users)
-            throws IOException, ClassNotFoundException {
+    private InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users) throws IOException, ClassNotFoundException {
         ID sender = ID.getInstance(rMsg.envelope.sender);
         ID receiver = ID.getInstance(rMsg.envelope.receiver);
 
@@ -286,25 +281,15 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         }
         String json = Utils.jsonEncode(content);
         byte[] data;
-        try {
-            data = json.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
+        data = json.getBytes(StandardCharsets.UTF_8);
         return key.encrypt(data);
     }
 
     @Override
-    public byte[] encryptKey(InstantMessage iMsg, Map<String, Object> password, String receiver) {
+    public byte[] encryptKey(InstantMessage iMsg, Map<String, Object> password, Object receiver) {
         String json = Utils.jsonEncode(password);
         byte[] data;
-        try {
-            data = json.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
+        data = json.getBytes(StandardCharsets.UTF_8);
         Barrack barrack = Barrack.getInstance();
         PublicKey publicKey = barrack.getPublicKey(ID.getInstance(receiver));
         if (publicKey == null) {
@@ -316,8 +301,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     //-------- ISecureMessageDelegate
 
     @Override
-    public Map<String, Object> decryptKey(SecureMessage sMsg, byte[] keyData, String sender, String receiver) {
-        Barrack barrack = Barrack.getInstance();
+    public Map<String, Object> decryptKey(SecureMessage sMsg, byte[] keyData, Object sender, Object receiver) {
         KeyStore store = KeyStore.getInstance();
         ID from = ID.getInstance(sender);
         ID to = ID.getInstance(receiver);
@@ -328,13 +312,16 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             // FIXME: check sMsg.envelope.receiver == user.identifier
             PrivateKey privateKey = user.privateKey;
             byte[] plaintext = privateKey.decrypt(keyData);
+            if (plaintext == null) {
+                throw new NullPointerException("failed to decrypt key:" + keyData);
+            }
+            String json = new String(plaintext, StandardCharsets.UTF_8);
             try {
                 // create symmetric key from JsON data
-                String json = new String(plaintext, "UTF-8");
                 key = SymmetricKey.getInstance(Utils.jsonDecode(json));
                 // set the new key in key store
                 store.setKey(key, from, to);
-            } catch (UnsupportedEncodingException | ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
@@ -360,16 +347,16 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             throw new NullPointerException("failed to decrypt data:" + password);
         }
         try {
-            String json = new String(plaintext, "UTF-8");
+            String json = new String(plaintext, StandardCharsets.UTF_8);
             return Content.getInstance(Utils.jsonDecode(json));
-        } catch (UnsupportedEncodingException | ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     @Override
-    public byte[] signData(SecureMessage sMsg, byte[] data, String sender) {
+    public byte[] signData(SecureMessage sMsg, byte[] data, Object sender) {
         Barrack barrack = Barrack.getInstance();
         User user = barrack.getUser(ID.getInstance(sender));
         PrivateKey privateKey = user.privateKey;
@@ -379,7 +366,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     //-------- IReliableMessageDelegate
 
     @Override
-    public boolean verifyData(ReliableMessage rMsg, byte[] data, byte[] signature, String sender) {
+    public boolean verifyData(ReliableMessage rMsg, byte[] data, byte[] signature, Object sender) {
         Barrack barrack = Barrack.getInstance();
         Account account = barrack.getAccount(ID.getInstance(sender));
         PublicKey publicKey = account.publicKey;

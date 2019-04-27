@@ -9,6 +9,7 @@ import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 /**
@@ -34,7 +35,7 @@ public class ProfileCommand extends MetaCommand {
         this.signature = content.signature;
     }
 
-    public ProfileCommand(HashMap<String, Object> dictionary) throws UnsupportedEncodingException, ClassNotFoundException {
+    public ProfileCommand(HashMap<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
         // profile in JsON string
         String json   = (String) dictionary.get("profile");
@@ -43,7 +44,7 @@ public class ProfileCommand extends MetaCommand {
             this.profile   = null;
             this.signature = null;
         } else {
-            byte[] data = json.getBytes("UTF-8");
+            byte[] data = json.getBytes(StandardCharsets.UTF_8);
             byte[] signature = Utils.base64Decode(base64);
             // get public key with ID
             PublicKey publicKey = Barrack.getInstance().getPublicKey(identifier);
@@ -73,23 +74,19 @@ public class ProfileCommand extends MetaCommand {
         this(identifier, null, profile, signature);
     }
 
-    public ProfileCommand(ID identifier, Meta meta, String profile, PrivateKey privateKey)
-            throws UnsupportedEncodingException {
-        this(identifier, meta, profile, privateKey.sign(profile.getBytes("UTF-8")));
+    public ProfileCommand(ID identifier, Meta meta, String profile, PrivateKey privateKey) {
+        this(identifier, meta, profile, privateKey.sign(profile.getBytes(StandardCharsets.UTF_8)));
     }
 
-    public ProfileCommand(ID identifier, String profile, PrivateKey privateKey)
-            throws UnsupportedEncodingException {
+    public ProfileCommand(ID identifier, String profile, PrivateKey privateKey) {
         this(identifier, null, profile, privateKey);
     }
 
-    public ProfileCommand(ID identifier, Meta meta, Profile profile, PrivateKey privateKey)
-            throws UnsupportedEncodingException {
+    public ProfileCommand(ID identifier, Meta meta, Profile profile, PrivateKey privateKey) {
         this(identifier, meta, Utils.jsonEncode(profile), privateKey);
     }
 
-    public ProfileCommand(ID identifier, Profile profile, PrivateKey privateKey)
-            throws UnsupportedEncodingException {
+    public ProfileCommand(ID identifier, Profile profile, PrivateKey privateKey) {
         this(identifier, null, profile, privateKey);
     }
 }
