@@ -13,6 +13,8 @@ repositories {
 }
 
 dependencies {
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.47'
+
     compile group: 'chat.dim', name: 'DaoKeDao', version: '1.0+'
     compile group: 'chat.dim', name: 'MingKeMing', version: '1.0+'
 

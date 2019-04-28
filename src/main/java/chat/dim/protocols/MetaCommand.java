@@ -22,27 +22,21 @@ public class MetaCommand extends CommandContent {
     public final ID identifier;
     public final Meta meta;
 
-    public MetaCommand(MetaCommand content) {
-        super(content);
-        this.identifier = content.identifier;
-        this.meta       = content.meta;
-    }
-
     public MetaCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
-        this.identifier = ID.getInstance(dictionary.get("ID"));
-        this.meta       = Meta.getInstance(dictionary.get("meta"));
+        identifier = ID.getInstance(dictionary.get("ID"));
+        meta       = Meta.getInstance(dictionary.get("meta"));
     }
 
     public MetaCommand(ID identifier, Meta meta) {
         super(META);
         // ID
         this.identifier = identifier;
-        this.dictionary.put("ID", identifier.toString());
+        dictionary.put("ID", identifier);
         // meta
         this.meta = meta;
         if (meta != null) {
-            this.dictionary.put("meta", meta);
+            dictionary.put("meta", meta);
         }
     }
 }

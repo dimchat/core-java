@@ -3,7 +3,6 @@ package chat.dim.core;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.crypto.Utils;
 import chat.dim.dkd.*;
 import chat.dim.dkd.content.Content;
 import chat.dim.dkd.content.ForwardContent;
@@ -14,7 +13,6 @@ import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +43,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
-        ID groupID = ID.getInstance(iMsg.content.group);
+        ID groupID = ID.getInstance(iMsg.content.getGroup());
         ReliableMessage rMsg = encryptAndSignMessage(iMsg);
         if (rMsg == null) {
             // TODO: set iMsg.state = error
@@ -90,7 +88,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     }
 
     private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
-        String json = Utils.jsonEncode(rMsg);
+        String json = JsON.encode(rMsg);
         byte[] data = json.getBytes(StandardCharsets.UTF_8);
         return delegate.sendPackage(data, new CompletionHandler() {
             @Override
@@ -127,7 +125,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
         // 1. encrypt 'content' to 'data' for receiver
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
-        ID groupID = ID.getInstance(iMsg.content.group);
+        ID groupID = ID.getInstance(iMsg.content.getGroup());
         if (groupID != null) {
             // if 'group' exists and the 'receiver' is a group ID,
             // they must be equal
@@ -179,7 +177,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         Meta meta = barrack.getMeta(sender);
         if (meta == null) {
             // first contact, try meta in message package
-            meta = Meta.getInstance(rMsg.meta);
+            meta = Meta.getInstance(rMsg.getMeta());
             assert meta.matches(sender);
             barrack.saveMeta(meta, sender);
         }
@@ -279,7 +277,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             e.printStackTrace();
             return null;
         }
-        String json = Utils.jsonEncode(content);
+        String json = JsON.encode(content);
         byte[] data;
         data = json.getBytes(StandardCharsets.UTF_8);
         return key.encrypt(data);
@@ -287,7 +285,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public byte[] encryptKey(InstantMessage iMsg, Map<String, Object> password, Object receiver) {
-        String json = Utils.jsonEncode(password);
+        String json = JsON.encode(password);
         byte[] data;
         data = json.getBytes(StandardCharsets.UTF_8);
         Barrack barrack = Barrack.getInstance();
@@ -310,7 +308,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             // decrypt key data with the receiver's private key
             User user = store.currentUser;
             // FIXME: check sMsg.envelope.receiver == user.identifier
-            PrivateKey privateKey = user.privateKey;
+            PrivateKey privateKey = user.getPrivateKey();
             byte[] plaintext = privateKey.decrypt(keyData);
             if (plaintext == null) {
                 throw new NullPointerException("failed to decrypt key:" + keyData);
@@ -318,7 +316,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             String json = new String(plaintext, StandardCharsets.UTF_8);
             try {
                 // create symmetric key from JsON data
-                key = SymmetricKey.getInstance(Utils.jsonDecode(json));
+                key = SymmetricKey.getInstance(JsON.decode(json));
                 // set the new key in key store
                 store.setKey(key, from, to);
             } catch (ClassNotFoundException e) {
@@ -348,7 +346,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         }
         try {
             String json = new String(plaintext, StandardCharsets.UTF_8);
-            return Content.getInstance(Utils.jsonDecode(json));
+            return Content.getInstance(JsON.decode(json));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -359,7 +357,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public byte[] signData(SecureMessage sMsg, byte[] data, Object sender) {
         Barrack barrack = Barrack.getInstance();
         User user = barrack.getUser(ID.getInstance(sender));
-        PrivateKey privateKey = user.privateKey;
+        PrivateKey privateKey = user.getPrivateKey();
         return privateKey.sign(data);
     }
 
@@ -369,7 +367,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public boolean verifyData(ReliableMessage rMsg, byte[] data, byte[] signature, Object sender) {
         Barrack barrack = Barrack.getInstance();
         Account account = barrack.getAccount(ID.getInstance(sender));
-        PublicKey publicKey = account.publicKey;
+        PublicKey publicKey = account.getPublicKey();
         return publicKey.verify(data, signature);
     }
 }

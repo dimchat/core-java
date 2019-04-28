@@ -11,41 +11,31 @@ public class GroupCommand extends HistoryCommand {
 
     // Group ID for group message already defined in DKD.MessageContent
     public ID getGroup() {
-        if (this.group == null) {
-            return ID.getInstance(dictionary.get("group"));
-        } else {
-            return ID.getInstance(this.group);
-        }
+        return ID.getInstance(super.getGroup());
     }
 
     public final ID member;
     public final List<ID> members;
 
-    public GroupCommand(GroupCommand content) {
-        super(content);
-        this.member  = content.member;
-        this.members = content.members;
-    }
-
     @SuppressWarnings("unchecked")
     public GroupCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        Object member = dictionary.get("member");
-        if (member == null) {
-            this.member  = null;
-            List<String> members = (List<String>) dictionary.get("members");
-            if (members == null) {
-                this.members = null;
+        Object object = dictionary.get("member");
+        if (object == null) {
+            member  = null;
+            List<Object> array = (List<Object>) dictionary.get("members");
+            if (array == null) {
+                members = null;
             } else {
-                List<ID> array = new ArrayList<>(members.size());
-                for (String string: members) {
-                    array.add(ID.getInstance(string));
+                // transform String to ID
+                members = new ArrayList<>(array.size());
+                for (Object item: array) {
+                    members.add(ID.getInstance(item));
                 }
-                this.members = array;
             }
         } else {
-            this.member  = ID.getInstance(member);
-            this.members = null;
+            member  = ID.getInstance(object);
+            members = null;
         }
     }
 
@@ -58,13 +48,12 @@ public class GroupCommand extends HistoryCommand {
      *      group   : "{GROUP_ID}",
      *  }
      */
-    public GroupCommand(String command, ID group) {
+    public GroupCommand(String command, ID groupID) {
         super(command);
-        this.group   = group.toString();
-        this.member  = null;
-        this.members = null;
-
-        this.dictionary.put("group", group.toString());
+        setGroup(groupID);
+        member  = null;
+        members = null;
+        dictionary.put("group", groupID);
     }
 
     /**
@@ -77,14 +66,14 @@ public class GroupCommand extends HistoryCommand {
      *      member  : "{MEMBER_ID}",
      *  }
      */
-    public GroupCommand(String command, ID group, ID member) {
+    public GroupCommand(String command, ID groupID, ID memberID) {
         super(command);
-        this.group   = group.toString();
-        this.member  = member;
-        this.members = null;
+        setGroup(groupID);
+        member  = memberID;
+        members = null;
 
-        this.dictionary.put("group", group.toString());
-        this.dictionary.put("member", member.toString());
+        dictionary.put("group", groupID);
+        dictionary.put("member", memberID);
     }
 
     /**
@@ -97,18 +86,13 @@ public class GroupCommand extends HistoryCommand {
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    public GroupCommand(String command, ID group, List<ID> members) {
+    public GroupCommand(String command, ID groupID, List<ID> memberList) {
         super(command);
-        this.group   = group.toString();
-        this.member  = null;
-        this.members = members;
-
-        List<String> array = new ArrayList<>(members.size());
-        for (ID member : members) {
-            array.add(member.toString());
-        }
-        this.dictionary.put("members", array);
-        this.dictionary.put("group", group.toString());
+        setGroup(groupID);
+        member  = null;
+        members = memberList;
+        dictionary.put("members", memberList);
+        dictionary.put("group", groupID);
     }
 }
 

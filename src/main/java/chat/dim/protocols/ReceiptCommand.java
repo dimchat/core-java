@@ -25,51 +25,55 @@ public class ReceiptCommand extends CommandContent {
     public final String message;
 
     // original message info
-    public Envelope envelope;
-    public byte[] signature;
-
-    public ReceiptCommand(ReceiptCommand content) {
-        super(content);
-        this.message   = content.message;
-        this.envelope  = content.envelope;
-        this.signature = content.signature;
-    }
+    private Envelope envelope;
+    private byte[] signature;
 
     public ReceiptCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        this.message = (String) dictionary.get("message");
-        this.envelope = Envelope.getInstance(dictionary.get("envelope"));
+        message = (String) dictionary.get("message");
+        envelope = Envelope.getInstance(dictionary.get("envelope"));
         // signature
-        Object signature = dictionary.get("signature");
-        if (signature == null) {
-            this.signature = null;
+        String base64 = (String) dictionary.get("signature");
+        if (base64 == null) {
+            signature = null;
         } else {
-            this.signature = Utils.base64Decode((String) signature);
+            signature = Utils.base64Decode(base64);
         }
     }
 
-    public ReceiptCommand(String message) {
+    public ReceiptCommand(String text) {
         super(RECEIPT);
-        this.message   = message;
-        this.envelope  = null;
-        this.signature = null;
+        message   = text;
+        envelope  = null;
+        signature = null;
+        dictionary.put("message", text);
     }
 
-    public void setEnvelope(Envelope envelope) {
-        this.envelope = envelope;
-        if (envelope == null) {
-            this.dictionary.remove("envelope");
+    //-------- setters/getters --------
+
+    public void setEnvelope(Envelope env) {
+        envelope = env;
+        if (env == null) {
+            dictionary.remove("envelope");
         } else {
-            this.dictionary.put("envelope", envelope);
+            dictionary.put("envelope", env);
         }
     }
 
-    public void setSignature(byte[] signature) {
-        this.signature = signature;
-        if (signature == null) {
-            this.dictionary.remove("signature");
+    public Envelope getEnvelope() {
+        return envelope;
+    }
+
+    public void setSignature(byte[] sig) {
+        signature = sig;
+        if (sig == null) {
+            dictionary.remove("signature");
         } else {
-            this.dictionary.put("signature", Utils.base64Encode(signature));
+            dictionary.put("signature", Utils.base64Encode(sig));
         }
+    }
+
+    public byte[] getSignature() {
+        return signature;
     }
 }

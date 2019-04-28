@@ -28,47 +28,40 @@ public class HandshakeCommand extends CommandContent {
     public final String sessionKey;
     public final int state;
 
-    public HandshakeCommand(HandshakeCommand content) {
-        super(content);
-        this.message    = content.message;
-        this.sessionKey = content.sessionKey;
-        this.state      = content.state;
-    }
-
     public HandshakeCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        this.message    = (String) dictionary.get("message");
-        this.sessionKey = (String) dictionary.get("session");
-        this.state      = getState(this.message, this.sessionKey);
+        message    = (String) dictionary.get("message");
+        sessionKey = (String) dictionary.get("session");
+        state      = getState(message, sessionKey);
     }
 
-    public HandshakeCommand(String message, String sessionKey) {
+    public HandshakeCommand(String text, String session) {
         super(HANDSHAKE);
         // message
-        this.message = message;
-        this.dictionary.put("message", message);
+        message = text;
+        dictionary.put("message", text);
         // session key
-        this.sessionKey = sessionKey;
-        this.dictionary.put("session", sessionKey);
+        sessionKey = session;
+        dictionary.put("session", sessionKey);
         // state
-        this.state = getState(message, sessionKey);
+        state = getState(message, sessionKey);
     }
 
-    public HandshakeCommand(String sessionKey) {
-        this("Hello world!", sessionKey);
+    public HandshakeCommand(String session) {
+        this("Hello world!", session);
     }
 
-    public static int getState(String message, String sessionKey) {
+    public static int getState(String text, String session) {
         // check message
-        if (message == null) {
+        if (text == null) {
             return INIT;
-        } else if (message.equals("DIM!") || message.equals("OK!")) {
+        } else if (text.equals("DIM!") || text.equals("OK!")) {
             return SUCCESS;
-        } else if (message.equals("DIM?")) {
+        } else if (text.equals("DIM?")) {
             return AGAIN;
         }
         // check session key
-        if (sessionKey == null) {
+        if (session == null) {
             return START;
         } else {
             return RESTART;

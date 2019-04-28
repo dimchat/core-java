@@ -1,7 +1,6 @@
 package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.crypto.Utils;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
@@ -72,7 +71,7 @@ public final class KeyStore {
             file.delete();
         }
         FileOutputStream fos = new FileOutputStream(file);
-        String json = Utils.jsonEncode(keyTable);
+        String json = JsON.encode(keyTable);
         fos.write(json.getBytes(StandardCharsets.UTF_8));
         fos.close();
         return true;
@@ -93,7 +92,7 @@ public final class KeyStore {
         }
         fis.close();
         String json = new String(data, StandardCharsets.UTF_8);
-        Map<String, Object> table = Utils.jsonDecode(json);
+        Map<String, Object> table = JsON.decode(json);
         boolean dirty = isDirty;
 
         Map<String, Object> map;

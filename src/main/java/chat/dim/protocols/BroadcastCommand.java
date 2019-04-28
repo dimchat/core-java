@@ -20,19 +20,14 @@ public class BroadcastCommand extends CommandContent {
 
     public final String title;
 
-    public BroadcastCommand(BroadcastCommand content) {
-        super(content);
-        this.title = content.title;
-    }
-
     public BroadcastCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        this.title = (String) dictionary.get("title");
+        title = (String) dictionary.get("title");
     }
 
-    public BroadcastCommand(String title) {
+    public BroadcastCommand(String message) {
         super(BROADCAST);
-        this.title = title;
-        this.dictionary.put("title", title);
+        title = message;
+        dictionary.put("title", message);
     }
 }

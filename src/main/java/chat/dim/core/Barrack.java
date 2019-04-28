@@ -2,7 +2,6 @@ package chat.dim.core;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
-import chat.dim.crypto.Utils;
 import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
 
@@ -62,7 +61,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         fis.read(data);
         fis.close();
         String json = new String(data, StandardCharsets.UTF_8);
-        return Meta.getInstance(Utils.jsonDecode(json));
+        return Meta.getInstance(JsON.decode(json));
     }
 
     public boolean saveMeta(Meta meta, ID identifier) throws IOException {
@@ -87,7 +86,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
 
         // save into JsON file
         FileOutputStream fos = new FileOutputStream(file);
-        String json = Utils.jsonEncode(meta);
+        String json = JsON.encode(meta);
         fos.write(json.getBytes(StandardCharsets.UTF_8));
         fos.close();
         return true;
