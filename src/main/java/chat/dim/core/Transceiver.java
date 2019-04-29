@@ -40,7 +40,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      *  @param split - if it's a group message, split it before sending out
      *  @return NO on data/delegate error
      */
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException {
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException, ClassNotFoundException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
         ID groupID = ID.getInstance(iMsg.content.getGroup());
@@ -109,7 +109,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      *  @param iMsg - instant message
      *  @return ReliableMessage Object
      */
-    private ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
+    private ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException, ClassNotFoundException {
         Barrack barrack = Barrack.getInstance();
         KeyStore store = KeyStore.getInstance();
         User user = store.currentUser;
@@ -149,10 +149,20 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             }
             assert members != null;
             key = store.getKey(user.identifier, groupID);
+            if (key == null) {
+                // create a new key & save it into the Key Store
+                key = SymmetricKey.create(SymmetricKey.AES);
+                store.setKey(key, user.identifier, groupID);
+            }
             sMsg = iMsg.encrypt(key, members);
         } else {
             // personal message
             key = store.getKey(user.identifier, receiver);
+            if (key == null) {
+                // create a new key & save it into the Key Store
+                key = SymmetricKey.create(SymmetricKey.AES);
+                store.setKey(key, user.identifier, receiver);
+            }
             sMsg = iMsg.encrypt(key);
         }
 
@@ -300,13 +310,23 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public Map<String, Object> decryptKey(SecureMessage sMsg, byte[] keyData, Object sender, Object receiver) {
+        Barrack barrack = Barrack.getInstance();
         KeyStore store = KeyStore.getInstance();
         ID from = ID.getInstance(sender);
         ID to = ID.getInstance(receiver);
         SymmetricKey key = null;
         if (keyData != null) {
             // decrypt key data with the receiver's private key
+            ID identifier = ID.getInstance(sMsg.envelope.receiver);
             User user = store.currentUser;
+            if (user == null || !user.identifier.equals(identifier)) {
+                if (identifier.getType().isCommunicator()) {
+                    user = barrack.getUser(identifier);
+                }
+                if (user == null) {
+                    throw new IllegalArgumentException("receiver error:" + sMsg);
+                }
+            }
             // FIXME: check sMsg.envelope.receiver == user.identifier
             PrivateKey privateKey = user.getPrivateKey();
             byte[] plaintext = privateKey.decrypt(keyData);

@@ -29,25 +29,12 @@ public final class KeyStore {
     private boolean isDirty = false;
 
     public SymmetricKey getKey(ID sender, ID receiver) {
-        SymmetricKey key;
         Map<Address, SymmetricKey> keyMap = keyTable.get(sender.address);
         if (keyMap == null) {
-            key = null;
+            return null;
         } else {
-            key = keyMap.get(receiver.address);
+            return keyMap.get(receiver.address);
         }
-        if (key == null) {
-            // create a new key & save it into the Key Store
-            Map<String, Object> map = new HashMap<>();
-            map.put("algorithm", "AES");
-            try {
-                key = SymmetricKey.getInstance(map);
-                setKey(key, sender, receiver);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        return key;
     }
 
     public void setKey(SymmetricKey key, ID sender, ID receiver) {
