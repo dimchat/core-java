@@ -4,13 +4,14 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.*;
-import chat.dim.dkd.content.Content;
-import chat.dim.dkd.content.ForwardContent;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.protocols.ContentType;
+import chat.dim.protocols.ForwardContent;
+import chat.dim.protocols.file.FileContent;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,10 +36,12 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     /**
      *  Send message (secured + certified) to target station
      *
-     *  @param iMsg - instant message
-     *  @param callback - callback function
-     *  @param split - if it's a group message, split it before sending out
-     *  @return NO on data/delegate error
+     * @param iMsg - instant message
+     * @param callback - callback function
+     * @param split - if it's a group message, split it before sending out
+     * @return NO on data/delegate error
+     * @throws NoSuchFieldException when 'group' not found
+     * @throws ClassNotFoundException when key algorithm not supported
      */
     public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException, ClassNotFoundException {
         // transforming
@@ -234,7 +237,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         }
 
         // 3. check: top-secret message
-        if (iMsg.content.type == Content.FORWARD) {
+        if (iMsg.content.type == ContentType.FORWARD.value) {
             // do it again to drop the wrapper,
             // the secret inside the content is the real message
             ForwardContent content = (ForwardContent) iMsg.content;
@@ -247,36 +250,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         return iMsg;
     }
 
-    //-------- IInstantMessageDelegate
-
-    @Override
-    public String uploadFileData(InstantMessage iMsg, byte[] data, String filename, Map<String, Object> password) {
-        SymmetricKey key;
-        try {
-            key = SymmetricKey.getInstance(password);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-        byte[] cipherText = key.encrypt(data);
-        return delegate.uploadFileData(cipherText, iMsg);
-    }
-
-    @Override
-    public byte[] downloadFileData(InstantMessage iMsg, String url, Map<String, Object> password) {
-        byte[] cipherText = delegate.downloadFileData(url, iMsg);
-        if (cipherText == null) {
-            return null;
-        }
-        SymmetricKey key;
-        try {
-            key = SymmetricKey.getInstance(password);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return key.decrypt(cipherText);
-    }
+    //-------- InstantMessageDelegate
 
     @Override
     public byte[] encryptContent(InstantMessage iMsg, Content content, Map<String, Object> password) {
@@ -287,6 +261,29 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             e.printStackTrace();
             return null;
         }
+
+        // check attachment for File/Image/Audio/Video message content
+        int type = content.type;
+        if (type == ContentType.FILE.value ||
+                type == ContentType.IMAGE.value ||
+                type == ContentType.AUDIO.value ||
+                type == ContentType.VIDEO.value) {
+            // upload file data onto CDN and save the URL in message content
+            FileContent file = new FileContent(content);
+            byte[] data = file.getData();
+            if (data != null) {
+                // encrypt it first
+                data = key.encrypt(data);
+                // upload encrypted data to CDN
+                String url = delegate.uploadFileData(data, iMsg);
+                if (url != null) {
+                    file.setUrl(url);
+                    file.setData(null);
+                    content = file;
+                }
+            }
+        }
+
         String json = JsON.encode(content);
         byte[] data;
         data = json.getBytes(StandardCharsets.UTF_8);
@@ -306,7 +303,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         return publicKey.encrypt(data);
     }
 
-    //-------- ISecureMessageDelegate
+    //-------- SecureMessageDelegate
 
     @Override
     public Map<String, Object> decryptKey(SecureMessage sMsg, byte[] keyData, Object sender, Object receiver) {
@@ -364,13 +361,30 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         if (plaintext == null) {
             throw new NullPointerException("failed to decrypt data:" + password);
         }
+
+        String json = new String(plaintext, StandardCharsets.UTF_8);
+        Map<String, Object> dictionary = JsON.decode(json);
+        Content content;
         try {
-            String json = new String(plaintext, StandardCharsets.UTF_8);
-            return Content.getInstance(JsON.decode(json));
+            content = Content.getInstance(dictionary);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
         }
+
+        // check attachment for File/Image/Audio/Video message content
+        int type = content.type;
+        if (type == ContentType.FILE.value ||
+                type == ContentType.IMAGE.value ||
+                type == ContentType.AUDIO.value ||
+                type == ContentType.VIDEO.value) {
+            // save symmetric key for decrypted file data after download from CDN
+            FileContent file = new FileContent(content);
+            file.setPassword(key);
+            content = file;
+        }
+
+        return content;
     }
 
     @Override
@@ -381,7 +395,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         return privateKey.sign(data);
     }
 
-    //-------- IReliableMessageDelegate
+    //-------- ReliableMessageDelegate
 
     @Override
     public boolean verifyData(ReliableMessage rMsg, byte[] data, byte[] signature, Object sender) {

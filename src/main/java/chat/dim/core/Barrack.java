@@ -104,6 +104,8 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
     /**
      * Call it when receive 'UIApplicationDidReceiveMemoryWarningNotification',
      * this will remove 50% of unused objects from the cache
+     *
+     * @return reduced object count
      */
     public int reduceMemory() {
         int count = 0;

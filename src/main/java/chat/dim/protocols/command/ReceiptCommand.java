@@ -1,8 +1,8 @@
-package chat.dim.protocols;
+package chat.dim.protocols.command;
 
 import chat.dim.dkd.Envelope;
 import chat.dim.dkd.Utils;
-import chat.dim.dkd.content.CommandContent;
+import chat.dim.protocols.CommandContent;
 
 import java.util.Map;
 

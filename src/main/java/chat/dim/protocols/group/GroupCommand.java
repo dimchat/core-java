@@ -1,7 +1,7 @@
-package chat.dim.protocols;
+package chat.dim.protocols.group;
 
-import chat.dim.dkd.content.HistoryCommand;
 import chat.dim.mkm.entity.ID;
+import chat.dim.protocols.HistoryCommand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class GroupCommand extends HistoryCommand {
         }
     }
 
-    /**
+    /*
      *  Group history command: {
      *      type : 0x89,
      *      sn   : 123,
@@ -56,7 +56,7 @@ public class GroupCommand extends HistoryCommand {
         dictionary.put("group", groupID);
     }
 
-    /**
+    /*
      *  Group history command: {
      *      type : 0x89,
      *      sn   : 123,
@@ -76,7 +76,7 @@ public class GroupCommand extends HistoryCommand {
         dictionary.put("member", memberID);
     }
 
-    /**
+    /*
      *  Group history command: {
      *      type : 0x89,
      *      sn   : 123,

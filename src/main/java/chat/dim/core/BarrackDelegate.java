@@ -8,9 +8,9 @@ import chat.dim.mkm.entity.Meta;
 
 public interface BarrackDelegate {
 
-    public boolean saveMeta(Meta meta, ID identifier);
+    boolean saveMeta(Meta meta, ID identifier);
 
-    public Account getAccount(ID identifier);
-    public User getUser(ID identifier);
-    public Group getGroup(ID identifier);
+    Account getAccount(ID identifier);
+    User getUser(ID identifier);
+    Group getGroup(ID identifier);
 }

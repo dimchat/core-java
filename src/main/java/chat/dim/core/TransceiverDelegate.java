@@ -11,7 +11,7 @@ public interface TransceiverDelegate {
      *  @param handler - completion handler
      *  @return NO on data/delegate error
      */
-    public boolean sendPackage(byte[] data, CompletionHandler handler);
+    boolean sendPackage(byte[] data, CompletionHandler handler);
 
     /**
      *  Upload encrypted data to CDN
@@ -20,7 +20,7 @@ public interface TransceiverDelegate {
      *  @param iMsg - instant message
      *  @return download URL
      */
-    public String uploadFileData(byte[] data, InstantMessage iMsg);
+    String uploadFileData(byte[] data, InstantMessage iMsg);
 
     /**
      *  Download encrypted data from CDN, and decrypt it when finished
@@ -29,5 +29,5 @@ public interface TransceiverDelegate {
      *  @param iMsg - instant message
      *  @return encrypted file data
      */
-    public byte[] downloadFileData(String url, InstantMessage iMsg);
+    byte[] downloadFileData(String url, InstantMessage iMsg);
 }

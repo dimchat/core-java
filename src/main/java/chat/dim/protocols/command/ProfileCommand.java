@@ -1,4 +1,4 @@
-package chat.dim.protocols;
+package chat.dim.protocols.command;
 
 import chat.dim.core.Barrack;
 import chat.dim.core.JsON;

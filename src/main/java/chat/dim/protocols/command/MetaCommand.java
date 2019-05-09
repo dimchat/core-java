@@ -1,10 +1,9 @@
-package chat.dim.protocols;
+package chat.dim.protocols.command;
 
-import chat.dim.dkd.content.CommandContent;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.protocols.CommandContent;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
