@@ -1,7 +1,6 @@
 package chat.dim.protocols;
 
 import chat.dim.dkd.Content;
-import chat.dim.protocols.ContentType;
 
 import java.util.Map;
 

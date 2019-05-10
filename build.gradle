@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'maven'
+    id 'signing'
 }
 
 group 'chat.dim'
@@ -22,10 +24,27 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-uploadArchives {
-    repositories {
-        flatDir {
-            dirs mavenLocal().getUrl()
-        }
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
+}
+
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourceJar
+    archives javadocJar
+}
+
+signing {
+    sign configurations.archives
 }

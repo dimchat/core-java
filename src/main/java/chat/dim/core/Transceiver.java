@@ -109,24 +109,15 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     /**
      *  Pack instant message to reliable message for delivering
      *
-     *  @param iMsg - instant message
-     *  @return ReliableMessage Object
+     * @param iMsg - instant message
+     * @return ReliableMessage Object
+     * @throws NoSuchFieldException when encrypt message content
      */
-    private ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException, ClassNotFoundException {
-        Barrack barrack = Barrack.getInstance();
-        KeyStore store = KeyStore.getInstance();
-        User user = store.currentUser;
-        if (user == null) {
-            throw new NullPointerException("current user not set to key store");
-        }
-
+    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
         if (iMsg.delegate == null) {
             iMsg.delegate = this;
         }
-        SymmetricKey key = null;
-        SecureMessage sMsg = null;
 
-        // 1. encrypt 'content' to 'data' for receiver
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
         ID groupID = ID.getInstance(iMsg.content.getGroup());
         if (groupID != null) {
@@ -139,6 +130,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             }
         }
 
+        // 1. encrypt 'content' to 'data' for receiver
+        SecureMessage sMsg;
         if (groupID != null) {
             // group message
             List<Object> members;
@@ -147,26 +140,15 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
                 members = new ArrayList<>();
                 members.add(receiver);
             } else {
+                Barrack barrack = Barrack.getInstance();
                 Group group = barrack.getGroup(groupID);
                 members = barrack.getMembers(group);
             }
             assert members != null;
-            key = store.getKey(user.identifier, groupID);
-            if (key == null) {
-                // create a new key & save it into the Key Store
-                key = SymmetricKey.create(SymmetricKey.AES);
-                store.setKey(key, user.identifier, groupID);
-            }
-            sMsg = iMsg.encrypt(key, members);
+            sMsg = iMsg.encrypt(getKey(groupID), members);
         } else {
             // personal message
-            key = store.getKey(user.identifier, receiver);
-            if (key == null) {
-                // create a new key & save it into the Key Store
-                key = SymmetricKey.create(SymmetricKey.AES);
-                store.setKey(key, user.identifier, receiver);
-            }
-            sMsg = iMsg.encrypt(key);
+            sMsg = iMsg.encrypt(getKey(receiver));
         }
 
         // 2. sign 'data' by sender
@@ -174,14 +156,47 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         return sMsg.sign();
     }
 
+    private SymmetricKey getKey(ID receiver) {
+        KeyStore store = KeyStore.getInstance();
+        User user = store.currentUser;
+        if (user == null) {
+            throw new NullPointerException("current user not set to key store");
+        }
+        ID sender = user.identifier;
+        SymmetricKey key;
+
+        // 1. get from key store
+        key = store.getKey(sender, receiver);
+        if (key != null) {
+            return key;
+        }
+
+        // 2. get from delegate
+        key = delegate.createCipherKey(sender, receiver);
+        if (key == null) {
+            // 3. create a new key
+            try {
+                key = SymmetricKey.create(SymmetricKey.AES);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 4. save it into the Key Store
+        store.setKey(key, sender, receiver);
+        return key;
+    }
+
     /**
      *  Extract instant message from a reliable message received
      *
-     *  @param rMsg - reliable message
-     *  @param users - my accounts
-     *  @return InstantMessage object
+     * @param rMsg - reliable message
+     * @param users - my accounts
+     * @return InstantMessage object
+     * @throws IOException when saving meta
+     * @throws ClassNotFoundException when creating meta
      */
-    private InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users) throws IOException, ClassNotFoundException {
+    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users) throws IOException, ClassNotFoundException {
         ID sender = ID.getInstance(rMsg.envelope.sender);
         ID receiver = ID.getInstance(rMsg.envelope.receiver);
 
@@ -378,9 +393,18 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
                 type == ContentType.IMAGE.value ||
                 type == ContentType.AUDIO.value ||
                 type == ContentType.VIDEO.value) {
-            // save symmetric key for decrypted file data after download from CDN
+            // download from CDN
             FileContent file = new FileContent(content);
-            file.setPassword(key);
+            String url = file.getUrl();
+            assert url != null;
+            byte[] fileData = delegate.downloadFileData(url, new InstantMessage(content, sMsg.envelope));
+            if (fileData != null) {
+                // decrypt file data
+                file.setData(key.decrypt(fileData));
+            } else {
+                // save symmetric key for decrypted file data after download from CDN
+                file.setPassword(key);
+            }
             content = file;
         }
 
