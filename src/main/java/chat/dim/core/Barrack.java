@@ -7,10 +7,7 @@ import chat.dim.mkm.entity.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class Barrack implements MetaDataSource, EntityDataSource, UserDataSource, GroupDataSource {
 
@@ -102,33 +99,31 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
     }
 
     /**
-     * Call it when receive 'UIApplicationDidReceiveMemoryWarningNotification',
-     * this will remove 50% of unused objects from the cache
+     * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
+     * this will remove 50% of cached objects
      *
      * @return reduced object count
      */
     public int reduceMemory() {
-        int count = 0;
-        count += reduceTable(metaMap);
-        count += reduceTable(accountMap);
-        count += reduceTable(userMap);
-        count += reduceTable(groupMap);
-        return count;
+        int finger = 0;
+        finger = thanos(metaMap, finger);
+        finger = thanos(accountMap, finger);
+        finger = thanos(userMap, finger);
+        finger = thanos(groupMap, finger);
+        return (finger & 1) + (finger >> 1);
     }
 
-    private int reduceTable(Map map) {
-        Set keys = map.keySet();
-        int index = 0;
-        int count = 0;
-        for (Object key : keys) {
-            if (index % 2 > 0) {
+    private int thanos(Map map, int finger) {
+        Iterator iterator = map.entrySet().iterator();
+        Map.Entry entry;
+        while (iterator.hasNext()) {
+            iterator.next();
+            if ((++finger & 1) == 0) {
                 continue;
             }
-            map.remove(key);
-            ++index;
-            ++count;
+            iterator.remove();
         }
-        return count;
+        return finger;
     }
 
     private void addAccount(Account account) {
