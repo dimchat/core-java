@@ -1,27 +1,87 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        //classpath "com.novoda:bintray-release:0.3.4"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
+    }
+}
+
 plugins {
+    id 'idea'
     id 'java'
     id 'maven'
     id 'signing'
 }
 
 group 'chat.dim'
-version '1.0-SNAPSHOT'
+//version '1.0-SNAPSHOT'
+version '0.1'
 
 sourceCompatibility = 1.8
 
 repositories {
-    mavenLocal()
+    jcenter()
     mavenCentral()
 }
 
 dependencies {
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.47'
 
-    compile group: 'chat.dim', name: 'DaoKeDao', version: '1.0+'
-    compile group: 'chat.dim', name: 'MingKeMing', version: '1.0+'
+    compile group: 'chat.dim', name: 'DaoKeDao', version: '0.1+'
+    compile group: 'chat.dim', name: 'MingKeMing', version: '0.1+'
 
     testCompile group: 'com.alibaba', name: 'fastjson', version: '1.2.47'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+def gitUrl = 'https://github.com/dimchat/core-java.git'
+def siteUrl = 'https://github.com/dimchat/core-java'
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'jar'
+                name 'DIMP'
+                description 'New protocol designed for decentralized instant messaging.'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://mit-license.org'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'moky'
+                        name 'Albert Moky'
+                        email 'albert.moky@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
 }
 
 javadoc {
@@ -47,4 +107,44 @@ artifacts {
 
 signing {
     sign configurations.archives
+}
+
+tasks.withType(Javadoc) {
+    options {
+        encoding 'UTF-8'
+        charSet 'UTF-8'
+        links 'http://docs.oracle.com/javase/7/docs/api'
+    }
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+bintray {
+    Properties properties = new Properties()
+    File file = project.rootProject.file('local.properties')
+    if (file != null && file.exists()) {
+        properties.load(file.newDataInputStream())
+        user = properties.getProperty('bintray.user')
+        key = properties.getProperty('bintray.apikey')
+    } else {
+        user = System.getenv('bintray.user')
+        key = System.getenv('bintray.apikey')
+    }
+
+    configurations = ['archives']
+    pkg {
+        userOrg = 'dimchat'
+        repo = 'core'
+        name = 'dimp'
+        desc = 'New protocol designed for decentralized instant messaging.'
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ['MIT']
+        publish = true
+        version {
+            gpg {
+                sign = true
+                passphrase = properties.getProperty('bintray.gpg.password')
+            }
+        }
+    }
 }

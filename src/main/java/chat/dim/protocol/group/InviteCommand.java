@@ -23,19 +23,19 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.protocol.group;
 
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
 
-public interface BarrackDelegate {
+import java.util.List;
 
-    boolean saveMeta(Meta meta, ID identifier);
+public class InviteCommand extends GroupCommand {
 
-    Account getAccount(ID identifier);
-    User getUser(ID identifier);
-    Group getGroup(ID identifier);
+    public InviteCommand(ID group, ID member) {
+        super(INVITE, group, member);
+    }
+
+    public InviteCommand(ID group, List<ID> members) {
+        super(INVITE, group, members);
+    }
 }

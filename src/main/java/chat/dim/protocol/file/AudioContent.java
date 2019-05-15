@@ -23,19 +23,30 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.protocol.file;
 
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.User;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
+import chat.dim.protocol.ContentType;
 
-public interface BarrackDelegate {
+import java.util.Map;
 
-    boolean saveMeta(Meta meta, ID identifier);
+/**
+ *  Audio message: {
+ *      type : 0x14,
+ *      sn   : 123,
+ *
+ *      URL      : "http://", // upload to CDN
+ *      data     : "...",     // if (!URL) base64_encode(audio)
+ *      text     : "...",     // Automatic Speech Recognition
+ *      filename : "..."
+ *  }
+ */
+public class AudioContent extends FileContent {
 
-    Account getAccount(ID identifier);
-    User getUser(ID identifier);
-    Group getGroup(ID identifier);
+    public AudioContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
+
+    public AudioContent(byte[] data, String filename) {
+        super(ContentType.AUDIO.value, data, filename);
+    }
 }

@@ -1,6 +1,6 @@
 import chat.dim.mkm.entity.ID;
-import chat.dim.protocols.group.GroupCommand;
-import chat.dim.protocols.group.JoinCommand;
+import chat.dim.protocol.group.GroupCommand;
+import chat.dim.protocol.group.JoinCommand;
 import junit.framework.TestCase;
 import org.junit.Test;
 

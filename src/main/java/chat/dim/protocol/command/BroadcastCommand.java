@@ -23,19 +23,36 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.protocol.command;
 
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.User;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
+import chat.dim.protocol.CommandContent;
 
-public interface BarrackDelegate {
+import java.util.Map;
 
-    boolean saveMeta(Meta meta, ID identifier);
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "broadcast",
+ *      title   : "...", // broadcast title
+ *      extra   : info   // broadcast info
+ *  }
+ */
+public class BroadcastCommand extends CommandContent {
 
-    Account getAccount(ID identifier);
-    User getUser(ID identifier);
-    Group getGroup(ID identifier);
+    public static String REPORT = "report";
+
+    public final String title;
+
+    public BroadcastCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+        title = (String) dictionary.get("title");
+    }
+
+    public BroadcastCommand(String message) {
+        super(BROADCAST);
+        title = message;
+        dictionary.put("title", message);
+    }
 }

@@ -23,19 +23,33 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.protocol;
 
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.User;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
+import chat.dim.dkd.Content;
+import chat.dim.dkd.ReliableMessage;
 
-public interface BarrackDelegate {
+import java.util.Map;
 
-    boolean saveMeta(Meta meta, ID identifier);
+/**
+ *  Top-Secret message: {
+ *      type : 0xFF,
+ *      sn   : 456,
+ *
+ *      forward : {...}  // reliable (secure + certified) message
+ *  }
+ */
+public class ForwardContent extends Content {
 
-    Account getAccount(ID identifier);
-    User getUser(ID identifier);
-    Group getGroup(ID identifier);
+    public final ReliableMessage forwardMessage;
+
+    public ForwardContent(Map<String, Object> dictionary) throws NoSuchFieldException {
+        super(dictionary);
+        forwardMessage = ReliableMessage.getInstance(dictionary.get("forward"));
+    }
+
+    public ForwardContent(ReliableMessage message) {
+        super(ContentType.FORWARD.value);
+        forwardMessage = message;
+        dictionary.put("forward", message);
+    }
 }

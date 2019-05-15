@@ -23,19 +23,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.protocol;
 
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.User;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
+import chat.dim.dkd.Content;
 
-public interface BarrackDelegate {
+import java.util.Map;
 
-    boolean saveMeta(Meta meta, ID identifier);
+/**
+ *  Text message: {
+ *      type : 0x01,
+ *      sn   : 123,
+ *
+ *      text : "..."
+ *  }
+ */
+public class TextContent extends Content {
 
-    Account getAccount(ID identifier);
-    User getUser(ID identifier);
-    Group getGroup(ID identifier);
+    private String text;
+
+    public TextContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
+
+    public TextContent(String message) {
+        super(ContentType.TEXT.value);
+        setText(message);
+    }
+
+    //-------- setter/getter --------
+
+    public void setText(String message) {
+        text = message;
+        dictionary.put("text", message);
+    }
+
+    public String getText() {
+        return text;
+    }
 }
