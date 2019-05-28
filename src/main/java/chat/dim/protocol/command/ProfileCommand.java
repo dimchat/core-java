@@ -34,7 +34,7 @@ import chat.dim.mkm.Profile;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
 /**
@@ -63,7 +63,7 @@ public class ProfileCommand extends MetaCommand {
             profile = null;
             signature = null;
         } else {
-            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+            byte[] data = json.getBytes(Charset.forName("UTF-8"));
             byte[] sig = Base64.decode(base64);
             // get public key with ID
             PublicKey publicKey = Barrack.getInstance().getPublicKey(identifier);
@@ -94,7 +94,7 @@ public class ProfileCommand extends MetaCommand {
     }
 
     public ProfileCommand(ID identifier, Meta meta, String json, PrivateKey privateKey) {
-        this(identifier, meta, json, privateKey.sign(json.getBytes(StandardCharsets.UTF_8)));
+        this(identifier, meta, json, privateKey.sign(json.getBytes(Charset.forName("UTF-8"))));
     }
 
     public ProfileCommand(ID identifier, String json, PrivateKey privateKey) {

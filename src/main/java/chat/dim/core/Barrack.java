@@ -31,7 +31,7 @@ import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public final class Barrack implements MetaDataSource, EntityDataSource, UserDataSource, GroupDataSource {
@@ -82,7 +82,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         byte[] data = new byte[fis.available()];
         fis.read(data);
         fis.close();
-        String json = new String(data, StandardCharsets.UTF_8);
+        String json = new String(data, Charset.forName("UTF-8"));
         return Meta.getInstance(JsON.decode(json));
     }
 
@@ -109,7 +109,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         // save into JsON file
         FileOutputStream fos = new FileOutputStream(file);
         String json = JsON.encode(meta);
-        fos.write(json.getBytes(StandardCharsets.UTF_8));
+        fos.write(json.getBytes(Charset.forName("UTF-8")));
         fos.close();
         return true;
     }

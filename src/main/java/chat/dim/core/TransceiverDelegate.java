@@ -41,13 +41,14 @@ public interface TransceiverDelegate {
     boolean sendPackage(byte[] data, CompletionHandler handler);
 
     /**
-     *  Create cipher key for encrypt message content
+     *  Update/create cipher key for encrypt message content
      *
      * @param sender - user identifier
      * @param receiver - contact/group identifier
-     * @return SymmetricKey
+     * @param reusedKey - old key (nullable)
+     * @return new key
      */
-    SymmetricKey createCipherKey(ID sender, ID receiver);
+    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey reusedKey);
 
     /**
      *  Upload encrypted data to CDN

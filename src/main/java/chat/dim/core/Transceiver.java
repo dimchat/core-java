@@ -39,7 +39,7 @@ import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.file.FileContent;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +117,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
         String json = JsON.encode(rMsg);
-        byte[] data = json.getBytes(StandardCharsets.UTF_8);
+        byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return delegate.sendPackage(data, new CompletionHandler() {
             @Override
             public void onSuccess() {
@@ -188,28 +188,33 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             throw new NullPointerException("current user not set to key store");
         }
         ID sender = user.identifier;
-        SymmetricKey key;
+        SymmetricKey reusedKey, newKey;
 
-        // 1. get from key store
-        key = store.getKey(sender, receiver);
-        if (key != null) {
-            return key;
+        // 1. get old key from store
+        reusedKey = store.getKey(sender, receiver);
+
+        // 2. get new key from delegate
+        newKey = delegate.reuseCipherKey(sender, receiver, reusedKey);
+        if (newKey == null) {
+            newKey = reusedKey;
         }
-
-        // 2. get from delegate
-        key = delegate.createCipherKey(sender, receiver);
-        if (key == null) {
+        if (newKey == null) {
             // 3. create a new key
             try {
-                key = SymmetricKey.create(SymmetricKey.AES);
+                newKey = SymmetricKey.create(SymmetricKey.AES);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
+            }
+            if (newKey == null) {
+                throw new NullPointerException("failed to get cipher key");
             }
         }
 
         // 4. save it into the Key Store
-        store.setKey(key, sender, receiver);
-        return key;
+        if (newKey != reusedKey) {
+            store.setKey(newKey, sender, receiver);
+        }
+        return newKey;
     }
 
     /**
@@ -264,7 +269,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         SecureMessage sMsg = rMsg.verify();
 
         // 2. decrypt 'data' to 'content'
-        InstantMessage iMsg = null;
+        InstantMessage iMsg;
         if (groupID != null) {
             // group message
             sMsg = sMsg.trim(user.identifier.toString());
@@ -326,7 +331,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
         String json = JsON.encode(content);
         byte[] data;
-        data = json.getBytes(StandardCharsets.UTF_8);
+        data = json.getBytes(Charset.forName("UTF-8"));
         return key.encrypt(data);
     }
 
@@ -334,7 +339,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public byte[] encryptKey(InstantMessage iMsg, Map<String, Object> password, Object receiver) {
         String json = JsON.encode(password);
         byte[] data;
-        data = json.getBytes(StandardCharsets.UTF_8);
+        data = json.getBytes(Charset.forName("UTF-8"));
         Barrack barrack = Barrack.getInstance();
         PublicKey publicKey = barrack.getPublicKey(ID.getInstance(receiver));
         if (publicKey == null) {
@@ -368,9 +373,9 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             PrivateKey privateKey = user.getPrivateKey();
             byte[] plaintext = privateKey.decrypt(keyData);
             if (plaintext == null) {
-                throw new NullPointerException("failed to decrypt key:" + keyData);
+                throw new NullPointerException("failed to decrypt key");
             }
-            String json = new String(plaintext, StandardCharsets.UTF_8);
+            String json = new String(plaintext, Charset.forName("UTF-8"));
             try {
                 // create symmetric key from JsON data
                 key = SymmetricKey.getInstance(JsON.decode(json));
@@ -402,7 +407,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             throw new NullPointerException("failed to decrypt data:" + password);
         }
 
-        String json = new String(plaintext, StandardCharsets.UTF_8);
+        String json = new String(plaintext, Charset.forName("UTF-8"));
         Map<String, Object> dictionary = JsON.decode(json);
         Content content = Content.getInstance(dictionary);
 

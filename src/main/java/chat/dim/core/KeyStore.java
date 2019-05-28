@@ -31,7 +31,7 @@ import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -84,7 +84,7 @@ public final class KeyStore {
         }
         FileOutputStream fos = new FileOutputStream(file);
         String json = JsON.encode(keyTable);
-        fos.write(json.getBytes(StandardCharsets.UTF_8));
+        fos.write(json.getBytes(Charset.forName("UTF-8")));
         fos.close();
         return true;
     }
@@ -103,7 +103,7 @@ public final class KeyStore {
             throw new EOFException("nothing read from the key store file:" + path);
         }
         fis.close();
-        String json = new String(data, StandardCharsets.UTF_8);
+        String json = new String(data, Charset.forName("UTF-8"));
         Map<String, Object> table = JsON.decode(json);
         boolean dirty = isDirty;
 
