@@ -26,7 +26,6 @@
 package chat.dim.core;
 
 import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.PublicKey;
 import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
 
@@ -34,7 +33,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public final class Barrack implements MetaDataSource, EntityDataSource, UserDataSource, GroupDataSource {
+public final class Barrack implements EntityDataSource, UserDataSource, GroupDataSource {
 
     private static Barrack ourInstance = new Barrack();
 
@@ -48,7 +47,6 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
     // delegates
     public BarrackDelegate  delegate         = null;
 
-    public MetaDataSource   metaDataSource   = null;
     public EntityDataSource entityDataSource = null;
     public UserDataSource   userDataSource   = null;
     public GroupDataSource  groupDataSource  = null;
@@ -235,20 +233,19 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         return null;
     }
 
-    //-------- IMetaDataSource
+    //-------- EntityDataSource
 
     @Override
     public Meta getMeta(ID identifier) {
-        Meta meta;
         // (a) get from meta cache
-        meta = metaMap.get(identifier.address);
+        Meta meta = metaMap.get(identifier.address);
         if (meta != null) {
             return meta;
         }
-        if (metaDataSource != null) {
-            // (b) get from meta data source
-            meta = metaDataSource.getMeta(identifier);
-            if (meta != null && meta.matches(identifier)) {
+        // (b) get from data source
+        if (entityDataSource != null) {
+            meta = entityDataSource.getMeta(identifier);
+            if (meta!= null) {
                 metaMap.put(identifier.address, meta);
                 return meta;
             }
@@ -256,75 +253,26 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         // (c) get from local storage
         try {
             meta = loadMeta(identifier);
+            if (meta != null) {
+                metaMap.put(identifier.address, meta);
+                return meta;
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        if (meta != null && meta.matches(identifier)) {
-            metaMap.put(identifier.address, meta);
-            return meta;
-        }
-        // THROW: meta not found
-        return null;
-    }
-
-    //-------- IEntityDataSource
-
-    @Override
-    public Meta getMeta(Entity entity) {
-        Meta meta;
-        ID identifier = entity.identifier;
-        // (a) call 'metaForID:' of meta data source
-        meta = getMeta(identifier);
-        if (meta != null) {
-            return meta;
-        }
-        // (b) check entity data source
-        if (entityDataSource == null) {
-            // entity data source not set
-            return null;
-        }
-        // (c) get from entity data source
-        meta = entityDataSource.getMeta(entity);
-        if (meta != null && meta.matches(identifier)) {
-            metaMap.put(identifier.address, meta);
-            return meta;
-        }
         // THROW: meta not found
         return null;
     }
 
     @Override
-    public Profile getProfile(Entity entity) {
+    public Profile getProfile(ID identifier) {
         if (entityDataSource == null) {
-            return null;
+            throw new NullPointerException("entity data source not set");
         }
-        return entityDataSource.getProfile(entity);
+        return entityDataSource.getProfile(identifier);
     }
 
-    @Override
-    public String getName(Entity entity) {
-        String name = null;
-        do {
-            if (entityDataSource == null) {
-                // entity data source not set
-                break;
-            }
-            // (a) get from entity data source
-            name = entityDataSource.getName(entity);
-            if (name != null && name.length() > 0) {
-                break;
-            }
-            // (b) get from profile
-            Profile profile = entityDataSource.getProfile(entity);
-            if (profile != null) {
-                name = profile.getName();
-            }
-            break;
-        } while (true);
-        return name;
-    }
-
-    //-------- IUserDataSource
+    //-------- UserDataSource
 
     @Override
     public PrivateKey getPrivateKey(int flag, User user) {
@@ -358,7 +306,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         return userDataSource.getContactAtIndex(index, user);
     }
 
-    //-------- IGroupDataSource
+    //-------- GroupDataSource
 
     @Override
     public ID getFounder(Group group) {
@@ -371,7 +319,7 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
             return founder;
         }
         // check each member's public key with group meta
-        Meta groupMeta = getMeta(group);
+        Meta groupMeta = getMeta(group.identifier);
         if (groupMeta == null) {
             throw new NullPointerException("group meta not found:" + group.identifier);
         }

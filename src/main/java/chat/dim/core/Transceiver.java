@@ -25,8 +25,6 @@
  */
 package chat.dim.core;
 
-import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.*;
 import chat.dim.mkm.Account;
