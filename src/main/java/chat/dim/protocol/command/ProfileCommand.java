@@ -30,6 +30,7 @@ import chat.dim.core.JsON;
 import chat.dim.crypto.Base64;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
+import chat.dim.mkm.Account;
 import chat.dim.mkm.Profile;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
@@ -66,8 +67,9 @@ public class ProfileCommand extends MetaCommand {
             byte[] data = json.getBytes(Charset.forName("UTF-8"));
             byte[] sig = Base64.decode(base64);
             // get public key with ID
-            PublicKey publicKey = Barrack.getInstance().getPublicKey(identifier);
-            if (publicKey != null && publicKey.verify(data, sig)) {
+            Barrack barrack = Barrack.getInstance();
+            Account account = barrack.getAccount(identifier);
+            if (account != null && account.verify(data, sig)) {
                 // convert JsON to profile
                 profile = Profile.getInstance(JsON.decode(json));
                 signature = sig;

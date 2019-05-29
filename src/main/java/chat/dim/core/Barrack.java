@@ -114,15 +114,6 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
         return true;
     }
 
-    public PublicKey getPublicKey(ID identifier) {
-        Meta meta = getInstance().getMeta(identifier);
-        if (meta == null) {
-            return null;
-        } else {
-            return meta.key;
-        }
-    }
-
     /**
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
      * this will remove 50% of cached objects
@@ -336,11 +327,11 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
     //-------- IUserDataSource
 
     @Override
-    public PrivateKey getPrivateKey(User user) {
+    public PrivateKey getPrivateKey(int flag, User user) {
         if (userDataSource == null) {
             return null;
         }
-        return userDataSource.getPrivateKey(user);
+        return userDataSource.getPrivateKey(flag, user);
     }
 
     @Override
@@ -385,15 +376,15 @@ public final class Barrack implements MetaDataSource, EntityDataSource, UserData
             throw new NullPointerException("group meta not found:" + group.identifier);
         }
         ID member;
-        PublicKey publicKey;
+        Meta meta;
         int count = groupDataSource.getCountOfMembers(group);
         for (int index = 0; index < count; index++) {
             member = groupDataSource.getMemberAtIndex(index, group);
-            publicKey = getPublicKey(member);
-            if (publicKey == null) {
+            meta = getMeta(member);
+            if (meta == null) {
                 continue;
             }
-            if (groupMeta.matches(publicKey)) {
+            if (groupMeta.matches(meta.key)) {
                 // if public key matched, means the group is created by this member
                 return member;
             }

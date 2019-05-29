@@ -298,7 +298,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     //-------- InstantMessageDelegate
 
     @Override
-    public byte[] encryptContent(InstantMessage iMsg, Content content, Map<String, Object> password) {
+    public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key;
         try {
             key = SymmetricKey.getInstance(password);
@@ -330,28 +330,23 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         }
 
         String json = JsON.encode(content);
-        byte[] data;
-        data = json.getBytes(Charset.forName("UTF-8"));
+        byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return key.encrypt(data);
     }
 
     @Override
-    public byte[] encryptKey(InstantMessage iMsg, Map<String, Object> password, Object receiver) {
+    public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
         String json = JsON.encode(password);
-        byte[] data;
-        data = json.getBytes(Charset.forName("UTF-8"));
+        byte[] data = json.getBytes(Charset.forName("UTF-8"));
         Barrack barrack = Barrack.getInstance();
-        PublicKey publicKey = barrack.getPublicKey(ID.getInstance(receiver));
-        if (publicKey == null) {
-            throw new NullPointerException("failed to get public key for receiver:" + receiver);
-        }
-        return publicKey.encrypt(data);
+        Account contact = barrack.getAccount(ID.getInstance(receiver));
+        return contact.encrypt(data);
     }
 
     //-------- SecureMessageDelegate
 
     @Override
-    public Map<String, Object> decryptKey(SecureMessage sMsg, byte[] keyData, Object sender, Object receiver) {
+    public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         Barrack barrack = Barrack.getInstance();
         KeyStore store = KeyStore.getInstance();
         ID from = ID.getInstance(sender);
@@ -370,8 +365,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
                 }
             }
             // FIXME: check sMsg.envelope.receiver == user.identifier
-            PrivateKey privateKey = user.getPrivateKey();
-            byte[] plaintext = privateKey.decrypt(keyData);
+            byte[] plaintext = user.decrypt(keyData);
             if (plaintext == null) {
                 throw new NullPointerException("failed to decrypt key");
             }
@@ -393,7 +387,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     }
 
     @Override
-    public Content decryptContent(SecureMessage sMsg, byte[] data, Map<String, Object> password) {
+    public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key;
         try {
             key = SymmetricKey.getInstance(password);
@@ -436,20 +430,18 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     }
 
     @Override
-    public byte[] signData(SecureMessage sMsg, byte[] data, Object sender) {
+    public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
         Barrack barrack = Barrack.getInstance();
         User user = barrack.getUser(ID.getInstance(sender));
-        PrivateKey privateKey = user.getPrivateKey();
-        return privateKey.sign(data);
+        return user.sign(data);
     }
 
     //-------- ReliableMessageDelegate
 
     @Override
-    public boolean verifyData(ReliableMessage rMsg, byte[] data, byte[] signature, Object sender) {
+    public boolean verifyData(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
         Barrack barrack = Barrack.getInstance();
         Account account = barrack.getAccount(ID.getInstance(sender));
-        PublicKey publicKey = account.getPublicKey();
-        return publicKey.verify(data, signature);
+        return account.verify(data, signature);
     }
 }
