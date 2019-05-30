@@ -81,13 +81,12 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         // trying to send out
         boolean OK = true;
         if (split && receiver.getType().isGroup()) {
-            Group group = barrack.getGroup(groupID);
-            int count = barrack.getCountOfMembers(group);
+            int count = barrack.getCountOfMembers(groupID);
             assert count > 0;
             List<Object> members = new ArrayList<>(count);
             ID item;
             for (int index = 0; index < count; index++) {
-                item = barrack.getMemberAtIndex(index, group);
+                item = barrack.getMemberAtIndex(index, groupID);
                 if (item == null) {
                     continue;
                 }
@@ -158,17 +157,17 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         SecureMessage sMsg;
         if (groupID != null) {
             // group message
-            List<Object> members;
+            List<Object> members = new ArrayList<>();
             if (receiver.getType().isCommunicator()) {
                 // split group message
-                members = new ArrayList<>();
                 members.add(receiver);
             } else {
                 Barrack barrack = Barrack.getInstance();
-                Group group = barrack.getGroup(groupID);
-                members = barrack.getMembers(group);
+                int count = barrack.getCountOfMembers(groupID);
+                for (int index = 0; index < count; index++) {
+                    members.add(barrack.getMemberAtIndex(index, groupID));
+                }
             }
-            assert members != null;
             sMsg = iMsg.encrypt(getKey(groupID), members);
         } else {
             // personal message

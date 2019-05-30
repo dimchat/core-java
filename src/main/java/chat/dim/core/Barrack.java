@@ -237,25 +237,25 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     //-------- EntityDataSource
 
     @Override
-    public Meta getMeta(ID identifier) {
+    public Meta getMeta(ID entity) {
         // (a) get from meta cache
-        Meta meta = metaMap.get(identifier.address);
+        Meta meta = metaMap.get(entity.address);
         if (meta != null) {
             return meta;
         }
         // (b) get from data source
         if (entityDataSource != null) {
-            meta = entityDataSource.getMeta(identifier);
+            meta = entityDataSource.getMeta(entity);
             if (meta!= null) {
-                metaMap.put(identifier.address, meta);
+                metaMap.put(entity.address, meta);
                 return meta;
             }
         }
         // (c) get from local storage
         try {
-            meta = loadMeta(identifier);
+            meta = loadMeta(entity);
             if (meta != null) {
-                metaMap.put(identifier.address, meta);
+                metaMap.put(entity.address, meta);
                 return meta;
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -266,17 +266,17 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public Profile getProfile(ID identifier) {
+    public Profile getProfile(ID entity) {
         if (entityDataSource == null) {
             throw new NullPointerException("entity data source not set");
         }
-        return entityDataSource.getProfile(identifier);
+        return entityDataSource.getProfile(entity);
     }
 
     //-------- UserDataSource
 
     @Override
-    public PrivateKey getPrivateKey(int flag, User user) {
+    public PrivateKey getPrivateKey(int flag, ID user) {
         if (userDataSource == null) {
             return null;
         }
@@ -284,7 +284,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public List<Object> getContacts(User user) {
+    public List<ID> getContacts(ID user) {
         if (userDataSource == null) {
             return null;
         }
@@ -292,7 +292,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public int getCountOfContacts(User user) {
+    public int getCountOfContacts(ID user) {
         if (userDataSource == null) {
             return 0;
         }
@@ -300,7 +300,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public ID getContactAtIndex(int index, User user) {
+    public ID getContactAtIndex(int index, ID user) {
         if (userDataSource == null) {
             return null;
         }
@@ -310,7 +310,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     //-------- GroupDataSource
 
     @Override
-    public ID getFounder(Group group) {
+    public ID getFounder(ID group) {
         if (groupDataSource == null) {
             return null;
         }
@@ -320,9 +320,9 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return founder;
         }
         // check each member's public key with group meta
-        Meta groupMeta = getMeta(group.identifier);
+        Meta groupMeta = getMeta(group);
         if (groupMeta == null) {
-            throw new NullPointerException("group meta not found:" + group.identifier);
+            throw new NullPointerException("group meta not found:" + group);
         }
         ID member;
         Meta meta;
@@ -342,7 +342,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public ID getOwner(Group group) {
+    public ID getOwner(ID group) {
         if (groupDataSource == null) {
             return null;
         }
@@ -350,7 +350,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public List<Object> getMembers(Group group) {
+    public List<ID> getMembers(ID group) {
         if (groupDataSource == null) {
             return null;
         }
@@ -358,7 +358,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public int getCountOfMembers(Group group) {
+    public int getCountOfMembers(ID group) {
         if (groupDataSource == null) {
             return 0;
         }
@@ -366,7 +366,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     @Override
-    public ID getMemberAtIndex(int index, Group group) {
+    public ID getMemberAtIndex(int index, ID group) {
         if (groupDataSource == null) {
             return null;
         }
