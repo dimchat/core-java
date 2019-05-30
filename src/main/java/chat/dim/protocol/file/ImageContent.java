@@ -25,7 +25,7 @@
  */
 package chat.dim.protocol.file;
 
-import chat.dim.crypto.Base64;
+import chat.dim.dkd.Base64;
 import chat.dim.protocol.ContentType;
 
 import java.util.Map;

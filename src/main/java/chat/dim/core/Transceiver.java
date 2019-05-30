@@ -27,6 +27,7 @@ package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.*;
+import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
@@ -114,7 +115,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     }
 
     private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
-        String json = JsON.encode(rMsg);
+        String json = JSON.encode(rMsg);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return delegate.sendPackage(data, new CompletionHandler() {
             @Override
@@ -327,14 +328,14 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             }
         }
 
-        String json = JsON.encode(content);
+        String json = JSON.encode(content);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return key.encrypt(data);
     }
 
     @Override
     public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
-        String json = JsON.encode(password);
+        String json = JSON.encode(password);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         Barrack barrack = Barrack.getInstance();
         Account contact = barrack.getAccount(ID.getInstance(receiver));
@@ -370,7 +371,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             String json = new String(plaintext, Charset.forName("UTF-8"));
             try {
                 // create symmetric key from JsON data
-                key = SymmetricKey.getInstance(JsON.decode(json));
+                key = SymmetricKey.getInstance(JSON.decode(json));
                 // set the new key in key store
                 store.setKey(key, from, to);
             } catch (ClassNotFoundException e) {
@@ -400,7 +401,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         }
 
         String json = new String(plaintext, Charset.forName("UTF-8"));
-        Map<String, Object> dictionary = JsON.decode(json);
+        Map<String, Object> dictionary = JSON.decode(json);
         Content content = Content.getInstance(dictionary);
 
         // check attachment for File/Image/Audio/Video message content

@@ -31,12 +31,12 @@ import chat.dim.protocol.file.FileContent;
 import chat.dim.protocol.file.ImageContent;
 import chat.dim.protocol.file.VideoContent;
 
-/**
- *  enum DKDMessageType
+/*
+ *  @enum DKDMessageType
  *
- *  abstract A flag to indicate what kind of message content this is.
+ *  @abstract A flag to indicate what kind of message content this is.
  *
- *  discussion A message is something send from one place to another one,
+ *  @discussion A message is something send from one place to another one,
  *      it can be an instant message, a system command, or something else.
  *
  *      DKDMessageType_Text indicates this is a normal message with plaintext.

@@ -26,10 +26,9 @@
 package chat.dim.protocol.command;
 
 import chat.dim.core.Barrack;
-import chat.dim.core.JsON;
-import chat.dim.crypto.Base64;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.PublicKey;
+import chat.dim.dkd.Base64;
+import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Profile;
 import chat.dim.mkm.entity.ID;
@@ -71,7 +70,7 @@ public class ProfileCommand extends MetaCommand {
             Account account = barrack.getAccount(identifier);
             if (account != null && account.verify(data, sig)) {
                 // convert JsON to profile
-                profile = Profile.getInstance(JsON.decode(json));
+                profile = Profile.getInstance(JSON.decode(json));
                 signature = sig;
             } else {
                 throw new IllegalArgumentException("signature not match:" + dictionary);
@@ -81,7 +80,7 @@ public class ProfileCommand extends MetaCommand {
 
     public ProfileCommand(ID identifier, Meta meta, String json, byte[] signature) {
         super(identifier, meta);
-        this.profile = Profile.getInstance(JsON.decode(json));
+        this.profile = Profile.getInstance(JSON.decode(json));
         this.signature = signature;
         if (json != null) {
             dictionary.put("profile", json);
@@ -104,7 +103,7 @@ public class ProfileCommand extends MetaCommand {
     }
 
     public ProfileCommand(ID identifier, Meta meta, Profile json, PrivateKey privateKey) {
-        this(identifier, meta, JsON.encode(json), privateKey);
+        this(identifier, meta, JSON.encode(json), privateKey);
     }
 
     public ProfileCommand(ID identifier, Profile json, PrivateKey privateKey) {
