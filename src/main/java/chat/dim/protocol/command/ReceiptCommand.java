@@ -56,7 +56,22 @@ public class ReceiptCommand extends CommandContent {
     public ReceiptCommand(Map<String, Object> dictionary) {
         super(dictionary);
         message = (String) dictionary.get("message");
-        envelope = Envelope.getInstance(dictionary.get("envelope"));
+        // envelope
+        Object env = dictionary.get("envelope");
+        if (env == null) {
+            Object sender = dictionary.get("sender");
+            Object receiver = dictionary.get("receiver");
+            Object time = dictionary.get("time");
+            if (sender != null && receiver != null) {
+                envelope = new Envelope(sender, receiver, (time == null) ? 0 : (long)time);
+            } else {
+                envelope = null;
+            }
+        } else {
+            // -- extra info
+            // envelope: { sender: "...", receiver: "...", time: 0 }
+            envelope = Envelope.getInstance(env);
+        }
         // signature
         String base64 = (String) dictionary.get("signature");
         if (base64 == null) {
@@ -80,8 +95,13 @@ public class ReceiptCommand extends CommandContent {
         envelope = env;
         if (env == null) {
             dictionary.remove("envelope");
+            dictionary.remove("sender");
+            dictionary.remove("receiver");
+            dictionary.remove("time");
         } else {
-            dictionary.put("envelope", env);
+            dictionary.put("sender", env.sender);
+            dictionary.put("receiver", env.receiver);
+            dictionary.put("time", env.time);
         }
     }
 

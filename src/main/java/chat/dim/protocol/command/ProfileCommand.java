@@ -25,88 +25,97 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.core.Barrack;
-import chat.dim.crypto.PrivateKey;
-import chat.dim.dkd.Base64;
-import chat.dim.format.JSON;
-import chat.dim.mkm.Account;
 import chat.dim.mkm.Profile;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *  Command message: {
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command   : "profile",  // command name
- *      ID        : "{ID}",     // entity ID
- *      meta      : {...},      // only for handshaking with new friend
- *      profile   : "{...}",    // json(profile); when profile is empty, means query for ID
- *      signature : "{BASE64}", // sign(json(profile))
+ *      command   : "profile", // command name
+ *      ID        : "{ID}",    // entity ID
+ *      meta      : {...},     // only for handshaking with new friend
+ *      profile   : {...}      // when profile is empty, means query for ID
  *  }
  */
 public class ProfileCommand extends MetaCommand {
 
     public final Profile profile;
-    public final byte[] signature;
 
-    public ProfileCommand(HashMap<String, Object> dictionary) throws ClassNotFoundException {
+    @SuppressWarnings("unchecked")
+    public ProfileCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
-        // profile in JsON string
-        String json   = (String) dictionary.get("profile");
-        String base64 = (String) dictionary.get("signature");
-        if (json == null || base64 == null) {
-            profile = null;
-            signature = null;
+        // get profile
+        Object data = dictionary.get("profile");
+        if (data instanceof Map) {
+            // (v1.1)
+            //  profile (dictionary): {
+            //      "ID"        : "{ID}",
+            //      "data"      : "{...}",
+            //      "signature" : "{BASE64}"
+            //  }
+            profile = new Profile((Map<String, Object>) data);
+        } else if (data instanceof String) {
+            // (v1.0)
+            //  profile data (JsON)
+            //  profile signature (Base64)
+            Map<String, Object> map = new HashMap<>();
+            map.put("ID", identifier);
+            map.put("data", data);
+            map.put("signature", dictionary.get("signature"));
+            profile = new Profile(map);
         } else {
-            byte[] data = json.getBytes(Charset.forName("UTF-8"));
-            byte[] sig = Base64.decode(base64);
-            // get public key with ID
+            profile = null;
+        }
+        /*
+        // verify profile
+        if (profile != null) {
             Barrack barrack = Barrack.getInstance();
             Account account = barrack.getAccount(identifier);
-            if (account != null && account.verify(data, sig)) {
-                // convert JsON to profile
-                profile = Profile.getInstance(JSON.decode(json));
-                signature = sig;
-            } else {
-                throw new IllegalArgumentException("signature not match:" + dictionary);
+            if (!profile.verify(account)) {
+                throw new IllegalArgumentException("profile's signature not match:" + dictionary);
             }
         }
+        */
     }
 
-    public ProfileCommand(ID identifier, Meta meta, String json, byte[] signature) {
+    /**
+     *  Send Meta and Profile to new friend
+     *
+     * @param identifier - entity ID
+     * @param meta - entity Meta
+     * @param profile - entity Profile
+     */
+    public ProfileCommand(ID identifier, Meta meta, Profile profile) {
         super(identifier, meta);
-        this.profile = Profile.getInstance(JSON.decode(json));
-        this.signature = signature;
-        if (json != null) {
-            dictionary.put("profile", json);
-        }
-        if (signature != null) {
-            dictionary.put("signature", Base64.encode(signature));
+        // set profile
+        this.profile = profile;
+        if (profile != null) {
+            dictionary.put("profile", profile);
         }
     }
 
-    public ProfileCommand(ID identifier, String json, byte[] signature) {
-        this(identifier, null, json, signature);
+    /**
+     *  Response Profile
+     *
+     * @param identifier - entity ID
+     * @param profile - entity Profile
+     */
+    public ProfileCommand(ID identifier, Profile profile) {
+        this(identifier, null, profile);
     }
 
-    public ProfileCommand(ID identifier, Meta meta, String json, PrivateKey privateKey) {
-        this(identifier, meta, json, privateKey.sign(json.getBytes(Charset.forName("UTF-8"))));
-    }
-
-    public ProfileCommand(ID identifier, String json, PrivateKey privateKey) {
-        this(identifier, null, json, privateKey);
-    }
-
-    public ProfileCommand(ID identifier, Meta meta, Profile json, PrivateKey privateKey) {
-        this(identifier, meta, JSON.encode(json), privateKey);
-    }
-
-    public ProfileCommand(ID identifier, Profile json, PrivateKey privateKey) {
-        this(identifier, null, json, privateKey);
+    /**
+     *  Query Profile
+     *
+     * @param identifier - entity ID
+     */
+    public ProfileCommand(ID identifier) {
+        this(identifier, null, null);
     }
 }

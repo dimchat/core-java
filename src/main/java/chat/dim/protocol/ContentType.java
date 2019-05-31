@@ -111,11 +111,11 @@ public enum ContentType {
 
         // File
         Content.register(FILE.value, FileContent.class);
-        // Image
+        // - Image
         Content.register(IMAGE.value, ImageContent.class);
-        // Audio
+        // - Audio
         Content.register(AUDIO.value, AudioContent.class);
-        // Video
+        // - Video
         Content.register(VIDEO.value, VideoContent.class);
 
         // Page
@@ -125,9 +125,21 @@ public enum ContentType {
 
         // Command
         Content.register(COMMAND.value, CommandContent.class);
+        // - HandshakeCommand
+        // - MetaCommand
+        //   - ProfileCommand
+        // - BroadcastCommand
+        // - ReceiptCommand
 
         // History
         Content.register(HISTORY.value, HistoryCommand.class);
+        // - GroupCommand
+        //   - InviteCommand
+        //   - ExpelCommand
+        //   - JoinCommand
+        //   - QuitCommand
+        //   - QueryCommand
+        //   - ResetCommand
 
         // Forward
         Content.register(FORWARD.value, ForwardContent.class);

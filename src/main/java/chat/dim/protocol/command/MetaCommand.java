@@ -38,7 +38,7 @@ import java.util.Map;
  *
  *      command : "meta", // command name
  *      ID      : "{ID}", // contact's ID
- *      meta    : {...}   // When meta is empty, means query meta for ID
+ *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }
  */
 public class MetaCommand extends CommandContent {
@@ -52,6 +52,12 @@ public class MetaCommand extends CommandContent {
         meta       = Meta.getInstance(dictionary.get("meta"));
     }
 
+    /**
+     *  Response Meta
+     *
+     * @param identifier - entity ID
+     * @param meta - entity Meta
+     */
     public MetaCommand(ID identifier, Meta meta) {
         super(META);
         // ID
@@ -62,5 +68,14 @@ public class MetaCommand extends CommandContent {
         if (meta != null) {
             dictionary.put("meta", meta);
         }
+    }
+
+    /**
+     *  Query Meta
+     *
+     * @param identifier - entity ID
+     */
+    public MetaCommand(ID identifier) {
+        this(identifier, null);
     }
 }
