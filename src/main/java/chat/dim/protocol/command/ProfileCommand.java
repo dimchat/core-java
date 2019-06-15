@@ -25,9 +25,9 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.mkm.Profile;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.mkm.entity.Profile;
 
 import java.util.HashMap;
 import java.util.Map;

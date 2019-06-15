@@ -92,9 +92,8 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         }
         metaMap.put(identifier.address, meta);
 
-        // (b) check meta delegate
+        // (b) save by delegate
         if (delegate != null && delegate.saveMeta(meta, identifier)) {
-            // saved by delegate
             return true;
         }
 
@@ -230,7 +229,8 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             }
         }
         // (c) create directly
-        // TODO: group type - polylogue/chatroom/...
+        group = new Group(identifier);
+        addGroup(group);
         return null;
     }
 
@@ -243,10 +243,10 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         if (meta != null) {
             return meta;
         }
-        // (b) get from data source
+        // (b) get from entity data source
         if (entityDataSource != null) {
             meta = entityDataSource.getMeta(entity);
-            if (meta!= null) {
+            if (meta != null && meta.matches(entity)) {
                 metaMap.put(entity.address, meta);
                 return meta;
             }
@@ -276,11 +276,19 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     //-------- UserDataSource
 
     @Override
-    public PrivateKey getPrivateKey(int flag, ID user) {
+    public PrivateKey getPrivateKeyForSignature(ID user) {
         if (userDataSource == null) {
             return null;
         }
-        return userDataSource.getPrivateKey(flag, user);
+        return userDataSource.getPrivateKeyForSignature(user);
+    }
+
+    @Override
+    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+        if (userDataSource == null) {
+            return null;
+        }
+        return userDataSource.getPrivateKeysForDecryption(user);
     }
 
     @Override
@@ -289,22 +297,6 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return null;
         }
         return userDataSource.getContacts(user);
-    }
-
-    @Override
-    public int getCountOfContacts(ID user) {
-        if (userDataSource == null) {
-            return 0;
-        }
-        return userDataSource.getCountOfContacts(user);
-    }
-
-    @Override
-    public ID getContactAtIndex(int index, ID user) {
-        if (userDataSource == null) {
-            return null;
-        }
-        return userDataSource.getContactAtIndex(index, user);
     }
 
     //-------- GroupDataSource
@@ -324,13 +316,12 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         if (groupMeta == null) {
             throw new NullPointerException("group meta not found:" + group);
         }
-        ID member;
+        List<ID> members = groupDataSource.getMembers(group);
         Meta meta;
-        int count = groupDataSource.getCountOfMembers(group);
-        for (int index = 0; index < count; index++) {
-            member = groupDataSource.getMemberAtIndex(index, group);
+        for (ID member : members) {
             meta = getMeta(member);
             if (meta == null) {
+                // TODO: query meta for this member from DIM network
                 continue;
             }
             if (groupMeta.matches(meta.key)) {
@@ -355,21 +346,5 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return null;
         }
         return groupDataSource.getMembers(group);
-    }
-
-    @Override
-    public int getCountOfMembers(ID group) {
-        if (groupDataSource == null) {
-            return 0;
-        }
-        return groupDataSource.getCountOfMembers(group);
-    }
-
-    @Override
-    public ID getMemberAtIndex(int index, ID group) {
-        if (groupDataSource == null) {
-            return null;
-        }
-        return groupDataSource.getMemberAtIndex(index, group);
     }
 }

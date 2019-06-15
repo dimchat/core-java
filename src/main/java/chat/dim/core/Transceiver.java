@@ -29,7 +29,6 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.*;
 import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
@@ -67,7 +66,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @throws NoSuchFieldException when 'group' not found
      * @throws ClassNotFoundException when key algorithm not supported
      */
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException, ClassNotFoundException {
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
         ID groupID = ID.getInstance(iMsg.content.getGroup());
@@ -238,9 +237,11 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             barrack.saveMeta(meta, sender);
         }
 
+        // 1. verify 'data' with 'signature'
         if (rMsg.delegate == null) {
             rMsg.delegate = this;
         }
+        SecureMessage sMsg = rMsg.verify();
 
         // check recipient
         ID groupID = ID.getInstance(rMsg.getGroup());
@@ -262,9 +263,6 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         if (user == null) {
             throw new NullPointerException("wrong recipient:" + receiver);
         }
-
-        // 1. verify 'data' with 'signature'
-        SecureMessage sMsg = rMsg.verify();
 
         // 2. decrypt 'data' to 'content'
         InstantMessage iMsg;
@@ -338,6 +336,9 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         Barrack barrack = Barrack.getInstance();
         Account contact = barrack.getAccount(ID.getInstance(receiver));
+        if (contact == null) {
+            return null;
+        }
         return contact.encrypt(data);
     }
 
@@ -431,6 +432,9 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
         Barrack barrack = Barrack.getInstance();
         User user = barrack.getUser(ID.getInstance(sender));
+        if (user == null) {
+            return null;
+        }
         return user.sign(data);
     }
 
@@ -440,6 +444,9 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public boolean verifyData(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
         Barrack barrack = Barrack.getInstance();
         Account account = barrack.getAccount(ID.getInstance(sender));
+        if (account == null) {
+            return false;
+        }
         return account.verify(data, signature);
     }
 }
