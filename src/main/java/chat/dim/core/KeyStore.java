@@ -101,7 +101,7 @@ public final class KeyStore {
         byte[] data = new byte[fis.available()];
         if (fis.read(data) <= 0) {
             fis.close();
-            throw new EOFException("nothing read from the key store file:" + path);
+            throw new EOFException("nothing read from the key store file: " + path);
         }
         fis.close();
         String json = new String(data, Charset.forName("UTF-8"));

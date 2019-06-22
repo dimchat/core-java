@@ -75,7 +75,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         ReliableMessage rMsg = encryptAndSignMessage(iMsg);
         if (rMsg == null) {
             // TODO: set iMsg.state = error
-            throw new NullPointerException("failed to encrypt and sign message:" + iMsg);
+            throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
         }
         Barrack barrack = Barrack.getInstance();
 
@@ -255,7 +255,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             }
         }
         if (user == null) {
-            throw new NullPointerException("wrong recipient:" + receiver);
+            throw new NullPointerException("wrong recipient: " + receiver);
         }
 
         // 2. decrypt 'data' to 'content'
@@ -369,7 +369,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
                     user = barrack.getUser(userID);
                 }
                 if (user == null) {
-                    throw new IllegalArgumentException("receiver error:" + sMsg);
+                    throw new IllegalArgumentException("receiver error: " + sMsg);
                 }
             }
             // FIXME: check sMsg.envelope.receiver == user.identifier
@@ -406,12 +406,18 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         // decrypt message.data
         byte[] plaintext = key.decrypt(data);
         if (plaintext == null) {
-            throw new NullPointerException("failed to decrypt data:" + password);
+            throw new NullPointerException("failed to decrypt data: " + password);
         }
 
         String json = new String(plaintext, Charset.forName("UTF-8"));
         Map<String, Object> dictionary = JSON.decode(json);
-        Content content = Content.getInstance(dictionary);
+        Content content;
+        try {
+            content = Content.getInstance(dictionary);
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new NullPointerException("decrypted content error: " + dictionary);
+        }
 
         // check attachment for File/Image/Audio/Video message content
         int type = content.type;

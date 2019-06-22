@@ -315,7 +315,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         // check each member's public key with group meta
         Meta groupMeta = getMeta(group);
         if (groupMeta == null) {
-            throw new NullPointerException("group meta not found:" + group);
+            throw new NullPointerException("group meta not found: " + group);
         }
         List<ID> members = groupDataSource.getMembers(group);
         Meta meta;

@@ -29,6 +29,7 @@ import chat.dim.dkd.Base64;
 import chat.dim.dkd.Envelope;
 import chat.dim.protocol.CommandContent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -56,22 +57,24 @@ public class ReceiptCommand extends CommandContent {
     public ReceiptCommand(Map<String, Object> dictionary) {
         super(dictionary);
         message = (String) dictionary.get("message");
-        // envelope
+
+        // -- extra info
+        // envelope: { sender: "...", receiver: "...", time: 0 }
         Object env = dictionary.get("envelope");
         if (env == null) {
             Object sender = dictionary.get("sender");
             Object receiver = dictionary.get("receiver");
             Object time = dictionary.get("time");
             if (sender != null && receiver != null) {
-                envelope = new Envelope(sender, receiver, (time == null) ? 0 : (long)time);
-            } else {
-                envelope = null;
+                Map<String, Object> map = new HashMap<>();
+                map.put("sender", sender);
+                map.put("receiver", receiver);
+                map.put("time", time);
+                env = map;
             }
-        } else {
-            // -- extra info
-            // envelope: { sender: "...", receiver: "...", time: 0 }
-            envelope = Envelope.getInstance(env);
         }
+        envelope = Envelope.getInstance(env);
+
         // signature
         String base64 = (String) dictionary.get("signature");
         if (base64 == null) {

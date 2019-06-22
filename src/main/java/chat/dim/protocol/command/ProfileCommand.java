@@ -80,7 +80,7 @@ public class ProfileCommand extends MetaCommand {
             Barrack barrack = Barrack.getInstance();
             Account account = barrack.getAccount(identifier);
             if (!profile.verify(account)) {
-                throw new IllegalArgumentException("profile's signature not match:" + dictionary);
+                throw new IllegalArgumentException("profile's signature not match: " + dictionary);
             }
         }
         */
