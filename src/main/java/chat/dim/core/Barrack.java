@@ -31,6 +31,7 @@ import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -70,7 +71,8 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     // local storage
-    private Meta loadMeta(ID identifier) throws IOException, ClassNotFoundException {
+    private Meta loadMeta(ID identifier)
+            throws IOException, ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         File file = getMetaFile(identifier);
         if (!file.exists()) {
             // meta file not found
@@ -254,15 +256,14 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         // (c) get from local storage
         try {
             meta = loadMeta(entity);
-            if (meta != null) {
-                metaMap.put(entity.address, meta);
-                return meta;
-            }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException
+                | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
-        // THROW: meta not found
-        return null;
+        if (meta != null) {
+            metaMap.put(entity.address, meta);
+        }
+        return meta;
     }
 
     @Override

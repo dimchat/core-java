@@ -35,15 +35,22 @@ import java.util.Map;
 public class GroupCommand extends HistoryCommand {
 
     // Group ID for group message already defined in DKD.MessageContent
+    @Override
     public ID getGroup() {
-        return ID.getInstance(super.getGroup());
+        Object group = super.getGroup();
+        try {
+            return ID.getInstance(group);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public final ID member;
     public final List<ID> members;
 
     @SuppressWarnings("unchecked")
-    public GroupCommand(Map<String, Object> dictionary) {
+    public GroupCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
         Object object = dictionary.get("member");
         if (object == null) {

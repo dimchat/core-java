@@ -29,6 +29,7 @@ import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.Profile;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +49,8 @@ public class ProfileCommand extends MetaCommand {
     public final Profile profile;
 
     @SuppressWarnings("unchecked")
-    public ProfileCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
+    public ProfileCommand(Map<String, Object> dictionary)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         super(dictionary);
         // get profile
         Object data = dictionary.get("profile");

@@ -37,6 +37,7 @@ import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.file.FileContent;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @throws NoSuchFieldException when 'group' not found
      * @throws ClassNotFoundException when key algorithm not supported
      */
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException {
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split)
+            throws NoSuchFieldException, ClassNotFoundException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
         ID groupID = ID.getInstance(iMsg.content.getGroup());
@@ -80,17 +82,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         // trying to send out
         boolean OK = true;
         if (split && receiver.getType().isGroup()) {
-            int count = barrack.getCountOfMembers(groupID);
-            assert count > 0;
-            List<Object> members = new ArrayList<>(count);
-            ID item;
-            for (int index = 0; index < count; index++) {
-                item = barrack.getMemberAtIndex(index, groupID);
-                if (item == null) {
-                    continue;
-                }
-                members.add(item.toString());
-            }
+            List<ID> members = barrack.getMembers(groupID);
+            assert members != null;
             List<SecureMessage> messages = rMsg.split(members);
             for (SecureMessage msg: messages) {
                 if (sendMessage((ReliableMessage) msg, callback)) {
@@ -135,7 +128,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @return ReliableMessage Object
      * @throws NoSuchFieldException when encrypt message content
      */
-    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
+    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg)
+            throws NoSuchFieldException, ClassNotFoundException {
         if (iMsg.delegate == null) {
             iMsg.delegate = this;
         }
@@ -156,17 +150,16 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         SecureMessage sMsg;
         if (groupID != null) {
             // group message
-            List<Object> members = new ArrayList<>();
+            List<ID> members;
             if (receiver.getType().isCommunicator()) {
                 // split group message
+                members = new ArrayList<>();
                 members.add(receiver);
             } else {
                 Barrack barrack = Barrack.getInstance();
-                int count = barrack.getCountOfMembers(groupID);
-                for (int index = 0; index < count; index++) {
-                    members.add(barrack.getMemberAtIndex(index, groupID));
-                }
+                members = barrack.getMembers(groupID);
             }
+            assert members != null;
             sMsg = iMsg.encrypt(getKey(groupID), members);
         } else {
             // personal message
@@ -198,7 +191,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         if (newKey == null) {
             // 3. create a new key
             try {
-                newKey = SymmetricKey.create(SymmetricKey.AES);
+                newKey = SymmetricKey.generate(SymmetricKey.AES);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -223,7 +216,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @throws IOException when saving meta
      * @throws ClassNotFoundException when creating meta
      */
-    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users) throws IOException, ClassNotFoundException {
+    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users)
+            throws IOException, ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         ID sender = ID.getInstance(rMsg.envelope.sender);
         ID receiver = ID.getInstance(rMsg.envelope.receiver);
 
@@ -335,7 +329,14 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         String json = JSON.encode(password);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         Barrack barrack = Barrack.getInstance();
-        Account contact = barrack.getAccount(ID.getInstance(receiver));
+        ID identifier;
+        try {
+            identifier = ID.getInstance(receiver);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        Account contact = barrack.getAccount(identifier);
         if (contact == null) {
             return null;
         }
@@ -348,16 +349,24 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         Barrack barrack = Barrack.getInstance();
         KeyStore store = KeyStore.getInstance();
-        ID from = ID.getInstance(sender);
-        ID to = ID.getInstance(receiver);
+        ID from;
+        ID to;
+        ID userID;
+        try {
+            from = ID.getInstance(sender);
+            to = ID.getInstance(receiver);
+            userID = ID.getInstance(sMsg.envelope.receiver);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
         SymmetricKey key = null;
         if (keyData != null) {
             // decrypt key data with the receiver's private key
-            ID identifier = ID.getInstance(sMsg.envelope.receiver);
             User user = store.currentUser;
-            if (user == null || !user.identifier.equals(identifier)) {
-                if (identifier.getType().isCommunicator()) {
-                    user = barrack.getUser(identifier);
+            if (user == null || !user.identifier.equals(userID)) {
+                if (userID.getType().isCommunicator()) {
+                    user = barrack.getUser(userID);
                 }
                 if (user == null) {
                     throw new IllegalArgumentException("receiver error:" + sMsg);
@@ -430,8 +439,15 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
+        ID identifier = null;
+        try {
+            identifier = ID.getInstance(sender);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
         Barrack barrack = Barrack.getInstance();
-        User user = barrack.getUser(ID.getInstance(sender));
+        User user = barrack.getUser(identifier);
         if (user == null) {
             return null;
         }
@@ -442,8 +458,15 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public boolean verifyData(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
+        ID identifier = null;
+        try {
+            identifier = ID.getInstance(sender);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
         Barrack barrack = Barrack.getInstance();
-        Account account = barrack.getAccount(ID.getInstance(sender));
+        Account account = barrack.getAccount(identifier);
         if (account == null) {
             return false;
         }
