@@ -26,6 +26,7 @@
 package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.format.JSON;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.Address;
@@ -116,7 +117,7 @@ public final class KeyStore {
             map = (Map) table.get(sender);
             receivers = map.keySet();
             for (String receiver : receivers) {
-                setKey(SymmetricKey.getInstance(map.get(receiver)),
+                setKey(SymmetricKeyImpl.getInstance(map.get(receiver)),
                         Address.getInstance(sender),
                         Address.getInstance(receiver));
             }

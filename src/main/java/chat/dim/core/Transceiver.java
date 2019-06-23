@@ -26,6 +26,7 @@
 package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.dkd.*;
 import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
@@ -191,7 +192,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         if (newKey == null) {
             // 3. create a new key
             try {
-                newKey = SymmetricKey.generate(SymmetricKey.AES);
+                newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -291,7 +292,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key;
         try {
-            key = SymmetricKey.getInstance(password);
+            key = SymmetricKeyImpl.getInstance(password);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -380,7 +381,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             String json = new String(plaintext, Charset.forName("UTF-8"));
             try {
                 // create symmetric key from JsON data
-                key = SymmetricKey.getInstance(JSON.decode(json));
+                key = SymmetricKeyImpl.getInstance(JSON.decode(json));
                 // set the new key in key store
                 store.setKey(key, from, to);
             } catch (ClassNotFoundException e) {
@@ -398,7 +399,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key;
         try {
-            key = SymmetricKey.getInstance(password);
+            key = SymmetricKeyImpl.getInstance(password);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
