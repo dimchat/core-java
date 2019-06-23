@@ -42,19 +42,14 @@ public class GroupCommand extends HistoryCommand {
     @Override
     public ID getGroup() {
         Object group = super.getGroup();
-        try {
-            return ID.getInstance(group);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return ID.getInstance(group);
     }
 
     public final ID member;
     public final List<ID> members;
 
     @SuppressWarnings("unchecked")
-    public GroupCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
+    public GroupCommand(Map<String, Object> dictionary) {
         super(dictionary);
         Object object = dictionary.get("member");
         if (object == null) {
@@ -146,18 +141,12 @@ public class GroupCommand extends HistoryCommand {
     }
 
     @SuppressWarnings("unchecked")
-    private static GroupCommand createInstance(Map<String, Object> dictionary)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static GroupCommand createInstance(Map<String, Object> dictionary) {
         String command = (String) dictionary.get("command");
         Class clazz = groupCommandClasses.get(command);
         if (clazz == null) {
             //throw new ClassNotFoundException("unknown group command: " + command);
-            try {
-                return new GroupCommand(dictionary);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
+            return new GroupCommand(dictionary);
         }
         // try 'getInstance()'
         try {
@@ -168,13 +157,17 @@ public class GroupCommand extends HistoryCommand {
         } catch (Exception e) {
             //e.printStackTrace();
         }
-        Constructor constructor = clazz.getConstructor(Map.class);
-        return (GroupCommand) constructor.newInstance(dictionary);
+        try {
+            Constructor constructor = clazz.getConstructor(Map.class);
+            return (GroupCommand) constructor.newInstance(dictionary);
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public static GroupCommand getInstance(Object object)
-            throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static GroupCommand getInstance(Object object) {
         if (object == null) {
             return null;
         } else if (object instanceof GroupCommand) {

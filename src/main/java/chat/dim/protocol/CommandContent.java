@@ -85,8 +85,7 @@ public class CommandContent extends Content {
     }
 
     @SuppressWarnings("unchecked")
-    private static CommandContent createInstance(Map<String, Object> dictionary)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static CommandContent createInstance(Map<String, Object> dictionary) {
         String command = (String) dictionary.get("command");
         Class clazz = commandClasses.get(command);
         if (clazz == null) {
@@ -102,13 +101,17 @@ public class CommandContent extends Content {
         } catch (Exception e) {
             //e.printStackTrace();
         }
-        Constructor constructor = clazz.getConstructor(Map.class);
-        return (CommandContent) constructor.newInstance(dictionary);
+        try {
+            Constructor constructor = clazz.getConstructor(Map.class);
+            return (CommandContent) constructor.newInstance(dictionary);
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public static CommandContent getInstance(Object object)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public static CommandContent getInstance(Object object) {
         if (object == null) {
             return null;
         } else if (object instanceof Content) {

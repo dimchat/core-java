@@ -29,7 +29,6 @@ import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.protocol.CommandContent;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -47,8 +46,7 @@ public class MetaCommand extends CommandContent {
     public final ID identifier;
     public final Meta meta;
 
-    public MetaCommand(Map<String, Object> dictionary)
-            throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public MetaCommand(Map<String, Object> dictionary) {
         super(dictionary);
         identifier = ID.getInstance(dictionary.get("ID"));
         meta       = Meta.getInstance(dictionary.get("meta"));

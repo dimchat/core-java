@@ -27,7 +27,6 @@ package chat.dim.protocol;
 
 import chat.dim.protocol.group.GroupCommand;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.Map;
 
@@ -87,15 +86,14 @@ public class HistoryCommand extends CommandContent {
     //-------- Runtime --------
 
     @SuppressWarnings("unchecked")
-    public static HistoryCommand getInstance(Object object)
-            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public static HistoryCommand getInstance(Object object) {
         if (object == null) {
             return null;
         } else if (object instanceof HistoryCommand) {
             return (HistoryCommand) object;
         }
         assert object instanceof Map;
-        Map<String, Object> dictionary = (Map<String, Object>)object;
+        Map<String, Object> dictionary = (Map<String, Object>) object;
         Object group = dictionary.get("group");
         if (group != null) {
             // group history command

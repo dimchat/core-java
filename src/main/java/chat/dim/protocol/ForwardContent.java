@@ -42,7 +42,7 @@ public class ForwardContent extends Content {
 
     public final ReliableMessage forwardMessage;
 
-    public ForwardContent(Map<String, Object> dictionary) throws NoSuchFieldException {
+    public ForwardContent(Map<String, Object> dictionary) {
         super(dictionary);
         forwardMessage = ReliableMessage.getInstance(dictionary.get("forward"));
     }
