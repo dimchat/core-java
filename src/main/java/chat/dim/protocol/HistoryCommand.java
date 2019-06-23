@@ -25,6 +25,9 @@
  */
 package chat.dim.protocol;
 
+import chat.dim.protocol.group.GroupCommand;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.Map;
 
@@ -79,5 +82,26 @@ public class HistoryCommand extends CommandContent {
 
     private Date getDate(long timestamp) {
         return new Date(timestamp * 1000);
+    }
+
+    //-------- Runtime --------
+
+    @SuppressWarnings("unchecked")
+    public static HistoryCommand getInstance(Object object)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        if (object == null) {
+            return null;
+        } else if (object instanceof HistoryCommand) {
+            return (HistoryCommand) object;
+        }
+        assert object instanceof Map;
+        Map<String, Object> dictionary = (Map<String, Object>)object;
+        Object group = dictionary.get("group");
+        if (group != null) {
+            // group history command
+            return GroupCommand.getInstance(dictionary);
+        }
+        // unsupported history command
+        return new HistoryCommand(dictionary);
     }
 }

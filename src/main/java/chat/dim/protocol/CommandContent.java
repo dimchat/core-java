@@ -26,7 +26,12 @@
 package chat.dim.protocol;
 
 import chat.dim.dkd.Content;
+import chat.dim.protocol.command.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -63,5 +68,69 @@ public class CommandContent extends Content {
 
     public CommandContent(String command) {
         this(ContentType.COMMAND.value, command);
+    }
+
+    //-------- Runtime --------
+
+    private static Map<String, Class> commandClasses = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    public static void register(String command, Class clazz) {
+        // check whether clazz is subclass of CommandContent
+        if (clazz.equals(CommandContent.class)) {
+            throw new IllegalArgumentException("should not add CommandContent.class itself!");
+        }
+        clazz = clazz.asSubclass(CommandContent.class);
+        commandClasses.put(command, clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static CommandContent createInstance(Map<String, Object> dictionary)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        String command = (String) dictionary.get("command");
+        Class clazz = commandClasses.get(command);
+        if (clazz == null) {
+            //throw new ClassNotFoundException("unknown command: " + command);
+            return new CommandContent(dictionary);
+        }
+        // try 'getInstance()'
+        try {
+            Method method = clazz.getMethod("getInstance", Object.class);
+            if (method.getDeclaringClass().equals(clazz)) {
+                return (CommandContent) method.invoke(null, dictionary);
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        Constructor constructor = clazz.getConstructor(Map.class);
+        return (CommandContent) constructor.newInstance(dictionary);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static CommandContent getInstance(Object object)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        if (object == null) {
+            return null;
+        } else if (object instanceof Content) {
+            return (CommandContent) object;
+        } else if (object instanceof Map) {
+            return createInstance((Map<String, Object>) object);
+        } else {
+            throw new IllegalArgumentException("content error: " + object);
+        }
+    }
+
+    static {
+        // Handshake
+        register(HANDSHAKE, HandshakeCommand.class);
+        // Broadcast
+        register(BROADCAST, BroadcastCommand.class);
+        // Receipt
+        register(RECEIPT, ReceiptCommand.class);
+        // Meta
+        register(META, MetaCommand.class);
+        // Profile
+        register(PROFILE, ProfileCommand.class);
+        // ...
     }
 }
