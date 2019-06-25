@@ -46,7 +46,7 @@ public class MetaCommand extends CommandContent {
     public final ID identifier;
     public final Meta meta;
 
-    public MetaCommand(Map<String, Object> dictionary) {
+    public MetaCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
         identifier = ID.getInstance(dictionary.get("ID"));
         meta       = Meta.getInstance(dictionary.get("meta"));

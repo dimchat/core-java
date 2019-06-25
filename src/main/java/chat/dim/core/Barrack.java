@@ -70,7 +70,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     }
 
     // local storage
-    private Meta loadMeta(ID identifier) throws IOException {
+    private Meta loadMeta(ID identifier) throws IOException, ClassNotFoundException {
         File file = getMetaFile(identifier);
         if (!file.exists()) {
             // meta file not found
@@ -254,7 +254,7 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         // (c) get from local storage
         try {
             meta = loadMeta(entity);
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         if (meta != null) {

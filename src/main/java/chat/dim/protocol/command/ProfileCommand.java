@@ -47,8 +47,7 @@ public class ProfileCommand extends MetaCommand {
 
     public final Profile profile;
 
-    @SuppressWarnings("unchecked")
-    public ProfileCommand(Map<String, Object> dictionary) {
+    public ProfileCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
         super(dictionary);
         // get profile
         Object data = dictionary.get("profile");
@@ -59,7 +58,7 @@ public class ProfileCommand extends MetaCommand {
             //      "data"      : "{...}",
             //      "signature" : "{BASE64}"
             //  }
-            profile = new Profile((Map<String, Object>) data);
+            profile = Profile.getInstance(data);
         } else if (data instanceof String) {
             // (v1.0)
             //  profile data (JsON)
@@ -68,7 +67,7 @@ public class ProfileCommand extends MetaCommand {
             map.put("ID", identifier);
             map.put("data", data);
             map.put("signature", dictionary.get("signature"));
-            profile = new Profile(map);
+            profile = Profile.getInstance(map);
         } else {
             profile = null;
         }

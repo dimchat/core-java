@@ -66,7 +66,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @return NO on data/delegate error
      * @throws NoSuchFieldException when 'group' not found
      */
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) throws NoSuchFieldException {
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split)
+            throws NoSuchFieldException, ClassNotFoundException {
         // transforming
         ID receiver = ID.getInstance(iMsg.envelope.receiver);
         ID groupID = ID.getInstance(iMsg.content.getGroup());
@@ -126,7 +127,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @return ReliableMessage Object
      * @throws NoSuchFieldException when encrypt message content
      */
-    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
+    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg)
+            throws NoSuchFieldException, ClassNotFoundException {
         if (iMsg.delegate == null) {
             iMsg.delegate = this;
         }
@@ -168,7 +170,7 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
         return sMsg.sign();
     }
 
-    private SymmetricKey getKey(ID receiver) {
+    private SymmetricKey getKey(ID receiver) throws ClassNotFoundException {
         KeyStore store = KeyStore.getInstance();
         User user = store.currentUser;
         if (user == null) {
@@ -205,7 +207,8 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
      * @return InstantMessage object
      * @throws IOException when saving meta
      */
-    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users) throws IOException {
+    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users)
+            throws IOException, ClassNotFoundException {
         ID sender = ID.getInstance(rMsg.envelope.sender);
         ID receiver = ID.getInstance(rMsg.envelope.receiver);
 
@@ -277,7 +280,12 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
-        SymmetricKey key = SymmetricKeyImpl.getInstance(password);
+        SymmetricKey key = null;
+        try {
+            key = SymmetricKeyImpl.getInstance(password);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         if (key == null) {
             throw new NullPointerException("symmetric key error: " + password);
         }
@@ -350,7 +358,11 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
             }
             String json = new String(plaintext, Charset.forName("UTF-8"));
             // create symmetric key from JsON data
-            key = SymmetricKeyImpl.getInstance(JSON.decode(json));
+            try {
+                key = SymmetricKeyImpl.getInstance(JSON.decode(json));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             if (key == null) {
                 throw new NullPointerException("decrypted key error: " + json);
             }
@@ -366,7 +378,12 @@ public final class Transceiver implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
-        SymmetricKey key = SymmetricKeyImpl.getInstance(password);
+        SymmetricKey key = null;
+        try {
+            key = SymmetricKeyImpl.getInstance(password);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         if (key == null) {
             throw new NullPointerException("symmetric key error: " + password);
         }

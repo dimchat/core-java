@@ -92,7 +92,7 @@ public final class KeyStore {
     }
 
     @SuppressWarnings("unchecked")
-    public boolean reload(String path) throws IOException {
+    public boolean reload(String path) throws IOException, ClassNotFoundException {
         File file = new File(path);
         if (!file.exists()) {
             return false;
