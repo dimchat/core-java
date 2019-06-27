@@ -25,9 +25,7 @@
  */
 package chat.dim.core;
 
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.ID;
 
 public interface TransceiverDelegate {
 
@@ -39,16 +37,6 @@ public interface TransceiverDelegate {
      * @return NO on data/delegate error
      */
     boolean sendPackage(byte[] data, CompletionHandler handler);
-
-    /**
-     *  Update/create cipher key for encrypt message content
-     *
-     * @param sender - user identifier
-     * @param receiver - contact/group identifier
-     * @param reusedKey - old key (nullable)
-     * @return new key
-     */
-    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey reusedKey);
 
     /**
      *  Upload encrypted data to CDN

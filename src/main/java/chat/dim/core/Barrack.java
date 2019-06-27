@@ -26,28 +26,15 @@
 package chat.dim.core;
 
 import chat.dim.crypto.PrivateKey;
-import chat.dim.format.JSON;
 import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
 
-import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
 
-public final class Barrack implements EntityDataSource, UserDataSource, GroupDataSource {
-
-    private static Barrack ourInstance = new Barrack();
-
-    public static Barrack getInstance() {
-        return ourInstance;
-    }
-
-    private Barrack() {
-    }
+public class Barrack implements EntityDataSource, UserDataSource, GroupDataSource {
 
     // delegates
     public BarrackDelegate  delegate         = null;
-
     public EntityDataSource entityDataSource = null;
     public UserDataSource   userDataSource   = null;
     public GroupDataSource  groupDataSource  = null;
@@ -58,58 +45,8 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
     private Map<Address, User>    userMap    = new HashMap<>();
     private Map<Address, Group>   groupMap   = new HashMap<>();
 
-    // "/sdcard/chat.dim.sechat/.mkm/"
-    public String metaDirectory = null;
-
-    // "/sdcard/chat.dim.sechat/.mkm/{address}.meta"
-    private File getMetaFile(ID identifier) throws FileNotFoundException {
-        if (metaDirectory == null) {
-            throw new FileNotFoundException("meta directory not set");
-        }
-        return new File(metaDirectory, identifier.address + ".meta");
-    }
-
-    // local storage
-    private Meta loadMeta(ID identifier) throws IOException, ClassNotFoundException {
-        File file = getMetaFile(identifier);
-        if (!file.exists()) {
-            // meta file not found
-            return null;
-        }
-        // load from JsON file
-        FileInputStream fis = new FileInputStream(file);
-        byte[] data = new byte[fis.available()];
-        fis.read(data);
-        fis.close();
-        String json = new String(data, Charset.forName("UTF-8"));
-        return Meta.getInstance(JSON.decode(json));
-    }
-
-    public boolean saveMeta(Meta meta, ID identifier) throws IOException {
-        // (a) check meta with ID
-        if (!meta.matches(identifier)) {
-            throw new IllegalArgumentException("meta not match");
-        }
-        metaMap.put(identifier.address, meta);
-
-        // (b) save by delegate
-        if (delegate != null && delegate.saveMeta(meta, identifier)) {
-            return true;
-        }
-
-        // (c) save to local storage
-        File file = getMetaFile(identifier);
-        if (file.exists()) {
-            // meta file exists, ignore it
-            return false;
-        }
-
-        // save into JsON file
-        FileOutputStream fos = new FileOutputStream(file);
-        String json = JSON.encode(meta);
-        fos.write(json.getBytes(Charset.forName("UTF-8")));
-        fos.close();
-        return true;
+    public Barrack() {
+        super();
     }
 
     /**
@@ -141,30 +78,55 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
         return finger;
     }
 
-    private void addAccount(Account account) {
+    public boolean cacheMeta(Meta meta, ID identifier) {
+        if (meta.matches(identifier)) {
+            metaMap.put(identifier.address, meta);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean cacheAccount(Account account) {
         if (account instanceof User) {
-            addUser((User) account);
-            return;
+            return cacheUser((User) account);
+        }
+        Address address = account.identifier.address;
+        if (address == null) {
+            return false;
         }
         if (account.dataSource == null) {
             account.dataSource = this;
         }
-        accountMap.put(account.identifier.address, account);
+        accountMap.put(address, account);
+        return true;
     }
 
-    private void addUser(User user) {
+    private boolean cacheUser(User user) {
+        Address address = user.identifier.address;
+        if (address == null) {
+            return false;
+        }
+        accountMap.remove(address);
         if (user.dataSource == null) {
             user.dataSource = this;
         }
-        userMap.put(user.identifier.address, user);
+        userMap.put(address, user);
+        return true;
     }
 
-    private void addGroup(Group group) {
+    private boolean cacheGroup(Group group) {
+        Address address = group.identifier.address;
+        if (address == null) {
+            return false;
+        }
         if (group.dataSource == null) {
             group.dataSource = this;
         }
         groupMap.put(group.identifier.address, group);
+        return true;
     }
+
+    //-------- BarrackDelegate
 
     public Account getAccount(ID identifier) {
         Account account;
@@ -179,17 +141,12 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return account;
         }
         // (c) get from delegate
-        if (delegate != null) {
-            account = delegate.getAccount(identifier);
-            if (account != null) {
-                addAccount(account);
-                return account;
-            }
+        account = delegate.getAccount(identifier);
+        if (account != null && cacheAccount(account)) {
+            return account;
         }
-        // (d) create directly
-        account = new Account(identifier);
-        addAccount(account);
-        return account;
+        // failed to get account
+        return null;
     }
 
     public User getUser(ID identifier) {
@@ -200,17 +157,12 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return user;
         }
         // (b) get from delegate
-        if (delegate != null) {
-            user = delegate.getUser(identifier);
-            if (user != null) {
-                addUser(user);
-                return user;
-            }
+        user = delegate.getUser(identifier);
+        if (user != null && cacheUser(user)) {
+            return user;
         }
-        // (c) create it directly
-        user = new User(identifier);
-        addUser(user);
-        return user;
+        // failed to get user
+        return null;
     }
 
     public Group getGroup(ID identifier) {
@@ -221,16 +173,11 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return group;
         }
         // (b) get from delegate
-        if (delegate != null) {
-            group = delegate.getGroup(identifier);
-            if (group != null) {
-                addGroup(group);
-                return group;
-            }
+        group = delegate.getGroup(identifier);
+        if (group != null && cacheGroup(group)) {
+            return group;
         }
-        // (c) create directly
-        group = new Group(identifier);
-        addGroup(group);
+        // failed to get group
         return null;
     }
 
@@ -244,30 +191,27 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
             return meta;
         }
         // (b) get from entity data source
-        if (entityDataSource != null) {
-            meta = entityDataSource.getMeta(entity);
-            if (meta != null && meta.matches(entity)) {
-                metaMap.put(entity.address, meta);
-                return meta;
-            }
+        meta = entityDataSource.getMeta(entity);
+        if (meta != null && cacheMeta(meta, entity)) {
+            return meta;
         }
-        // (c) get from local storage
-        try {
-            meta = loadMeta(entity);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+        // failed to get meta
+        assert meta == null;
+        return null;
+    }
+
+    @Override
+    public boolean saveMeta(Meta meta, ID identifier) {
+        // (a) check meta with ID
+        if (!cacheMeta(meta, identifier)) {
+            throw new IllegalArgumentException("meta not match ID: " + identifier + ", " + meta);
         }
-        if (meta != null) {
-            metaMap.put(entity.address, meta);
-        }
-        return meta;
+        // (b) save by delegate
+        return entityDataSource.saveMeta(meta, identifier);
     }
 
     @Override
     public Profile getProfile(ID entity) {
-        if (entityDataSource == null) {
-            throw new NullPointerException("entity data source not set");
-        }
         return entityDataSource.getProfile(entity);
     }
 
@@ -275,25 +219,16 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        if (userDataSource == null) {
-            return null;
-        }
         return userDataSource.getPrivateKeyForSignature(user);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        if (userDataSource == null) {
-            return null;
-        }
         return userDataSource.getPrivateKeysForDecryption(user);
     }
 
     @Override
     public List<ID> getContacts(ID user) {
-        if (userDataSource == null) {
-            return null;
-        }
         return userDataSource.getContacts(user);
     }
 
@@ -301,28 +236,25 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
 
     @Override
     public ID getFounder(ID group) {
-        if (groupDataSource == null) {
-            return null;
-        }
         // get from data source
         ID founder = groupDataSource.getFounder(group);
         if (founder != null) {
             return founder;
         }
         // check each member's public key with group meta
-        Meta groupMeta = getMeta(group);
-        if (groupMeta == null) {
-            throw new NullPointerException("group meta not found: " + group);
-        }
+        Meta gMeta = getMeta(group);
         List<ID> members = groupDataSource.getMembers(group);
-        Meta meta;
+        if (gMeta == null || members == null) {
+            //throw new NullPointerException("failed to get group info: " + gMeta + ", " + members);
+            return null;
+        }
         for (ID member : members) {
-            meta = getMeta(member);
+            Meta meta = getMeta(member);
             if (meta == null) {
                 // TODO: query meta for this member from DIM network
                 continue;
             }
-            if (groupMeta.matches(meta.key)) {
+            if (gMeta.matches(meta.key)) {
                 // if public key matched, means the group is created by this member
                 return member;
             }
@@ -332,17 +264,11 @@ public final class Barrack implements EntityDataSource, UserDataSource, GroupDat
 
     @Override
     public ID getOwner(ID group) {
-        if (groupDataSource == null) {
-            return null;
-        }
         return groupDataSource.getOwner(group);
     }
 
     @Override
     public List<ID> getMembers(ID group) {
-        if (groupDataSource == null) {
-            return null;
-        }
         return groupDataSource.getMembers(group);
     }
 }

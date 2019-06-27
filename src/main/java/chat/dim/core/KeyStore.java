@@ -27,103 +27,110 @@ package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.impl.SymmetricKeyImpl;
-import chat.dim.format.JSON;
-import chat.dim.mkm.User;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
-import java.io.*;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-public final class KeyStore {
-
-    private static KeyStore ourInstance = new KeyStore();
-
-    public static KeyStore getInstance() {
-        return ourInstance;
-    }
-
-    private KeyStore() {
-    }
-
-    public User currentUser;
+public abstract class KeyStore implements CipherKeyDataSource {
 
     // memory caches
-    private Map<Address, Map<Address, SymmetricKey>> keyTable = new HashMap<>();
+    private Map<Address, Map<Address, SymmetricKey>> keyMap = new HashMap<>();
     private boolean isDirty = false;
 
-    public SymmetricKey getKey(ID sender, ID receiver) {
-        Map<Address, SymmetricKey> keyMap = keyTable.get(sender.address);
-        if (keyMap == null) {
-            return null;
-        } else {
-            return keyMap.get(receiver.address);
-        }
+    protected KeyStore() throws ClassNotFoundException {
+        super();
+        // load keys from local storage
+        updateKeys(loadKeys());
     }
 
-    public void setKey(SymmetricKey key, ID sender, ID receiver) {
-        setKey(key, sender.address, receiver.address);
-    }
-
-    private void setKey(SymmetricKey key, Address from, Address to) {
-        Map<Address, SymmetricKey> keyMap = keyTable.computeIfAbsent(from, k -> new HashMap<>());
-        keyMap.put(to, key);
-        isDirty = true;
-    }
-
-    public boolean flush(String path) throws IOException {
+    /**
+     *  Trigger for saving cipher key table
+     */
+    public void flush() {
         if (!isDirty) {
-            return false;
+            // nothing changed
+            return;
         }
-
-        // write into key store file
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
+        if (saveKeys(keyMap)) {
+            // keys saved
+            isDirty = false;
         }
-        FileOutputStream fos = new FileOutputStream(file);
-        String json = JSON.encode(keyTable);
-        fos.write(json.getBytes(Charset.forName("UTF-8")));
-        fos.close();
-        return true;
     }
 
+    /**
+     *  Callback for saving cipher key table into local storage
+     *  (Override it to access database)
+     *
+     * @param keyMap - all cipher keys(with direction) from memory cache
+     * @return YES on success
+     */
+    public abstract boolean saveKeys(Map keyMap);
+
+    /**
+     *  Load cipher key table from local storage
+     *  (Override it to access database)
+     *
+     * @return keys map
+     */
+    public abstract Map loadKeys();
+
+    /**
+     *  Update cipher key table into memory cache
+     *
+     * @param keyMap - cipher keys(with direction) from local storage
+     * @return NO on nothing changed
+     */
     @SuppressWarnings("unchecked")
-    public boolean reload(String path) throws IOException, ClassNotFoundException {
-        File file = new File(path);
-        if (!file.exists()) {
+    public boolean updateKeys(Map keyMap) throws ClassNotFoundException {
+        if (keyMap == null || keyMap.isEmpty()) {
             return false;
         }
-        // load from key store file
-        FileInputStream fis = new FileInputStream(file);
-        byte[] data = new byte[fis.available()];
-        if (fis.read(data) <= 0) {
-            fis.close();
-            throw new EOFException("nothing read from the key store file: " + path);
-        }
-        fis.close();
-        String json = new String(data, Charset.forName("UTF-8"));
-        Map<String, Object> table = JSON.decode(json);
-        boolean dirty = isDirty;
-
-        Map<String, Object> map;
-        Set<String> senders = table.keySet();
-        Set<String> receivers;
-
-        for (String sender : senders) {
-            map = (Map) table.get(sender);
-            receivers = map.keySet();
-            for (String receiver : receivers) {
-                setKey(SymmetricKeyImpl.getInstance(map.get(receiver)),
-                        Address.getInstance(sender),
-                        Address.getInstance(receiver));
+        boolean changed = false;
+        Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>)keyMap;
+        for (Map.Entry<String, Map<String, Object>> entry1 : map.entrySet()) {
+            Address from = Address.getInstance(entry1.getKey());
+            Map<String, Object> table = entry1.getValue();
+            for (Map.Entry<String, Object> entity2 : table.entrySet()) {
+                Address to = Address.getInstance(entity2.getKey());
+                SymmetricKey newKey = SymmetricKeyImpl.getInstance(entity2.getValue());
+                assert newKey != null;
+                // check whether exists an old key
+                SymmetricKey oldKey = getCipherKey(from, to);
+                if (oldKey != newKey) {
+                    changed = true;
+                }
+                // cache key with direction
+                setCipherKey(from, to, newKey);
             }
         }
-
-        isDirty = dirty;
-        return true;
+        return changed;
     }
+
+    private SymmetricKey getCipherKey(Address from, Address to) {
+        Map<Address, SymmetricKey> keyTable = keyMap.get(from);
+        return keyTable == null ? null : keyTable.get(to);
+    }
+
+    private void setCipherKey(Address from, Address to, SymmetricKey key) {
+        Map<Address, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
+        keyTable.put(to, key);
+    }
+
+    //-------- CipherKeyDataSource
+
+    @Override
+    public SymmetricKey cipherKey(ID sender, ID receiver) {
+        return getCipherKey(sender.address, receiver.address);
+    }
+
+    @Override
+    public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
+        setCipherKey(sender.address, receiver.address, key);
+        isDirty = key != null;
+    }
+
+    @Override
+    public abstract SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
 }

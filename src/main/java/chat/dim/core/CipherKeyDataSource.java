@@ -25,34 +25,36 @@
  */
 package chat.dim.core;
 
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.User;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.mkm.entity.ID;
 
-public interface BarrackDelegate {
+public interface CipherKeyDataSource {
 
     /**
-     *  Create account with ID
+     *  Get cipher key for encrypt message from 'sender' to 'receiver'
      *
-     * @param identifier - account ID
-     * @return account
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @return cipher key
      */
-    Account getAccount(ID identifier);
+    SymmetricKey cipherKey(ID sender, ID receiver);
 
     /**
-     *  Create user with ID
+     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
      *
-     * @param identifier - user ID
-     * @return user
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @param key - cipher key
      */
-    User getUser(ID identifier);
+    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
 
     /**
-     *  Create group with ID
+     *  Update/create cipher key for encrypt message content
      *
-     * @param identifier - group ID
-     * @return group
+     * @param sender - from where (user ID)
+     * @param receiver - to where (contact/group ID)
+     * @param key - old key to be reused (nullable)
+     * @return new key
      */
-    Group getGroup(ID identifier);
+    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
 }
