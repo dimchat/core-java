@@ -39,10 +39,14 @@ public abstract class KeyStore implements CipherKeyDataSource {
     private Map<Address, Map<Address, SymmetricKey>> keyMap = new HashMap<>();
     private boolean isDirty = false;
 
-    protected KeyStore() throws ClassNotFoundException {
+    protected KeyStore() {
         super();
         // load keys from local storage
-        updateKeys(loadKeys());
+        try {
+            updateKeys(loadKeys());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

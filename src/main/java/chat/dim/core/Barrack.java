@@ -86,7 +86,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return false;
     }
 
-    private boolean cacheAccount(Account account) {
+    public boolean cacheAccount(Account account) {
         if (account instanceof User) {
             return cacheUser((User) account);
         }
@@ -101,7 +101,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return true;
     }
 
-    private boolean cacheUser(User user) {
+    public boolean cacheUser(User user) {
         Address address = user.identifier.address;
         if (address == null) {
             return false;
@@ -114,7 +114,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return true;
     }
 
-    private boolean cacheGroup(Group group) {
+    public boolean cacheGroup(Group group) {
         Address address = group.identifier.address;
         if (address == null) {
             return false;

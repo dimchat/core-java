@@ -67,12 +67,21 @@ public class CoreTest extends TestCase {
         }
 
         Account account = barrack.getAccount(identifier);
+        if (account != null) {
+            barrack.cacheAccount(account);
+        }
 
         User user = barrack.getUser(identifier);
+        if (user != null) {
+            barrack.cacheUser(user);
+        }
 
         identifier = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
 
         Group group = barrack.getGroup(identifier);
+        if (group != null) {
+            barrack.cacheGroup(group);
+        }
     }
 
     static Barrack barrack;
