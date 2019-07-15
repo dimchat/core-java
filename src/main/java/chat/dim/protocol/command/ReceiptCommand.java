@@ -25,7 +25,7 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.dkd.Base64;
+import chat.dim.format.Base64;
 import chat.dim.dkd.Envelope;
 import chat.dim.protocol.CommandContent;
 

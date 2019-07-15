@@ -128,7 +128,6 @@ public enum ContentType {
         // - HandshakeCommand
         // - MetaCommand
         //   - ProfileCommand
-        // - BroadcastCommand
         // - ReceiptCommand
 
         // History

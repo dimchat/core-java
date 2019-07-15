@@ -47,7 +47,6 @@ public class CommandContent extends Content {
 
     //-------- command names begin --------
     public static final String HANDSHAKE = "handshake";
-    public static final String BROADCAST = "broadcast";
     public static final String RECEIPT   = "receipt";
     public static final String META      = "meta";
     public static final String PROFILE   = "profile";
@@ -126,8 +125,6 @@ public class CommandContent extends Content {
     static {
         // Handshake
         register(HANDSHAKE, HandshakeCommand.class);
-        // Broadcast
-        register(BROADCAST, BroadcastCommand.class);
         // Receipt
         register(RECEIPT, ReceiptCommand.class);
         // Meta

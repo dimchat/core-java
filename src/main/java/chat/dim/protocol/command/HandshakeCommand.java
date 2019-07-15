@@ -76,7 +76,7 @@ public class HandshakeCommand extends CommandContent {
         this("Hello world!", session);
     }
 
-    public static int getState(String text, String session) {
+    private static int getState(String text, String session) {
         // check message
         if (text == null) {
             return INIT;

@@ -25,7 +25,7 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.dkd.Base64;
+import chat.dim.format.Base64;
 import chat.dim.dkd.Content;
 
 import java.util.Map;

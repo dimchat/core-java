@@ -28,6 +28,7 @@ package chat.dim.core;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.dkd.*;
+import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
@@ -35,6 +36,7 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.mkm.entity.NetworkType;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.file.FileContent;
@@ -267,10 +269,33 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return iMsg;
     }
 
+    private boolean isBroadcast(Message msg) {
+        ID receiver = ID.getInstance(msg.getGroup());
+        if (receiver == null) {
+            receiver = ID.getInstance(msg.envelope.receiver);
+        }
+        return isBroadcast(receiver);
+    }
+
+    private boolean isBroadcast(ID receiver) {
+        NetworkType network = receiver.getType();
+        if (network.isCommunicator() && receiver.equals(ID.ANYONE)) {
+            return true;
+        }
+        return network.isGroup() && receiver.equals(ID.EVERYONE);
+    }
+
     //-------- InstantMessageDelegate
 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
+        if (isBroadcast(iMsg)) {
+            // no need to encrypt broadcast message content,
+            // just encode to JsON format here
+            String json = JSON.encode(content);
+            return json.getBytes(Charset.forName("UTF-8"));
+        }
+
         SymmetricKey key = null;
         try {
             key = SymmetricKeyImpl.getInstance(password);
@@ -303,12 +328,40 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
+    public Object encodeContentData(byte[] data, InstantMessage iMsg) {
+        if (isBroadcast(iMsg)) {
+            // broadcast message content will not be encrypted (just encoded to JsON),
+            // so no need to encode to Base64 here
+            return new String(data, Charset.forName("UTF-8"));
+        }
+
+        return Base64.encode(data);
+    }
+
+    @Override
     public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
+        if (isBroadcast(iMsg)) {
+            // broadcast message has no key
+            assert password == null;
+            return null;
+        }
+
         String json = JSON.encode(password);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         ID identifier = ID.getInstance(receiver);
         Account contact = barrackDelegate.getAccount(identifier);
         return contact == null ? null : contact.encrypt(data);
+    }
+
+    @Override
+    public Object encodeKeyData(byte[] key, InstantMessage iMsg) {
+        if (isBroadcast(iMsg)) {
+            // broadcast message has no key
+            assert key == null;
+            return null;
+        }
+
+        return Base64.encode(key);
     }
 
     //-------- SecureMessageDelegate
@@ -317,6 +370,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         ID from = ID.getInstance(sender);
         ID to = ID.getInstance(receiver);
+        if (isBroadcast(to)) {
+            // broadcast message has no key
+            assert keyData == null;
+            return null;
+        }
+
         SymmetricKey key = null;
         if (keyData != null) {
             // decrypt key data with the receiver's private key
@@ -347,7 +406,25 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
+    public byte[] decodeKeyData(Object key, SecureMessage sMsg) {
+        if (isBroadcast(sMsg)) {
+            // broadcast message has no key
+            assert key == null;
+            return null;
+        }
+
+        return Base64.decode((String) key);
+    }
+
+    @Override
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
+        if (isBroadcast(sMsg)) {
+            // broadcast message content will not be encrypted (just encoded to JsON),
+            // so decode it to Content directly
+            String json = new String(data, Charset.forName("UTF-8"));
+            return Content.getInstance(JSON.decode(json));
+        }
+
         SymmetricKey key = null;
         try {
             key = SymmetricKeyImpl.getInstance(password);
@@ -394,12 +471,29 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
+    public byte[] decodeContentData(Object data, SecureMessage sMsg) {
+        if (isBroadcast(sMsg)) {
+            // broadcast message content will not be encrypted (just encoded to JsON),
+            // so return the string data directly
+            String json = (String) data;
+            return json.getBytes(Charset.forName("UTF-8"));
+        }
+
+        return Base64.decode((String) data);
+    }
+
+    @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
         User user = barrackDelegate.getUser(ID.getInstance(sender));
         if (user == null) {
             throw new NullPointerException("failed to sign with sender: " + sender);
         }
         return user.sign(data);
+    }
+
+    @Override
+    public Object encodeSignature(byte[] signature, SecureMessage sMsg) {
+        return Base64.encode(signature);
     }
 
     //-------- ReliableMessageDelegate
@@ -411,5 +505,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             throw new NullPointerException("failed to verify with sender: " + sender);
         }
         return account.verify(data, signature);
+    }
+
+    @Override
+    public byte[] decodeSignature(Object signature, ReliableMessage rMsg) {
+        return Base64.decode((String) signature);
     }
 }
