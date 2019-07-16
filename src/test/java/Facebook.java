@@ -1,5 +1,7 @@
 import chat.dim.core.BarrackDelegate;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.impl.PrivateKeyImpl;
+import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.mkm.*;
 import chat.dim.mkm.entity.*;
@@ -209,5 +211,89 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
     @Override
     public Group getGroup(ID identifier) {
         return null;
+    }
+
+    //-------- load immortals
+
+    @SuppressWarnings("unchecked")
+    private static Profile getProfile(Map dictionary, ID identifier, PrivateKey privateKey) {
+        Profile profile;
+        String profile_data = (String) dictionary.get("data");
+        if (profile_data == null) {
+            profile = new Profile(identifier);
+            // set name
+            String name = (String) dictionary.get("name");
+            if (name == null) {
+                List<String> names = (List<String>) dictionary.get("names");
+                if (names != null) {
+                    if (names.size() > 0) {
+                        name = names.get(0);
+                    }
+                }
+            }
+            profile.setName(name);
+            for (Object key : dictionary.keySet()) {
+                if (key.equals("ID")) {
+                    continue;
+                }
+                if (key.equals("name") || key.equals("names")) {
+                    continue;
+                }
+                profile.setData((String) key, dictionary.get(key));
+            }
+            // sign profile
+            profile.sign(privateKey);
+        } else {
+            String signature = (String) dictionary.get("signature");
+            if (signature == null) {
+                profile = new Profile(identifier, profile_data, null);
+                // sign profile
+                profile.sign(privateKey);
+            } else {
+                profile = new Profile(identifier, profile_data, Base64.decode(signature));
+                // verify
+                profile.verify(privateKey.getPublicKey());
+            }
+        }
+        return profile;
+    }
+
+    static User loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
+        String jsonString = Utils.readTextFile(filename);
+        Map<String, Object> dictionary = JSON.decode(jsonString);
+
+        // ID
+        ID identifier = ID.getInstance(dictionary.get("ID"));
+        assert identifier != null;
+        // meta
+        Meta meta = Meta.getInstance(dictionary.get("meta"));
+        assert meta != null && meta.matches(identifier);
+        getInstance().cacheMeta(meta, identifier);
+        // private key
+        PrivateKey privateKey = PrivateKeyImpl.getInstance(dictionary.get("privateKey"));
+        if (meta.key.matches(privateKey)) {
+            // store private key into keychain
+            getInstance().cachePrivateKey(privateKey, identifier);
+        } else {
+            throw new IllegalArgumentException("private key not match meta public key: " + privateKey);
+        }
+        // create user
+        User user = new User(identifier);
+        getInstance().cacheUser(user);
+
+        // profile
+        Profile profile = getProfile((Map) dictionary.get("profile"), identifier, privateKey);
+        getInstance().cacheProfile(profile);
+
+        return user;
+    }
+
+    static {
+        try {
+            loadBuiltInAccount("/mkm_hulk.js");
+            loadBuiltInAccount("/mkm_moki.js");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

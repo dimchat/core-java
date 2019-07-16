@@ -26,8 +26,13 @@
 package chat.dim.protocol.file;
 
 import chat.dim.dkd.Content;
+import chat.dim.format.Base58;
+import chat.dim.format.Base64;
+import chat.dim.format.BaseCoder;
 import chat.dim.protocol.ContentType;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -84,9 +89,56 @@ public class FileContent extends Content {
         return url;
     }
 
+    public String getFileExt() {
+        if (filename == null) {
+            return null;
+        }
+        int pos = filename.lastIndexOf('.');
+        if (pos < 0) {
+            return null;
+        }
+        return filename.substring(pos + 1);
+    }
+
+    private static String hexEncode(byte[] data) {
+        StringBuilder sb = new StringBuilder();
+        String hex;
+        for (byte ch : data) {
+            hex = Integer.toHexString(ch & 0xFF);
+            sb.append(hex.length() == 1 ? "0" + hex : hex);
+        }
+        return sb.toString();
+    }
+
+    private static byte[] md5(byte[] data) {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        assert md != null;
+        md.reset();
+        md.update(data);
+        return md.digest();
+    }
+
     public void setData(byte[] fileData) {
         data = fileData;
-        // NOTICE: do not set file data in dictionary, which will be post onto the DIM network
+
+        if (fileData != null && fileData.length > 0) {
+            String filename = hexEncode(md5(fileData));
+            String ext = getFileExt();
+            if (ext != null) {
+                filename = filename + "." + ext;
+            }
+            dictionary.put("filename", filename);
+
+            // file data
+            dictionary.put("data", Base64.encode(fileData));
+        } else {
+            dictionary.remove("data");
+        }
     }
 
     public byte[] getData() {
