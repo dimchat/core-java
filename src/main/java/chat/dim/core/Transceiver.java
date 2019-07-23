@@ -43,7 +43,6 @@ import chat.dim.protocol.file.FileContent;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,8 +71,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split)
             throws NoSuchFieldException, ClassNotFoundException {
         // transforming
-        ID receiver = ID.getInstance(iMsg.envelope.receiver);
-        ID groupID = ID.getInstance(iMsg.content.getGroup());
         ReliableMessage rMsg = encryptAndSignMessage(iMsg);
         if (rMsg == null) {
             // TODO: set iMsg.state = error
@@ -82,8 +79,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // trying to send out
         boolean OK = true;
+        ID receiver = ID.getInstance(iMsg.envelope.receiver);
         if (split && receiver.getType().isGroup()) {
-            Group group = barrackDelegate.getGroup(groupID);
+            Group group = barrackDelegate.getGroup(receiver);
             List<ID> members = group == null ? null : group.getMembers();
             List<SecureMessage> messages = members == null ? null : rMsg.split(members);
             if (messages == null || messages.size() == 0) {
@@ -134,7 +132,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             }
         }
         // 4. update new key into the key store
-        assert newKey != null;
         if (!newKey.equals(reuseKey)) {
             cipherKeyDataSource.cacheCipherKey(from, to, newKey);
         }
@@ -287,38 +284,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
     }
 
-    /**
-     *  Symmetric key for broadcast message,
-     *  which will do nothing when en/decoding message data
-     */
-    private static final SymmetricKey PLAIN_KEY = new SymmetricKeyImpl(new HashMap<>()) {
-
-        @Override
-        public byte[] encrypt(byte[] plaintext) {
-            return plaintext;
-        }
-
-        @Override
-        public byte[] decrypt(byte[] ciphertext) {
-            return ciphertext;
-        }
-
-        @Override
-        public byte[] getData() {
-            return new byte[0];
-        }
-    };
-
-    private SymmetricKey createSymmetricKey(Map<String, Object> password, Message msg) {
-        if (isBroadcast(msg)) {
-            // DO NOT encrypt broadcast
-            assert password == null;
-            return PLAIN_KEY;
-        } else {
-            return createSymmetricKey(password);
-        }
-    }
-
     private SymmetricKey createSymmetricKey(Map<String, Object> password) {
         try {
             return SymmetricKeyImpl.getInstance(password);
@@ -332,7 +297,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
-        SymmetricKey key = createSymmetricKey(password, iMsg);
+        SymmetricKey key = createSymmetricKey(password);
         if (key == null) {
             throw new NullPointerException("failed to get symmetric key: " + password);
         }
@@ -375,9 +340,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message has no key
-            assert password == null;
             return null;
         }
+        // TODO: check whether support reused key
+
         // encrypt with receiver's public key
         Account contact = barrackDelegate.getAccount(ID.getInstance(receiver));
         if (contact == null) {
@@ -390,13 +356,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public Object encodeKeyData(byte[] key, InstantMessage iMsg) {
-        if (isBroadcast(iMsg)) {
-            // broadcast message has no key
-            assert key == null;
-            return null;
-        }
         // encode to Base64
-        return Base64.encode(key);
+        return key == null ? null : Base64.encode(key);
     }
 
     //-------- SecureMessageDelegate
@@ -446,12 +407,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             return null;
         }
         // decode from Base64
-        return Base64.decode((String) key);
+        return key == null ? null : Base64.decode((String) key);
     }
 
     @Override
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
-        SymmetricKey key = createSymmetricKey(password, sMsg);
+        SymmetricKey key = createSymmetricKey(password);
         if (key == null) {
             throw new NullPointerException("symmetric key error: " + password);
         }

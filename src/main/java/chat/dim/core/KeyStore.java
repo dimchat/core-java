@@ -29,6 +29,7 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.entity.NetworkType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -112,12 +113,29 @@ public abstract class KeyStore implements CipherKeyDataSource {
         return changed;
     }
 
+    private boolean isBroadcast(Address to) {
+        NetworkType network = to.getNetwork();
+        if (network.isPerson()) {
+            return to.equals(Address.ANYWHERE);
+        } else if (network.isGroup()) {
+            return to.equals(Address.EVERYWHERE);
+        } else {
+            return false;
+        }
+    }
+
     private SymmetricKey getCipherKey(Address from, Address to) {
+        if (isBroadcast(to)) {
+            return PlainKey.getInstance();
+        }
         Map<Address, SymmetricKey> keyTable = keyMap.get(from);
         return keyTable == null ? null : keyTable.get(to);
     }
 
     private void setCipherKey(Address from, Address to, SymmetricKey key) {
+        if (isBroadcast(to)) {
+            return;
+        }
         Map<Address, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
         keyTable.put(to, key);
     }
@@ -132,9 +150,55 @@ public abstract class KeyStore implements CipherKeyDataSource {
     @Override
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
         setCipherKey(sender.address, receiver.address, key);
-        isDirty = key != null;
+        isDirty = true;
     }
 
     @Override
     public abstract SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+}
+
+/**
+ *  Symmetric key for broadcast message,
+ *  which will do nothing when en/decoding message data
+ */
+final class PlainKey extends SymmetricKeyImpl {
+
+    private final static String PLAIN = "PLAIN";
+
+    public PlainKey(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
+
+    @Override
+    public byte[] encrypt(byte[] plaintext) {
+        return plaintext;
+    }
+
+    @Override
+    public byte[] decrypt(byte[] ciphertext) {
+        return ciphertext;
+    }
+
+    @Override
+    public byte[] getData() {
+        return new byte[0];
+    }
+
+    //-------- Runtime --------
+
+    private static SymmetricKey ourInstance = null;
+
+    public static SymmetricKey getInstance() {
+        if (ourInstance == null) {
+            Map<String, Object> dictionary = new HashMap<>();
+            dictionary.put("algorithm", PLAIN);
+            ourInstance = new PlainKey(dictionary);
+        }
+        return ourInstance;
+    }
+
+    static {
+        // PLAIN
+        register(PLAIN, PlainKey.class);
+    }
 }
