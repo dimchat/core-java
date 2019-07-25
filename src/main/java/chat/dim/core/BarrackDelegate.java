@@ -33,6 +33,14 @@ import chat.dim.mkm.entity.ID;
 public interface BarrackDelegate {
 
     /**
+     *  Create entity ID with String
+     *
+     * @param identifier - ID string
+     * @return ID
+     */
+    ID getID(Object identifier);
+
+    /**
      *  Create account with ID
      *
      * @param identifier - account ID

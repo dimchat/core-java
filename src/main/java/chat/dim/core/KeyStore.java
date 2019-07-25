@@ -86,6 +86,7 @@ public abstract class KeyStore implements CipherKeyDataSource {
      *
      * @param keyMap - cipher keys(with direction) from local storage
      * @return NO on nothing changed
+     * @throws ClassNotFoundException when key error
      */
     @SuppressWarnings("unchecked")
     public boolean updateKeys(Map keyMap) throws ClassNotFoundException {

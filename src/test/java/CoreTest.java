@@ -59,29 +59,17 @@ public class CoreTest extends TestCase {
 
     @Test
     public void testBarrack() {
-        ID identifier = ID.getInstance("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
+        ID identifier = barrack.getID("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
 
         Meta meta = barrack.getMeta(identifier);
-        if (meta != null) {
-            barrack.cacheMeta(meta, identifier);
-        }
 
         Account account = barrack.getAccount(identifier);
-        if (account != null) {
-            barrack.cacheAccount(account);
-        }
 
         User user = barrack.getUser(identifier);
-        if (user != null) {
-            barrack.cacheUser(user);
-        }
 
         identifier = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
 
         Group group = barrack.getGroup(identifier);
-        if (group != null) {
-            barrack.cacheGroup(group);
-        }
     }
 
     static Barrack barrack;
@@ -129,7 +117,7 @@ public class CoreTest extends TestCase {
         // transceiver
         transceiver = new Transceiver();
         transceiver.delegate = new Station();
-        transceiver.barrackDelegate = facebook;
+        transceiver.barrackDelegate = barrack;
         transceiver.entityDataSource = barrack;
         transceiver.cipherKeyDataSource = keyStore;
     }

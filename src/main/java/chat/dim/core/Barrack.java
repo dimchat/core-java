@@ -31,7 +31,7 @@ import chat.dim.mkm.entity.*;
 
 import java.util.*;
 
-public class Barrack implements EntityDataSource, UserDataSource, GroupDataSource {
+public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSource, GroupDataSource {
 
     // delegates
     public BarrackDelegate  delegate         = null;
@@ -40,6 +40,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
     public GroupDataSource  groupDataSource  = null;
 
     // memory caches
+    private Map<String, ID>       idMap      = new HashMap<>();
     private Map<Address, Meta>    metaMap    = new HashMap<>();
     private Map<Address, Account> accountMap = new HashMap<>();
     private Map<Address, User>    userMap    = new HashMap<>();
@@ -57,6 +58,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
      */
     public int reduceMemory() {
         int finger = 0;
+        finger = thanos(idMap, finger);
         finger = thanos(metaMap, finger);
         finger = thanos(accountMap, finger);
         finger = thanos(userMap, finger);
@@ -78,7 +80,15 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return finger;
     }
 
-    public boolean cacheMeta(Meta meta, ID identifier) {
+    private boolean cacheID(ID identifier) {
+        if (identifier.isValid()) {
+            idMap.put(identifier.toString(), identifier);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean cacheMeta(Meta meta, ID identifier) {
         if (meta.matches(identifier)) {
             metaMap.put(identifier.address, meta);
             return true;
@@ -86,7 +96,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return false;
     }
 
-    public boolean cacheAccount(Account account) {
+    private boolean cacheAccount(Account account) {
         if (account instanceof User) {
             return cacheUser((User) account);
         }
@@ -101,7 +111,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return true;
     }
 
-    public boolean cacheUser(User user) {
+    private boolean cacheUser(User user) {
         Address address = user.identifier.address;
         if (address == null) {
             return false;
@@ -114,7 +124,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return true;
     }
 
-    public boolean cacheGroup(Group group) {
+    private boolean cacheGroup(Group group) {
         Address address = group.identifier.address;
         if (address == null) {
             return false;
@@ -128,7 +138,35 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
 
     //-------- BarrackDelegate
 
+    public ID getID(Object identifier) {
+        if (identifier == null) {
+            return null;
+        } else if (identifier instanceof ID) {
+            return (ID) identifier;
+        }
+        assert identifier instanceof String;
+        // (a) get from ID cache
+        ID id = idMap.get(identifier);
+        if (id != null) {
+            return id;
+        }
+        // (b) get from delegate
+        id = delegate.getID(identifier);
+        if (id != null && cacheID(id)) {
+            return id;
+        }
+        id = ID.getInstance(identifier);
+        if (id != null && cacheID(id)) {
+            return id;
+        }
+        // failed to create ID
+        return id;
+    }
+
     public Account getAccount(ID identifier) {
+        if (identifier == null) {
+            return null;
+        }
         Account account;
         // (a) get from account cache
         account = accountMap.get(identifier.address);
@@ -150,6 +188,9 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
     }
 
     public User getUser(ID identifier) {
+        if (identifier == null) {
+            return null;
+        }
         User user;
         // (a) get from user cache
         user = userMap.get(identifier.address);
@@ -166,6 +207,9 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
     }
 
     public Group getGroup(ID identifier) {
+        if (identifier == null) {
+            return null;
+        }
         Group group;
         // (a) get from group cache
         group = groupMap.get(identifier.address);
@@ -184,15 +228,18 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
     //-------- EntityDataSource
 
     @Override
-    public Meta getMeta(ID entity) {
+    public Meta getMeta(ID identifier) {
+        if (identifier == null) {
+            return null;
+        }
         // (a) get from meta cache
-        Meta meta = metaMap.get(entity.address);
+        Meta meta = metaMap.get(identifier.address);
         if (meta != null) {
             return meta;
         }
         // (b) get from entity data source
-        meta = entityDataSource.getMeta(entity);
-        if (meta != null && cacheMeta(meta, entity)) {
+        meta = entityDataSource.getMeta(identifier);
+        if (meta != null && cacheMeta(meta, identifier)) {
             return meta;
         }
         // failed to get meta
@@ -211,24 +258,36 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
     }
 
     @Override
-    public Profile getProfile(ID entity) {
-        return entityDataSource.getProfile(entity);
+    public Profile getProfile(ID identifier) {
+        if (identifier == null) {
+            return null;
+        }
+        return entityDataSource.getProfile(identifier);
     }
 
     //-------- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
+        if (user == null) {
+            return null;
+        }
         return userDataSource.getPrivateKeyForSignature(user);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+        if (user == null) {
+            return null;
+        }
         return userDataSource.getPrivateKeysForDecryption(user);
     }
 
     @Override
     public List<ID> getContacts(ID user) {
+        if (user == null) {
+            return null;
+        }
         return userDataSource.getContacts(user);
     }
 
@@ -236,6 +295,9 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
 
     @Override
     public ID getFounder(ID group) {
+        if (group == null) {
+            return null;
+        }
         // get from data source
         ID founder = groupDataSource.getFounder(group);
         if (founder != null) {
@@ -264,11 +326,17 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
 
     @Override
     public ID getOwner(ID group) {
+        if (group == null) {
+            return null;
+        }
         return groupDataSource.getOwner(group);
     }
 
     @Override
     public List<ID> getMembers(ID group) {
+        if (group == null) {
+            return null;
+        }
         return groupDataSource.getMembers(group);
     }
 }
