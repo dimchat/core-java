@@ -42,7 +42,6 @@ import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.file.FileContent;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,9 +53,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     // delegates
     public TransceiverDelegate delegate;
-
-    public BarrackDelegate barrackDelegate;
-    public EntityDataSource entityDataSource;
+    public BarrackDelegate     barrackDelegate;
+    public EntityDataSource    entityDataSource;
     public CipherKeyDataSource cipherKeyDataSource;
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
@@ -71,14 +69,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                     newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
-                    return null;
                 }
             } else {
                 newKey = reuseKey;
             }
         }
         // 4. update new key into the key store
-        if (!newKey.equals(reuseKey)) {
+        if (newKey != null && !newKey.equals(reuseKey)) {
             cipherKeyDataSource.cacheCipherKey(from, to, newKey);
         }
         return newKey;
@@ -130,6 +127,16 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return barrackDelegate.getGroup(identifier);
     }
 
+    private boolean isBroadcast(Message msg) {
+        ID receiver = getID(msg.getGroup());
+        if (receiver != null) {
+            NetworkType network = receiver.getType();
+            return network.isGroup() && receiver.equals(ID.EVERYONE);
+        }
+        receiver = getID(msg.envelope.receiver);
+        return KeyStore.isBroadcast(receiver);
+    }
+
     /**
      *  Send message (secured + certified) to target station
      *
@@ -174,9 +181,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
-        String json = JSON.encode(rMsg);
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
-        return delegate.sendPackage(data, new CompletionHandler() {
+        CompletionHandler handler = new CompletionHandler() {
             @Override
             public void onSuccess() {
                 callback.onFinished(rMsg, null);
@@ -186,7 +191,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             public void onFailed(Error error) {
                 callback.onFinished(rMsg, error);
             }
-        });
+        };
+        String json = JSON.encode(rMsg);
+        byte[] data = json.getBytes(Charset.forName("UTF-8"));
+        return delegate.sendPackage(data, handler);
     }
 
     /**
@@ -196,49 +204,41 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
      * @return ReliableMessage Object
      * @throws NoSuchFieldException when encrypt message content
      */
-    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg)
-            throws NoSuchFieldException {
+    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
         if (iMsg.delegate == null) {
             iMsg.delegate = this;
         }
-        // 1. encrypt 'content' to 'data' for receiver
         ID sender = getID(iMsg.envelope.sender);
         ID receiver = getID(iMsg.envelope.receiver);
-        ID groupID = getID(iMsg.content.getGroup());
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        assert groupID == null || receiver.getType().isCommunicator() || receiver.equals(groupID);
-        if (groupID == null) {
-            assert receiver != null;
-            if (receiver.getType().isGroup()) {
-                groupID = receiver;
+        Group group = null;
+        if (receiver.getType().isGroup()) {
+            group = getGroup(receiver);
+        } else {
+            Object gid = iMsg.getGroup();
+            if (gid != null) {
+                group = getGroup(getID(gid));
             }
         }
 
         // 1. encrypt 'content' to 'data' for receiver
         SecureMessage sMsg;
-        if (groupID == null) {
+        if (group == null) {
             // personal message
             SymmetricKey password = getSymmetricKey(sender, receiver);
             sMsg = iMsg.encrypt(password);
         } else {
             // group message
-            List<ID> members;
-            if (receiver.getType().isCommunicator()) {
-                // split group message
-                members = new ArrayList<>();
-                members.add(receiver);
-            } else {
-                Group group = getGroup(groupID);
-                members = group.getMembers();
-                assert members != null;
-            }
-            SymmetricKey password = getSymmetricKey(sender, groupID);
+            SymmetricKey password = getSymmetricKey(sender, group.identifier);
+            List<ID> members = group.getMembers();
             sMsg = iMsg.encrypt(password, members);
         }
 
         // 2. sign 'data' by sender
-        sMsg.delegate = this;
+        if (sMsg.delegate == null) {
+            sMsg.delegate = this;
+        }
         return sMsg.sign();
     }
 
@@ -246,23 +246,23 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
      *  Extract instant message from a reliable message received
      *
      * @param rMsg - reliable message
-     * @param users - my accounts
      * @return InstantMessage object
      * @throws ClassNotFoundException when saving meta
      */
-    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg, List<User> users)
-            throws ClassNotFoundException {
+    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg) throws ClassNotFoundException {
         ID sender = getID(rMsg.envelope.sender);
-        ID receiver = getID(rMsg.envelope.receiver);
-
         // [Meta Protocol] check meta in first contact message
         Meta meta = getMeta(sender);
         if (meta == null) {
             // first contact, try meta in message package
             meta = Meta.getInstance(rMsg.getMeta());
+            if (meta == null) {
+                // TODO: query meta for sender from DIM network
+                throw new NullPointerException("failed to get meta for sender: " + sender);
+            }
             assert meta.matches(sender);
             if (!saveMeta(meta, sender)) {
-                throw new IllegalArgumentException("meta error: " + sender);
+                throw new IllegalArgumentException("save meta error: " + sender + ", " + meta);
             }
         }
 
@@ -272,39 +272,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
         SecureMessage sMsg = rMsg.verify();
 
-        // check recipient
-        ID groupID = getID(rMsg.getGroup());
-        User user = null;
-        if (receiver.getType().isGroup()) {
-            groupID = receiver;
-            // FIXME: maybe other user?
-            user = users.get(0);
-            receiver = user.identifier;
-        } else {
-            for (User item : users) {
-                if (item.identifier.equals(receiver)) {
-                    user = item;
-                    // got new message for this user
-                    break;
-                }
-            }
-        }
-        if (user == null) {
-            throw new NullPointerException("wrong recipient: " + receiver);
-        }
-
         // 2. decrypt 'data' to 'content'
-        InstantMessage iMsg;
-        if (groupID == null) {
-            // personal message
+        if (sMsg.delegate == null) {
             sMsg.delegate = this;
-            iMsg = sMsg.decrypt();
-        } else {
-            // group message
-            sMsg = sMsg.trim(user.identifier.toString());
-            sMsg.delegate = this;
-            iMsg = sMsg.decrypt(receiver.toString());
         }
+        InstantMessage iMsg = sMsg.decrypt();
 
         // 3. check: top-secret message
         if (iMsg.content.type == ContentType.FORWARD.value) {
@@ -313,28 +285,15 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             ForwardContent content = (ForwardContent) iMsg.content;
             rMsg = content.forwardMessage;
 
-            return verifyAndDecryptMessage(rMsg, users);
+            InstantMessage secret = verifyAndDecryptMessage(rMsg);
+            if (secret != null) {
+                return secret;
+            }
+            // FIXME: not for you?
         }
 
         // OK
         return iMsg;
-    }
-
-    private boolean isBroadcast(Message msg) {
-        ID receiver = getID(msg.getGroup());
-        if (receiver != null) {
-            NetworkType network = receiver.getType();
-            return network.isGroup() && receiver.equals(ID.EVERYONE);
-        }
-        receiver = getID(msg.envelope.receiver);
-        NetworkType network = receiver.getType();
-        if (network.isPerson()) {
-            return receiver.equals(ID.ANYONE);
-        } else if (network.isGroup()) {
-            return receiver.equals(ID.EVERYONE);
-        } else {
-            return false;
-        }
     }
 
     //-------- InstantMessageDelegate
@@ -522,7 +481,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- ReliableMessageDelegate
 
     @Override
-    public boolean verifyData(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
+    public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
         Account account = getAccount(getID(sender));
         if (account == null) {
             throw new NullPointerException("failed to verify with sender: " + sender);

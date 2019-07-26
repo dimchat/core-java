@@ -40,11 +40,11 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
     public GroupDataSource  groupDataSource  = null;
 
     // memory caches
-    private Map<String, ID>       idMap      = new HashMap<>();
-    private Map<Address, Meta>    metaMap    = new HashMap<>();
-    private Map<Address, Account> accountMap = new HashMap<>();
-    private Map<Address, User>    userMap    = new HashMap<>();
-    private Map<Address, Group>   groupMap   = new HashMap<>();
+    private Map<String, ID>  idMap      = new HashMap<>();
+    private Map<ID, Meta>    metaMap    = new HashMap<>();
+    private Map<ID, Account> accountMap = new HashMap<>();
+    private Map<ID, User>    userMap    = new HashMap<>();
+    private Map<ID, Group>   groupMap   = new HashMap<>();
 
     public Barrack() {
         super();
@@ -63,34 +63,31 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         finger = thanos(accountMap, finger);
         finger = thanos(userMap, finger);
         finger = thanos(groupMap, finger);
-        return (finger & 1) + (finger >> 1);
+        return finger >> 1;
     }
 
     private int thanos(Map map, int finger) {
         Iterator iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
             iterator.next();
-            if ((++finger & 1) == 0) {
-                // let it go
-                continue;
+            if ((++finger & 1) == 1) {
+                // kill it
+                iterator.remove();
             }
-            // kill it
-            iterator.remove();
+            // let it go
         }
         return finger;
     }
 
     private boolean cacheID(ID identifier) {
-        if (identifier.isValid()) {
-            idMap.put(identifier.toString(), identifier);
-            return true;
-        }
-        return false;
+        assert identifier.isValid();
+        idMap.put(identifier.toString(), identifier);
+        return true;
     }
 
     private boolean cacheMeta(Meta meta, ID identifier) {
         if (meta.matches(identifier)) {
-            metaMap.put(identifier.address, meta);
+            metaMap.put(identifier, meta);
             return true;
         }
         return false;
@@ -100,85 +97,76 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (account instanceof User) {
             return cacheUser((User) account);
         }
-        Address address = account.identifier.address;
-        if (address == null) {
-            return false;
-        }
         if (account.dataSource == null) {
             account.dataSource = this;
         }
-        accountMap.put(address, account);
+        assert account.identifier.isValid();
+        accountMap.put(account.identifier, account);
         return true;
     }
 
     private boolean cacheUser(User user) {
-        Address address = user.identifier.address;
-        if (address == null) {
-            return false;
-        }
-        accountMap.remove(address);
+        accountMap.remove(user.identifier);
         if (user.dataSource == null) {
             user.dataSource = this;
         }
-        userMap.put(address, user);
+        assert user.identifier.isValid();
+        userMap.put(user.identifier, user);
         return true;
     }
 
     private boolean cacheGroup(Group group) {
-        Address address = group.identifier.address;
-        if (address == null) {
-            return false;
-        }
         if (group.dataSource == null) {
             group.dataSource = this;
         }
-        groupMap.put(group.identifier.address, group);
+        assert group.identifier.isValid();
+        groupMap.put(group.identifier, group);
         return true;
     }
 
     //-------- BarrackDelegate
 
-    public ID getID(Object identifier) {
-        if (identifier == null) {
+    public ID getID(Object string) {
+        if (string == null) {
             return null;
-        } else if (identifier instanceof ID) {
-            return (ID) identifier;
+        } else if (string instanceof ID) {
+            return (ID) string;
         }
-        assert identifier instanceof String;
-        // (a) get from ID cache
-        ID id = idMap.get(identifier);
-        if (id != null) {
-            return id;
+        assert string instanceof String;
+        // 1. get from ID cache
+        ID identifier = idMap.get(string);
+        if (identifier != null) {
+            return identifier;
         }
-        // (b) get from delegate
-        id = delegate.getID(identifier);
-        if (id != null && cacheID(id)) {
-            return id;
+        // 2. get from delegate
+        identifier = delegate.getID(string);
+        if (identifier == null) {
+            // create it directly
+            identifier = ID.getInstance(string);
         }
-        id = ID.getInstance(identifier);
-        if (id != null && cacheID(id)) {
-            return id;
+        // 3. cache it
+        if (identifier != null && cacheID(identifier)) {
+            return identifier;
         }
         // failed to create ID
-        return id;
+        return identifier;
     }
 
     public Account getAccount(ID identifier) {
         if (identifier == null) {
             return null;
         }
-        Account account;
-        // (a) get from account cache
-        account = accountMap.get(identifier.address);
+        // 1. get from account cache
+        Account account = accountMap.get(identifier);
         if (account != null) {
             return account;
         }
-        // (b) get from user cache
-        account = userMap.get(identifier.address);
+        // 2. get from user cache
+        account = userMap.get(identifier);
         if (account != null) {
             return account;
         }
-        // (c) get from delegate
+        // 3. get from delegate
         account = delegate.getAccount(identifier);
         if (account != null && cacheAccount(account)) {
             return account;
@@ -191,13 +179,12 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (identifier == null) {
             return null;
         }
-        User user;
-        // (a) get from user cache
-        user = userMap.get(identifier.address);
+        // 1. get from user cache
+        User user = userMap.get(identifier);
         if (user != null) {
             return user;
         }
-        // (b) get from delegate
+        // 2. get from delegate
         user = delegate.getUser(identifier);
         if (user != null && cacheUser(user)) {
             return user;
@@ -210,13 +197,12 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (identifier == null) {
             return null;
         }
-        Group group;
-        // (a) get from group cache
-        group = groupMap.get(identifier.address);
+        // 1. get from group cache
+        Group group = groupMap.get(identifier);
         if (group != null) {
             return group;
         }
-        // (b) get from delegate
+        // 2. get from delegate
         group = delegate.getGroup(identifier);
         if (group != null && cacheGroup(group)) {
             return group;
@@ -232,12 +218,12 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (identifier == null) {
             return null;
         }
-        // (a) get from meta cache
-        Meta meta = metaMap.get(identifier.address);
+        // 1. get from meta cache
+        Meta meta = metaMap.get(identifier);
         if (meta != null) {
             return meta;
         }
-        // (b) get from entity data source
+        // 2. get from entity data source
         meta = entityDataSource.getMeta(identifier);
         if (meta != null && cacheMeta(meta, identifier)) {
             return meta;
@@ -249,11 +235,11 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public boolean saveMeta(Meta meta, ID identifier) {
-        // (a) check meta with ID
+        // 1. check meta with ID
         if (!cacheMeta(meta, identifier)) {
             throw new IllegalArgumentException("meta not match ID: " + identifier + ", " + meta);
         }
-        // (b) save by delegate
+        // 2. save by delegate
         return entityDataSource.saveMeta(meta, identifier);
     }
 

@@ -27,17 +27,62 @@ package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.impl.SymmetricKeyImpl;
-import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.NetworkType;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *  Symmetric key for broadcast message,
+ *  which will do nothing when en/decoding message data
+ */
+final class PlainKey extends SymmetricKeyImpl {
+
+    private final static String PLAIN = "PLAIN";
+
+    public PlainKey(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
+
+    @Override
+    public byte[] encrypt(byte[] plaintext) {
+        return plaintext;
+    }
+
+    @Override
+    public byte[] decrypt(byte[] ciphertext) {
+        return ciphertext;
+    }
+
+    @Override
+    public byte[] getData() {
+        return new byte[0];
+    }
+
+    //-------- Runtime --------
+
+    private static SymmetricKey ourInstance = null;
+
+    public static SymmetricKey getInstance() {
+        if (ourInstance == null) {
+            Map<String, Object> dictionary = new HashMap<>();
+            dictionary.put("algorithm", PLAIN);
+            ourInstance = new PlainKey(dictionary);
+        }
+        return ourInstance;
+    }
+
+    static {
+        // PLAIN
+        register(PLAIN, PlainKey.class);
+    }
+}
+
 public abstract class KeyStore implements CipherKeyDataSource {
 
     // memory caches
-    private Map<Address, Map<Address, SymmetricKey>> keyMap = new HashMap<>();
+    private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
     private boolean isDirty = false;
 
     protected KeyStore() {
@@ -96,10 +141,10 @@ public abstract class KeyStore implements CipherKeyDataSource {
         boolean changed = false;
         Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>)keyMap;
         for (Map.Entry<String, Map<String, Object>> entry1 : map.entrySet()) {
-            Address from = Address.getInstance(entry1.getKey());
+            ID from = ID.getInstance(entry1.getKey());
             Map<String, Object> table = entry1.getValue();
             for (Map.Entry<String, Object> entity2 : table.entrySet()) {
-                Address to = Address.getInstance(entity2.getKey());
+                ID to = ID.getInstance(entity2.getKey());
                 SymmetricKey newKey = SymmetricKeyImpl.getInstance(entity2.getValue());
                 assert newKey != null;
                 // check whether exists an old key
@@ -114,92 +159,49 @@ public abstract class KeyStore implements CipherKeyDataSource {
         return changed;
     }
 
-    private boolean isBroadcast(Address to) {
-        NetworkType network = to.getNetwork();
-        if (network.isPerson()) {
-            return to.equals(Address.ANYWHERE);
-        } else if (network.isGroup()) {
-            return to.equals(Address.EVERYWHERE);
-        } else {
-            return false;
-        }
-    }
-
-    private SymmetricKey getCipherKey(Address from, Address to) {
-        if (isBroadcast(to)) {
-            return PlainKey.getInstance();
-        }
-        Map<Address, SymmetricKey> keyTable = keyMap.get(from);
+    private SymmetricKey getCipherKey(ID from, ID to) {
+        assert from.isValid() && to.isValid();
+        Map<ID, SymmetricKey> keyTable = keyMap.get(from);
         return keyTable == null ? null : keyTable.get(to);
     }
 
-    private void setCipherKey(Address from, Address to, SymmetricKey key) {
-        if (isBroadcast(to)) {
-            return;
-        }
-        Map<Address, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
+    private void setCipherKey(ID from, ID to, SymmetricKey key) {
+        assert from.isValid() && to.isValid();
+        Map<ID, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
+        assert key != null;
         keyTable.put(to, key);
+    }
+
+    static boolean isBroadcast(ID to) {
+        NetworkType network = to.getType();
+        if (network.isPerson()) {
+            return to.equals(ID.ANYONE);
+        } else if (network.isGroup()) {
+            return to.equals(ID.EVERYONE);
+        } else {
+            return false;
+        }
     }
 
     //-------- CipherKeyDataSource
 
     @Override
     public SymmetricKey cipherKey(ID sender, ID receiver) {
-        return getCipherKey(sender.address, receiver.address);
+        if (isBroadcast(receiver)) {
+            return PlainKey.getInstance();
+        }
+        return getCipherKey(sender, receiver);
     }
 
     @Override
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        setCipherKey(sender.address, receiver.address, key);
+        if (isBroadcast(receiver)) {
+            return;
+        }
+        setCipherKey(sender, receiver, key);
         isDirty = true;
     }
 
     @Override
     public abstract SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
-}
-
-/**
- *  Symmetric key for broadcast message,
- *  which will do nothing when en/decoding message data
- */
-final class PlainKey extends SymmetricKeyImpl {
-
-    private final static String PLAIN = "PLAIN";
-
-    public PlainKey(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    @Override
-    public byte[] encrypt(byte[] plaintext) {
-        return plaintext;
-    }
-
-    @Override
-    public byte[] decrypt(byte[] ciphertext) {
-        return ciphertext;
-    }
-
-    @Override
-    public byte[] getData() {
-        return new byte[0];
-    }
-
-    //-------- Runtime --------
-
-    private static SymmetricKey ourInstance = null;
-
-    public static SymmetricKey getInstance() {
-        if (ourInstance == null) {
-            Map<String, Object> dictionary = new HashMap<>();
-            dictionary.put("algorithm", PLAIN);
-            ourInstance = new PlainKey(dictionary);
-        }
-        return ourInstance;
-    }
-
-    static {
-        // PLAIN
-        register(PLAIN, PlainKey.class);
-    }
 }

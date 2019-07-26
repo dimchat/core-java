@@ -35,10 +35,10 @@ public interface BarrackDelegate {
     /**
      *  Create entity ID with String
      *
-     * @param identifier - ID string
+     * @param string - ID string
      * @return ID
      */
-    ID getID(Object identifier);
+    ID getID(Object string);
 
     /**
      *  Create account with ID

@@ -12,9 +12,7 @@ import chat.dim.protocol.TextContent;
 import junit.framework.TestCase;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CoreTest extends TestCase {
@@ -41,17 +39,13 @@ public class CoreTest extends TestCase {
         ID sender = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
         ID receiver = ID.getInstance("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
 
-        User user = barrack.getUser(receiver);
-        List<User> users = new ArrayList<>();
-        users.add(user);
-
         Content content = new TextContent("Hello");
 
-        InstantMessage iMsg = new InstantMessage(content, sender, receiver, null);
+        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
 
         ReliableMessage rMsg = transceiver.encryptAndSignMessage(iMsg);
 
-        InstantMessage iMsg2 = transceiver.verifyAndDecryptMessage(rMsg, users);
+        InstantMessage iMsg2 = transceiver.verifyAndDecryptMessage(rMsg);
 
         boolean OK = transceiver.sendMessage(iMsg, callback, true);
         Log.info("send message: " + OK);
