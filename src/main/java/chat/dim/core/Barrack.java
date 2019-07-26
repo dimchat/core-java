@@ -79,13 +79,13 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         return finger;
     }
 
-    private boolean cacheID(ID identifier) {
+    protected boolean cacheID(ID identifier) {
         assert identifier.isValid();
         idMap.put(identifier.toString(), identifier);
         return true;
     }
 
-    private boolean cacheMeta(Meta meta, ID identifier) {
+    protected boolean cacheMeta(Meta meta, ID identifier) {
         if (meta.matches(identifier)) {
             metaMap.put(identifier, meta);
             return true;
@@ -93,7 +93,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         return false;
     }
 
-    private boolean cacheAccount(Account account) {
+    protected boolean cacheAccount(Account account) {
         if (account instanceof User) {
             return cacheUser((User) account);
         }
@@ -105,7 +105,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         return true;
     }
 
-    private boolean cacheUser(User user) {
+    protected boolean cacheUser(User user) {
         accountMap.remove(user.identifier);
         if (user.dataSource == null) {
             user.dataSource = this;
@@ -115,7 +115,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         return true;
     }
 
-    private boolean cacheGroup(Group group) {
+    protected boolean cacheGroup(Group group) {
         if (group.dataSource == null) {
             group.dataSource = this;
         }
