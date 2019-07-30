@@ -79,13 +79,18 @@ final class PlainKey extends SymmetricKeyImpl {
     }
 }
 
-public abstract class KeyStore implements CipherKeyDataSource {
+/**
+ *  Symmetric Keys Cache
+ *  ~~~~~~~~~~~~~~~~~~~~
+ *  Manage keys for conversations
+ */
+public abstract class KeyCache {
 
     // memory caches
     private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
     private boolean isDirty = false;
 
-    protected KeyStore() {
+    protected KeyCache() {
         super();
         // load keys from local storage
         try {
@@ -185,7 +190,13 @@ public abstract class KeyStore implements CipherKeyDataSource {
 
     //-------- CipherKeyDataSource
 
-    @Override
+    /**
+     *  Get cipher key for encrypt message from 'sender' to 'receiver'
+     *
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @return cipher key
+     */
     public SymmetricKey cipherKey(ID sender, ID receiver) {
         if (isBroadcast(receiver)) {
             return PlainKey.getInstance();
@@ -193,7 +204,13 @@ public abstract class KeyStore implements CipherKeyDataSource {
         return getCipherKey(sender, receiver);
     }
 
-    @Override
+    /**
+     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+     *
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @param key - cipher key
+     */
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
         if (isBroadcast(receiver)) {
             return;
@@ -202,6 +219,13 @@ public abstract class KeyStore implements CipherKeyDataSource {
         isDirty = true;
     }
 
-    @Override
+    /**
+     *  Update/create cipher key for encrypt message content
+     *
+     * @param sender - from where (user ID)
+     * @param receiver - to where (contact/group ID)
+     * @param key - old key to be reused (nullable)
+     * @return new key
+     */
     public abstract SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
 }

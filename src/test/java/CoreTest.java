@@ -67,23 +67,15 @@ public class CoreTest extends TestCase {
     }
 
     static Barrack barrack;
-    static KeyStore keyStore;
+    static KeyCache keyStore;
     static Transceiver transceiver;
 
     static {
-        Facebook facebook = Facebook.getInstance();
-
-        // barrack
-        barrack = new Barrack();
-        barrack.entityDataSource = facebook;
-        barrack.userDataSource = facebook;
-        barrack.groupDataSource = facebook;
-        barrack.delegate = facebook;
-        int count = barrack.reduceMemory();
+        barrack = Facebook.getInstance();
 
         // keystore
         try {
-            keyStore = new KeyStore() {
+            keyStore = new KeyCache() {
                 @Override
                 public boolean saveKeys(Map keyMap) {
                     return false;
@@ -111,8 +103,7 @@ public class CoreTest extends TestCase {
         // transceiver
         transceiver = new Transceiver();
         transceiver.delegate = new Station();
-        transceiver.barrackDelegate = barrack;
-        transceiver.entityDataSource = barrack;
-        transceiver.cipherKeyDataSource = keyStore;
+        transceiver.barrack = barrack;
+        transceiver.keyCache = keyStore;
     }
 }

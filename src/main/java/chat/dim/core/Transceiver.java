@@ -33,7 +33,6 @@ import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
-import chat.dim.mkm.entity.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.NetworkType;
@@ -53,17 +52,16 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     // delegates
     public TransceiverDelegate delegate;
-    public BarrackDelegate     barrackDelegate;
-    public EntityDataSource    entityDataSource;
-    public CipherKeyDataSource cipherKeyDataSource;
+    public Barrack             barrack;
+    public KeyCache            keyCache;
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
         // 1. get old key from store
-        SymmetricKey reuseKey = cipherKeyDataSource.cipherKey(from, to);
+        SymmetricKey oldKey = keyCache.cipherKey(from, to);
         // 2. get new key from delegate
-        SymmetricKey newKey = cipherKeyDataSource.reuseCipherKey(from, to, reuseKey);
+        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
         if (newKey == null) {
-            if (reuseKey == null) {
+            if (oldKey == null) {
                 // 3. create a new key
                 try {
                     newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
@@ -71,12 +69,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                     e.printStackTrace();
                 }
             } else {
-                newKey = reuseKey;
+                newKey = oldKey;
             }
         }
         // 4. update new key into the key store
-        if (newKey != null && !newKey.equals(reuseKey)) {
-            cipherKeyDataSource.cacheCipherKey(from, to, newKey);
+        if (newKey != null && !newKey.equals(oldKey)) {
+            keyCache.cacheCipherKey(from, to, newKey);
         }
         return newKey;
     }
@@ -84,8 +82,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     private SymmetricKey getSymmetricKey(Map<String, Object> password, ID from, ID to) {
         SymmetricKey key = getSymmetricKey(password);
         if (key != null) {
-            // set the new key in key store
-            cacheCipherKey(from, to, key);
+            // cache the new key in key store
+            keyCache.cacheCipherKey(from, to, key);
         }
         return key;
     }
@@ -99,42 +97,14 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
     }
 
-    private void cacheCipherKey(ID from, ID to, SymmetricKey key) {
-        cipherKeyDataSource.cacheCipherKey(from, to, key);
-    }
-
-    private Meta getMeta(ID identifier) {
-        return entityDataSource.getMeta(identifier);
-    }
-
-    private boolean saveMeta(Meta meta, ID identifier) {
-        return entityDataSource.saveMeta(meta, identifier);
-    }
-
-    private ID getID(Object identifier) {
-        return barrackDelegate.getID(identifier);
-    }
-
-    private Account getAccount(ID identifier) {
-        return barrackDelegate.getAccount(identifier);
-    }
-
-    private User getUser(ID identifier) {
-        return barrackDelegate.getUser(identifier);
-    }
-
-    private Group getGroup(ID identifier) {
-        return barrackDelegate.getGroup(identifier);
-    }
-
     private boolean isBroadcast(Message msg) {
-        ID receiver = getID(msg.getGroup());
+        ID receiver = barrack.getID(msg.getGroup());
         if (receiver != null) {
             NetworkType network = receiver.getType();
             return network.isGroup() && receiver.equals(ID.EVERYONE);
         }
-        receiver = getID(msg.envelope.receiver);
-        return KeyStore.isBroadcast(receiver);
+        receiver = barrack.getID(msg.envelope.receiver);
+        return KeyCache.isBroadcast(receiver);
     }
 
     /**
@@ -157,9 +127,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // trying to send out
         boolean OK = true;
-        ID receiver = getID(iMsg.envelope.receiver);
+        ID receiver = barrack.getID(iMsg.envelope.receiver);
         if (split && receiver.getType().isGroup()) {
-            Group group = getGroup(receiver);
+            Group group = barrack.getGroup(receiver);
             List<ID> members = group == null ? null : group.getMembers();
             List<SecureMessage> messages = members == null ? null : rMsg.split(members);
             if (messages == null || messages.size() == 0) {
@@ -208,17 +178,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         if (iMsg.delegate == null) {
             iMsg.delegate = this;
         }
-        ID sender = getID(iMsg.envelope.sender);
-        ID receiver = getID(iMsg.envelope.receiver);
+        ID sender = barrack.getID(iMsg.envelope.sender);
+        ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
         Group group = null;
         if (receiver.getType().isGroup()) {
-            group = getGroup(receiver);
+            group = barrack.getGroup(receiver);
         } else {
             Object gid = iMsg.getGroup();
             if (gid != null) {
-                group = getGroup(getID(gid));
+                group = barrack.getGroup(barrack.getID(gid));
             }
         }
 
@@ -231,8 +201,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         } else {
             // group message
             SymmetricKey password = getSymmetricKey(sender, group.identifier);
-            List<ID> members = group.getMembers();
-            sMsg = iMsg.encrypt(password, members);
+            sMsg = iMsg.encrypt(password, group.getMembers());
         }
 
         // 2. sign 'data' by sender
@@ -250,9 +219,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
      * @throws ClassNotFoundException when saving meta
      */
     public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg) throws ClassNotFoundException {
-        ID sender = getID(rMsg.envelope.sender);
+        ID sender = barrack.getID(rMsg.envelope.sender);
         // [Meta Protocol] check meta in first contact message
-        Meta meta = getMeta(sender);
+        Meta meta = barrack.getMeta(sender);
         if (meta == null) {
             // first contact, try meta in message package
             meta = Meta.getInstance(rMsg.getMeta());
@@ -261,7 +230,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                 throw new NullPointerException("failed to get meta for sender: " + sender);
             }
             assert meta.matches(sender);
-            if (!saveMeta(meta, sender)) {
+            if (!barrack.saveMeta(meta, sender)) {
                 throw new IllegalArgumentException("save meta error: " + sender + ", " + meta);
             }
         }
@@ -348,7 +317,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         // TODO: check whether support reused key
 
         // encrypt with receiver's public key
-        Account contact = getAccount(getID(receiver));
+        Account contact = barrack.getAccount(barrack.getID(receiver));
         if (contact == null) {
             return null;
         }
@@ -359,6 +328,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public Object encodeKeyData(byte[] key, InstantMessage iMsg) {
+        assert !isBroadcast(iMsg) || key == null;
         // encode to Base64
         return key == null ? null : Base64.encode(key);
     }
@@ -367,19 +337,15 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
-        if (isBroadcast(sMsg)) {
-            // broadcast message has no key
-            assert keyData == null;
-            return null;
-        }
+        assert !isBroadcast(sMsg) || keyData == null;
 
-        ID from = getID(sender);
-        ID to = getID(receiver);
+        ID from = barrack.getID(sender);
+        ID to = barrack.getID(receiver);
         SymmetricKey key = null;
         if (keyData != null) {
             // decrypt key data with the receiver's private key
-            ID identifier = getID(sMsg.envelope.receiver);
-            User user = getUser(identifier);
+            ID identifier = barrack.getID(sMsg.envelope.receiver);
+            User user = barrack.getUser(identifier);
             byte[] plaintext = user == null ? null : user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
@@ -400,11 +366,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] decodeKeyData(Object key, SecureMessage sMsg) {
-        if (isBroadcast(sMsg)) {
-            // broadcast message has no key
-            assert key == null;
-            return null;
-        }
+        assert !isBroadcast(sMsg) || key == null;
         // decode from Base64
         return key == null ? null : Base64.decode((String) key);
     }
@@ -466,7 +428,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        User user = getUser(getID(sender));
+        User user = barrack.getUser(barrack.getID(sender));
         if (user == null) {
             throw new NullPointerException("failed to sign with sender: " + sender);
         }
@@ -482,7 +444,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        Account account = getAccount(getID(sender));
+        Account account = barrack.getAccount(barrack.getID(sender));
         if (account == null) {
             throw new NullPointerException("failed to verify with sender: " + sender);
         }

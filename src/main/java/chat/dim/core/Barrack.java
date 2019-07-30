@@ -31,10 +31,14 @@ import chat.dim.mkm.entity.*;
 
 import java.util.*;
 
-public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSource, GroupDataSource {
+/**
+ *  Entity Database
+ *  ~~~~~~~~~~~~~~~
+ *  Manage meta for all entities
+ */
+public class Barrack implements EntityDataSource, UserDataSource, GroupDataSource {
 
     // delegates
-    public BarrackDelegate  delegate         = null;
     public EntityDataSource entityDataSource = null;
     public UserDataSource   userDataSource   = null;
     public GroupDataSource  groupDataSource  = null;
@@ -124,8 +128,12 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         return true;
     }
 
-    //-------- BarrackDelegate
-
+    /**
+     *  Create entity ID with String
+     *
+     * @param string - ID string
+     * @return ID
+     */
     public ID getID(Object string) {
         if (string == null) {
             return null;
@@ -138,20 +146,22 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (identifier != null) {
             return identifier;
         }
-        // 2. get from delegate
-        identifier = delegate.getID(string);
-        if (identifier == null) {
-            // create it directly
-            identifier = ID.getInstance(string);
-        }
-        // 3. cache it
-        if (identifier != null && cacheID(identifier)) {
+        // 2. create and cache it
+        identifier = ID.getInstance(string);
+        if (identifier != null) {
+            cacheID(identifier);
             return identifier;
         }
         // failed to create ID
-        return identifier;
+        return null;
     }
 
+    /**
+     *  Create account with ID
+     *
+     * @param identifier - account ID
+     * @return account
+     */
     public Account getAccount(ID identifier) {
         if (identifier == null) {
             return null;
@@ -166,15 +176,16 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (account != null) {
             return account;
         }
-        // 3. get from delegate
-        account = delegate.getAccount(identifier);
-        if (account != null && cacheAccount(account)) {
-            return account;
-        }
         // failed to get account
         return null;
     }
 
+    /**
+     *  Create user with ID
+     *
+     * @param identifier - user ID
+     * @return user
+     */
     public User getUser(ID identifier) {
         if (identifier == null) {
             return null;
@@ -184,15 +195,16 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         if (user != null) {
             return user;
         }
-        // 2. get from delegate
-        user = delegate.getUser(identifier);
-        if (user != null && cacheUser(user)) {
-            return user;
-        }
         // failed to get user
         return null;
     }
 
+    /**
+     *  Create group with ID
+     *
+     * @param identifier - group ID
+     * @return group
+     */
     public Group getGroup(ID identifier) {
         if (identifier == null) {
             return null;
@@ -200,11 +212,6 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
         // 1. get from group cache
         Group group = groupMap.get(identifier);
         if (group != null) {
-            return group;
-        }
-        // 2. get from delegate
-        group = delegate.getGroup(identifier);
-        if (group != null && cacheGroup(group)) {
             return group;
         }
         // failed to get group
@@ -224,13 +231,13 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
             return meta;
         }
         // 2. get from entity data source
-        meta = entityDataSource.getMeta(identifier);
-        if (meta != null && cacheMeta(meta, identifier)) {
-            return meta;
+        if (entityDataSource != null) {
+            meta = entityDataSource.getMeta(identifier);
+            if (meta != null) {
+                cacheMeta(meta, identifier);
+            }
         }
-        // failed to get meta
-        assert meta == null;
-        return null;
+        return meta;
     }
 
     @Override
@@ -245,7 +252,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public Profile getProfile(ID identifier) {
-        if (identifier == null) {
+        if (identifier == null || entityDataSource == null) {
             return null;
         }
         return entityDataSource.getProfile(identifier);
@@ -255,7 +262,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        if (user == null) {
+        if (user == null || userDataSource == null) {
             return null;
         }
         return userDataSource.getPrivateKeyForSignature(user);
@@ -263,7 +270,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        if (user == null) {
+        if (user == null || userDataSource == null) {
             return null;
         }
         return userDataSource.getPrivateKeysForDecryption(user);
@@ -271,7 +278,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public List<ID> getContacts(ID user) {
-        if (user == null) {
+        if (user == null || userDataSource == null) {
             return null;
         }
         return userDataSource.getContacts(user);
@@ -281,7 +288,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public ID getFounder(ID group) {
-        if (group == null) {
+        if (group == null || groupDataSource == null) {
             return null;
         }
         // get from data source
@@ -312,7 +319,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public ID getOwner(ID group) {
-        if (group == null) {
+        if (group == null || groupDataSource == null) {
             return null;
         }
         return groupDataSource.getOwner(group);
@@ -320,7 +327,7 @@ public class Barrack implements BarrackDelegate, EntityDataSource, UserDataSourc
 
     @Override
     public List<ID> getMembers(ID group) {
-        if (group == null) {
+        if (group == null || groupDataSource == null) {
             return null;
         }
         return groupDataSource.getMembers(group);

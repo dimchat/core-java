@@ -1,4 +1,4 @@
-import chat.dim.core.BarrackDelegate;
+import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.Base64;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Facebook implements EntityDataSource, UserDataSource, GroupDataSource, BarrackDelegate {
+public class Facebook extends Barrack {
 
     private static Facebook ourInstance = new Facebook();
 
@@ -29,11 +29,10 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
 
     // memory caches
     private Map<Address, PrivateKey> privateKeyMap = new HashMap<>();
-    private Map<Address, Meta>       metaMap       = new HashMap<>();
     private Map<Address, Profile>    profileMap    = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/.mkm/"
-    public String metaDirectory = null;
+    public String metaDirectory = "/tmp/.mkm/";
 
     // "/sdcard/chat.dim.sechat/.mkm/{address}.meta"
     private File getMetaFile(ID identifier) throws FileNotFoundException {
@@ -59,27 +58,77 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
         return Meta.getInstance(JSON.decode(json));
     }
 
-    public boolean cachePrivateKey(PrivateKey privateKey, ID identifier) {
+    private boolean cachePrivateKey(PrivateKey privateKey, ID identifier) {
         privateKeyMap.put(identifier.address, privateKey);
         return true;
     }
 
-    public boolean cacheMeta(Meta meta, ID identifier) {
-        metaMap.put(identifier.address, meta);
+    private boolean cacheProfile(Profile profile) {
+        profileMap.put(profile.identifier.address, profile);
         return true;
     }
 
-    public boolean cacheProfile(Profile profile) {
-        profileMap.put(profile.identifier.address, profile);
-        return true;
+    @Override
+    public Account getAccount(ID identifier) {
+        Account account = super.getAccount(identifier);
+        if (account == null) {
+            account = super.getUser(identifier);
+            if (account == null) {
+                account = new Account(identifier);
+                cacheAccount(account);
+            }
+        }
+        return account;
+    }
+
+    @Override
+    public User getUser(ID identifier) {
+        User user = super.getUser(identifier);
+        if (user == null) {
+            user = new User(identifier);
+            cacheUser(user);
+        }
+        return user;
+    }
+
+    @Override
+    public Group getGroup(ID identifier) {
+        Group group = super.getGroup(identifier);
+        if (group == null) {
+            group = new Group(identifier);
+            cacheGroup(group);
+        }
+        return group;
+    }
+
+    //---- EntityDataSource
+
+    @Override
+    public Meta getMeta(ID identifier) {
+        Meta meta = super.getMeta(identifier);
+        if (meta == null) {
+            try {
+                meta = loadMeta(identifier);
+                if (meta != null) {
+                    cacheMeta(meta, identifier);
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return meta;
+    }
+
+    @Override
+    public Profile getProfile(ID entity) {
+        return profileMap.get(entity.address);
     }
 
     //---- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = privateKeyMap.get(user.address);
-        return key;
+        return privateKeyMap.get(user.address);
     }
 
     @Override
@@ -90,67 +139,6 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
             list.add(key);
         }
         return list;
-    }
-
-    @Override
-    public List<ID> getContacts(ID user) {
-        return null;
-    }
-
-    //---- EntityDataSource
-
-    @Override
-    public boolean saveMeta(Meta meta, ID identifier) {
-        return true;
-    }
-
-    @Override
-    public Meta getMeta(ID entity) {
-        Meta meta = metaMap.get(entity.address);
-        return meta;
-    }
-
-    @Override
-    public Profile getProfile(ID entity) {
-        Profile profile = profileMap.get(entity.address);
-        return profile;
-    }
-
-    @Override
-    public ID getFounder(ID group) {
-        return null;
-    }
-
-    @Override
-    public ID getOwner(ID group) {
-        return null;
-    }
-
-    @Override
-    public List<ID> getMembers(ID group) {
-        return null;
-    }
-
-    //-------- BarrackDelegate
-
-    @Override
-    public  ID getID(Object identifier) {
-        return ID.getInstance(identifier);
-    }
-
-    @Override
-    public Account getAccount(ID identifier) {
-        return new Account(identifier);
-    }
-
-    @Override
-    public User getUser(ID identifier) {
-        return new User(identifier);
-    }
-
-    @Override
-    public Group getGroup(ID identifier) {
-        return new Group(identifier);
     }
 
     //-------- load immortals
