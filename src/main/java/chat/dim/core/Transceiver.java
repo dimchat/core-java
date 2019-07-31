@@ -99,12 +99,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     private boolean isBroadcast(Message msg) {
         ID receiver = barrack.getID(msg.getGroup());
-        if (receiver != null) {
-            NetworkType network = receiver.getType();
-            return network.isGroup() && receiver.equals(ID.EVERYONE);
+        if (receiver == null) {
+            receiver = barrack.getID(msg.envelope.receiver);
         }
-        receiver = barrack.getID(msg.envelope.receiver);
-        return KeyCache.isBroadcast(receiver);
+        return receiver.isBroadcast();
     }
 
     /**
@@ -275,15 +273,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
 
         // check attachment for File/Image/Audio/Video message content
-        int type = content.type;
-        if (type == ContentType.FILE.value ||
-                type == ContentType.IMAGE.value ||
-                type == ContentType.AUDIO.value ||
-                type == ContentType.VIDEO.value) {
-            // upload (encrypted) file data onto CDN and save the URL in message content
+        if (content instanceof FileContent) {
+            // assert content.type in [FILE, IMAGE, AUDIO, VIDEO]
             FileContent file = (FileContent) content;
             byte[] data = file.getData();
             data = key.encrypt(data);
+            // upload (encrypted) file data onto CDN and save the URL in message content
             String url = delegate.uploadFileData(data, iMsg);
             if (url != null) {
                 file.setUrl(url);
@@ -392,22 +387,19 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
 
         // check attachment for File/Image/Audio/Video message content
-        int type = content.type;
-        if (type == ContentType.FILE.value ||
-                type == ContentType.IMAGE.value ||
-                type == ContentType.AUDIO.value ||
-                type == ContentType.VIDEO.value) {
+        if (content instanceof FileContent) {
+            // assert content.type in [FILE, IMAGE, AUDIO, VIDEO]
+            FileContent file = (FileContent) content;
             InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);
             // download from CDN
-            FileContent file = (FileContent) content;
             byte[] fileData = delegate.downloadFileData(file.getUrl(), iMsg);
-            if (fileData != null) {
+            if (fileData == null) {
+                // save symmetric key for decrypted file data after download from CDN
+                file.setPassword(key);
+            } else {
                 // decrypt file data
                 file.setData(key.decrypt(fileData));
                 file.setUrl(null);
-            } else {
-                // save symmetric key for decrypted file data after download from CDN
-                file.setPassword(key);
             }
         }
 

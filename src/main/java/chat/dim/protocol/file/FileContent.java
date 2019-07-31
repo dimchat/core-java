@@ -26,9 +26,7 @@
 package chat.dim.protocol.file;
 
 import chat.dim.dkd.Content;
-import chat.dim.format.Base58;
 import chat.dim.format.Base64;
-import chat.dim.format.BaseCoder;
 import chat.dim.protocol.ContentType;
 
 import java.security.MessageDigest;

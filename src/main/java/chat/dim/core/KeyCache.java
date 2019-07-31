@@ -177,17 +177,6 @@ public abstract class KeyCache {
         keyTable.put(to, key);
     }
 
-    static boolean isBroadcast(ID to) {
-        NetworkType network = to.getType();
-        if (network.isPerson()) {
-            return to.equals(ID.ANYONE);
-        } else if (network.isGroup()) {
-            return to.equals(ID.EVERYONE);
-        } else {
-            return false;
-        }
-    }
-
     //-------- CipherKeyDataSource
 
     /**
@@ -198,7 +187,7 @@ public abstract class KeyCache {
      * @return cipher key
      */
     public SymmetricKey cipherKey(ID sender, ID receiver) {
-        if (isBroadcast(receiver)) {
+        if (receiver.isBroadcast()) {
             return PlainKey.getInstance();
         }
         return getCipherKey(sender, receiver);
@@ -212,7 +201,8 @@ public abstract class KeyCache {
      * @param key - cipher key
      */
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        if (isBroadcast(receiver)) {
+        if (receiver.isBroadcast()) {
+            // broadcast message has no key
             return;
         }
         setCipherKey(sender, receiver, key);
