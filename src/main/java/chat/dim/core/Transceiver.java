@@ -35,7 +35,6 @@ import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.NetworkType;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.file.FileContent;
@@ -173,9 +172,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
      * @throws NoSuchFieldException when encrypt message content
      */
     public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
-        if (iMsg.delegate == null) {
-            iMsg.delegate = this;
-        }
         ID sender = barrack.getID(iMsg.envelope.sender);
         ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
@@ -191,6 +187,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
 
         // 1. encrypt 'content' to 'data' for receiver
+        if (iMsg.delegate == null) {
+            iMsg.delegate = this;
+        }
         SecureMessage sMsg;
         if (group == null) {
             // personal message
@@ -246,6 +245,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         InstantMessage iMsg = sMsg.decrypt();
 
         // 3. check: top-secret message
+        if (iMsg.delegate == null) {
+            iMsg.delegate = this;
+        }
         if (iMsg.content.type == ContentType.FORWARD.value) {
             // do it again to drop the wrapper,
             // the secret inside the content is the real message
@@ -274,13 +276,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // check attachment for File/Image/Audio/Video message content
         if (content instanceof FileContent) {
-            // assert content.type in [FILE, IMAGE, AUDIO, VIDEO]
             FileContent file = (FileContent) content;
             byte[] data = file.getData();
+            // encrypt and upload file data onto CDN and save the URL in message content
             data = key.encrypt(data);
-            // upload (encrypted) file data onto CDN and save the URL in message content
             String url = delegate.uploadFileData(data, iMsg);
             if (url != null) {
+                // replace 'data' with 'URL'
                 file.setUrl(url);
                 file.setData(null);
             }
@@ -388,7 +390,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // check attachment for File/Image/Audio/Video message content
         if (content instanceof FileContent) {
-            // assert content.type in [FILE, IMAGE, AUDIO, VIDEO]
             FileContent file = (FileContent) content;
             InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);
             // download from CDN
