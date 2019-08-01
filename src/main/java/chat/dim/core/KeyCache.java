@@ -78,12 +78,43 @@ final class PlainKey extends SymmetricKeyImpl {
     }
 }
 
+interface CipherKeyDataSource {
+
+    /**
+     *  Get cipher key for encrypt message from 'sender' to 'receiver'
+     *
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @return cipher key
+     */
+    SymmetricKey cipherKey(ID sender, ID receiver);
+
+    /**
+     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+     *
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @param key - cipher key
+     */
+    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
+
+    /**
+     *  Update/create cipher key for encrypt message content
+     *
+     * @param sender - from where (user ID)
+     * @param receiver - to where (contact/group ID)
+     * @param key - old key to be reused (nullable)
+     * @return new key
+     */
+    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+}
+
 /**
  *  Symmetric Keys Cache
  *  ~~~~~~~~~~~~~~~~~~~~
  *  Manage keys for conversations
  */
-public abstract class KeyCache {
+public abstract class KeyCache implements CipherKeyDataSource {
 
     // memory caches
     private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
@@ -178,13 +209,7 @@ public abstract class KeyCache {
 
     //-------- CipherKeyDataSource
 
-    /**
-     *  Get cipher key for encrypt message from 'sender' to 'receiver'
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @return cipher key
-     */
+    @Override
     public SymmetricKey cipherKey(ID sender, ID receiver) {
         if (receiver.isBroadcast()) {
             return PlainKey.getInstance();
@@ -192,13 +217,7 @@ public abstract class KeyCache {
         return getCipherKey(sender, receiver);
     }
 
-    /**
-     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param key - cipher key
-     */
+    @Override
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
         if (receiver.isBroadcast()) {
             // broadcast message has no key
@@ -208,13 +227,9 @@ public abstract class KeyCache {
         isDirty = true;
     }
 
-    /**
-     *  Update/create cipher key for encrypt message content
-     *
-     * @param sender - from where (user ID)
-     * @param receiver - to where (contact/group ID)
-     * @param key - old key to be reused (nullable)
-     * @return new key
-     */
-    public abstract SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+    @Override
+    public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
+        // TODO: check whether renew the old key
+        return key;
+    }
 }

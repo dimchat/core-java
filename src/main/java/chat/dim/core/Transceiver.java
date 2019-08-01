@@ -50,9 +50,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     // delegates
-    public TransceiverDelegate delegate;
-    public Barrack             barrack;
-    public KeyCache            keyCache;
+    public TransceiverDelegate     delegate;
+    public SocialNetworkDataSource barrack;
+    public CipherKeyDataSource     keyCache;
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
         // 1. get old key from store

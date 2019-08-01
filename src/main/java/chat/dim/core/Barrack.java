@@ -31,12 +31,47 @@ import chat.dim.mkm.entity.*;
 
 import java.util.*;
 
+interface SocialNetworkDataSource extends EntityDataSource {
+
+    /**
+     *  Create entity ID with String
+     *
+     * @param string - ID string
+     * @return ID
+     */
+    ID getID(Object string);
+
+    /**
+     *  Create account with ID
+     *
+     * @param identifier - account ID
+     * @return account
+     */
+    Account getAccount(ID identifier);
+
+    /**
+     *  Create user with ID
+     *
+     * @param identifier - user ID
+     * @return user
+     */
+    User getUser(ID identifier);
+
+    /**
+     *  Create group with ID
+     *
+     * @param identifier - group ID
+     * @return group
+     */
+    Group getGroup(ID identifier);
+}
+
 /**
  *  Entity Database
  *  ~~~~~~~~~~~~~~~
  *  Manage meta for all entities
  */
-public class Barrack implements EntityDataSource, UserDataSource, GroupDataSource {
+public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDataSource {
 
     // delegates
     public EntityDataSource entityDataSource = null;
@@ -128,12 +163,9 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return true;
     }
 
-    /**
-     *  Create entity ID with String
-     *
-     * @param string - ID string
-     * @return ID
-     */
+    //-------- SocialNetworkDataSource
+
+    @Override
     public ID getID(Object string) {
         if (string == null) {
             return null;
@@ -148,20 +180,14 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         }
         // 2. create and cache it
         identifier = ID.getInstance(string);
-        if (identifier != null) {
-            cacheID(identifier);
+        if (identifier != null && cacheID(identifier)) {
             return identifier;
         }
         // failed to create ID
         return null;
     }
 
-    /**
-     *  Create account with ID
-     *
-     * @param identifier - account ID
-     * @return account
-     */
+    @Override
     public Account getAccount(ID identifier) {
         if (identifier == null) {
             return null;
@@ -180,12 +206,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return null;
     }
 
-    /**
-     *  Create user with ID
-     *
-     * @param identifier - user ID
-     * @return user
-     */
+    @Override
     public User getUser(ID identifier) {
         if (identifier == null) {
             return null;
@@ -199,12 +220,7 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         return null;
     }
 
-    /**
-     *  Create group with ID
-     *
-     * @param identifier - group ID
-     * @return group
-     */
+    @Override
     public Group getGroup(ID identifier) {
         if (identifier == null) {
             return null;
@@ -233,11 +249,12 @@ public class Barrack implements EntityDataSource, UserDataSource, GroupDataSourc
         // 2. get from entity data source
         if (entityDataSource != null) {
             meta = entityDataSource.getMeta(identifier);
-            if (meta != null) {
-                cacheMeta(meta, identifier);
+            if (meta != null && cacheMeta(meta, identifier)) {
+                return meta;
             }
         }
-        return meta;
+        // failed to get meta
+        return null;
     }
 
     @Override

@@ -85,11 +85,6 @@ public class CoreTest extends TestCase {
                 public Map loadKeys() {
                     return null;
                 }
-
-                @Override
-                public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
-                    return null;
-                }
             };
             Map keys = new HashMap();
             boolean changed = keyStore.updateKeys(keys);
