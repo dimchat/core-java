@@ -264,7 +264,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
             throw new IllegalArgumentException("meta not match ID: " + identifier + ", " + meta);
         }
         // 2. save by delegate
-        return entityDataSource.saveMeta(meta, identifier);
+        return entityDataSource != null && entityDataSource.saveMeta(meta, identifier);
     }
 
     @Override

@@ -202,7 +202,12 @@ public abstract class KeyCache implements CipherKeyDataSource {
 
     private void setCipherKey(ID from, ID to, SymmetricKey key) {
         assert from.isValid() && to.isValid();
-        Map<ID, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
+        Map<ID, SymmetricKey> keyTable = keyMap.get(from);
+        if (keyTable == null) {
+            keyTable = new HashMap<>();
+            keyMap.put(from, keyTable);
+        }
+        //Map<ID, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
         assert key != null;
         keyTable.put(to, key);
     }
