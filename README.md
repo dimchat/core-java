@@ -1,7 +1,7 @@
 # Decentralized Instant Messaging Protocol (Java)
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/alpha-0.1.0-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
+[![Version](https://img.shields.io/badge/alpha-0.3.6-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-objc/wiki)
 
@@ -11,7 +11,7 @@
 
 build.gradle
 
-```java
+```javascript
 allprojects {
     repositories {
         jcenter()
@@ -62,6 +62,20 @@ public class Facebook extends Barrack {
     }
     
     //...
+    
+    static {
+        // mkm.Base64 (for Android)
+        chat.dim.format.Base64.coder = new chat.dim.format.BaseCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            }
+            @Override
+            public byte[] decode(String string) {
+                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+            }
+        };
+    }
 }
 ```
 
@@ -96,7 +110,7 @@ public class KeyStore extends KeyCache {
 }
 ```
 
-Transceiver.java
+Messanger.java
 
 ```java
 public class Messanger extends Transceiver implements TransceiverDelegate {
@@ -114,9 +128,18 @@ public class Messanger extends Transceiver implements TransceiverDelegate {
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
         // TODO: send out data
+        return false;
     }
-    
-    //...
+    @Override
+    public String uploadFileData(byte[] data, InstantMessage iMsg) {
+        // TODO: upload onto FTP server
+        return null;
+    }
+    @Override
+    public byte[] downloadFileData(String url, InstantMessage iMsg) {
+        // TODO: download from FTP server
+        return new byte[0];
+    }
 }
 ```
 
