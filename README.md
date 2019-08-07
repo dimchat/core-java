@@ -3,7 +3,7 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
 [![Version](https://img.shields.io/badge/alpha-0.3.6-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
-[![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-objc/wiki)
+[![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
 
 ## Talk is cheap, show you the codes!
 
@@ -61,7 +61,9 @@ public class Facebook extends Barrack {
         //...
     }
     
-    //...
+    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
+        return false;
+    }
     
     static {
         // mkm.Base64 (for Android)
@@ -70,6 +72,7 @@ public class Facebook extends Barrack {
             public String encode(byte[] data) {
                 return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
             }
+            
             @Override
             public byte[] decode(String string) {
                 return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
@@ -113,6 +116,9 @@ public class KeyStore extends KeyCache {
 Messanger.java
 
 ```java
+/**
+ *  Transform and send message
+ */
 public class Messanger extends Transceiver implements TransceiverDelegate {
     private static final Messanger ourInstance = new Messanger();
     public static Messanger getInstance() { return ourInstance; }
@@ -130,11 +136,13 @@ public class Messanger extends Transceiver implements TransceiverDelegate {
         // TODO: send out data
         return false;
     }
+    
     @Override
     public String uploadFileData(byte[] data, InstantMessage iMsg) {
         // TODO: upload onto FTP server
         return null;
     }
+    
     @Override
     public byte[] downloadFileData(String url, InstantMessage iMsg) {
         // TODO: download from FTP server
@@ -161,7 +169,6 @@ Register.java
         facebook.saveMeta(meta, identifier);
         // 5. create user with ID
         User user = new User(identifier);
-        user.dataSource = facebook;
         facebook.cacheUser(user);
         return user;
     }
@@ -172,6 +179,17 @@ Register.java
 Send.java
 
 ```java
+    public ReliableMessage pack(Content content, ID sender, ID receiver) {
+        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
+        ReliableMessage rMsg = null;
+        try {
+            rMsg = messanger.encryptAndSignMessage(iMsg);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return rMsg;
+    }
+    
     public void send(Content content, ID sender, ID receiver) {
         InstantMessage iMsg = new InstantMessage(content, sender, receiver);
         // callback
@@ -179,10 +197,10 @@ Send.java
             @Override
             public void onFinished(Object result, Error error) {
                 if (error == null) {
-                    //iMsg.state = "Accepted";
+                    //iMsg.put("state", "Accepted");
                 } else {
-                    //iMsg.state = "Error";
-                    //iMsg.error = error;
+                    //iMsg.put("state", "Error");
+                    //iMsg.put("error", error);
                 }
             }
         };

@@ -198,12 +198,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
             return account;
         }
         // 2. get from user cache
-        account = userMap.get(identifier);
-        if (account != null) {
-            return account;
-        }
-        // failed to get account
-        return null;
+        return getUser(identifier);
     }
 
     @Override
@@ -212,12 +207,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
             return null;
         }
         // 1. get from user cache
-        User user = userMap.get(identifier);
-        if (user != null) {
-            return user;
-        }
-        // failed to get user
-        return null;
+        return userMap.get(identifier);
     }
 
     @Override
@@ -226,12 +216,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
             return null;
         }
         // 1. get from group cache
-        Group group = groupMap.get(identifier);
-        if (group != null) {
-            return group;
-        }
-        // failed to get group
-        return null;
+        return groupMap.get(identifier);
     }
 
     //-------- EntityDataSource
