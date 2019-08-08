@@ -1,8 +1,10 @@
+
+import junit.framework.TestCase;
+import org.junit.Test;
+
 import chat.dim.mkm.entity.ID;
 import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.JoinCommand;
-import junit.framework.TestCase;
-import org.junit.Test;
 
 public class CommandTest extends TestCase {
 

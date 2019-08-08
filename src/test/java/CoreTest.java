@@ -1,5 +1,11 @@
+
+import junit.framework.TestCase;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import chat.dim.core.*;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -9,11 +15,6 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.protocol.TextContent;
-import junit.framework.TestCase;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class CoreTest extends TestCase {
 

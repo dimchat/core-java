@@ -1,10 +1,3 @@
-import chat.dim.core.Barrack;
-import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.impl.PrivateKeyImpl;
-import chat.dim.format.Base64;
-import chat.dim.format.JSON;
-import chat.dim.mkm.*;
-import chat.dim.mkm.entity.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import chat.dim.core.Barrack;
+import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.impl.PrivateKeyImpl;
+import chat.dim.format.Base64;
+import chat.dim.format.JSON;
+import chat.dim.mkm.*;
+import chat.dim.mkm.entity.*;
 
 public class Facebook extends Barrack {
 

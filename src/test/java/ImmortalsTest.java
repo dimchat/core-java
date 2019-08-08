@@ -1,8 +1,9 @@
 
-import chat.dim.mkm.User;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import chat.dim.mkm.User;
 
 public class ImmortalsTest {
 
