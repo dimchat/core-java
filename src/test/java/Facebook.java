@@ -187,19 +187,20 @@ public class Facebook extends Barrack {
         return profile;
     }
 
+    @SuppressWarnings("unchecked")
     static User loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
-        String jsonString = Utils.readTextFile(filename);
-        Map<String, Object> dictionary = JSON.decode(jsonString);
+        String json = Utils.readTextFile(filename);
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
 
         // ID
-        ID identifier = ID.getInstance(dictionary.get("ID"));
+        ID identifier = ID.getInstance(dict.get("ID"));
         assert identifier != null;
         // meta
-        Meta meta = Meta.getInstance(dictionary.get("meta"));
+        Meta meta = Meta.getInstance(dict.get("meta"));
         assert meta != null && meta.matches(identifier);
         getInstance().cacheMeta(meta, identifier);
         // private key
-        PrivateKey privateKey = PrivateKeyImpl.getInstance(dictionary.get("privateKey"));
+        PrivateKey privateKey = PrivateKeyImpl.getInstance(dict.get("privateKey"));
         if (meta.key.matches(privateKey)) {
             // store private key into keychain
             getInstance().cachePrivateKey(privateKey, identifier);
@@ -211,7 +212,7 @@ public class Facebook extends Barrack {
         user.dataSource = getInstance();
 
         // profile
-        Profile profile = getProfile((Map) dictionary.get("profile"), identifier, privateKey);
+        Profile profile = getProfile((Map) dict.get("profile"), identifier, privateKey);
         getInstance().cacheProfile(profile);
 
         return user;

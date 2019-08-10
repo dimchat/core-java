@@ -159,7 +159,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                 callback.onFinished(rMsg, error);
             }
         };
-        String json = JSON.encode(rMsg);
+        String json = JSON.encode(rMsg) + "\n";
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return delegate.sendPackage(data, handler);
     }
@@ -333,6 +333,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- SecureMessageDelegate
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         assert !isBroadcast(sMsg) || keyData == null;
 
@@ -349,7 +350,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             }
             // create symmetric key from JsON data
             String json = new String(plaintext, Charset.forName("UTF-8"));
-            key = getSymmetricKey(JSON.decode(json), from, to);
+            Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+            key = getSymmetricKey(dict, from, to);
         }
         if (key == null) {
             // if key data is empty, get it from key store
@@ -369,6 +371,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key = getSymmetricKey(password);
         if (key == null) {
@@ -382,10 +385,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
         // build Content with JsON
         String json = new String(plaintext, Charset.forName("UTF-8"));
-        Map<String, Object> dictionary = JSON.decode(json);
-        Content content = Content.getInstance(dictionary);
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+        Content content = Content.getInstance(dict);
         if (content == null) {
-            throw new NullPointerException("decrypted content error: " + dictionary);
+            throw new NullPointerException("decrypted content error: " + dict);
         }
 
         // check attachment for File/Image/Audio/Video message content
