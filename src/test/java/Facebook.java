@@ -70,25 +70,18 @@ public class Facebook extends Barrack {
     }
 
     @Override
-    public Account getAccount(ID identifier) {
-        Account account = super.getAccount(identifier);
-        if (account == null) {
-            account = super.getUser(identifier);
-            if (account == null) {
-                account = new Account(identifier);
-                cacheAccount(account);
-            }
-        }
-        return account;
-    }
-
-    @Override
     public User getUser(ID identifier) {
         User user = super.getUser(identifier);
-        if (user == null) {
-            user = new User(identifier);
-            cacheUser(user);
+        if (user != null) {
+            return user;
         }
+        PrivateKey key = getPrivateKeyForSignature(identifier);
+        if (key == null) {
+            user = new User(identifier);
+        } else {
+            user = new LocalUser(identifier);
+        }
+        cacheUser(user);
         return user;
     }
 
@@ -188,7 +181,7 @@ public class Facebook extends Barrack {
     }
 
     @SuppressWarnings("unchecked")
-    static User loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
+    static LocalUser loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
         String json = Utils.readTextFile(filename);
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
 
@@ -208,7 +201,7 @@ public class Facebook extends Barrack {
             throw new IllegalArgumentException("private key not match meta public key: " + privateKey);
         }
         // create user
-        User user = new User(identifier);
+        LocalUser user = new LocalUser(identifier);
         user.dataSource = getInstance();
 
         // profile

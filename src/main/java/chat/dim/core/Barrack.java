@@ -26,10 +26,18 @@
 package chat.dim.core;
 
 import chat.dim.crypto.PrivateKey;
-import chat.dim.mkm.*;
-import chat.dim.mkm.entity.*;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.GroupDataSource;
+import chat.dim.mkm.User;
+import chat.dim.mkm.UserDataSource;
+import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.entity.Meta;
+import chat.dim.mkm.entity.Profile;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 interface SocialNetworkDataSource extends EntityDataSource {
 
@@ -40,14 +48,6 @@ interface SocialNetworkDataSource extends EntityDataSource {
      * @return ID
      */
     ID getID(Object string);
-
-    /**
-     *  Create account with ID
-     *
-     * @param identifier - account ID
-     * @return account
-     */
-    Account getAccount(ID identifier);
 
     /**
      *  Create user with ID
@@ -79,11 +79,10 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
     public GroupDataSource  groupDataSource  = null;
 
     // memory caches
-    private Map<String, ID>  idMap      = new HashMap<>();
-    private Map<ID, Meta>    metaMap    = new HashMap<>();
-    private Map<ID, Account> accountMap = new HashMap<>();
-    private Map<ID, User>    userMap    = new HashMap<>();
-    private Map<ID, Group>   groupMap   = new HashMap<>();
+    private Map<String, ID> idMap    = new HashMap<>();
+    private Map<ID, Meta>   metaMap  = new HashMap<>();
+    private Map<ID, User>   userMap  = new HashMap<>();
+    private Map<ID, Group>  groupMap = new HashMap<>();
 
     public Barrack() {
         super();
@@ -99,7 +98,6 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
         int finger = 0;
         finger = thanos(idMap, finger);
         finger = thanos(metaMap, finger);
-        finger = thanos(accountMap, finger);
         finger = thanos(userMap, finger);
         finger = thanos(groupMap, finger);
         return finger >> 1;
@@ -125,40 +123,28 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
     }
 
     protected boolean cacheMeta(Meta meta, ID identifier) {
-        if (meta.matches(identifier)) {
-            metaMap.put(identifier, meta);
-            return true;
+        assert identifier.isValid();
+        if (!meta.matches(identifier)) {
+            return false;
         }
-        return false;
-    }
-
-    protected boolean cacheAccount(Account account) {
-        if (account instanceof User) {
-            return cacheUser((User) account);
-        }
-        if (account.dataSource == null) {
-            account.dataSource = this;
-        }
-        assert account.identifier.isValid();
-        accountMap.put(account.identifier, account);
+        metaMap.put(identifier, meta);
         return true;
     }
 
     protected boolean cacheUser(User user) {
-        accountMap.remove(user.identifier);
+        assert user.identifier.isValid();
         if (user.dataSource == null) {
             user.dataSource = this;
         }
-        assert user.identifier.isValid();
         userMap.put(user.identifier, user);
         return true;
     }
 
     protected boolean cacheGroup(Group group) {
+        assert group.identifier.isValid();
         if (group.dataSource == null) {
             group.dataSource = this;
         }
-        assert group.identifier.isValid();
         groupMap.put(group.identifier, group);
         return true;
     }
@@ -188,20 +174,6 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
     }
 
     @Override
-    public Account getAccount(ID identifier) {
-        if (identifier == null) {
-            return null;
-        }
-        // 1. get from account cache
-        Account account = accountMap.get(identifier);
-        if (account != null) {
-            return account;
-        }
-        // 2. get from user cache
-        return getUser(identifier);
-    }
-
-    @Override
     public User getUser(ID identifier) {
         if (identifier == null) {
             return null;
@@ -222,6 +194,31 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
     //-------- EntityDataSource
 
     @Override
+    public boolean savePrivateKey(PrivateKey key, ID identifier) {
+        return entityDataSource != null && entityDataSource.savePrivateKey(key, identifier);
+    }
+
+    @Override
+    public boolean saveMeta(Meta meta, ID identifier) {
+        // 1. check meta with ID
+        if (!cacheMeta(meta, identifier)) {
+            throw new IllegalArgumentException("meta not match ID: " + identifier + ", " + meta);
+        }
+        // 2. save by delegate
+        return entityDataSource != null && entityDataSource.saveMeta(meta, identifier);
+    }
+
+    @Override
+    public boolean saveProfile(Profile profile) {
+        // 1. check profile
+        if (!profile.isValid()) {
+            throw new IllegalArgumentException("profile not valid: " + profile);
+        }
+        // 2. save by delegate
+        return entityDataSource != null && entityDataSource.saveProfile(profile);
+    }
+
+    @Override
     public Meta getMeta(ID identifier) {
         if (identifier == null) {
             return null;
@@ -240,16 +237,6 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
         }
         // failed to get meta
         return null;
-    }
-
-    @Override
-    public boolean saveMeta(Meta meta, ID identifier) {
-        // 1. check meta with ID
-        if (!cacheMeta(meta, identifier)) {
-            throw new IllegalArgumentException("meta not match ID: " + identifier + ", " + meta);
-        }
-        // 2. save by delegate
-        return entityDataSource != null && entityDataSource.saveMeta(meta, identifier);
     }
 
     @Override
@@ -293,30 +280,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
         if (group == null || groupDataSource == null) {
             return null;
         }
-        // get from data source
-        ID founder = groupDataSource.getFounder(group);
-        if (founder != null) {
-            return founder;
-        }
-        // check each member's public key with group meta
-        Meta gMeta = getMeta(group);
-        List<ID> members = groupDataSource.getMembers(group);
-        if (gMeta == null || members == null) {
-            //throw new NullPointerException("failed to get group info: " + gMeta + ", " + members);
-            return null;
-        }
-        for (ID member : members) {
-            Meta meta = getMeta(member);
-            if (meta == null) {
-                // TODO: query meta for this member from DIM network
-                continue;
-            }
-            if (gMeta.matches(meta.key)) {
-                // if public key matched, means the group is created by this member
-                return member;
-            }
-        }
-        return null;
+        return groupDataSource.getFounder(group);
     }
 
     @Override

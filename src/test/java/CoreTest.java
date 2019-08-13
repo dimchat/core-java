@@ -9,9 +9,9 @@ import chat.dim.core.*;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.protocol.TextContent;
@@ -58,9 +58,10 @@ public class CoreTest extends TestCase {
 
         Meta meta = barrack.getMeta(identifier);
 
-        Account account = barrack.getAccount(identifier);
+        User contact = barrack.getUser(identifier);
 
-        User user = barrack.getUser(identifier);
+        identifier = barrack.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
+        LocalUser user = (LocalUser) barrack.getUser(identifier);
 
         identifier = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
 

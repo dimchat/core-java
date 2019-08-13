@@ -30,9 +30,9 @@ import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.dkd.*;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.protocol.ContentType;
@@ -159,7 +159,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                 callback.onFinished(rMsg, error);
             }
         };
-        String json = JSON.encode(rMsg) + "\n";
+        String json = JSON.encode(rMsg);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return delegate.sendPackage(data, handler);
     }
@@ -314,7 +314,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         // TODO: check whether support reused key
 
         // encrypt with receiver's public key
-        Account contact = barrack.getAccount(barrack.getID(receiver));
+        User contact = barrack.getUser(barrack.getID(receiver));
         if (contact == null) {
             return null;
         }
@@ -343,7 +343,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         if (keyData != null) {
             // decrypt key data with the receiver's private key
             ID identifier = barrack.getID(sMsg.envelope.receiver);
-            User user = barrack.getUser(identifier);
+            LocalUser user = (LocalUser) barrack.getUser(identifier);
             byte[] plaintext = user == null ? null : user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
@@ -424,7 +424,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        User user = barrack.getUser(barrack.getID(sender));
+        LocalUser user = (LocalUser) barrack.getUser(barrack.getID(sender));
         if (user == null) {
             throw new NullPointerException("failed to sign with sender: " + sender);
         }
@@ -440,11 +440,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        Account account = barrack.getAccount(barrack.getID(sender));
-        if (account == null) {
+        User contact = barrack.getUser(barrack.getID(sender));
+        if (contact == null) {
             throw new NullPointerException("failed to verify with sender: " + sender);
         }
-        return account.verify(data, signature);
+        return contact.verify(data, signature);
     }
 
     @Override

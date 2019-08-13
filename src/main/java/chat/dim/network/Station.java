@@ -1,9 +1,9 @@
 package chat.dim.network;
 
-import chat.dim.mkm.Account;
+import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 
-public class Station extends Account {
+public class Station extends User {
 
     private ServiceProvider serviceProvider;
 
