@@ -52,14 +52,8 @@ public class MetaCommand extends CommandContent {
         meta       = Meta.getInstance(dictionary.get("meta"));
     }
 
-    /**
-     *  Response Meta
-     *
-     * @param identifier - entity ID
-     * @param meta - entity Meta
-     */
-    public MetaCommand(ID identifier, Meta meta) {
-        super(META);
+    MetaCommand(String command, ID identifier, Meta meta) {
+        super(command);
         // ID
         this.identifier = identifier;
         dictionary.put("ID", identifier);
@@ -68,6 +62,16 @@ public class MetaCommand extends CommandContent {
         if (meta != null) {
             dictionary.put("meta", meta);
         }
+    }
+
+    /**
+     *  Response Meta
+     *
+     * @param identifier - entity ID
+     * @param meta - entity Meta
+     */
+    public MetaCommand(ID identifier, Meta meta) {
+        this(META, identifier, meta);
     }
 
     /**

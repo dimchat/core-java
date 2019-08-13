@@ -91,7 +91,7 @@ public class ProfileCommand extends MetaCommand {
      * @param profile - entity Profile
      */
     public ProfileCommand(ID identifier, Meta meta, Profile profile) {
-        super(identifier, meta);
+        super(PROFILE, identifier, meta);
         // set profile
         this.profile = profile;
         if (profile != null) {
