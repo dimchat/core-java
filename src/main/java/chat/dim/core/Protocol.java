@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.core;
 
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -33,42 +33,39 @@ import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.dkd.*;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.User;
+
+import chat.dim.protocol.*;
 import chat.dim.protocol.file.AudioContent;
 import chat.dim.protocol.file.FileContent;
 import chat.dim.protocol.file.ImageContent;
 import chat.dim.protocol.file.VideoContent;
 
-public abstract class Protocol implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
+public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 
-    protected abstract ID getID(Object string);
+    public Protocol() {
+        super();
+    }
 
-    protected abstract User getUser(ID identifier);
-
-    protected abstract Group getGroup(ID identifier);
+    // delegates
+    public SocialNetworkDataSource barrack;
+    public CipherKeyDataSource keyCache;
 
     protected boolean isBroadcast(Message msg) {
-        ID receiver = getID(msg.getGroup());
+        ID receiver = barrack.getID(msg.getGroup());
         if (receiver == null) {
-            receiver = getID(msg.envelope.receiver);
+            receiver = barrack.getID(msg.envelope.receiver);
         }
         return receiver.isBroadcast();
     }
 
-    protected abstract SymmetricKey cipherKey(ID sender, ID receiver);
-
-    protected abstract void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
-
-    protected abstract SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
-
     protected SymmetricKey getSymmetricKey(ID from, ID to) {
         // 1. get old key from store
-        SymmetricKey oldKey = cipherKey(from, to);
+        SymmetricKey oldKey = keyCache.cipherKey(from, to);
         // 2. get new key from delegate
-        SymmetricKey newKey = reuseCipherKey(from, to, oldKey);
+        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
         if (newKey == null) {
             if (oldKey == null) {
                 // 3. create a new key
@@ -83,7 +80,7 @@ public abstract class Protocol implements InstantMessageDelegate, SecureMessageD
         }
         // 4. update new key into the key store
         if (newKey != null && !newKey.equals(oldKey)) {
-            cacheCipherKey(from, to, newKey);
+            keyCache.cacheCipherKey(from, to, newKey);
         }
         return newKey;
     }
@@ -92,7 +89,7 @@ public abstract class Protocol implements InstantMessageDelegate, SecureMessageD
         SymmetricKey key = getSymmetricKey(password);
         if (key != null) {
             // cache the new key in key store
-            cacheCipherKey(from, to, key);
+            keyCache.cacheCipherKey(from, to, key);
         }
         return key;
     }
@@ -140,7 +137,7 @@ public abstract class Protocol implements InstantMessageDelegate, SecureMessageD
         // TODO: check whether support reused key
 
         // encrypt with receiver's public key
-        User contact = getUser(getID(receiver));
+        User contact = barrack.getUser(barrack.getID(receiver));
         if (contact == null) {
             return null;
         }
@@ -163,13 +160,13 @@ public abstract class Protocol implements InstantMessageDelegate, SecureMessageD
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         assert !isBroadcast(sMsg) || keyData == null;
 
-        ID from = getID(sender);
-        ID to = getID(receiver);
+        ID from = barrack.getID(sender);
+        ID to = barrack.getID(receiver);
         SymmetricKey key = null;
         if (keyData != null) {
             // decrypt key data with the receiver's private key
-            ID identifier = getID(sMsg.envelope.receiver);
-            LocalUser user = (LocalUser) getUser(identifier);
+            ID identifier = barrack.getID(sMsg.envelope.receiver);
+            LocalUser user = (LocalUser) barrack.getUser(identifier);
             byte[] plaintext = user == null ? null : user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
@@ -234,7 +231,7 @@ public abstract class Protocol implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        LocalUser user = (LocalUser) getUser(getID(sender));
+        LocalUser user = (LocalUser) barrack.getUser(barrack.getID(sender));
         if (user == null) {
             throw new NullPointerException("failed to sign with sender: " + sender);
         }
@@ -250,7 +247,7 @@ public abstract class Protocol implements InstantMessageDelegate, SecureMessageD
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        User contact = getUser(getID(sender));
+        User contact = barrack.getUser(barrack.getID(sender));
         if (contact == null) {
             throw new NullPointerException("failed to verify with sender: " + sender);
         }

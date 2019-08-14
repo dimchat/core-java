@@ -25,18 +25,15 @@
  */
 package chat.dim.core;
 
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.*;
 import chat.dim.format.JSON;
 import chat.dim.mkm.*;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.ForwardContent;
-import chat.dim.protocol.Protocol;
 import chat.dim.protocol.file.FileContent;
-
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
 
 public class Transceiver extends Protocol {
 
@@ -45,39 +42,7 @@ public class Transceiver extends Protocol {
     }
 
     // delegates
-    public TransceiverDelegate     delegate;
-    public SocialNetworkDataSource barrack;
-    public CipherKeyDataSource     keyCache;
-
-    @Override
-    protected ID getID(Object identifier) {
-        return barrack.getID(identifier);
-    }
-
-    @Override
-    protected User getUser(ID identifier) {
-        return barrack.getUser(identifier);
-    }
-
-    @Override
-    protected Group getGroup(ID identifier) {
-        return barrack.getGroup(identifier);
-    }
-
-    @Override
-    protected SymmetricKey cipherKey(ID sender, ID receiver) {
-        return keyCache.cipherKey(sender, receiver);
-    }
-
-    @Override
-    protected void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        keyCache.cacheCipherKey(sender, receiver, key);
-    }
-
-    @Override
-    protected SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        return keyCache.reuseCipherKey(sender, receiver, key);
-    }
+    public TransceiverDelegate delegate;
 
     /**
      *  Send message (secured + certified) to target station
@@ -99,9 +64,9 @@ public class Transceiver extends Protocol {
 
         // trying to send out
         boolean OK = true;
-        ID receiver = getID(iMsg.envelope.receiver);
+        ID receiver = barrack.getID(iMsg.envelope.receiver);
         if (split && receiver.getType().isGroup()) {
-            Group group = getGroup(receiver);
+            Group group = barrack.getGroup(receiver);
             List<ID> members = group == null ? null : group.getMembers();
             List<SecureMessage> messages = members == null ? null : rMsg.split(members);
             if (messages == null || messages.size() == 0) {
@@ -148,17 +113,17 @@ public class Transceiver extends Protocol {
      * @throws NoSuchFieldException when encrypt message content
      */
     public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
-        ID sender = getID(iMsg.envelope.sender);
-        ID receiver = getID(iMsg.envelope.receiver);
+        ID sender = barrack.getID(iMsg.envelope.sender);
+        ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
         Group group = null;
         if (receiver.getType().isGroup()) {
-            group = getGroup(receiver);
+            group = barrack.getGroup(receiver);
         } else {
             Object gid = iMsg.getGroup();
             if (gid != null) {
-                group = getGroup(getID(gid));
+                group = barrack.getGroup(barrack.getID(gid));
             }
         }
 
@@ -189,9 +154,25 @@ public class Transceiver extends Protocol {
      *
      * @param rMsg - reliable message
      * @return InstantMessage object
-     * @throws ClassNotFoundException when saving meta
      */
-    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg) throws ClassNotFoundException {
+    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg) {
+        /*
+        // [Meta Protocol] check meta in first contact message
+        ID sender = barrack.getID(rMsg.envelope.sender);
+        Meta meta = barrack.getMeta(sender);
+        if (meta == null) {
+            // first contact, try meta in message package
+            meta = Meta.getInstance(rMsg.getMeta());
+            if (meta == null) {
+                // TODO: query meta for sender from DIM network
+                throw new NullPointerException("failed to get meta for sender: " + sender);
+            }
+            assert meta.matches(sender);
+            if (!barrack.saveMeta(meta, sender)) {
+                throw new IllegalArgumentException("save meta error: " + sender + ", " + meta);
+            }
+        }
+        */
         // 1. verify 'data' with 'signature'
         if (rMsg.delegate == null) {
             rMsg.delegate = this;
@@ -203,7 +184,7 @@ public class Transceiver extends Protocol {
             sMsg.delegate = this;
         }
         InstantMessage iMsg = sMsg.decrypt();
-
+        /*
         // 3. check: top-secret message
         if (iMsg.content.type == ContentType.FORWARD.value) {
             // do it again to drop the wrapper,
@@ -217,7 +198,7 @@ public class Transceiver extends Protocol {
             }
             // FIXME: not for you?
         }
-
+        */
         // OK
         return iMsg;
     }
