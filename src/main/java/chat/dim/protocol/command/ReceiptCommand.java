@@ -25,12 +25,12 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.format.Base64;
-import chat.dim.dkd.Envelope;
-import chat.dim.protocol.CommandContent;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import chat.dim.format.Base64;
+import chat.dim.dkd.Envelope;
+import chat.dim.protocol.Command;
 
 /**
  *  Command message: {
@@ -46,7 +46,7 @@ import java.util.Map;
  *      signature : "..." // the same signature with the original message
  *  }
  */
-public class ReceiptCommand extends CommandContent {
+public class ReceiptCommand extends Command {
 
     public final String message;
 

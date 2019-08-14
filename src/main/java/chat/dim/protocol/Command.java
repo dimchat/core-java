@@ -25,14 +25,14 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.dkd.Content;
-import chat.dim.protocol.command.*;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import chat.dim.dkd.Content;
+import chat.dim.protocol.command.*;
 
 /**
  *  Command message: {
@@ -43,7 +43,7 @@ import java.util.Map;
  *      extra   : info   // command parameters
  *  }
  */
-public class CommandContent extends Content {
+public class Command extends Content {
 
     //-------- command names begin --------
     public static final String HANDSHAKE = "handshake";
@@ -54,18 +54,18 @@ public class CommandContent extends Content {
 
     public final String command;
 
-    public CommandContent(Map<String, Object> dictionary) {
+    public Command(Map<String, Object> dictionary) {
         super(dictionary);
         command = (String) dictionary.get("command");
     }
 
-    protected CommandContent(int type, String cmd) {
+    protected Command(int type, String cmd) {
         super(type);
         command = cmd;
         dictionary.put("command", cmd);
     }
 
-    public CommandContent(String command) {
+    public Command(String command) {
         this(ContentType.COMMAND.value, command);
     }
 
@@ -76,33 +76,33 @@ public class CommandContent extends Content {
     @SuppressWarnings("unchecked")
     public static void register(String command, Class clazz) {
         // check whether clazz is subclass of CommandContent
-        if (clazz.equals(CommandContent.class)) {
+        if (clazz.equals(Command.class)) {
             throw new IllegalArgumentException("should not add CommandContent.class itself!");
         }
-        clazz = clazz.asSubclass(CommandContent.class);
+        clazz = clazz.asSubclass(Command.class);
         commandClasses.put(command, clazz);
     }
 
     @SuppressWarnings("unchecked")
-    private static CommandContent createInstance(Map<String, Object> dictionary) {
+    private static Command createInstance(Map<String, Object> dictionary) {
         String command = (String) dictionary.get("command");
         Class clazz = commandClasses.get(command);
         if (clazz == null) {
             //throw new ClassNotFoundException("unknown command: " + command);
-            return new CommandContent(dictionary);
+            return new Command(dictionary);
         }
         // try 'getInstance()'
         try {
             Method method = clazz.getMethod("getInstance", Object.class);
             if (method.getDeclaringClass().equals(clazz)) {
-                return (CommandContent) method.invoke(null, dictionary);
+                return (Command) method.invoke(null, dictionary);
             }
         } catch (Exception e) {
             //e.printStackTrace();
         }
         try {
             Constructor constructor = clazz.getConstructor(Map.class);
-            return (CommandContent) constructor.newInstance(dictionary);
+            return (Command) constructor.newInstance(dictionary);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
             return null;
@@ -110,11 +110,11 @@ public class CommandContent extends Content {
     }
 
     @SuppressWarnings("unchecked")
-    public static CommandContent getInstance(Object object) {
+    public static Command getInstance(Object object) {
         if (object == null) {
             return null;
         } else if (object instanceof Content) {
-            return (CommandContent) object;
+            return (Command) object;
         } else if (object instanceof Map) {
             return createInstance((Map<String, Object>) object);
         } else {

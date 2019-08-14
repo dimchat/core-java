@@ -15,22 +15,17 @@ import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.mkm.*;
-import chat.dim.mkm.entity.*;
 
 public class Facebook extends Barrack {
-
     private static Facebook ourInstance = new Facebook();
-
-    public static Facebook getInstance() {
-        return ourInstance;
-    }
-
+    public static Facebook getInstance() { return ourInstance; }
     private Facebook() {
+        super();
     }
 
     // memory caches
     private Map<Address, PrivateKey> privateKeyMap = new HashMap<>();
-    private Map<Address, Profile>    profileMap    = new HashMap<>();
+    private Map<ID, Profile>         profileMap    = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/.mkm/"
     public String metaDirectory = "/tmp/.mkm/";
@@ -59,15 +54,22 @@ public class Facebook extends Barrack {
         return Meta.getInstance(JSON.decode(json));
     }
 
-    private boolean cachePrivateKey(PrivateKey privateKey, ID identifier) {
-        privateKeyMap.put(identifier.address, privateKey);
+    //---- Private Key
+
+    protected boolean cachePrivateKey(PrivateKey key, ID identifier) {
+        assert identifier.isValid();
+        privateKeyMap.put(identifier.address, key);
         return true;
     }
 
-    private boolean cacheProfile(Profile profile) {
-        profileMap.put(profile.identifier.address, profile);
+    //---- Profile
+
+    protected boolean cacheProfile(Profile profile) {
+        profileMap.put(profile.identifier, profile);
         return true;
     }
+
+    //-------- SocialNetworkDataSource
 
     @Override
     public User getUser(ID identifier) {
@@ -133,6 +135,28 @@ public class Facebook extends Barrack {
             list.add(key);
         }
         return list;
+    }
+
+    @Override
+    public List<ID> getContacts(ID user) {
+        return null;
+    }
+
+    //---- GroupDataSource
+
+    @Override
+    public ID getFounder(ID group) {
+        return null;
+    }
+
+    @Override
+    public ID getOwner(ID group) {
+        return null;
+    }
+
+    @Override
+    public List<ID> getMembers(ID group) {
+        return null;
     }
 
     //-------- load immortals

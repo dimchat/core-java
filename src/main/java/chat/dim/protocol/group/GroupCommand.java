@@ -25,9 +25,6 @@
  */
 package chat.dim.protocol.group;
 
-import chat.dim.mkm.entity.ID;
-import chat.dim.protocol.HistoryCommand;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,6 +32,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import chat.dim.mkm.ID;
+import chat.dim.protocol.HistoryCommand;
 
 public class GroupCommand extends HistoryCommand {
 

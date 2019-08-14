@@ -2,7 +2,7 @@
 import junit.framework.TestCase;
 import org.junit.Test;
 
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.JoinCommand;
 

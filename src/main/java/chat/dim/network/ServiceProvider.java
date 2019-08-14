@@ -1,7 +1,7 @@
 package chat.dim.network;
 
 import chat.dim.mkm.Group;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class ServiceProvider extends Group {
 

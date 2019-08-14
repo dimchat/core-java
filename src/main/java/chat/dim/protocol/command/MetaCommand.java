@@ -25,11 +25,11 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.protocol.CommandContent;
-
 import java.util.Map;
+
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.protocol.Command;
 
 /**
  *  Command message: {
@@ -41,7 +41,7 @@ import java.util.Map;
  *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }
  */
-public class MetaCommand extends CommandContent {
+public class MetaCommand extends Command {
 
     public final ID identifier;
     public final Meta meta;

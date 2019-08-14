@@ -25,10 +25,10 @@
  */
 package chat.dim.protocol.file;
 
+import java.util.Map;
+
 import chat.dim.format.Base64;
 import chat.dim.protocol.ContentType;
-
-import java.util.Map;
 
 /**
  *  Video message: {

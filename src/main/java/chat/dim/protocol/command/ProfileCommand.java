@@ -25,12 +25,12 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.Profile;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
 
 /**
  *  Command message: {

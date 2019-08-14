@@ -25,10 +25,10 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.protocol.group.GroupCommand;
-
 import java.util.Date;
 import java.util.Map;
+
+import chat.dim.protocol.group.GroupCommand;
 
 /**
  *  History command: {
@@ -40,7 +40,7 @@ import java.util.Map;
  *      extra   : info   // command parameters
  *  }
  */
-public class HistoryCommand extends CommandContent {
+public class HistoryCommand extends Command {
 
     //-------- command names begin --------
     // account

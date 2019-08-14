@@ -25,19 +25,11 @@
  */
 package chat.dim.core;
 
-import chat.dim.crypto.PrivateKey;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.GroupDataSource;
-import chat.dim.mkm.User;
-import chat.dim.mkm.UserDataSource;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.Profile;
-
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+
+import chat.dim.mkm.*;
 
 interface SocialNetworkDataSource extends EntityDataSource {
 
@@ -71,12 +63,7 @@ interface SocialNetworkDataSource extends EntityDataSource {
  *  ~~~~~~~~~~~~~~~
  *  Manage meta for all entities
  */
-public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDataSource {
-
-    // delegates
-    public EntityDataSource entityDataSource = null;
-    public UserDataSource   userDataSource   = null;
-    public GroupDataSource  groupDataSource  = null;
+public abstract class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDataSource {
 
     // memory caches
     private Map<String, ID> idMap    = new HashMap<>();
@@ -92,7 +79,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
      * this will remove 50% of cached objects
      *
-     * @return reduced object count
+     * @return remained object count
      */
     public int reduceMemory() {
         int finger = 0;
@@ -103,7 +90,7 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
         return finger >> 1;
     }
 
-    private int thanos(Map map, int finger) {
+    protected int thanos(Map map, int finger) {
         Iterator iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
             iterator.next();
@@ -194,108 +181,10 @@ public class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDa
     //-------- EntityDataSource
 
     @Override
-    public boolean savePrivateKey(PrivateKey key, ID identifier) {
-        return entityDataSource != null && entityDataSource.savePrivateKey(key, identifier);
-    }
-
-    @Override
-    public boolean saveMeta(Meta meta, ID identifier) {
-        // 1. check meta with ID
-        if (!cacheMeta(meta, identifier)) {
-            throw new IllegalArgumentException("meta not match ID: " + identifier + ", " + meta);
-        }
-        // 2. save by delegate
-        return entityDataSource != null && entityDataSource.saveMeta(meta, identifier);
-    }
-
-    @Override
-    public boolean saveProfile(Profile profile) {
-        // 1. check profile
-        if (!profile.isValid()) {
-            throw new IllegalArgumentException("profile not valid: " + profile);
-        }
-        // 2. save by delegate
-        return entityDataSource != null && entityDataSource.saveProfile(profile);
-    }
-
-    @Override
-    public Meta getMeta(ID identifier) {
-        if (identifier == null) {
+    public Meta getMeta(ID entity) {
+        if (entity == null) {
             return null;
         }
-        // 1. get from meta cache
-        Meta meta = metaMap.get(identifier);
-        if (meta != null) {
-            return meta;
-        }
-        // 2. get from entity data source
-        if (entityDataSource != null) {
-            meta = entityDataSource.getMeta(identifier);
-            if (meta != null && cacheMeta(meta, identifier)) {
-                return meta;
-            }
-        }
-        // failed to get meta
-        return null;
-    }
-
-    @Override
-    public Profile getProfile(ID identifier) {
-        if (identifier == null || entityDataSource == null) {
-            return null;
-        }
-        return entityDataSource.getProfile(identifier);
-    }
-
-    //-------- UserDataSource
-
-    @Override
-    public PrivateKey getPrivateKeyForSignature(ID user) {
-        if (user == null || userDataSource == null) {
-            return null;
-        }
-        return userDataSource.getPrivateKeyForSignature(user);
-    }
-
-    @Override
-    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        if (user == null || userDataSource == null) {
-            return null;
-        }
-        return userDataSource.getPrivateKeysForDecryption(user);
-    }
-
-    @Override
-    public List<ID> getContacts(ID user) {
-        if (user == null || userDataSource == null) {
-            return null;
-        }
-        return userDataSource.getContacts(user);
-    }
-
-    //-------- GroupDataSource
-
-    @Override
-    public ID getFounder(ID group) {
-        if (group == null || groupDataSource == null) {
-            return null;
-        }
-        return groupDataSource.getFounder(group);
-    }
-
-    @Override
-    public ID getOwner(ID group) {
-        if (group == null || groupDataSource == null) {
-            return null;
-        }
-        return groupDataSource.getOwner(group);
-    }
-
-    @Override
-    public List<ID> getMembers(ID group) {
-        if (group == null || groupDataSource == null) {
-            return null;
-        }
-        return groupDataSource.getMembers(group);
+        return metaMap.get(entity);
     }
 }

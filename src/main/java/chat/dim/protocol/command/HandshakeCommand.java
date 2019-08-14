@@ -25,9 +25,9 @@
  */
 package chat.dim.protocol.command;
 
-import chat.dim.protocol.CommandContent;
-
 import java.util.Map;
+
+import chat.dim.protocol.Command;
 
 /**
  *  Command message: {
@@ -39,7 +39,7 @@ import java.util.Map;
  *      session : "{SESSION_KEY}" // session key
  *  }
  */
-public class HandshakeCommand extends CommandContent {
+public class HandshakeCommand extends Command {
 
     //-------- states begin --------
     public static final int INIT    = 0;

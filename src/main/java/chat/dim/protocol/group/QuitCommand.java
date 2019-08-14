@@ -25,7 +25,7 @@
  */
 package chat.dim.protocol.group;
 
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class QuitCommand extends GroupCommand {
 

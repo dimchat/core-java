@@ -1,7 +1,7 @@
 package chat.dim.network;
 
 import chat.dim.mkm.User;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class Station extends User {
 

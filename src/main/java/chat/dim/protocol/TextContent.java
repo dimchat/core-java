@@ -25,9 +25,9 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.dkd.Content;
-
 import java.util.Map;
+
+import chat.dim.dkd.Content;
 
 /**
  *  Text message: {

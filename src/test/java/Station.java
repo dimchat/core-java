@@ -2,7 +2,7 @@
 import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class Station extends chat.dim.network.Station implements TransceiverDelegate {
 

@@ -27,7 +27,7 @@ package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.impl.SymmetricKeyImpl;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 import java.util.HashMap;
 import java.util.Map;

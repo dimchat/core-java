@@ -1,4 +1,5 @@
 
+import chat.dim.mkm.*;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -9,11 +10,6 @@ import chat.dim.core.*;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
-import chat.dim.mkm.User;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
 import chat.dim.protocol.TextContent;
 
 public class CoreTest extends TestCase {
