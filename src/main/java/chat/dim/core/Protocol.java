@@ -108,9 +108,6 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key = getSymmetricKey(password);
-        if (key == null) {
-            throw new NullPointerException("failed to get symmetric key: " + password);
-        }
         // encrypt it with password
         String json = JSON.encode(content);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
@@ -118,7 +115,7 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
     }
 
     @Override
-    public Object encodeContentData(byte[] data, InstantMessage iMsg) {
+    public Object encodeData(byte[] data, InstantMessage iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
@@ -218,7 +215,7 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
     }
 
     @Override
-    public byte[] decodeContentData(Object data, SecureMessage sMsg) {
+    public byte[] decodeData(Object data, SecureMessage sMsg) {
         if (isBroadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly

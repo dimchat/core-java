@@ -110,7 +110,6 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     }
 
     protected boolean cacheMeta(Meta meta, ID identifier) {
-        assert identifier.isValid();
         if (!meta.matches(identifier)) {
             return false;
         }
@@ -119,7 +118,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     }
 
     protected boolean cacheUser(User user) {
-        assert user.identifier.isValid();
+        assert user.identifier.getType().isUser();
         if (user.dataSource == null) {
             user.dataSource = this;
         }
@@ -128,7 +127,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     }
 
     protected boolean cacheGroup(Group group) {
-        assert group.identifier.isValid();
+        assert group.identifier.getType().isGroup();
         if (group.dataSource == null) {
             group.dataSource = this;
         }
@@ -162,29 +161,21 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
 
     @Override
     public User getUser(ID identifier) {
-        if (identifier == null) {
-            return null;
-        }
-        // 1. get from user cache
+        assert identifier.getType().isUser();
         return userMap.get(identifier);
     }
 
     @Override
     public Group getGroup(ID identifier) {
-        if (identifier == null) {
-            return null;
-        }
-        // 1. get from group cache
+        assert identifier.getType().isGroup();
         return groupMap.get(identifier);
     }
 
     //-------- EntityDataSource
 
     @Override
-    public Meta getMeta(ID entity) {
-        if (entity == null) {
-            return null;
-        }
-        return metaMap.get(entity);
+    public Meta getMeta(ID identifier) {
+        assert identifier.isValid();
+        return metaMap.get(identifier);
     }
 }

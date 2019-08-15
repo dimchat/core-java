@@ -15,7 +15,7 @@ import chat.dim.protocol.TextContent;
 public class CoreTest extends TestCase {
 
     @Test
-    public void testTransceiver() throws NoSuchFieldException, ClassNotFoundException {
+    public void testTransceiver() throws NoSuchFieldException {
 
         CompletionHandler handler = new CompletionHandler() {
             @Override
@@ -62,6 +62,11 @@ public class CoreTest extends TestCase {
         identifier = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
 
         Group group = barrack.getGroup(identifier);
+
+        Map<ID, Meta> map = new HashMap<>();
+        identifier = null;
+        meta = map.get(identifier);
+        Log.info("meta: " + meta);
     }
 
     static Barrack barrack;

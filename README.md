@@ -1,7 +1,7 @@
 # Decentralized Instant Messaging Protocol (Java)
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/alpha-0.4.0-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
+[![Version](https://img.shields.io/badge/alpha-0.4.3-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
 
@@ -22,8 +22,8 @@ allprojects {
 dependencies {
 
     // https://bintray.com/dimchat/core/dimp
-    compile 'chat.dim:DIMP:0.4.0'
-//  implementation group: 'chat.dim', name: 'DIMP', version: '0.4.0'
+    compile 'chat.dim:DIMP:0.4.3'
+//  implementation group: 'chat.dim', name: 'DIMP', version: '0.4.3'
 
 }
 ```
@@ -37,7 +37,7 @@ pom.xml
     <dependency>
         <groupId>chat.dim</groupId>
         <artifactId>DIMP</artifactId>
-        <version>0.4.0</version>
+        <version>0.4.3</version>
         <type>pom</type>
     </dependency>
 
@@ -62,16 +62,103 @@ public class Facebook extends Barrack {
     }
     
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        // TODO: save private key for ID
+        // TODO: save private key into safety storage
+        return false;
+    }
+    
+    public boolean saveMeta(Meta meta, ID identifier) {
+        if (!meta.matches(identifier)) {
+            return false;
+        }
+        // TODO: save meta to local/persistent storage
         return false;
     }
     
     public boolean saveProfile(Profile profile) {
+        if (!verifyProfile(profile)) {
+            return false;
+        }
         // TODO: save profile in local storage
         return false;
     }
     
-    //...
+    private boolean verifyProfile(Profile profile) {
+        if (profile == null) {
+            return false;
+        } else if (profile.isValid()) {
+            return true;
+        }
+        ID identifier = profile.identifier;
+        assert identifier.isValid();
+        NetworkType type = identifier.getType();
+        Meta meta = null;
+        if (type.isUser()) {
+            // verify with user's meta.key
+            meta = getMeta(identifier);
+        } else if (type.isGroup()) {
+            // verify with group owner's meta.key
+            Group group = getGroup(identifier);
+            if (group != null) {
+                meta = getMeta(group.getOwner());
+            }
+        }
+        return meta != null && profile.verify(meta.key);
+    }
+    
+    //-------- SocialNetworkDataSource
+
+    @Override
+    public User getUser(ID identifier) {
+        User user = super.getUser(identifier);
+        if (user != null) {
+            return user;
+        }
+        // check meta and private key
+        Meta meta = getMeta(identifier);
+        if (meta == null) {
+            throw new NullPointerException("meta not found: " + identifier);
+        }
+        NetworkType type = identifier.getType();
+        if (type.isPerson()) {
+            PrivateKey key = getPrivateKeyForSignature(identifier);
+            if (key == null) {
+                user = new User(identifier);
+            } else {
+                user = new LocalUser(identifier);
+            }
+        } else if (type.isStation()) {
+            // FIXME: prevent station to be erased from memory cache
+            user = new Station(identifier);
+        } else {
+            throw new UnsupportedOperationException("unsupported user type: " + type);
+        }
+        cacheUser(user);
+        return user;
+    }
+
+    @Override
+    public Group getGroup(ID identifier) {
+        Group group = super.getGroup(identifier);
+        if (group != null) {
+            return group;
+        }
+        // check meta
+        Meta meta = getMeta(identifier);
+        if (meta == null) {
+            throw new NullPointerException("meta not found: " + identifier);
+        }
+        // create it with type
+        NetworkType type = identifier.getType();
+        if (type == NetworkType.Polylogue) {
+            group = new Polylogue(identifier);
+        } else if (type == NetworkType.Chatroom) {
+            group = new Chatroom(identifier);
+        } else {
+            throw new UnsupportedOperationException("unsupported group type: " + type);
+        }
+        cacheGroup(group);
+        return group;
+    }
     
     static {
         // mkm.Base64 (for Android)
