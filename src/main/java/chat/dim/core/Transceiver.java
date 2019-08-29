@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.crypto.impl.SymmetricKeyImpl;
 import chat.dim.dkd.*;
 import chat.dim.format.JSON;
 import chat.dim.mkm.*;
@@ -103,6 +104,30 @@ public class Transceiver extends Protocol {
         String json = JSON.encode(rMsg);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         return delegate.sendPackage(data, handler);
+    }
+
+    private SymmetricKey getSymmetricKey(ID from, ID to) {
+        // 1. get old key from store
+        SymmetricKey oldKey = keyCache.cipherKey(from, to);
+        // 2. get new key from delegate
+        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
+        if (newKey == null) {
+            if (oldKey == null) {
+                // 3. create a new key
+                try {
+                    newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                newKey = oldKey;
+            }
+        }
+        // 4. update new key into the key store
+        if (newKey != null && !newKey.equals(oldKey)) {
+            keyCache.cacheCipherKey(from, to, newKey);
+        }
+        return newKey;
     }
 
     /**

@@ -53,7 +53,7 @@ class Protocol implements InstantMessageDelegate, SecureMessageDelegate, Reliabl
     public SocialNetworkDataSource barrack;
     public CipherKeyDataSource keyCache;
 
-    protected boolean isBroadcast(Message msg) {
+    private boolean isBroadcast(Message msg) {
         ID receiver = barrack.getID(msg.getGroup());
         if (receiver == null) {
             receiver = barrack.getID(msg.envelope.receiver);
@@ -61,31 +61,7 @@ class Protocol implements InstantMessageDelegate, SecureMessageDelegate, Reliabl
         return receiver.isBroadcast();
     }
 
-    protected SymmetricKey getSymmetricKey(ID from, ID to) {
-        // 1. get old key from store
-        SymmetricKey oldKey = keyCache.cipherKey(from, to);
-        // 2. get new key from delegate
-        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
-        if (newKey == null) {
-            if (oldKey == null) {
-                // 3. create a new key
-                try {
-                    newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                newKey = oldKey;
-            }
-        }
-        // 4. update new key into the key store
-        if (newKey != null && !newKey.equals(oldKey)) {
-            keyCache.cacheCipherKey(from, to, newKey);
-        }
-        return newKey;
-    }
-
-    protected SymmetricKey getSymmetricKey(Map<String, Object> password) {
+    SymmetricKey getSymmetricKey(Map<String, Object> password) {
         try {
             return SymmetricKeyImpl.getInstance(password);
         } catch (ClassNotFoundException e) {
@@ -207,17 +183,15 @@ class Protocol implements InstantMessageDelegate, SecureMessageDelegate, Reliabl
             if (plaintext == null || plaintext.length == 0) {
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
             }
-            // decode it to symmetric key
+            // deserialize it to symmetric key
             key = deserializeKey(plaintext, sMsg);
             // cache the new key in key store
             keyCache.cacheCipherKey(from, to, key);
         }
         if (key == null) {
             // if key data is empty, get it from key store
-            key = getSymmetricKey(from, to);
-            if (key == null) {
-                throw new NullPointerException("failed to get password from " + sender + " to " + receiver);
-            }
+            key = keyCache.cipherKey(from, to);
+            assert key != null;
         }
         return key;
     }
