@@ -208,10 +208,9 @@ public class Transceiver extends Protocol {
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key = getSymmetricKey(password);
-        if (key == null) {
-            throw new NullPointerException("failed to get symmetric key: " + password);
-        }
-        // 1. check attachment for File/Image/Audio/Video message content
+        assert key == password;
+
+        // check attachment for File/Image/Audio/Video message content
         if (content instanceof FileContent) {
             FileContent file = (FileContent) content;
             byte[] data = file.getData();
@@ -224,7 +223,6 @@ public class Transceiver extends Protocol {
                 file.setData(null);
             }
         }
-        // 2. encrypt content
         return super.encryptContent(content, key, iMsg);
     }
 
@@ -234,13 +232,12 @@ public class Transceiver extends Protocol {
     @SuppressWarnings("unchecked")
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key = getSymmetricKey(password);
-        if (key == null) {
-            throw new NullPointerException("symmetric key error: " + password);
-        }
-        // 1. decrypt content
+        assert key == password;
+
+        // decrypt content
         Content content = super.decryptContent(data, key, sMsg);
 
-        // 2. check attachment for File/Image/Audio/Video message content
+        // check attachment for File/Image/Audio/Video message content
         if (content instanceof FileContent) {
             FileContent file = (FileContent) content;
             InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);

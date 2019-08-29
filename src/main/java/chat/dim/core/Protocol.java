@@ -43,9 +43,9 @@ import chat.dim.protocol.file.FileContent;
 import chat.dim.protocol.file.ImageContent;
 import chat.dim.protocol.file.VideoContent;
 
-public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
+class Protocol implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 
-    public Protocol() {
+    Protocol() {
         super();
     }
 
@@ -85,15 +85,6 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
         return newKey;
     }
 
-    protected SymmetricKey getSymmetricKey(Map<String, Object> password, ID from, ID to) {
-        SymmetricKey key = getSymmetricKey(password);
-        if (key != null) {
-            // cache the new key in key store
-            keyCache.cacheCipherKey(from, to, key);
-        }
-        return key;
-    }
-
     protected SymmetricKey getSymmetricKey(Map<String, Object> password) {
         try {
             return SymmetricKeyImpl.getInstance(password);
@@ -103,14 +94,55 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
         }
     }
 
+    protected byte[] serializeContent(Content content, InstantMessage iMsg) {
+        String json = JSON.encode(content);
+        return json.getBytes(Charset.forName("UTF-8"));
+    }
+
+    protected byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
+        if (isBroadcast(iMsg)) {
+            // broadcast message has no key
+            throw new RuntimeException("should not call this");
+        }
+        String json = JSON.encode(password);
+        return json.getBytes(Charset.forName("UTF-8"));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected SymmetricKey deserializeKey(byte[] key, SecureMessage sMsg) {
+        String json = new String(key, Charset.forName("UTF-8"));
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+        // TODO: translate short keys
+        //       'A' -> 'algorithm'
+        //       'D' -> 'data'
+        //       'M' -> 'mode'
+        //       'P' -> 'padding'
+        return getSymmetricKey(dict);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Content deserializeContent(byte[] data, SecureMessage sMsg) {
+        String json = new String(data, Charset.forName("UTF-8"));
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+        // TODO: translate short keys
+        //       'S' -> 'sender'
+        //       'R' -> 'receiver'
+        //       'T' -> 'time'
+        //       'D' -> 'data'
+        //       'V' -> 'signature'
+        //       'K' -> 'key'
+        //       'M' -> 'meta'
+        return Content.getInstance(dict);
+    }
+
     //-------- InstantMessageDelegate
 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key = getSymmetricKey(password);
+        assert key == password;
         // encrypt it with password
-        String json = JSON.encode(content);
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
+        byte[] data = serializeContent(content, iMsg);
         return key.encrypt(data);
     }
 
@@ -121,7 +153,6 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
             // so no need to encode to Base64 here
             return new String(data, Charset.forName("UTF-8"));
         }
-        // encode to Base64
         return Base64.encode(data);
     }
 
@@ -131,47 +162,55 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
             // broadcast message has no key
             return null;
         }
+        SymmetricKey key = getSymmetricKey(password);
+        assert key == password;
         // TODO: check whether support reused key
 
+        byte[] data = serializeKey(key, iMsg);
         // encrypt with receiver's public key
         User contact = barrack.getUser(barrack.getID(receiver));
-        if (contact == null) {
-            return null;
-        }
-        String json = JSON.encode(password);
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
+        assert contact != null;
         return contact.encrypt(data);
     }
 
     @Override
-    public Object encodeKeyData(byte[] key, InstantMessage iMsg) {
-        assert !isBroadcast(iMsg) || key == null;
-        // encode to Base64
-        return key == null ? null : Base64.encode(key);
+    public Object encodeKey(byte[] key, InstantMessage iMsg) {
+        assert !isBroadcast(iMsg);
+        // broadcast message has no key
+        return Base64.encode(key);
     }
 
     //-------- SecureMessageDelegate
 
     @Override
+    public byte[] decodeKey(Object key, SecureMessage sMsg) {
+        assert !isBroadcast(sMsg);
+        // broadcast message has no key
+        return Base64.decode((String) key);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         assert !isBroadcast(sMsg) || keyData == null;
+        // broadcast message has no key
 
         ID from = barrack.getID(sender);
         ID to = barrack.getID(receiver);
         SymmetricKey key = null;
         if (keyData != null) {
-            // decrypt key data with the receiver's private key
+            // decrypt key data with the receiver/group member's private key
             ID identifier = barrack.getID(sMsg.envelope.receiver);
             LocalUser user = (LocalUser) barrack.getUser(identifier);
-            byte[] plaintext = user == null ? null : user.decrypt(keyData);
+            assert user != null;
+            byte[] plaintext = user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
             }
-            // create symmetric key from JsON data
-            String json = new String(plaintext, Charset.forName("UTF-8"));
-            Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
-            key = getSymmetricKey(dict, from, to);
+            // decode it to symmetric key
+            key = deserializeKey(plaintext, sMsg);
+            // cache the new key in key store
+            keyCache.cacheCipherKey(from, to, key);
         }
         if (key == null) {
             // if key data is empty, get it from key store
@@ -181,37 +220,6 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
             }
         }
         return key;
-    }
-
-    @Override
-    public byte[] decodeKeyData(Object key, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg) || key == null;
-        // decode from Base64
-        return key == null ? null : Base64.decode((String) key);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
-        SymmetricKey key = getSymmetricKey(password);
-        if (key == null) {
-            throw new NullPointerException("symmetric key error: " + password);
-        }
-
-        // decrypt message.data
-        byte[] plaintext = key.decrypt(data);
-        if (plaintext == null) {
-            throw new NullPointerException("failed to decrypt data: " + password);
-        }
-        // build Content with JsON
-        String json = new String(plaintext, Charset.forName("UTF-8"));
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
-        Content content = Content.getInstance(dict);
-        if (content == null) {
-            throw new NullPointerException("decrypted content error: " + dict);
-        }
-
-        return content;
     }
 
     @Override
@@ -227,11 +235,22 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
+        SymmetricKey key = getSymmetricKey(password);
+        assert key == password;
+        // decrypt message.data
+        byte[] plaintext = key.decrypt(data);
+        if (plaintext == null) {
+            throw new NullPointerException("failed to decrypt data: " + password);
+        }
+        return deserializeContent(plaintext, sMsg);
+    }
+
+    @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
         LocalUser user = (LocalUser) barrack.getUser(barrack.getID(sender));
-        if (user == null) {
-            throw new NullPointerException("failed to sign with sender: " + sender);
-        }
+        assert user != null;
         return user.sign(data);
     }
 
@@ -243,18 +262,17 @@ public class Protocol implements InstantMessageDelegate, SecureMessageDelegate, 
     //-------- ReliableMessageDelegate
 
     @Override
-    public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        User contact = barrack.getUser(barrack.getID(sender));
-        if (contact == null) {
-            throw new NullPointerException("failed to verify with sender: " + sender);
-        }
-        return contact.verify(data, signature);
-    }
-
-    @Override
     public byte[] decodeSignature(Object signature, ReliableMessage rMsg) {
         return Base64.decode((String) signature);
     }
+
+    @Override
+    public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
+        User contact = barrack.getUser(barrack.getID(sender));
+        assert contact != null;
+        return contact.verify(data, signature);
+    }
+
     static {
         // Text
         Content.register(ContentType.TEXT.value, TextContent.class);
