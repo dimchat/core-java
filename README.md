@@ -1,7 +1,7 @@
 # Decentralized Instant Messaging Protocol (Java)
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/alpha-0.4.5-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
+[![Version](https://img.shields.io/badge/alpha-0.4.6-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
 
@@ -22,8 +22,8 @@ allprojects {
 dependencies {
 
     // https://bintray.com/dimchat/core/dimp
-    compile 'chat.dim:DIMP:0.4.5'
-//  implementation group: 'chat.dim', name: 'DIMP', version: '0.4.5'
+    compile 'chat.dim:DIMP:0.4.6'
+//  implementation group: 'chat.dim', name: 'DIMP', version: '0.4.6'
 
 }
 ```
@@ -37,7 +37,7 @@ pom.xml
     <dependency>
         <groupId>chat.dim</groupId>
         <artifactId>DIMP</artifactId>
-        <version>0.4.5</version>
+        <version>0.4.6</version>
         <type>pom</type>
     </dependency>
 
@@ -181,7 +181,7 @@ KeyStore.java
 
 ```java
 /**
- *  For reuse symmetric key
+ *  For reusable symmetric key, with direction (from, to)
  */
 public class KeyStore extends KeyCache {
     private static final KeyStore ourInstance = new KeyStore();
@@ -193,11 +193,13 @@ public class KeyStore extends KeyCache {
 
     @Override
     public boolean saveKeys(Map keyMap) {
+        // TODO: save symmetric keys into persistent storage
         return false;
     }
 
     @Override
     public Map loadKeys() {
+        // TODO: load symmetric keys from persistent storage
         return null;
     }
 
@@ -208,21 +210,22 @@ public class KeyStore extends KeyCache {
 }
 ```
 
-Messanger.java
+Messenger.java
 
 ```java
 /**
  *  Transform and send message
  */
-public class Messanger extends Transceiver implements TransceiverDelegate {
-    private static final Messanger ourInstance = new Messanger();
-    public static Messanger getInstance() { return ourInstance; }
+public class Messenger extends Transceiver implements TransceiverDelegate {
+    private static final Messenger ourInstance = new Messenger();
+    public static Messenger getInstance() { return ourInstance; }
     
-    private Messanger()  {
+    private Messenger()  {
         super();
 
         barrack = Facebook.getInstance();
         keyCache = KeyStore.getInstance();
+        delegate = this;
     }
     
     // TransceiverDelegate
@@ -254,14 +257,18 @@ Register.java
     public User register(String username) {
         // 1. generate private key
         PrivateKey sk = PrivateKeyImpl.generate(PrivateKey.RSA);
+        
         // 2. generate meta with username(as seed) and private key
         String seed = username;
         Meta meta = Meta.generate(Meta.VersionDefault, sk, seed);
+        
         // 3. generate ID with network type by meta
         ID identifier = meta.generateID(NetworkType.Main);
+        
         // 4. save private key and meta info
         facebook.savePrivateKey(sk, identifier);
         facebook.saveMeta(meta, identifier);
+        
         // 5. create user with ID
         return facebook.getUser(identifier);
     }
@@ -273,36 +280,40 @@ Send.java
 
 ```java
     public ReliableMessage pack(Content content, ID sender, ID receiver) {
+        // 1. create InstantMessage
         InstantMessage iMsg = new InstantMessage(content, sender, receiver);
-        ReliableMessage rMsg = null;
-        try {
-            rMsg = messanger.encryptAndSignMessage(iMsg);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+
+        // 2. encrypt 'content' to 'data' for receiver
+        SecureMessage sMsg = messenger.encryptMessage(iMsg);
+
+        // 3. sign 'data' by sender
+        ReliableMessage rMsg = messenger.signMessage(sMsg);
+
+        // OK
         return rMsg;
     }
     
-    public void send(Content content, ID sender, ID receiver) {
-        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
-        // callback
-        Callback callback = new Callback() {
+    public boolean send(Content content, ID sender, ID receiver) {
+        // 1. pack message
+        ReliableMessage rMsg = pack(content, sender, receiver);
+        
+        // 2. callback handler
+        CompletionHandler handler = new CompletionHandler() {
             @Override
-            public void onFinished(Object result, Error error) {
-                if (error == null) {
-                    //iMsg.put("state", "Accepted");
-                } else {
-                    //iMsg.put("state", "Error");
-                    //iMsg.put("error", error);
-                }
+            public void onSuccess() {
+                // TODO: remove task
+            }
+
+            @Override
+            public void onFailed(Error error) {
+                // TODO: try again
             }
         };
-        // encrypt, sign and send out
-        try {
-            messanger.sendMessage(iMsg, callback, true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+        
+        // 3. encode message package and send it out
+        String json = JSON.encode(rMsg);
+        byte[] data = json.getBytes(Charset.forName("UTF-8"));
+        return messenger.delegate.sendPackage(data, handler);
     }
     
     public void test() {
@@ -317,19 +328,34 @@ Send.java
 Receive.java
 
 ```java
-    // StationDelegate
-    @Override
+    public Content unpack(ReliableMessage rMsg) {
+        // 1. verify 'data' with 'signature'
+        SecureMessage sMsg = verifyMessage(rMsg);
+
+        // 2. check group message
+        ID receiver = barrack.getID(sMsg.envelope.receiver);
+        if (receiver.getType().isGroup()) {
+            // TODO: split it
+        }
+
+        // 3. decrypt 'data' to 'content'
+        InstantMessage iMsg = decryptMessage(sMsg);
+
+        // OK
+        return iMsg;
+    }
+    
+    @Override // StationDelegate
     public void didReceivePackage(byte[] data, Station server) {
+        // 1. decode message package
         String json = new String(data, Charset.forName("UTF-8"));
         Object msg = JSON.decode(json);
         ReliableMessage rMsg = ReliableMessage.getInstance(msg);
-        InstantMessage iMsg = null;
-        try {
-            iMsg = messanger.verifyAndDecryptMessage(rMsg);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        // TODO: process instant message
+        
+        // 2. verify and decrypt message
+        Content content = unpack(rMsg);
+        
+        // TODO: process message content
     }
 ```
 
