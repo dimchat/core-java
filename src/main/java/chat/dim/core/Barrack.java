@@ -31,33 +31,6 @@ import java.util.Map;
 
 import chat.dim.mkm.*;
 
-interface SocialNetworkDataSource extends EntityDataSource {
-
-    /**
-     *  Create entity ID with String
-     *
-     * @param string - ID string
-     * @return ID
-     */
-    ID getID(Object string);
-
-    /**
-     *  Create user with ID
-     *
-     * @param identifier - user ID
-     * @return user
-     */
-    User getUser(ID identifier);
-
-    /**
-     *  Create group with ID
-     *
-     * @param identifier - group ID
-     * @return group
-     */
-    Group getGroup(ID identifier);
-}
-
 /**
  *  Entity Database
  *  ~~~~~~~~~~~~~~~

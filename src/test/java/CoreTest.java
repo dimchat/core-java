@@ -1,4 +1,5 @@
 
+import chat.dim.dkd.SecureMessage;
 import chat.dim.mkm.*;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import chat.dim.protocol.TextContent;
 public class CoreTest extends TestCase {
 
     @Test
-    public void testTransceiver() throws NoSuchFieldException {
+    public void testTransceiver() {
 
         CompletionHandler handler = new CompletionHandler() {
             @Override
@@ -39,13 +40,13 @@ public class CoreTest extends TestCase {
         Content content = new TextContent("Hello");
 
         InstantMessage iMsg = new InstantMessage(content, sender, receiver);
+        SecureMessage sMsg = transceiver.encryptMessage(iMsg);
+        ReliableMessage rMsg = transceiver.signMessage(sMsg);
 
-        ReliableMessage rMsg = transceiver.encryptAndSignMessage(iMsg);
+        SecureMessage sMsg2 = transceiver.verifyMessage(rMsg);
+        InstantMessage iMsg2 = transceiver.decryptMessage(sMsg2);
 
-        InstantMessage iMsg2 = transceiver.verifyAndDecryptMessage(rMsg);
-
-        boolean OK = transceiver.sendMessage(iMsg, callback, true);
-        Log.info("send message: " + OK);
+        Log.info("send message: " + iMsg2);
     }
 
     @Test
