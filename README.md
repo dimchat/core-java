@@ -1,7 +1,7 @@
 # Decentralized Instant Messaging Protocol (Java)
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/alpha-0.4.6-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
+[![Version](https://img.shields.io/badge/alpha-0.4.7-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
 
@@ -22,8 +22,8 @@ allprojects {
 dependencies {
 
     // https://bintray.com/dimchat/core/dimp
-    compile 'chat.dim:DIMP:0.4.6'
-//  implementation group: 'chat.dim', name: 'DIMP', version: '0.4.6'
+    compile 'chat.dim:DIMP:0.4.7'
+//  implementation group: 'chat.dim', name: 'DIMP', version: '0.4.7'
 
 }
 ```
@@ -37,7 +37,7 @@ pom.xml
     <dependency>
         <groupId>chat.dim</groupId>
         <artifactId>DIMP</artifactId>
-        <version>0.4.6</version>
+        <version>0.4.7</version>
         <type>pom</type>
     </dependency>
 

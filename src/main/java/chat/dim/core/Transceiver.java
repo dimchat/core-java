@@ -181,7 +181,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         // 1. decrypt 'data' to 'content'
         InstantMessage iMsg = sMsg.decrypt();
 
-        // TODO: check: top-secret message
+        // TODO: check top-secret message
         //       (do it by application)
 
         // OK
