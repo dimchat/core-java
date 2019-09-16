@@ -48,7 +48,7 @@ public interface TransceiverDelegate {
     String uploadFileData(byte[] data, InstantMessage iMsg);
 
     /**
-     *  Download encrypted data from CDN, and decrypt it when finished
+     *  Download encrypted data from CDN
      *
      * @param url - download URL
      * @param iMsg - instant message

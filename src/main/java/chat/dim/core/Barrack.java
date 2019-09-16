@@ -25,9 +25,7 @@
  */
 package chat.dim.core;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import chat.dim.mkm.*;
 
@@ -135,13 +133,27 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     @Override
     public User getUser(ID identifier) {
         assert identifier.getType().isUser();
-        return userMap.get(identifier);
+        // 1. get from user cache
+        User user = userMap.get(identifier);
+        if (user == null && identifier.isBroadcast()) {
+            // 2. create user 'anyone@anywhere'
+            user = new User(identifier);
+            cacheUser(user);
+        }
+        return user;
     }
 
     @Override
     public Group getGroup(ID identifier) {
         assert identifier.getType().isGroup();
-        return groupMap.get(identifier);
+        // 1. get from group cache
+        Group group = groupMap.get(identifier);
+        if (group == null && identifier.isBroadcast()) {
+            // 2. create group 'everyone@everywhere'
+            group = new Group(identifier);
+            cacheGroup(group);
+        }
+        return group;
     }
 
     //-------- EntityDataSource
@@ -150,5 +162,84 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     public Meta getMeta(ID identifier) {
         assert identifier.isValid();
         return metaMap.get(identifier);
+    }
+
+    //-------- GroupDataSource
+
+    @Override
+    public ID getFounder(ID group) {
+        assert group.getType().isGroup();
+        // check for broadcast
+        if (group.isBroadcast()) {
+            String founder;
+            String name = group.name;
+            int len = name == null ? 0 : name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                // Consensus: the founder of group 'everyone@everywhere'
+                //            'Albert Moky'
+                founder = "moky@anywhere";
+            } else {
+                // DISCUSS: who should be the founder of group 'xxx@everywhere'?
+                //          'anyone@anywhere', or 'xxx.founder@anywhere'
+                founder = name + ".founder@anywhere";
+            }
+            return getID(founder);
+        }
+        return null;
+    }
+
+    @Override
+    public ID getOwner(ID group) {
+        assert group.getType().isGroup();
+        // check for broadcast
+        if (group.isBroadcast()) {
+            String owner;
+            String name = group.name;
+            int len = name == null ? 0 : name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                // Consensus: the owner of group 'everyone@everywhere'
+                //            'anyone@anywhere'
+                owner = "anyone@anywhere";
+            } else {
+                // DISCUSS: who should be the owner of group 'xxx@everywhere'?
+                //          'anyone@anywhere', or 'xxx.owner@anywhere'
+                owner = name + ".owner@anywhere";
+            }
+            return getID(owner);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ID> getMembers(ID group) {
+        assert group.getType().isGroup();
+        // check for broadcast
+        if (group.isBroadcast()) {
+            String member;
+            String name = group.name;
+            int len = name == null ? 0 : name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                // Consensus: the member of group 'everyone@everywhere'
+                //            'anyone@anywhere'
+                member = "anyone@anywhere";
+            } else {
+                // DISCUSS: who should be the member of group 'xxx@everywhere'?
+                //          'anyone@anywhere', or 'xxx.member@anywhere'
+                member = name + ".member@anywhere";
+            }
+            // add owner first
+            ID owner = getOwner(group);
+            List<ID> members = new ArrayList<>();
+            if (owner != null) {
+                members.add(owner);
+            }
+            // check and add member
+            ID identifier = getID(member);
+            if (identifier != null && !identifier.equals(owner)) {
+                members.add(identifier);
+            }
+            return members;
+        }
+        return null;
     }
 }
