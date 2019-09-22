@@ -50,7 +50,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
      * this will remove 50% of cached objects
      *
-     * @return remained object count
+     * @return number of survivors
      */
     public int reduceMemory() {
         int finger = 0;

@@ -43,6 +43,7 @@ public class TextContent extends Content {
 
     public TextContent(Map<String, Object> dictionary) {
         super(dictionary);
+        text = (String) dictionary.get("text");
     }
 
     public TextContent(String message) {
