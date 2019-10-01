@@ -66,7 +66,12 @@ public class HistoryCommand extends Command {
 
     public HistoryCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        time = getDate((long) dictionary.get("time"));
+        Object timestamp = dictionary.get("time");
+        if (timestamp == null) {
+            time = null;
+        } else {
+            time = getDate((Number) timestamp);
+        }
     }
 
     public HistoryCommand(String command) {
@@ -79,8 +84,8 @@ public class HistoryCommand extends Command {
         return time.getTime() / 1000;
     }
 
-    private Date getDate(long timestamp) {
-        return new Date(timestamp * 1000);
+    private Date getDate(Number timestamp) {
+        return new Date(timestamp.longValue() * 1000);
     }
 
     //-------- Runtime --------

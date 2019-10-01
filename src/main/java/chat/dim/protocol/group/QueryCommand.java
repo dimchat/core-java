@@ -25,9 +25,15 @@
  */
 package chat.dim.protocol.group;
 
+import java.util.Map;
+
 import chat.dim.mkm.ID;
 
 public class QueryCommand extends GroupCommand {
+
+    public QueryCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
     public QueryCommand(ID group) {
         super(QUERY, group);

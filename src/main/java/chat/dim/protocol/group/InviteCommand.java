@@ -26,10 +26,15 @@
 package chat.dim.protocol.group;
 
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.mkm.ID;
 
 public class InviteCommand extends GroupCommand {
+
+    public InviteCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
     public InviteCommand(ID group, ID member) {
         super(INVITE, group, member);

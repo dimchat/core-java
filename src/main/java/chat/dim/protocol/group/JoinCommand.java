@@ -25,9 +25,15 @@
  */
 package chat.dim.protocol.group;
 
+import java.util.Map;
+
 import chat.dim.mkm.ID;
 
 public class JoinCommand extends GroupCommand {
+
+    public JoinCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
     public JoinCommand(ID group) {
         super(JOIN, group);

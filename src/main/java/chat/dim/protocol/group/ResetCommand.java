@@ -26,10 +26,15 @@
 package chat.dim.protocol.group;
 
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.mkm.ID;
 
 public class ResetCommand extends GroupCommand {
+
+    public ResetCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
     public ResetCommand(ID group, List members) {
         super(RESET, group, members);
