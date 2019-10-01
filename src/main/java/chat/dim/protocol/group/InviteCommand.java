@@ -35,7 +35,7 @@ public class InviteCommand extends GroupCommand {
         super(INVITE, group, member);
     }
 
-    public InviteCommand(ID group, List<ID> members) {
+    public InviteCommand(ID group, List members) {
         super(INVITE, group, members);
     }
 }

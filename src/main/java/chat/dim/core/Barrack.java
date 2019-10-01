@@ -90,8 +90,8 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
 
     protected boolean cacheUser(User user) {
         assert user.identifier.getType().isUser();
-        if (user.dataSource == null) {
-            user.dataSource = this;
+        if (user.getDataSource() == null) {
+            user.setDataSource(this);
         }
         userMap.put(user.identifier, user);
         return true;
@@ -99,8 +99,8 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
 
     protected boolean cacheGroup(Group group) {
         assert group.identifier.getType().isGroup();
-        if (group.dataSource == null) {
-            group.dataSource = this;
+        if (group.getDataSource() == null) {
+            group.setDataSource(this);
         }
         groupMap.put(group.identifier, group);
         return true;

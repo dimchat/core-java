@@ -31,7 +31,7 @@ import chat.dim.mkm.ID;
 
 public class ResetCommand extends GroupCommand {
 
-    public ResetCommand(ID group, List<ID> members) {
+    public ResetCommand(ID group, List members) {
         super(RESET, group, members);
     }
 }

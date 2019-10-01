@@ -101,8 +101,8 @@ public class CoreTest extends TestCase {
 
         // transceiver
         transceiver = new Transceiver();
-        transceiver.delegate = new Station();
-        transceiver.barrack = barrack;
-        transceiver.keyCache = keyStore;
+        transceiver.setDelegate(new Station());
+        transceiver.setSocialNetworkDataSource(barrack);
+        transceiver.setCipherKeyDataSource(keyStore);
     }
 }

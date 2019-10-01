@@ -226,7 +226,7 @@ public class Facebook extends Barrack {
         }
         // create user
         LocalUser user = new LocalUser(identifier);
-        user.dataSource = getInstance();
+        user.setDataSource(getInstance());
 
         // profile
         Profile profile = getProfile((Map) dict.get("profile"), identifier, privateKey);

@@ -28,7 +28,6 @@ package chat.dim.protocol.group;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +37,8 @@ import chat.dim.protocol.HistoryCommand;
 
 public class GroupCommand extends HistoryCommand {
 
-    // Group ID for group message already defined in DKD.MessageContent
-    @Override
-    public ID getGroup() {
-        Object group = super.getGroup();
-        return ID.getInstance(group);
-    }
-
-    public final ID member;
-    public final List<ID> members;
+    public final Object member; // Object (maybe String, not ID)
+    public final List members;  // List<Object>
 
     @SuppressWarnings("unchecked")
     public GroupCommand(Map<String, Object> dictionary) {
@@ -54,18 +46,9 @@ public class GroupCommand extends HistoryCommand {
         Object object = dictionary.get("member");
         if (object == null) {
             member  = null;
-            List<Object> array = (List<Object>) dictionary.get("members");
-            if (array == null) {
-                members = null;
-            } else {
-                // transform String to ID
-                members = new ArrayList<>(array.size());
-                for (Object item: array) {
-                    members.add(ID.getInstance(item));
-                }
-            }
+            members = (List) dictionary.get("members");
         } else {
-            member  = ID.getInstance(object);
+            member  = object;
             members = null;
         }
     }
@@ -117,7 +100,7 @@ public class GroupCommand extends HistoryCommand {
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    public GroupCommand(String command, ID groupID, List<ID> memberList) {
+    public GroupCommand(String command, ID groupID, List memberList) {
         super(command);
         setGroup(groupID);
         member  = null;

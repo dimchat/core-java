@@ -25,6 +25,7 @@
  */
 package chat.dim.core;
 
+import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -47,14 +48,111 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     // delegates
-    public SocialNetworkDataSource barrack = null;
-    public CipherKeyDataSource keyCache = null;
-    public TransceiverDelegate delegate = null;
+    private WeakReference<SocialNetworkDataSource> socialNetworkDataSourceRef = null;
+    private WeakReference<CipherKeyDataSource> cipherKeyDataSourceRef = null;
+    private WeakReference<TransceiverDelegate> delegateRef = null;
+
+    public SocialNetworkDataSource getSocialNetworkDataSource() {
+        if (socialNetworkDataSourceRef == null) {
+            return null;
+        }
+        return socialNetworkDataSourceRef.get();
+    }
+
+    public void setSocialNetworkDataSource(SocialNetworkDataSource dataSource) {
+        socialNetworkDataSourceRef = new WeakReference<>(dataSource);
+    }
+
+    public CipherKeyDataSource getCipherKeyDataSource() {
+        if (cipherKeyDataSourceRef == null) {
+            return null;
+        }
+        return cipherKeyDataSourceRef.get();
+    }
+
+    public void setCipherKeyDataSource(CipherKeyDataSource dataSource) {
+        cipherKeyDataSourceRef = new WeakReference<>(dataSource);
+    }
+
+    public TransceiverDelegate getDelegate() {
+        if (delegateRef == null) {
+            return null;
+        }
+        return delegateRef.get();
+    }
+
+    public void setDelegate(TransceiverDelegate delegate) {
+        delegateRef = new WeakReference<>(delegate);
+    }
+
+    //--------
+
+    protected ID getID(Object string) {
+        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
+        assert dataSource != null;
+        return dataSource.getID(string);
+    }
+
+    protected Meta getMeta(ID identifier) {
+        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
+        assert dataSource != null;
+        return dataSource.getMeta(identifier);
+    }
+
+    protected User getUser(ID identifier) {
+        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
+        assert dataSource != null;
+        return dataSource.getUser(identifier);
+    }
+
+    protected Group getGroup(ID identifier) {
+        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
+        assert dataSource != null;
+        return dataSource.getGroup(identifier);
+    }
+
+    protected SymmetricKey getCipherKey(ID from, ID to) {
+        CipherKeyDataSource dataSource = cipherKeyDataSourceRef.get();
+        assert dataSource != null;
+        return dataSource.cipherKey(from, to);
+    }
+
+    protected SymmetricKey reuseCipherKey(ID from, ID to, SymmetricKey oldKey) {
+        CipherKeyDataSource dataSource = cipherKeyDataSourceRef.get();
+        assert dataSource != null;
+        return dataSource.reuseCipherKey(from, to, oldKey);
+    }
+
+    protected void cacheCipherKey(ID from, ID to, SymmetricKey key) {
+        CipherKeyDataSource dataSource = cipherKeyDataSourceRef.get();
+        assert dataSource != null;
+        dataSource.cacheCipherKey(from, to, key);
+    }
+
+    protected boolean sendPackage(byte[] data, CompletionHandler handler) {
+        TransceiverDelegate delegate = delegateRef.get();
+        assert delegate != null;
+        return delegate.sendPackage(data, handler);
+    }
+
+    protected String uploadFileData(byte[] data, InstantMessage iMsg) {
+        TransceiverDelegate delegate = delegateRef.get();
+        assert delegate != null;
+        return delegate.uploadFileData(data, iMsg);
+    }
+
+    protected byte[] downloadFileData(String url, InstantMessage iMsg) {
+        TransceiverDelegate delegate = delegateRef.get();
+        assert delegate != null;
+        return delegate.downloadFileData(url, iMsg);
+    }
+
+    //--------
 
     private boolean isBroadcast(Message msg) {
-        ID receiver = barrack.getID(msg.getGroup());
+        ID receiver = getID(msg.getGroup());
         if (receiver == null) {
-            receiver = barrack.getID(msg.envelope.receiver);
+            receiver = getID(msg.envelope.receiver);
         }
         return receiver.isBroadcast();
     }
@@ -70,9 +168,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
         // 1. get old key from store
-        SymmetricKey oldKey = keyCache.cipherKey(from, to);
+        SymmetricKey oldKey = getCipherKey(from, to);
         // 2. get new key from delegate
-        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
+        SymmetricKey newKey = reuseCipherKey(from, to, oldKey);
         if (newKey == null) {
             if (oldKey == null) {
                 // 3. create a new key
@@ -87,7 +185,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
         // 4. update new key into the key store
         if (newKey != null && !newKey.equals(oldKey)) {
-            keyCache.cacheCipherKey(from, to, newKey);
+            cacheCipherKey(from, to, newKey);
         }
         return newKey;
     }
@@ -95,11 +193,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- Transform
 
     public SecureMessage encryptMessage(InstantMessage iMsg) {
-        ID sender = barrack.getID(iMsg.envelope.sender);
-        ID receiver = barrack.getID(iMsg.envelope.receiver);
+        ID sender = getID(iMsg.envelope.sender);
+        ID receiver = getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        ID group = barrack.getID(iMsg.getGroup());
+        ID group = getID(iMsg.getGroup());
 
         // 1. get symmetric key
         SymmetricKey password;
@@ -110,8 +208,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             password = getSymmetricKey(sender, receiver);
         }
 
-        if (iMsg.delegate == null) {
-            iMsg.delegate = this;
+        if (iMsg.getDelegate() == null) {
+            iMsg.setDelegate(this);
         }
         assert iMsg.content != null;
 
@@ -119,7 +217,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         SecureMessage sMsg;
         if (receiver.getType().isGroup()) {
             // group message
-            Group grp = barrack.getGroup(receiver);
+            Group grp = getGroup(receiver);
             sMsg = iMsg.encrypt(password, grp.getMembers());
         } else {
             // personal message (or split group message)
@@ -128,22 +226,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
 
         // OK
-        sMsg.delegate = this;
         return sMsg;
     }
 
     public ReliableMessage signMessage(SecureMessage sMsg) {
-        if (sMsg.delegate == null) {
-            sMsg.delegate = this;
+        if (sMsg.getDelegate() == null) {
+            sMsg.setDelegate(this);
         }
         assert sMsg.getData() != null;
 
-        // 1. sign 'data' by sender
-        ReliableMessage rMsg = sMsg.sign();
-
-        // OK
-        rMsg.delegate = this;
-        return rMsg;
+        // sign 'data' by sender
+        return sMsg.sign();
     }
 
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
@@ -153,17 +246,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //        (do in by application)
         //
 
-        if (rMsg.delegate == null) {
-            rMsg.delegate = this;
+        if (rMsg.getDelegate() == null) {
+            rMsg.setDelegate(this);
         }
         assert rMsg.getSignature() != null;
 
-        // 1. verify 'data' with 'signature'
-        SecureMessage sMsg = rMsg.verify();
-
-        // OK
-        sMsg.delegate = this;
-        return sMsg;
+        // verify 'data' with 'signature'
+        return rMsg.verify();
     }
 
     public InstantMessage decryptMessage(SecureMessage sMsg) {
@@ -173,25 +262,23 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //          if the receiver is a group ID, split it first
         //
 
-        if (sMsg.delegate == null) {
-            sMsg.delegate = this;
+        if (sMsg.getDelegate() == null) {
+            sMsg.setDelegate(this);
         }
         assert sMsg.getData() != null;
 
-        // 1. decrypt 'data' to 'content'
-        InstantMessage iMsg = sMsg.decrypt();
+        // decrypt 'data' to 'content'
+        return sMsg.decrypt();
 
         // TODO: check top-secret message
         //       (do it by application)
-
-        // OK
-        iMsg.delegate = this;
-        return iMsg;
     }
 
     //-------- De/serialize message content and symmetric key
 
     protected byte[] serializeContent(Content content, InstantMessage iMsg) {
+        assert content.equals(iMsg.content);
+
         String json = JSON.encode(content);
         return json.getBytes(Charset.forName("UTF-8"));
     }
@@ -207,6 +294,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @SuppressWarnings("unchecked")
     protected SymmetricKey deserializeKey(byte[] key, SecureMessage sMsg) {
+        assert !isBroadcast(sMsg);
+
         String json = new String(key, Charset.forName("UTF-8"));
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
         // TODO: translate short keys
@@ -219,6 +308,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @SuppressWarnings("unchecked")
     protected Content deserializeContent(byte[] data, SecureMessage sMsg) {
+        assert sMsg.getData() != null;
+
         String json = new String(data, Charset.forName("UTF-8"));
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
         // TODO: translate short keys
@@ -246,7 +337,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             byte[] data = file.getData();
             // encrypt and upload file data onto CDN and save the URL in message content
             data = key.encrypt(data);
-            String url = delegate.uploadFileData(data, iMsg);
+            String url = uploadFileData(data, iMsg);
             if (url != null) {
                 // replace 'data' with 'URL'
                 file.setUrl(url);
@@ -281,7 +372,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         byte[] data = serializeKey(key, iMsg);
         // encrypt with receiver's public key
-        User contact = barrack.getUser(barrack.getID(receiver));
+        User contact = getUser(getID(receiver));
         assert contact != null;
         return contact.encrypt(data);
     }
@@ -308,13 +399,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         assert !isBroadcast(sMsg) || keyData == null;
         // broadcast message has no key
 
-        ID from = barrack.getID(sender);
-        ID to = barrack.getID(receiver);
+        ID from = getID(sender);
+        ID to = getID(receiver);
         SymmetricKey key = null;
         if (keyData != null) {
             // decrypt key data with the receiver/group member's private key
-            ID identifier = barrack.getID(sMsg.envelope.receiver);
-            LocalUser user = (LocalUser) barrack.getUser(identifier);
+            ID identifier = getID(sMsg.envelope.receiver);
+            LocalUser user = (LocalUser) getUser(identifier);
             assert user != null;
             byte[] plaintext = user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
@@ -323,11 +414,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             // deserialize it to symmetric key
             key = deserializeKey(plaintext, sMsg);
             // cache the new key in key store
-            keyCache.cacheCipherKey(from, to, key);
+            cacheCipherKey(from, to, key);
         }
         if (key == null) {
             // if key data is empty, get it from key store
-            key = keyCache.cipherKey(from, to);
+            key = getCipherKey(from, to);
             assert key != null;
         }
         return key;
@@ -364,7 +455,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             FileContent file = (FileContent) content;
             InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);
             // download from CDN
-            byte[] fileData = delegate.downloadFileData(file.getUrl(), iMsg);
+            byte[] fileData = downloadFileData(file.getUrl(), iMsg);
             if (fileData == null) {
                 // save symmetric key for decrypted file data after download from CDN
                 file.setPassword(key);
@@ -379,7 +470,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        LocalUser user = (LocalUser) barrack.getUser(barrack.getID(sender));
+        LocalUser user = (LocalUser) getUser(getID(sender));
         assert user != null;
         return user.sign(data);
     }
@@ -398,7 +489,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        User contact = barrack.getUser(barrack.getID(sender));
+        User contact = getUser(getID(sender));
         assert contact != null;
         return contact.verify(data, signature);
     }

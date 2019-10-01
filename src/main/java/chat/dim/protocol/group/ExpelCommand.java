@@ -35,7 +35,7 @@ public class ExpelCommand extends GroupCommand {
         super(EXPEL, group, member);
     }
 
-    public ExpelCommand(ID group, List<ID> members) {
+    public ExpelCommand(ID group, List members) {
         super(EXPEL, group, members);
     }
 }
