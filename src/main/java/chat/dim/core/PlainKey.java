@@ -26,35 +26,53 @@
 package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.mkm.ID;
+import chat.dim.crypto.impl.SymmetricKeyImpl;
 
-public interface CipherKeyDataSource {
+import java.util.HashMap;
+import java.util.Map;
 
-    /**
-     *  Get cipher key for encrypt message from 'sender' to 'receiver'
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @return cipher key
-     */
-    SymmetricKey cipherKey(ID sender, ID receiver);
+/**
+ *  Symmetric key for broadcast message,
+ *  which will do nothing when en/decoding message data
+ */
+final class PlainKey extends SymmetricKeyImpl {
 
-    /**
-     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param key - cipher key
-     */
-    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
+    private final static String PLAIN = "PLAIN";
 
-    /**
-     *  Update/create cipher key for encrypt message content
-     *
-     * @param sender - from where (user ID)
-     * @param receiver - to where (contact/group ID)
-     * @param key - old key to be reused (nullable)
-     * @return new key
-     */
-    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+    public PlainKey(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
+
+    @Override
+    public byte[] encrypt(byte[] plaintext) {
+        return plaintext;
+    }
+
+    @Override
+    public byte[] decrypt(byte[] ciphertext) {
+        return ciphertext;
+    }
+
+    @Override
+    public byte[] getData() {
+        return new byte[0];
+    }
+
+    //-------- Runtime --------
+
+    private static SymmetricKey ourInstance = null;
+
+    public static SymmetricKey getInstance() {
+        if (ourInstance == null) {
+            Map<String, Object> dictionary = new HashMap<>();
+            dictionary.put("algorithm", PLAIN);
+            ourInstance = new PlainKey(dictionary);
+        }
+        return ourInstance;
+    }
+
+    static {
+        // PLAIN
+        register(PLAIN, PlainKey.class);
+    }
 }

@@ -23,38 +23,25 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.group;
 
-import chat.dim.crypto.SymmetricKey;
+import chat.dim.mkm.Group;
 import chat.dim.mkm.ID;
 
-public interface CipherKeyDataSource {
+public class Polylogue extends Group {
 
-    /**
-     *  Get cipher key for encrypt message from 'sender' to 'receiver'
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @return cipher key
-     */
-    SymmetricKey cipherKey(ID sender, ID receiver);
+    public Polylogue(ID identifier) {
+        super(identifier);
+    }
 
-    /**
-     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param key - cipher key
-     */
-    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
-
-    /**
-     *  Update/create cipher key for encrypt message content
-     *
-     * @param sender - from where (user ID)
-     * @param receiver - to where (contact/group ID)
-     * @param key - old key to be reused (nullable)
-     * @return new key
-     */
-    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+    @Override
+    public ID getOwner() {
+        // polylogue's owner is founder
+        ID owner = super.getOwner();
+        if (owner != null && owner.isValid()) {
+            //assert owner == getFounder();
+            return owner;
+        }
+        return getFounder();
+    }
 }

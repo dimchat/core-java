@@ -88,62 +88,52 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //--------
 
     protected ID getID(Object string) {
-        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
-        assert dataSource != null;
+        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
         return dataSource.getID(string);
     }
 
     protected Meta getMeta(ID identifier) {
-        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
-        assert dataSource != null;
+        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
         return dataSource.getMeta(identifier);
     }
 
     protected User getUser(ID identifier) {
-        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
-        assert dataSource != null;
+        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
         return dataSource.getUser(identifier);
     }
 
     protected Group getGroup(ID identifier) {
-        SocialNetworkDataSource dataSource = socialNetworkDataSourceRef.get();
-        assert dataSource != null;
+        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
         return dataSource.getGroup(identifier);
     }
 
     protected SymmetricKey getCipherKey(ID from, ID to) {
-        CipherKeyDataSource dataSource = cipherKeyDataSourceRef.get();
-        assert dataSource != null;
+        CipherKeyDataSource dataSource = getCipherKeyDataSource();
         return dataSource.cipherKey(from, to);
     }
 
     protected SymmetricKey reuseCipherKey(ID from, ID to, SymmetricKey oldKey) {
-        CipherKeyDataSource dataSource = cipherKeyDataSourceRef.get();
-        assert dataSource != null;
+        CipherKeyDataSource dataSource = getCipherKeyDataSource();
         return dataSource.reuseCipherKey(from, to, oldKey);
     }
 
     protected void cacheCipherKey(ID from, ID to, SymmetricKey key) {
-        CipherKeyDataSource dataSource = cipherKeyDataSourceRef.get();
-        assert dataSource != null;
+        CipherKeyDataSource dataSource = getCipherKeyDataSource();
         dataSource.cacheCipherKey(from, to, key);
     }
 
     protected boolean sendPackage(byte[] data, CompletionHandler handler) {
-        TransceiverDelegate delegate = delegateRef.get();
-        assert delegate != null;
+        TransceiverDelegate delegate = getDelegate();
         return delegate.sendPackage(data, handler);
     }
 
     protected String uploadFileData(byte[] data, InstantMessage iMsg) {
-        TransceiverDelegate delegate = delegateRef.get();
-        assert delegate != null;
+        TransceiverDelegate delegate = getDelegate();
         return delegate.uploadFileData(data, iMsg);
     }
 
     protected byte[] downloadFileData(String url, InstantMessage iMsg) {
-        TransceiverDelegate delegate = delegateRef.get();
-        assert delegate != null;
+        TransceiverDelegate delegate = getDelegate();
         return delegate.downloadFileData(url, iMsg);
     }
 

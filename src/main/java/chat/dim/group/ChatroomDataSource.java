@@ -23,38 +23,20 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.group;
 
-import chat.dim.crypto.SymmetricKey;
+import java.util.List;
+
+import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.ID;
 
-public interface CipherKeyDataSource {
+public interface ChatroomDataSource extends GroupDataSource {
 
     /**
-     *  Get cipher key for encrypt message from 'sender' to 'receiver'
+     *  Get chatroom admins list
      *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @return cipher key
+     * @param chatroom - chatroom ID
+     * @return admins list (ID)
      */
-    SymmetricKey cipherKey(ID sender, ID receiver);
-
-    /**
-     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param key - cipher key
-     */
-    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
-
-    /**
-     *  Update/create cipher key for encrypt message content
-     *
-     * @param sender - from where (user ID)
-     * @param receiver - to where (contact/group ID)
-     * @param key - old key to be reused (nullable)
-     * @return new key
-     */
-    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+    List<ID> getAdmins(ID chatroom);
 }
