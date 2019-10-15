@@ -31,6 +31,11 @@ import java.util.Map;
 import chat.dim.mkm.ID;
 import chat.dim.protocol.GroupCommand;
 
+/**
+ *  NOTICE:
+ *      This command is just for responding group info,
+ *      should not be record in history database
+ */
 public class ResetCommand extends GroupCommand {
 
     public ResetCommand(Map<String, Object> dictionary) {

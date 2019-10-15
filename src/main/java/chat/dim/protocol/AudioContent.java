@@ -23,56 +23,28 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.file;
+package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.format.Base64;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.FileContent;
-
 /**
- *  Image message: {
- *      type : 0x12,
+ *  Audio message: {
+ *      type : 0x14,
  *      sn   : 123,
  *
- *      URL       : "http://", // upload to CDN
- *      data      : "...",     // if (!URL) base64_encode(image)
- *      thumbnail : "...",     // base64_encode(smallImage)
- *      filename  : "..."
+ *      URL      : "http://", // upload to CDN
+ *      data     : "...",     // if (!URL) base64_encode(audio)
+ *      text     : "...",     // Automatic Speech Recognition
+ *      filename : "..."
  *  }
  */
-public class ImageContent extends FileContent {
+public class AudioContent extends FileContent {
 
-    private byte[] thumbnail;
-
-    public ImageContent(Map<String, Object> dictionary) {
+    public AudioContent(Map<String, Object> dictionary) {
         super(dictionary);
-        String base64 = (String) dictionary.get("thumbnail");
-        if (base64 == null) {
-            thumbnail = null;
-        } else {
-            thumbnail = Base64.decode(base64);
-        }
     }
 
-    public ImageContent(byte[] data, String filename) {
-        super(ContentType.IMAGE.value, data, filename);
-        thumbnail = null;
-    }
-
-    //-------- setter/getter --------
-
-    public void setThumbnail(byte[] imageData) {
-        thumbnail = imageData;
-        if (imageData == null) {
-            dictionary.remove("thumbnail");
-        } else {
-            dictionary.put("thumbnail", Base64.encode(imageData));
-        }
-    }
-
-    public byte[] getThumbnail() {
-        return thumbnail;
+    public AudioContent(byte[] data, String filename) {
+        super(ContentType.AUDIO.value, data, filename);
     }
 }

@@ -124,8 +124,6 @@ public class Command extends Content {
     static {
         // Handshake
         register(HANDSHAKE, HandshakeCommand.class);
-        // Receipt
-        register(RECEIPT, ReceiptCommand.class);
         // Meta
         register(META, MetaCommand.class);
         // Profile

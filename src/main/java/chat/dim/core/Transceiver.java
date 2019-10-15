@@ -36,9 +36,6 @@ import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.mkm.*;
 import chat.dim.protocol.*;
-import chat.dim.protocol.file.AudioContent;
-import chat.dim.protocol.file.ImageContent;
-import chat.dim.protocol.file.VideoContent;
 
 public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 

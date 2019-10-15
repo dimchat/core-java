@@ -30,6 +30,11 @@ import java.util.Map;
 import chat.dim.mkm.ID;
 import chat.dim.protocol.GroupCommand;
 
+/**
+ *  NOTICE:
+ *      This command is just for querying group info,
+ *      should not be record in history database
+ */
 public class QueryCommand extends GroupCommand {
 
     public QueryCommand(Map<String, Object> dictionary) {
