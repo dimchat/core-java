@@ -23,13 +23,12 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.command;
+package chat.dim.protocol;
 
 import java.util.Map;
 
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
-import chat.dim.protocol.Command;
 
 /**
  *  Command message: {

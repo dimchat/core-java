@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.mkm.ID;
+import chat.dim.protocol.GroupCommand;
 
 public class ResetCommand extends GroupCommand {
 

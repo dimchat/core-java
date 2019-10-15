@@ -28,6 +28,7 @@ package chat.dim.protocol.file;
 import java.util.Map;
 
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.FileContent;
 
 /**
  *  Audio message: {

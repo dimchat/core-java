@@ -37,7 +37,6 @@ import chat.dim.format.JSON;
 import chat.dim.mkm.*;
 import chat.dim.protocol.*;
 import chat.dim.protocol.file.AudioContent;
-import chat.dim.protocol.file.FileContent;
 import chat.dim.protocol.file.ImageContent;
 import chat.dim.protocol.file.VideoContent;
 

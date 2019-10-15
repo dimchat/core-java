@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.file;
+package chat.dim.protocol;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -31,7 +31,6 @@ import java.util.Map;
 
 import chat.dim.dkd.Content;
 import chat.dim.format.Base64;
-import chat.dim.protocol.ContentType;
 
 /**
  *  File message: {

@@ -28,8 +28,6 @@ package chat.dim.protocol;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.protocol.group.GroupCommand;
-
 /**
  *  History command: {
  *      type : 0x89,

@@ -27,11 +27,13 @@ package chat.dim.group;
 
 import chat.dim.mkm.Group;
 import chat.dim.mkm.ID;
+import chat.dim.mkm.NetworkType;
 
 public class Polylogue extends Group {
 
     public Polylogue(ID identifier) {
         super(identifier);
+        assert identifier.getType() == NetworkType.Polylogue;
     }
 
     @Override
@@ -39,7 +41,7 @@ public class Polylogue extends Group {
         // polylogue's owner is founder
         ID owner = super.getOwner();
         if (owner != null && owner.isValid()) {
-            //assert owner == getFounder();
+            assert owner == getFounder();
             return owner;
         }
         return getFounder();

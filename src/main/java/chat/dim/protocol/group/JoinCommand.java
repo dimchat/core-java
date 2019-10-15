@@ -28,6 +28,7 @@ package chat.dim.protocol.group;
 import java.util.Map;
 
 import chat.dim.mkm.ID;
+import chat.dim.protocol.GroupCommand;
 
 public class JoinCommand extends GroupCommand {
 

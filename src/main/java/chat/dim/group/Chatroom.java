@@ -29,11 +29,13 @@ import java.util.List;
 
 import chat.dim.mkm.Group;
 import chat.dim.mkm.ID;
+import chat.dim.mkm.NetworkType;
 
 public class Chatroom extends Group {
 
     public Chatroom(ID identifier) {
         super(identifier);
+        assert identifier.getType() == NetworkType.Chatroom;
     }
 
     @Override
@@ -43,7 +45,6 @@ public class Chatroom extends Group {
 
     public List<ID> getAdmins() {
         ChatroomDataSource dataSource = getDataSource();
-        assert dataSource != null;
         return dataSource.getAdmins(identifier);
     }
 }

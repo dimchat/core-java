@@ -29,6 +29,7 @@ import java.util.Map;
 
 import chat.dim.format.Base64;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.FileContent;
 
 /**
  *  Image message: {

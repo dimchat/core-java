@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.command;
+package chat.dim.protocol;
 
 import java.util.HashMap;
 import java.util.Map;

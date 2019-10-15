@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.dkd.Content;
-import chat.dim.protocol.command.*;
 
 /**
  *  Command message: {

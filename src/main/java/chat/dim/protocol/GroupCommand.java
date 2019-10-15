@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.group;
+package chat.dim.protocol;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.mkm.ID;
-import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.group.*;
 
 public class GroupCommand extends HistoryCommand {
 
