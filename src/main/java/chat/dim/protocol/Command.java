@@ -84,13 +84,14 @@ public class Command extends Content {
 
     @SuppressWarnings("unchecked")
     private static Command createInstance(Map<String, Object> dictionary) {
+        // get subclass by command name
         String command = (String) dictionary.get("command");
         Class clazz = commandClasses.get(command);
         if (clazz == null) {
             //throw new ClassNotFoundException("unknown command: " + command);
             return new Command(dictionary);
         }
-        // try 'getInstance()'
+        // try 'getInstance()' of subclass
         try {
             Method method = clazz.getMethod("getInstance", Object.class);
             if (method.getDeclaringClass().equals(clazz)) {
@@ -99,6 +100,7 @@ public class Command extends Content {
         } catch (Exception e) {
             //e.printStackTrace();
         }
+        // try 'new MyCommand(dict)'
         try {
             Constructor constructor = clazz.getConstructor(Map.class);
             return (Command) constructor.newInstance(dictionary);
@@ -112,12 +114,12 @@ public class Command extends Content {
     public static Command getInstance(Object object) {
         if (object == null) {
             return null;
-        } else if (object instanceof Content) {
+        } else if (object instanceof Command) {
             return (Command) object;
         } else if (object instanceof Map) {
             return createInstance((Map<String, Object>) object);
         } else {
-            throw new IllegalArgumentException("content error: " + object);
+            throw new IllegalArgumentException("ommand error: " + object);
         }
     }
 

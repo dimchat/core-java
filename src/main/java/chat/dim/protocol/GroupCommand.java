@@ -25,15 +25,10 @@
  */
 package chat.dim.protocol;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import chat.dim.mkm.ID;
-import chat.dim.protocol.group.*;
 
 public class GroupCommand extends HistoryCommand {
 
@@ -107,75 +102,6 @@ public class GroupCommand extends HistoryCommand {
         members = memberList;
         dictionary.put("members", memberList);
         dictionary.put("group", groupID);
-    }
-
-    //-------- Runtime --------
-
-    private static Map<String, Class> groupCommandClasses = new HashMap<>();
-
-    @SuppressWarnings("unchecked")
-    public static void register(String command, Class clazz) {
-        // check whether clazz is subclass of GroupCommand
-        if (clazz.equals(GroupCommand.class)) {
-            throw new IllegalArgumentException("should not add GroupCommand.class itself!");
-        }
-        clazz = clazz.asSubclass(GroupCommand.class);
-        groupCommandClasses.put(command, clazz);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static GroupCommand createInstance(Map<String, Object> dictionary) {
-        String command = (String) dictionary.get("command");
-        Class clazz = groupCommandClasses.get(command);
-        if (clazz == null) {
-            //throw new ClassNotFoundException("unknown group command: " + command);
-            return new GroupCommand(dictionary);
-        }
-        // try 'getInstance()'
-        try {
-            Method method = clazz.getMethod("getInstance", Object.class);
-            if (method.getDeclaringClass().equals(clazz)) {
-                return (GroupCommand) method.invoke(null, dictionary);
-            }
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        try {
-            Constructor constructor = clazz.getConstructor(Map.class);
-            return (GroupCommand) constructor.newInstance(dictionary);
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static GroupCommand getInstance(Object object) {
-        if (object == null) {
-            return null;
-        } else if (object instanceof GroupCommand) {
-            return (GroupCommand) object;
-        } else if (object instanceof Map) {
-            return createInstance((Map<String, Object>) object);
-        } else {
-            throw new IllegalArgumentException("content error: " + object);
-        }
-    }
-
-    static {
-        // Invite member to group
-        register(INVITE, InviteCommand.class);
-        // Expel member from group
-        register(EXPEL, ExpelCommand.class);
-        // Join group
-        register(JOIN, JoinCommand.class);
-        // Quit group
-        register(QUIT, QuitCommand.class);
-        // Reset group info
-        register(RESET, ResetCommand.class);
-        // Query group info
-        register(QUERY, QueryCommand.class);
-        // ...
     }
 }
 

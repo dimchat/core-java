@@ -28,6 +28,8 @@ package chat.dim.protocol;
 import java.util.Date;
 import java.util.Map;
 
+import chat.dim.protocol.group.*;
+
 /**
  *  History command: {
  *      type : 0x89,
@@ -90,19 +92,35 @@ public class HistoryCommand extends Command {
 
     @SuppressWarnings("unchecked")
     public static HistoryCommand getInstance(Object object) {
-        if (object == null) {
-            return null;
-        } else if (object instanceof HistoryCommand) {
-            return (HistoryCommand) object;
+        Command cmd = Command.getInstance(object);
+        if (cmd != null) {
+            // got it
+            if (cmd.getGroup() != null) {
+                // group command?
+                if (cmd instanceof GroupCommand) {
+                    return (GroupCommand) cmd;
+                }
+            } else if (cmd instanceof HistoryCommand) {
+                // history command
+                return (HistoryCommand) cmd;
+            }
         }
-        assert object instanceof Map;
-        Map<String, Object> dictionary = (Map<String, Object>) object;
-        Object group = dictionary.get("group");
-        if (group != null) {
-            // group history command
-            return GroupCommand.getInstance(dictionary);
-        }
-        // unsupported history command
-        return new HistoryCommand(dictionary);
+        throw new IllegalArgumentException("history command error: " + object);
+    }
+
+    static {
+        // Invite member to group
+        register(INVITE, InviteCommand.class);
+        // Expel member from group
+        register(EXPEL, ExpelCommand.class);
+        // Join group
+        register(JOIN, JoinCommand.class);
+        // Quit group
+        register(QUIT, QuitCommand.class);
+        // Reset group info
+        register(RESET, ResetCommand.class);
+        // Query group info
+        register(QUERY, QueryCommand.class);
+        // ...
     }
 }
