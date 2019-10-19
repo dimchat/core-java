@@ -92,20 +92,21 @@ public class HistoryCommand extends Command {
 
     @SuppressWarnings("unchecked")
     public static HistoryCommand getInstance(Object object) {
-        Command cmd = Command.getInstance(object);
-        if (cmd != null) {
-            // got it
-            if (cmd.getGroup() != null) {
-                // group command?
-                if (cmd instanceof GroupCommand) {
-                    return (GroupCommand) cmd;
-                }
-            } else if (cmd instanceof HistoryCommand) {
-                // history command
-                return (HistoryCommand) cmd;
-            }
+        if (object == null) {
+            return null;
+        } else if (object instanceof HistoryCommand) {
+            // return HistoryCommand object directly
+            return (HistoryCommand) object;
         }
-        throw new IllegalArgumentException("history command error: " + object);
+        assert object instanceof Map;
+        Map<String, Object> dictionary = (Map<String, Object>) object;
+        // check group
+        if (dictionary.get("group") != null) {
+            // create instance as group command
+            return GroupCommand.getInstance(dictionary);
+        }
+        // custom history command
+        return new HistoryCommand(dictionary);
     }
 
     static {

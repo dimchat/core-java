@@ -25,9 +25,6 @@
  */
 package chat.dim.protocol;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,38 +73,16 @@ public class Command extends Content {
     public static void register(String command, Class clazz) {
         // check whether clazz is subclass of CommandContent
         if (clazz.equals(Command.class)) {
-            throw new IllegalArgumentException("should not add CommandContent.class itself!");
+            throw new IllegalArgumentException("should not add Command.class itself!");
         }
-        clazz = clazz.asSubclass(Command.class);
+        assert Command.class.isAssignableFrom(clazz); // asSubclass
         commandClasses.put(command, clazz);
     }
 
-    @SuppressWarnings("unchecked")
-    private static Command createInstance(Map<String, Object> dictionary) {
+    static Class commandClass(Map<String, Object> dictionary) {
         // get subclass by command name
         String command = (String) dictionary.get("command");
-        Class clazz = commandClasses.get(command);
-        if (clazz == null) {
-            //throw new ClassNotFoundException("unknown command: " + command);
-            return new Command(dictionary);
-        }
-        // try 'getInstance()' of subclass
-        try {
-            Method method = clazz.getMethod("getInstance", Object.class);
-            if (method.getDeclaringClass().equals(clazz)) {
-                return (Command) method.invoke(null, dictionary);
-            }
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        // try 'new MyCommand(dict)'
-        try {
-            Constructor constructor = clazz.getConstructor(Map.class);
-            return (Command) constructor.newInstance(dictionary);
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return commandClasses.get(command);
     }
 
     @SuppressWarnings("unchecked")
@@ -116,11 +91,16 @@ public class Command extends Content {
             return null;
         } else if (object instanceof Command) {
             return (Command) object;
-        } else if (object instanceof Map) {
-            return createInstance((Map<String, Object>) object);
-        } else {
-            throw new IllegalArgumentException("ommand error: " + object);
         }
+        assert object instanceof Map;
+        Map<String, Object> dictionary = (Map<String, Object>) object;
+        Class clazz = commandClass(dictionary);
+        if (clazz != null) {
+            // create instance by subclass (with command name)
+            return (Command) createInstance(clazz, dictionary);
+        }
+        // custom command
+        return new Command(dictionary);
     }
 
     static {

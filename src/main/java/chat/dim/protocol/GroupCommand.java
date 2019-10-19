@@ -103,5 +103,26 @@ public class GroupCommand extends HistoryCommand {
         dictionary.put("members", memberList);
         dictionary.put("group", groupID);
     }
+
+    //-------- Runtime --------
+
+    @SuppressWarnings("unchecked")
+    public static GroupCommand getInstance(Object object) {
+        if (object == null) {
+            return null;
+        } else if (object instanceof GroupCommand) {
+            // return GroupCommand object directly
+            return (GroupCommand) object;
+        }
+        assert object instanceof Map;
+        Map<String, Object> dictionary = (Map<String, Object>) object;
+        Class clazz = commandClass(dictionary);
+        if (clazz != null) {
+            // create instance by subclass (with command name)
+            return (GroupCommand) createInstance(clazz, dictionary);
+        }
+        // custom group command
+        return new GroupCommand(dictionary);
+    }
 }
 
