@@ -48,13 +48,21 @@ public abstract class KeyCache implements CipherKeyDataSource {
     private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
     private boolean isDirty = false;
 
-    protected KeyCache() {
-        super();
-        // load keys from local storage
+    /**
+     *  Trigger for loading cipher key table
+     *
+     * @return true on success
+     */
+    public boolean reload() {
+        Map dictionary = loadKeys();
+        if (dictionary == null) {
+            return false;
+        }
         try {
-            updateKeys(loadKeys());
+            return updateKeys(dictionary);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

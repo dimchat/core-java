@@ -66,7 +66,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         return finger >> 1;
     }
 
-    protected int thanos(Map map, int finger) {
+    public static int thanos(Map map, int finger) {
         Iterator iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
             iterator.next();
@@ -79,21 +79,19 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         return finger;
     }
 
-    protected boolean cacheID(ID identifier) {
+    protected boolean cache(ID identifier) {
         assert identifier.isValid();
         idMap.put(identifier.toString(), identifier);
         return true;
     }
 
-    protected boolean cacheMeta(Meta meta, ID identifier) {
-        if (!meta.matches(identifier)) {
-            return false;
-        }
+    protected boolean cache(Meta meta, ID identifier) {
+        assert meta.matches(identifier);
         metaMap.put(identifier, meta);
         return true;
     }
 
-    protected boolean cacheUser(User user) {
+    protected boolean cache(User user) {
         assert user.identifier.getType().isUser();
         if (user.getDataSource() == null) {
             user.setDataSource(this);
@@ -102,7 +100,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         return true;
     }
 
-    protected boolean cacheGroup(Group group) {
+    protected boolean cache(Group group) {
         assert group.identifier.getType().isGroup();
         if (group.getDataSource() == null) {
             group.setDataSource(this);
@@ -128,7 +126,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         }
         // 2. create and cache it
         identifier = ID.getInstance(string);
-        if (identifier != null && cacheID(identifier)) {
+        if (identifier != null && cache(identifier)) {
             return identifier;
         }
         // failed to create ID
@@ -143,7 +141,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         if (user == null && identifier.isBroadcast()) {
             // 2. create user 'anyone@anywhere'
             user = new User(identifier);
-            cacheUser(user);
+            cache(user);
         }
         return user;
     }
@@ -156,7 +154,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         if (group == null && identifier.isBroadcast()) {
             // 2. create group 'everyone@everywhere'
             group = new Group(identifier);
-            cacheGroup(group);
+            cache(group);
         }
         return group;
     }

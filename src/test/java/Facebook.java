@@ -65,7 +65,8 @@ public class Facebook extends Barrack {
     //---- Profile
 
     protected boolean cacheProfile(Profile profile) {
-        profileMap.put(profile.identifier, profile);
+        ID identifier = ID.getInstance(profile.getIdentifier());
+        profileMap.put(identifier, profile);
         return true;
     }
 
@@ -83,7 +84,7 @@ public class Facebook extends Barrack {
         } else {
             user = new LocalUser(identifier);
         }
-        cacheUser(user);
+        cache(user);
         return user;
     }
 
@@ -92,7 +93,7 @@ public class Facebook extends Barrack {
         Group group = super.getGroup(identifier);
         if (group == null) {
             group = new Group(identifier);
-            cacheGroup(group);
+            cache(group);
         }
         return group;
     }
@@ -106,7 +107,7 @@ public class Facebook extends Barrack {
             try {
                 meta = loadMeta(identifier);
                 if (meta != null) {
-                    cacheMeta(meta, identifier);
+                    cache(meta, identifier);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -185,7 +186,7 @@ public class Facebook extends Barrack {
                 if (key.equals("name") || key.equals("names")) {
                     continue;
                 }
-                profile.setData((String) key, dictionary.get(key));
+                profile.setProperty((String) key, dictionary.get(key));
             }
             // sign profile
             profile.sign(privateKey);
@@ -215,7 +216,7 @@ public class Facebook extends Barrack {
         // meta
         Meta meta = Meta.getInstance(dict.get("meta"));
         assert meta != null && meta.matches(identifier);
-        getInstance().cacheMeta(meta, identifier);
+        getInstance().cache(meta, identifier);
         // private key
         PrivateKey privateKey = PrivateKeyImpl.getInstance(dict.get("privateKey"));
         if (meta.key.matches(privateKey)) {
