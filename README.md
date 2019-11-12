@@ -1,7 +1,7 @@
 # Decentralized Instant Messaging Protocol (Java)
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/alpha-0.5.0-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
+[![Version](https://img.shields.io/badge/alpha-0.5.2-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
 
@@ -22,8 +22,8 @@ allprojects {
 dependencies {
 
     // https://bintray.com/dimchat/core/dimp
-    compile 'chat.dim:DIMP:0.5.0'
-//  implementation group: 'chat.dim', name: 'DIMP', version: '0.5.0'
+    compile 'chat.dim:DIMP:0.5.2'
+//  implementation group: 'chat.dim', name: 'DIMP', version: '0.5.2'
 
 }
 ```
@@ -37,7 +37,7 @@ pom.xml
     <dependency>
         <groupId>chat.dim</groupId>
         <artifactId>DIMP</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.2</version>
         <type>pom</type>
     </dependency>
 
@@ -216,37 +216,129 @@ Messenger.java
 /**
  *  Transform and send message
  */
-public class Messenger extends Transceiver implements TransceiverDelegate {
+public class Messenger extends Transceiver implements ConnectionDelegate {
     private static final Messenger ourInstance = new Messenger();
     public static Messenger getInstance() { return ourInstance; }
     
     private Messenger()  {
         super();
-
         setSocialNetworkDataSource(Facebook.getInstance());
         setCipherKeyDataSource(KeyStore.getInstance());
-        
-        // you may prefer to implement TransceiverDelegate somewhere else
-        setDelegate(this);
     }
     
-    // TransceiverDelegate
+    public MessengerDelegate delegate = null;
+
     @Override
-    public boolean sendPackage(byte[] data, CompletionHandler handler) {
-        // TODO: send out data
-        return false;
+    public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
+        SymmetricKey key = SymmetricKeyImpl.getInstance(password);
+        assert key == password && key != null;
+        // check attachment for File/Image/Audio/Video message content
+        if (content instanceof FileContent) {
+            FileContent file = (FileContent) content;
+            byte[] data = file.getData();
+            // encrypt and upload file data onto CDN and save the URL in message content
+            data = key.encrypt(data);
+            String url = delegate.uploadFileData(data, iMsg);
+            if (url != null) {
+                // replace 'data' with 'URL'
+                file.setUrl(url);
+                file.setData(null);
+            }
+        }
+        return super.encryptContent(content, key, iMsg);
+    }
+
+    @Override
+    public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
+        SymmetricKey key = SymmetricKeyImpl.getInstance(password);
+        assert key == password && key != null;
+        Content content = super.decryptContent(data, password, sMsg);
+        if (content == null) {
+            return null;
+        }
+        // check attachment for File/Image/Audio/Video message content
+        if (content instanceof FileContent) {
+            FileContent file = (FileContent) content;
+            InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);
+            // download from CDN
+            byte[] fileData = delegate.downloadFileData(file.getUrl(), iMsg);
+            if (fileData == null) {
+                // save symmetric key for decrypted file data after download from CDN
+                file.setPassword(key);
+            } else {
+                // decrypt file data
+                file.setData(key.decrypt(fileData));
+                file.setUrl(null);
+            }
+        }
+        return content;
     }
     
-    @Override
-    public String uploadFileData(byte[] data, InstantMessage iMsg) {
-        // TODO: upload onto FTP server
-        return null;
+    //
+    //  Send message
+    //
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) {
+        // Send message (secured + certified) to target station
+        ReliableMessage rMsg = signMessage(encryptMessage(iMsg));
+        Facebook facebook = getFacebook();
+        ID receiver = facebook.getID(iMsg.envelope.receiver);
+        boolean OK = true;
+        if (split && receiver.getType().isGroup()) {
+            // split for each members
+            List<ID> members = facebook.getMembers(receiver);
+            List<SecureMessage> messages;
+            if (members == null || members.size() == 0) {
+                messages = null;
+            } else {
+                messages = rMsg.split(members);
+            }
+            if (messages == null) {
+                // failed to split message, send it to group
+                OK = sendMessage(rMsg, callback);
+            } else {
+                for (Message msg : messages) {
+                    if (!sendMessage((ReliableMessage) msg, callback)) {
+                        OK = false;
+                    }
+                }
+            }
+        } else {
+            OK = sendMessage(rMsg, callback);
+        }
+        // TODO: if OK, set iMsg.state = sending; else set iMsg.state = waiting
+        return OK;
+    }
+
+    private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
+        byte[] data = serializeMessage(rMsg);
+        MessageCallback handler = new MessageCallback(rMsg, callback);
+        return getDelegate().sendPackage(data, handler);
     }
     
+    //
+    //  ConnectionDelegate
+    //
     @Override
-    public byte[] downloadFileData(String url, InstantMessage iMsg) {
-        // TODO: download from FTP server
-        return new byte[0];
+    public byte[] receivedPackage(byte[] data) {
+        ReliableMessage rMsg = deserializeMessage(data);
+        Content response = processMessage(rMsg);
+        if (response == null) {
+            // nothing to response
+            return null;
+        }
+        Facebook facebook = getFacebook();
+        ID sender = facebook.getID(rMsg.envelope.sender);
+        InstantMessage iMsg = packContent(response, sender);
+        ReliableMessage nMsg = signMessage(encryptMessage(iMsg));
+        return serializeMessage(nMsg);
+    }
+
+    private Content processMessage(ReliableMessage rMsg) {
+        // verify
+        SecureMessage sMsg = verifyMessage(rMsg);
+        // decrypt
+        InstantMessage iMsg = decryptMessage(sMsg);
+        // TODO: processing iMsg.content
     }
 }
 ```

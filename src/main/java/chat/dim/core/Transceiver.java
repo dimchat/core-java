@@ -51,7 +51,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     // delegates
     private WeakReference<SocialNetworkDataSource> socialNetworkDataSourceRef = null;
     private WeakReference<CipherKeyDataSource> cipherKeyDataSourceRef = null;
-    private WeakReference<TransceiverDelegate> delegateRef = null;
 
     public SocialNetworkDataSource getSocialNetworkDataSource() {
         if (socialNetworkDataSourceRef == null) {
@@ -73,17 +72,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     public void setCipherKeyDataSource(CipherKeyDataSource dataSource) {
         cipherKeyDataSourceRef = new WeakReference<>(dataSource);
-    }
-
-    public TransceiverDelegate getDelegate() {
-        if (delegateRef == null) {
-            return null;
-        }
-        return delegateRef.get();
-    }
-
-    public void setDelegate(TransceiverDelegate delegate) {
-        delegateRef = new WeakReference<>(delegate);
     }
 
     //--------
@@ -123,21 +111,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         dataSource.cacheCipherKey(from, to, key);
     }
 
-    protected boolean sendPackage(byte[] data, CompletionHandler handler) {
-        TransceiverDelegate delegate = getDelegate();
-        return delegate.sendPackage(data, handler);
-    }
-
-    protected String uploadFileData(byte[] data, InstantMessage iMsg) {
-        TransceiverDelegate delegate = getDelegate();
-        return delegate.uploadFileData(data, iMsg);
-    }
-
-    protected byte[] downloadFileData(String url, InstantMessage iMsg) {
-        TransceiverDelegate delegate = getDelegate();
-        return delegate.downloadFileData(url, iMsg);
-    }
-
     //--------
 
     private boolean isBroadcast(Message msg) {
@@ -148,7 +121,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return receiver.isBroadcast();
     }
 
-    private SymmetricKey getSymmetricKey(Map<String, Object> password) {
+    protected SymmetricKey getSymmetricKey(Map<String, Object> password) {
         try {
             return SymmetricKeyImpl.getInstance(password);
         } catch (ClassNotFoundException e) {
@@ -169,13 +142,14 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                     newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
+                    return null;
                 }
             } else {
                 newKey = oldKey;
             }
         }
         // 4. update new key into the key store
-        if (newKey != null && !newKey.equals(oldKey)) {
+        if (!newKey.equals(oldKey)) {
             cacheCipherKey(from, to, newKey);
         }
         return newKey;
@@ -268,30 +242,50 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- De/serialize message content and symmetric key
 
     protected byte[] serializeContent(Content content, InstantMessage iMsg) {
-        assert content.equals(iMsg.content);
-
+        assert content == iMsg.content;
         String json = JSON.encode(content);
         return json.getBytes(Charset.forName("UTF-8"));
     }
 
     protected byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
-        if (isBroadcast(iMsg)) {
-            // broadcast message has no key
-            throw new RuntimeException("should not call this");
-        }
+        assert !isBroadcast(iMsg); // broadcast message has no key
         String json = JSON.encode(password);
         return json.getBytes(Charset.forName("UTF-8"));
     }
 
+    protected byte[] serializeMessage(ReliableMessage rMsg) {
+        String json = JSON.encode(rMsg);
+        return json.getBytes(Charset.forName("UTF-8"));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected ReliableMessage deserializeMessage(byte[] data) {
+        String json = new String(data, Charset.forName("UTF-8"));
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+        // TODO: translate short keys
+        //       'S' -> 'sender'
+        //       'R' -> 'receiver'
+        //       'W' -> 'time'
+        //       'T' -> 'type'
+        //       'G' -> 'group'
+        //       ------------------
+        //       'D' -> 'data'
+        //       'V' -> 'signature'
+        //       'K' -> 'key'
+        //       ------------------
+        //       'M' -> 'meta'
+        return ReliableMessage.getInstance(dict);
+    }
+
     @SuppressWarnings("unchecked")
     protected SymmetricKey deserializeKey(byte[] key, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg);
-
+        assert !isBroadcast(sMsg); // broadcast message has no key
         String json = new String(key, Charset.forName("UTF-8"));
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
         // TODO: translate short keys
         //       'A' -> 'algorithm'
         //       'D' -> 'data'
+        //       'V' -> 'iv'
         //       'M' -> 'mode'
         //       'P' -> 'padding'
         return getSymmetricKey(dict);
@@ -300,17 +294,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @SuppressWarnings("unchecked")
     protected Content deserializeContent(byte[] data, SecureMessage sMsg) {
         assert sMsg.getData() != null;
-
         String json = new String(data, Charset.forName("UTF-8"));
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
         // TODO: translate short keys
-        //       'S' -> 'sender'
-        //       'R' -> 'receiver'
-        //       'T' -> 'time'
-        //       'D' -> 'data'
-        //       'V' -> 'signature'
-        //       'K' -> 'key'
-        //       'M' -> 'meta'
+        //       'T' -> 'type'
+        //       'N' -> 'sn'
+        //       'G' -> 'group'
         return Content.getInstance(dict);
     }
 
@@ -318,25 +307,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
+        // NOTICE: check attachment for File/Image/Audio/Video message content
+        //         before serialize content, this job should be do in subclass
         SymmetricKey key = getSymmetricKey(password);
-        assert key == password;
-        assert key != null;
-
-        // check attachment for File/Image/Audio/Video message content
-        if (content instanceof FileContent) {
-            FileContent file = (FileContent) content;
-            byte[] data = file.getData();
-            // encrypt and upload file data onto CDN and save the URL in message content
-            data = key.encrypt(data);
-            String url = uploadFileData(data, iMsg);
-            if (url != null) {
-                // replace 'data' with 'URL'
-                file.setUrl(url);
-                file.setData(null);
-            }
-        }
-
-        // serialize and encrypt it with password
+        assert key == password && key != null;
         byte[] data = serializeContent(content, iMsg);
         return key.encrypt(data);
     }
@@ -370,8 +344,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public Object encodeKey(byte[] key, InstantMessage iMsg) {
-        assert !isBroadcast(iMsg);
-        // broadcast message has no key
+        assert !isBroadcast(iMsg); // broadcast message has no key
         return Base64.encode(key);
     }
 
@@ -379,21 +352,21 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] decodeKey(Object key, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg);
-        // broadcast message has no key
+        assert !isBroadcast(sMsg); // broadcast message has no key
         return Base64.decode((String) key);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg) || keyData == null;
-        // broadcast message has no key
-
+        assert !isBroadcast(sMsg) || keyData == null; // broadcast message has no key
         ID from = getID(sender);
         ID to = getID(receiver);
-        SymmetricKey key = null;
-        if (keyData != null) {
+        SymmetricKey password = null;
+        if (keyData == null) {
+            // if key data is empty, get it from key store
+            password = getCipherKey(from, to);
+        } else {
             // decrypt key data with the receiver/group member's private key
             ID identifier = getID(sMsg.envelope.receiver);
             LocalUser user = (LocalUser) getUser(identifier);
@@ -403,16 +376,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
             }
             // deserialize it to symmetric key
-            key = deserializeKey(plaintext, sMsg);
+            password = deserializeKey(plaintext, sMsg);
             // cache the new key in key store
-            cacheCipherKey(from, to, key);
+            cacheCipherKey(from, to, password);
         }
-        if (key == null) {
-            // if key data is empty, get it from key store
-            key = getCipherKey(from, to);
-            assert key != null;
-        }
-        return key;
+        assert password != null;
+        return password;
     }
 
     @Override
@@ -423,7 +392,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             String json = (String) data;
             return json.getBytes(Charset.forName("UTF-8"));
         }
-        // decode from Base64
         return Base64.decode((String) data);
     }
 
@@ -432,36 +400,25 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key = getSymmetricKey(password);
         assert key == password;
-        assert key != null;
-
+        if (key == null) {
+            // irregular symmetric key
+            return null;
+        }
         // decrypt message.data to content
         byte[] plaintext = key.decrypt(data);
         if (plaintext == null) {
-            throw new NullPointerException("failed to decrypt data: " + password);
+            //throw new NullPointerException("failed to decrypt data: " + password);
+            return null;
         }
-        Content content = deserializeContent(plaintext, sMsg);
-
-        // check attachment for File/Image/Audio/Video message content
-        if (content instanceof FileContent) {
-            FileContent file = (FileContent) content;
-            InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);
-            // download from CDN
-            byte[] fileData = downloadFileData(file.getUrl(), iMsg);
-            if (fileData == null) {
-                // save symmetric key for decrypted file data after download from CDN
-                file.setPassword(key);
-            } else {
-                // decrypt file data
-                file.setData(key.decrypt(fileData));
-                file.setUrl(null);
-            }
-        }
-        return content;
+        // NOTICE: check attachment for File/Image/Audio/Video message content
+        //         after deserialize content, this job should be do in subclass
+        return deserializeContent(plaintext, sMsg);
     }
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        LocalUser user = (LocalUser) getUser(getID(sender));
+        ID from = getID(sender);
+        LocalUser user = (LocalUser) getUser(from);
         assert user != null;
         return user.sign(data);
     }

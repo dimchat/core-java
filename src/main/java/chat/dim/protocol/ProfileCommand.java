@@ -50,42 +50,8 @@ import chat.dim.mkm.Profile;
  */
 public class ProfileCommand extends MetaCommand {
 
-    public final Profile profile;
-
-    public ProfileCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
+    public ProfileCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        // get profile
-        Object data = dictionary.get("profile");
-        if (data instanceof Map) {
-            // (v1.1)
-            //  profile (dictionary): {
-            //      "ID"        : "{ID}",
-            //      "data"      : "{...}",
-            //      "signature" : "{BASE64}"
-            //  }
-            profile = Profile.getInstance(data);
-        } else if (data instanceof String) {
-            // (v1.0)
-            //  profile data (JsON)
-            //  profile signature (Base64)
-            Map<String, Object> map = new HashMap<>();
-            map.put("ID", identifier);
-            map.put("data", data);
-            map.put("signature", dictionary.get("signature"));
-            profile = Profile.getInstance(map);
-        } else {
-            profile = null;
-        }
-        /*
-        // verify profile
-        if (profile != null) {
-            Barrack barrack = Barrack.getInstance();
-            User contact = barrack.getUser(identifier);
-            if (!profile.verify(contact)) {
-                throw new IllegalArgumentException("profile's signature not match: " + dictionary);
-            }
-        }
-        */
     }
 
     /**
@@ -97,11 +63,8 @@ public class ProfileCommand extends MetaCommand {
      */
     public ProfileCommand(ID identifier, Meta meta, Profile profile) {
         super(PROFILE, identifier, meta);
-        // set profile
-        this.profile = profile;
-        if (profile != null) {
-            dictionary.put("profile", profile);
-        }
+        setMeta(meta);
+        setProfile(profile);
     }
 
     /**
@@ -121,5 +84,48 @@ public class ProfileCommand extends MetaCommand {
      */
     public ProfileCommand(ID identifier) {
         this(identifier, null, null);
+    }
+
+    /*
+     * Profile
+     *
+     */
+    public Profile getProfile() {
+        Profile profile;
+        Object data = dictionary.get("profile");
+        if (data instanceof Profile) {
+            profile = (Profile) data;
+        } else if (data instanceof Map) {
+            // (v1.1)
+            //  profile (dictionary): {
+            //      "ID"        : "{ID}",
+            //      "data"      : "{...}",
+            //      "signature" : "{BASE64}"
+            //  }
+            profile = Profile.getInstance(data);
+            // put back the Profile object for next access
+            dictionary.put("profile", profile);
+        } else if (data instanceof String) {
+            // (v1.0)
+            //  profile data (JsON)
+            //  profile signature (Base64)
+            Map<String, Object> map = new HashMap<>();
+            map.put("ID", getIdentifier());
+            map.put("data", data);
+            map.put("signature", dictionary.get("signature"));
+            profile = Profile.getInstance(map);
+        } else {
+            assert data == null;
+            profile = null;
+        }
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        if (profile == null) {
+            dictionary.remove("profile");
+        } else {
+            dictionary.put("profile", profile);
+        }
     }
 }

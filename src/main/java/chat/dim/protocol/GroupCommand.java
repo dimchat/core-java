@@ -37,20 +37,9 @@ import chat.dim.mkm.ID;
 
 public class GroupCommand extends HistoryCommand {
 
-    public final Object member; // Object (maybe String, not ID)
-    public final List members;  // List<Object>
-
     @SuppressWarnings("unchecked")
     public GroupCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        Object object = dictionary.get("member");
-        if (object == null) {
-            member  = null;
-            members = (List) dictionary.get("members");
-        } else {
-            member  = object;
-            members = null;
-        }
     }
 
     /*
@@ -62,12 +51,9 @@ public class GroupCommand extends HistoryCommand {
      *      group   : "{GROUP_ID}",
      *  }
      */
-    public GroupCommand(String command, ID groupID) {
+    public GroupCommand(String command, ID group) {
         super(command);
-        setGroup(groupID);
-        member  = null;
-        members = null;
-        dictionary.put("group", groupID);
+        setGroup(group);
     }
 
     /*
@@ -80,14 +66,10 @@ public class GroupCommand extends HistoryCommand {
      *      member  : "{MEMBER_ID}",
      *  }
      */
-    public GroupCommand(String command, ID groupID, ID memberID) {
+    public GroupCommand(String command, ID group, ID member) {
         super(command);
-        setGroup(groupID);
-        member  = memberID;
-        members = null;
-
-        dictionary.put("group", groupID);
-        dictionary.put("member", memberID);
+        setGroup(group);
+        setMember(member);
     }
 
     /*
@@ -103,11 +85,49 @@ public class GroupCommand extends HistoryCommand {
     public GroupCommand(String command, ID groupID, List memberList) {
         super(command);
         setGroup(groupID);
-        member  = null;
-        members = memberList;
-        dictionary.put("members", memberList);
-        dictionary.put("group", groupID);
+        setMembers(memberList);
     }
+
+    /*
+     *  Member ID (or String)
+     *
+     */
+    public Object getMember() {
+        return dictionary.get("member");
+    }
+
+    public void setMember(Object member) {
+        if (member == null) {
+            dictionary.remove("member");
+        } else {
+            dictionary.put("member", member);
+        }
+    }
+
+    /*
+     *  Member ID (or String) list
+     *
+     */
+    public List getMembers() {
+        Object members = dictionary.get("members");
+        if (members == null) {
+            // TODO: get from 'member'?
+            return null;
+        } else {
+            return (List) members;
+        }
+    }
+
+    public void setMembers(List members) {
+        if (members == null) {
+            dictionary.remove("members");
+        } else {
+            dictionary.put("members", members);
+        }
+        // TODO: remove 'member'?
+    }
+
+
 
     //-------- Runtime --------
 
@@ -130,4 +150,3 @@ public class GroupCommand extends HistoryCommand {
         return new GroupCommand(dictionary);
     }
 }
-

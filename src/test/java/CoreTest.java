@@ -18,22 +18,6 @@ public class CoreTest extends TestCase {
     @Test
     public void testTransceiver() {
 
-        CompletionHandler handler = new CompletionHandler() {
-            @Override
-            public void onSuccess() {
-                Log.info("success!");
-            }
-
-            @Override
-            public void onFailed(Error error) {
-                Log.info("error: " + error);
-            }
-        };
-
-        Callback callback = (result, error) -> {
-            Log.info("callback: " + result + ", error: " + error);
-        };
-
         ID sender = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
         ID receiver = ID.getInstance("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
 
@@ -101,7 +85,6 @@ public class CoreTest extends TestCase {
 
         // transceiver
         transceiver = new Transceiver();
-        transceiver.setDelegate(new Station());
         transceiver.setSocialNetworkDataSource(barrack);
         transceiver.setCipherKeyDataSource(keyStore);
     }

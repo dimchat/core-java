@@ -32,7 +32,6 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 
 /**
@@ -47,25 +46,14 @@ import chat.dim.mkm.Meta;
  */
 public class MetaCommand extends Command {
 
-    public final ID identifier;
-    public final Meta meta;
-
-    public MetaCommand(Map<String, Object> dictionary) throws ClassNotFoundException {
+    public MetaCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        identifier = ID.getInstance(dictionary.get("ID"));
-        meta       = Meta.getInstance(dictionary.get("meta"));
     }
 
-    MetaCommand(String command, ID identifier, Meta meta) {
+    MetaCommand(String command, Object identifier, Meta meta) {
         super(command);
-        // ID
-        this.identifier = identifier;
-        dictionary.put("ID", identifier);
-        // meta
-        this.meta = meta;
-        if (meta != null) {
-            dictionary.put("meta", meta);
-        }
+        setIdentifier(identifier);
+        setMeta(meta);
     }
 
     /**
@@ -74,7 +62,7 @@ public class MetaCommand extends Command {
      * @param identifier - entity ID
      * @param meta - entity Meta
      */
-    public MetaCommand(ID identifier, Meta meta) {
+    public MetaCommand(Object identifier, Meta meta) {
         this(META, identifier, meta);
     }
 
@@ -83,7 +71,45 @@ public class MetaCommand extends Command {
      *
      * @param identifier - entity ID
      */
-    public MetaCommand(ID identifier) {
+    public MetaCommand(Object identifier) {
         this(identifier, null);
+    }
+
+    /*
+     *  Entity ID (or String)
+     *
+     */
+    public Object getIdentifier() {
+        return dictionary.get("ID");
+    }
+
+    public void setIdentifier(Object identifier) {
+        assert identifier != null;
+        dictionary.put("ID", identifier);
+    }
+
+    /*
+     *  Entity Meta
+     *
+     */
+    public Meta getMeta() throws ClassNotFoundException {
+        Meta meta = null;
+        Object data = dictionary.get("meta");
+        if (data != null) {
+            meta = Meta.getInstance(data);
+            if (data != meta) {
+                // put back the Meta object for next access
+                dictionary.put("meta", meta);
+            }
+        }
+        return meta;
+    }
+
+    public void setMeta(Meta meta) {
+        if (meta == null) {
+            dictionary.remove("meta");
+        } else {
+            dictionary.put("meta", meta);
+        }
     }
 }
