@@ -44,13 +44,13 @@ import chat.dim.protocol.*;
 
 public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 
-    public Transceiver() {
-        super();
-    }
-
     // delegates
     private WeakReference<SocialNetworkDataSource> socialNetworkDataSourceRef = null;
     private WeakReference<CipherKeyDataSource> cipherKeyDataSourceRef = null;
+
+    public Transceiver() {
+        super();
+    }
 
     public SocialNetworkDataSource getSocialNetworkDataSource() {
         if (socialNetworkDataSourceRef == null) {
@@ -369,7 +369,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         } else {
             // decrypt key data with the receiver/group member's private key
             ID identifier = getID(sMsg.envelope.receiver);
-            LocalUser user = (LocalUser) getUser(identifier);
+            User user = getUser(identifier);
             assert user != null;
             byte[] plaintext = user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
@@ -418,7 +418,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
         ID from = getID(sender);
-        LocalUser user = (LocalUser) getUser(from);
+        User user = getUser(from);
         assert user != null;
         return user.sign(data);
     }

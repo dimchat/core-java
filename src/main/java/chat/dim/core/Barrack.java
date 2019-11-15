@@ -32,7 +32,13 @@ package chat.dim.core;
 
 import java.util.*;
 
+import chat.dim.crypto.PublicKey;
+import chat.dim.group.Chatroom;
+import chat.dim.group.Polylogue;
 import chat.dim.mkm.*;
+import chat.dim.network.Robot;
+import chat.dim.network.ServiceProvider;
+import chat.dim.network.Station;
 
 /**
  *  Entity Database
@@ -47,7 +53,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     private Map<ID, User>   userMap  = new HashMap<>();
     private Map<ID, Group>  groupMap = new HashMap<>();
 
-    public Barrack() {
+    protected Barrack() {
         super();
     }
 
@@ -109,6 +115,48 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         return true;
     }
 
+    protected ID createID(String string) {
+        return ID.getInstance(string);
+    }
+
+    protected User createUser(ID identifier) {
+        if (identifier.isBroadcast()) {
+            // create user 'anyone@anywhere'
+            return new User(identifier);
+        }
+        // create user by type
+        NetworkType type = identifier.getType();
+        if (type.isPerson()) {
+            return new User(identifier);
+        }
+        if (type.isRobot()) {
+            return new Robot(identifier);
+        }
+        if (type.isStation()) {
+            return new Station(identifier);
+        }
+        throw new TypeNotPresentException("Unsupported user type: " + type, null);
+    }
+
+    protected Group createGroup(ID identifier) {
+        if (identifier.isBroadcast()) {
+            // create group 'everyone@everywhere'
+            return new Group(identifier);
+        }
+        // create group by type
+        NetworkType type = identifier.getType();
+        if (type == NetworkType.Polylogue) {
+            return new Polylogue(identifier);
+        }
+        if (type == NetworkType.Chatroom) {
+            return new Chatroom(identifier);
+        }
+        if (type.isProvider()) {
+            return new ServiceProvider(identifier);
+        }
+        throw new TypeNotPresentException("Unsupported group type: " + type, null);
+    }
+
     //-------- SocialNetworkDataSource
 
     @Override
@@ -125,7 +173,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
             return identifier;
         }
         // 2. create and cache it
-        identifier = ID.getInstance(string);
+        identifier = createID((String) string);
         if (identifier != null && cache(identifier)) {
             return identifier;
         }
@@ -138,12 +186,17 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         assert identifier.getType().isUser();
         // 1. get from user cache
         User user = userMap.get(identifier);
-        if (user == null && identifier.isBroadcast()) {
-            // 2. create user 'anyone@anywhere'
-            user = new User(identifier);
-            cache(user);
+        if (user != null) {
+            return user;
         }
-        return user;
+        assert getMeta(identifier) != null;
+        // 2. create user
+        user = createUser(identifier);
+        if (user != null && cache(user)) {
+            return user;
+        }
+        // failed to create User
+        return null;
     }
 
     @Override
@@ -151,12 +204,17 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         assert identifier.getType().isGroup();
         // 1. get from group cache
         Group group = groupMap.get(identifier);
-        if (group == null && identifier.isBroadcast()) {
-            // 2. create group 'everyone@everywhere'
-            group = new Group(identifier);
-            cache(group);
+        if (group != null) {
+            return group;
         }
-        return group;
+        assert getMeta(identifier) != null;
+        // 2. create group
+        group = createGroup(identifier);
+        if (group != null && cache(group)) {
+            return group;
+        }
+        // failed to create Group
+        return null;
     }
 
     //-------- EntityDataSource
@@ -165,6 +223,20 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     public Meta getMeta(ID identifier) {
         assert identifier.isValid();
         return metaMap.get(identifier);
+    }
+
+    //-------- UserDataSource
+
+    @Override
+    public PublicKey getPublicKeyForEncryption(ID user) {
+        // NOTICE: return nothing to use profile.key or meta.key
+        return null;
+    }
+
+    @Override
+    public List<PublicKey> getPublicKeysForVerification(ID user) {
+        // NOTICE: return nothing to use profile.key or meta.key
+        return null;
     }
 
     //-------- GroupDataSource

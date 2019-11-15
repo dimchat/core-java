@@ -11,6 +11,7 @@ import java.util.Map;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
@@ -78,12 +79,7 @@ public class Facebook extends Barrack {
         if (user != null) {
             return user;
         }
-        PrivateKey key = getPrivateKeyForSignature(identifier);
-        if (key == null) {
-            user = new User(identifier);
-        } else {
-            user = new LocalUser(identifier);
-        }
+        user = new User(identifier);
         cache(user);
         return user;
     }
@@ -118,14 +114,24 @@ public class Facebook extends Barrack {
 
     @Override
     public Profile getProfile(ID entity) {
-        return profileMap.get(entity.address);
+        return profileMap.get(entity);
     }
 
     //---- UserDataSource
 
     @Override
+    public List<ID> getContacts(ID user) {
+        return null;
+    }
+
+    @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
         return privateKeyMap.get(user.address);
+    }
+
+    @Override
+    public List<PublicKey> getPublicKeysForVerification(ID user) {
+        return null;
     }
 
     @Override
@@ -139,7 +145,7 @@ public class Facebook extends Barrack {
     }
 
     @Override
-    public List<ID> getContacts(ID user) {
+    public PublicKey getPublicKeyForEncryption(ID user) {
         return null;
     }
 
@@ -206,7 +212,7 @@ public class Facebook extends Barrack {
     }
 
     @SuppressWarnings("unchecked")
-    static LocalUser loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
+    static User loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
         String json = Utils.readTextFile(filename);
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
 
@@ -226,7 +232,7 @@ public class Facebook extends Barrack {
             throw new IllegalArgumentException("private key not match meta public key: " + privateKey);
         }
         // create user
-        LocalUser user = new LocalUser(identifier);
+        User user = new User(identifier);
         user.setDataSource(getInstance());
 
         // profile

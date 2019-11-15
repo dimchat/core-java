@@ -39,14 +39,12 @@ public class CoreTest extends TestCase {
 
         Meta meta = barrack.getMeta(identifier);
 
-        User contact = barrack.getUser(identifier);
-
         identifier = barrack.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
-        LocalUser user = (LocalUser) barrack.getUser(identifier);
+        User user = barrack.getUser(identifier);
 
-        identifier = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
-
-        Group group = barrack.getGroup(identifier);
+//        identifier = ID.getInstance("Group-1280719982@7oMeWadRw4qat2sL4mTdcQSDAqZSo7LH5G");
+//
+//        Group group = barrack.getGroup(identifier);
 
         Map<ID, Meta> map = new HashMap<>();
         identifier = null;

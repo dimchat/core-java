@@ -48,6 +48,10 @@ public abstract class KeyCache implements CipherKeyDataSource {
     private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
     private boolean isDirty = false;
 
+    protected KeyCache() {
+        super();
+    }
+
     /**
      *  Trigger for loading cipher key table
      *
