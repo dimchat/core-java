@@ -85,8 +85,6 @@ public class Facebook extends Barrack {
     private boolean verifyProfile(Profile profile) {
         if (profile == null) {
             return false;
-        } else if (profile.isValid()) {
-            return true;
         }
         ID identifier = profile.identifier;
         assert identifier.isValid();

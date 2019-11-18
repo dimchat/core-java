@@ -190,8 +190,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         if (user != null) {
             return user;
         }
-        assert getMeta(identifier) != null;
-        // 2. create user
+        // 2. create user and cache it
         user = createUser(identifier);
         if (user != null && cache(user)) {
             return user;
@@ -208,8 +207,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         if (group != null) {
             return group;
         }
-        assert getMeta(identifier) != null;
-        // 2. create group
+        // 2. create group and cache it
         group = createGroup(identifier);
         if (group != null && cache(group)) {
             return group;
