@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.core.Barrack;
-import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.PublicKey;
+import chat.dim.crypto.*;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
@@ -130,22 +129,22 @@ public class Facebook extends Barrack {
     }
 
     @Override
-    public List<PublicKey> getPublicKeysForVerification(ID user) {
+    public List<VerifyKey> getPublicKeysForVerification(ID user) {
         return null;
     }
 
     @Override
-    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        List<PrivateKey> list = new ArrayList<>();
+    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+        List<DecryptKey> list = new ArrayList<>();
         PrivateKey key = privateKeyMap.get(user.address);
         if (key != null) {
-            list.add(key);
+            list.add((DecryptKey) key);
         }
         return list;
     }
 
     @Override
-    public PublicKey getPublicKeyForEncryption(ID user) {
+    public EncryptKey getPublicKeyForEncryption(ID user) {
         return null;
     }
 
@@ -225,7 +224,7 @@ public class Facebook extends Barrack {
         getInstance().cache(meta, identifier);
         // private key
         PrivateKey privateKey = PrivateKeyImpl.getInstance(dict.get("privateKey"));
-        if (meta.key.matches(privateKey)) {
+        if (meta.getKey().matches(privateKey)) {
             // store private key into keychain
             getInstance().cachePrivateKey(privateKey, identifier);
         } else {

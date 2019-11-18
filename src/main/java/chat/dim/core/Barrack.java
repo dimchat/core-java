@@ -32,7 +32,8 @@ package chat.dim.core;
 
 import java.util.*;
 
-import chat.dim.crypto.PublicKey;
+import chat.dim.crypto.EncryptKey;
+import chat.dim.crypto.VerifyKey;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
 import chat.dim.mkm.*;
@@ -228,14 +229,14 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
     //-------- UserDataSource
 
     @Override
-    public PublicKey getPublicKeyForEncryption(ID user) {
+    public EncryptKey getPublicKeyForEncryption(ID user) {
         // NOTICE: return nothing to use profile.key or meta.key
         return null;
     }
 
     @Override
-    public List<PublicKey> getPublicKeysForVerification(ID user) {
-        // NOTICE: return nothing to use profile.key or meta.key
+    public List<VerifyKey> getPublicKeysForVerification(ID user) {
+        // NOTICE: return nothing to use meta.key
         return null;
     }
 
