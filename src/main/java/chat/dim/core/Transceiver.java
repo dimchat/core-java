@@ -166,13 +166,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // 1. get symmetric key
         SymmetricKey password;
-        if (group != null) {
+        if (group == null) {
+            password = getSymmetricKey(sender, receiver);
+        } else {
             // group message
             password = getSymmetricKey(sender, group);
-        } else {
-            password = getSymmetricKey(sender, receiver);
         }
-
+        // check message delegate
         if (iMsg.getDelegate() == null) {
             iMsg.setDelegate(this);
         }
@@ -199,7 +199,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             sMsg.setDelegate(this);
         }
         assert sMsg.getData() != null;
-
         // sign 'data' by sender
         return sMsg.sign();
     }
@@ -215,7 +214,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             rMsg.setDelegate(this);
         }
         assert rMsg.getSignature() != null;
-
         // verify 'data' with 'signature'
         return rMsg.verify();
     }
@@ -231,7 +229,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             sMsg.setDelegate(this);
         }
         assert sMsg.getData() != null;
-
         // decrypt 'data' to 'content'
         return sMsg.decrypt();
 
