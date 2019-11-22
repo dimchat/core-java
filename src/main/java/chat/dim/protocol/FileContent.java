@@ -64,7 +64,7 @@ public class FileContent extends Content {
         password = (Map<String, Object>) dictionary.get("password");
     }
 
-    protected FileContent(int type, byte[] data, String filename) {
+    protected FileContent(ContentType type, byte[] data, String filename) {
         super(type);
         setUrl(null);
         setData(data);
@@ -73,7 +73,7 @@ public class FileContent extends Content {
     }
 
     public FileContent(byte[] data, String filename) {
-        this(ContentType.FILE.value, data, filename);
+        this(ContentType.FILE, data, filename);
     }
 
     //-------- setters/getters --------

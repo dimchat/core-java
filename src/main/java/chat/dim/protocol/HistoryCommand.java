@@ -80,7 +80,7 @@ public class HistoryCommand extends Command {
     }
 
     public HistoryCommand(String command) {
-        super(ContentType.HISTORY.value, command);
+        super(ContentType.HISTORY, command);
         time = new Date();
         dictionary.put("time", getTimestamp(time));
     }

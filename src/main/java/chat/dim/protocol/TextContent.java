@@ -52,7 +52,7 @@ public class TextContent extends Content {
     }
 
     public TextContent(String message) {
-        super(ContentType.TEXT.value);
+        super(ContentType.TEXT);
         setText(message);
     }
 

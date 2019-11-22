@@ -441,31 +441,31 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     static {
         // Text
-        Content.register(ContentType.TEXT.value, TextContent.class);
+        Content.register(ContentType.TEXT, TextContent.class);
 
         // File
-        Content.register(ContentType.FILE.value, FileContent.class);
+        Content.register(ContentType.FILE, FileContent.class);
         // - Image
-        Content.register(ContentType.IMAGE.value, ImageContent.class);
+        Content.register(ContentType.IMAGE, ImageContent.class);
         // - Audio
-        Content.register(ContentType.AUDIO.value, AudioContent.class);
+        Content.register(ContentType.AUDIO, AudioContent.class);
         // - Video
-        Content.register(ContentType.VIDEO.value, VideoContent.class);
+        Content.register(ContentType.VIDEO, VideoContent.class);
 
         // Page
-        Content.register(ContentType.PAGE.value, PageContent.class);
+        Content.register(ContentType.PAGE, PageContent.class);
 
         // Quote
 
         // Command
-        Content.register(ContentType.COMMAND.value, Command.class);
+        Content.register(ContentType.COMMAND, Command.class);
         // - HandshakeCommand
         // - MetaCommand
         //   - ProfileCommand
         // - ReceiptCommand
 
         // History
-        Content.register(ContentType.HISTORY.value, HistoryCommand.class);
+        Content.register(ContentType.HISTORY, HistoryCommand.class);
         // - GroupCommand
         //   - InviteCommand
         //   - ExpelCommand

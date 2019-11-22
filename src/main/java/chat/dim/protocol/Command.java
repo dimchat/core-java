@@ -60,14 +60,14 @@ public class Command extends Content {
         command = (String) dictionary.get("command");
     }
 
-    protected Command(int type, String cmd) {
+    protected Command(ContentType type, String cmd) {
         super(type);
         command = cmd;
         dictionary.put("command", cmd);
     }
 
     public Command(String command) {
-        this(ContentType.COMMAND.value, command);
+        this(ContentType.COMMAND, command);
     }
 
     //-------- Runtime --------

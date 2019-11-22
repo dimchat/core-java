@@ -67,7 +67,7 @@ public class PageContent extends Content {
     }
 
     public PageContent(String url, String title, String desc, byte[] icon) {
-        super(ContentType.PAGE.value);
+        super(ContentType.PAGE);
         setURL(url);
         setTitle(title);
         setDesc(desc);

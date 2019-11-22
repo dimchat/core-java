@@ -60,7 +60,7 @@ public class VideoContent extends FileContent {
     }
 
     public VideoContent(byte[] data, String filename) {
-        super(ContentType.VIDEO.value, data, filename);
+        super(ContentType.VIDEO, data, filename);
         snapshot = null;
     }
 

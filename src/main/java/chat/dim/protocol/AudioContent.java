@@ -50,6 +50,6 @@ public class AudioContent extends FileContent {
     }
 
     public AudioContent(byte[] data, String filename) {
-        super(ContentType.AUDIO.value, data, filename);
+        super(ContentType.AUDIO, data, filename);
     }
 }

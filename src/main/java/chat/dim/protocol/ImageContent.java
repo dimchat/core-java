@@ -60,7 +60,7 @@ public class ImageContent extends FileContent {
     }
 
     public ImageContent(byte[] data, String filename) {
-        super(ContentType.IMAGE.value, data, filename);
+        super(ContentType.IMAGE, data, filename);
         thumbnail = null;
     }
 
