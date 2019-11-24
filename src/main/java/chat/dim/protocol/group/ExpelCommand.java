@@ -33,7 +33,7 @@ package chat.dim.protocol.group;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.protocol.GroupCommand;
 
 public class ExpelCommand extends GroupCommand {

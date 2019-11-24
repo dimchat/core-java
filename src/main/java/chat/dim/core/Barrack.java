@@ -32,9 +32,9 @@ package chat.dim.core;
 
 import java.util.*;
 
+import chat.dim.*;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
-import chat.dim.mkm.*;
 
 /**
  *  Entity Database

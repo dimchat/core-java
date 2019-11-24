@@ -32,7 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.dkd.Content;
+import chat.dim.Content;
 
 /**
  *  Text message: {

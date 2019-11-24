@@ -30,10 +30,10 @@
  */
 package chat.dim.core;
 
-import chat.dim.mkm.EntityDataSource;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.User;
+import chat.dim.EntityDataSource;
+import chat.dim.Group;
+import chat.dim.ID;
+import chat.dim.User;
 
 public interface SocialNetworkDataSource extends EntityDataSource {
 

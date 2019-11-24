@@ -32,7 +32,7 @@ package chat.dim.protocol.group;
 
 import java.util.Map;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.protocol.GroupCommand;
 
 /**

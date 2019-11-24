@@ -33,9 +33,9 @@ package chat.dim.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
-import chat.dim.mkm.Profile;
+import chat.dim.ID;
+import chat.dim.Meta;
+import chat.dim.Profile;
 
 /**
  *  Command message: {

@@ -1,6 +1,6 @@
 
-import chat.dim.mkm.ID;
-import chat.dim.mkm.User;
+import chat.dim.ID;
+import chat.dim.User;
 
 public class Station extends User {
 

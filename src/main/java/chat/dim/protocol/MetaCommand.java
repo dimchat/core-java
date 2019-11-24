@@ -32,7 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.mkm.Meta;
+import chat.dim.Meta;
 
 /**
  *  Command message: {

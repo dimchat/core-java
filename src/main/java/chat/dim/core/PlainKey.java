@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.crypto.impl.SymmetricKeyImpl;
+import chat.dim.impl.SymmetricKeyImpl;
 
 /**
  *  Symmetric key for broadcast message,

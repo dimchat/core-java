@@ -1,16 +1,12 @@
 
-import chat.dim.dkd.SecureMessage;
-import chat.dim.mkm.*;
 import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.*;
 import chat.dim.core.*;
-import chat.dim.dkd.Content;
-import chat.dim.dkd.InstantMessage;
-import chat.dim.dkd.ReliableMessage;
 import chat.dim.protocol.TextContent;
 
 public class CoreTest extends TestCase {

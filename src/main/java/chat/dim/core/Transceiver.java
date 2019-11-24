@@ -34,12 +34,11 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import chat.dim.*;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.crypto.impl.SymmetricKeyImpl;
-import chat.dim.dkd.*;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.mkm.*;
+import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.protocol.*;
 
 public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {

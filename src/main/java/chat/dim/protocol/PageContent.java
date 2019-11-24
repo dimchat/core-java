@@ -32,8 +32,8 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.Content;
 import chat.dim.format.Base64;
-import chat.dim.dkd.Content;
 
 /**
  *  Web Page message: {
