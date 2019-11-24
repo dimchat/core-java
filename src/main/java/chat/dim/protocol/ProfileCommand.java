@@ -86,6 +86,17 @@ public class ProfileCommand extends MetaCommand {
         this(identifier, null, null);
     }
 
+    /**
+     *  Query profile for updating with current signature
+     *
+     * @param identifier - entity ID
+     * @param signature - profile signature
+     */
+    public ProfileCommand(ID identifier, String signature) {
+        this(identifier, null, null);
+        setSignature(signature);
+    }
+
     /*
      * Profile
      *
@@ -125,7 +136,25 @@ public class ProfileCommand extends MetaCommand {
         if (profile == null) {
             dictionary.remove("profile");
         } else {
+            assert dictionary.get("data") == null;
+            assert dictionary.get("signature") == null;
             dictionary.put("profile", profile);
+        }
+    }
+
+    public String getSignature() {
+        //assert dictionary.get("profile") == null;
+        return (String) dictionary.get("signature");
+    }
+
+    public void setSignature(String signature) {
+        if (signature == null) {
+            dictionary.remove("signature");
+        } else {
+            assert dictionary.get("data") == null;
+            assert dictionary.get("profile") == null;
+            assert dictionary.get("meta") == null;
+            dictionary.put("signature", signature);
         }
     }
 }
