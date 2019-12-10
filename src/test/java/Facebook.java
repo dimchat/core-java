@@ -1,9 +1,5 @@
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +8,7 @@ import java.util.Map;
 import chat.dim.*;
 import chat.dim.core.Barrack;
 import chat.dim.crypto.*;
-import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.impl.PrivateKeyImpl;
 
 public class Facebook extends Barrack {
     private static Facebook ourInstance = new Facebook();
@@ -23,42 +17,58 @@ public class Facebook extends Barrack {
         super();
     }
 
+    // immortals
+    private Immortals immortals = new Immortals();
+
     // memory caches
-    private Map<Address, PrivateKey> privateKeyMap = new HashMap<>();
-    private Map<ID, Profile>         profileMap    = new HashMap<>();
+    private Map<ID, PrivateKey> privateKeyMap = new HashMap<>();
+    private Map<ID, Profile>    profileMap    = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/.mkm/"
-    public String metaDirectory = "/tmp/.mkm/";
+    public String directory = "/tmp/.mkm/";
 
     // "/sdcard/chat.dim.sechat/.mkm/{address}.meta"
-    private File getMetaFile(ID identifier) throws FileNotFoundException {
-        if (metaDirectory == null) {
-            throw new FileNotFoundException("meta directory not set");
-        }
-        return new File(metaDirectory, identifier.address + ".meta");
+    private Meta loadMeta(ID identifier) throws IOException, ClassNotFoundException {
+        // load from JsON file
+        Map dict = readJSONFile(identifier.address + ".meta");
+        return Meta.getInstance(dict);
     }
 
-    // local storage
-    private Meta loadMeta(ID identifier) throws IOException, ClassNotFoundException {
-        File file = getMetaFile(identifier);
-        if (!file.exists()) {
-            // meta file not found
+    private Map readJSONFile(String filename) throws IOException {
+        String json = readTextFile(filename);
+        if (json == null) {
             return null;
         }
-        // load from JsON file
+        return (Map) JSON.decode(json);
+    }
+
+    private String readTextFile(String filename) throws IOException {
+        byte[] data = readBinaryFile(filename);
+        if (data == null) {
+            return null;
+        }
+        return new String(data, "UTF-8");
+    }
+
+    private byte[] readBinaryFile(String filename) throws IOException {
+        File file = new File(directory, filename);
+        if (!file.exists()) {
+            return null;
+        }
         FileInputStream fis = new FileInputStream(file);
-        byte[] data = new byte[fis.available()];
-        fis.read(data);
+        int size = fis.available();
+        byte[] data = new byte[size];
+        int len = fis.read(data, 0, size);
         fis.close();
-        String json = new String(data, Charset.forName("UTF-8"));
-        return Meta.getInstance(JSON.decode(json));
+        assert len == size;
+        return data;
     }
 
     //---- Private Key
 
     protected boolean cachePrivateKey(PrivateKey key, ID identifier) {
         assert identifier.isValid();
-        privateKeyMap.put(identifier.address, key);
+        privateKeyMap.put(identifier, key);
         return true;
     }
 
@@ -99,6 +109,10 @@ public class Facebook extends Barrack {
     public Meta getMeta(ID identifier) {
         Meta meta = super.getMeta(identifier);
         if (meta == null) {
+            meta = immortals.getMeta(identifier);
+            if (meta != null) {
+                return meta;
+            }
             try {
                 meta = loadMeta(identifier);
                 if (meta != null) {
@@ -120,31 +134,40 @@ public class Facebook extends Barrack {
 
     @Override
     public List<ID> getContacts(ID user) {
-        return null;
+        return immortals.getContacts(user);
     }
 
     @Override
-    public PrivateKey getPrivateKeyForSignature(ID user) {
-        return privateKeyMap.get(user.address);
+    public SignKey getPrivateKeyForSignature(ID user) {
+        SignKey key = privateKeyMap.get(user);
+        if (key == null) {
+            key = immortals.getPrivateKeyForSignature(user);
+        }
+        return key;
     }
 
     @Override
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
+        // NOTICE: return nothing to use meta.key
         return null;
     }
 
     @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
-        List<DecryptKey> list = new ArrayList<>();
-        PrivateKey key = privateKeyMap.get(user.address);
-        if (key != null) {
-            list.add((DecryptKey) key);
+        PrivateKey key = privateKeyMap.get(user);
+        if (key == null) {
+            return immortals.getPrivateKeysForDecryption(user);
+        } else if (key instanceof DecryptKey) {
+            List<DecryptKey> keys = new ArrayList<>();
+            keys.add((DecryptKey) key);
+            return keys;
         }
-        return list;
+        return null;
     }
 
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
+        // NOTICE: return nothing to use profile.key or meta.key
         return null;
     }
 
@@ -163,90 +186,5 @@ public class Facebook extends Barrack {
     @Override
     public List<ID> getMembers(ID group) {
         return null;
-    }
-
-    //-------- load immortals
-
-    @SuppressWarnings("unchecked")
-    private static Profile getProfile(Map dictionary, ID identifier, PrivateKey privateKey) {
-        Profile profile;
-        String profile_data = (String) dictionary.get("data");
-        if (profile_data == null) {
-            profile = new Profile(identifier);
-            // set name
-            String name = (String) dictionary.get("name");
-            if (name == null) {
-                List<String> names = (List<String>) dictionary.get("names");
-                if (names != null) {
-                    if (names.size() > 0) {
-                        name = names.get(0);
-                    }
-                }
-            }
-            profile.setName(name);
-            for (Object key : dictionary.keySet()) {
-                if (key.equals("ID")) {
-                    continue;
-                }
-                if (key.equals("name") || key.equals("names")) {
-                    continue;
-                }
-                profile.setProperty((String) key, dictionary.get(key));
-            }
-            // sign profile
-            profile.sign(privateKey);
-        } else {
-            String signature = (String) dictionary.get("signature");
-            if (signature == null) {
-                profile = new Profile(identifier, profile_data, null);
-                // sign profile
-                profile.sign(privateKey);
-            } else {
-                profile = new Profile(identifier, profile_data, Base64.decode(signature));
-                // verify
-                profile.verify(privateKey.getPublicKey());
-            }
-        }
-        return profile;
-    }
-
-    @SuppressWarnings("unchecked")
-    static User loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
-        String json = Utils.readTextFile(filename);
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
-
-        // ID
-        ID identifier = ID.getInstance(dict.get("ID"));
-        assert identifier != null;
-        // meta
-        Meta meta = Meta.getInstance(dict.get("meta"));
-        assert meta != null && meta.matches(identifier);
-        getInstance().cache(meta, identifier);
-        // private key
-        PrivateKey privateKey = PrivateKeyImpl.getInstance(dict.get("privateKey"));
-        if (meta.getKey().matches(privateKey)) {
-            // store private key into keychain
-            getInstance().cachePrivateKey(privateKey, identifier);
-        } else {
-            throw new IllegalArgumentException("private key not match meta public key: " + privateKey);
-        }
-        // create user
-        User user = new User(identifier);
-        user.setDataSource(getInstance());
-
-        // profile
-        Profile profile = getProfile((Map) dict.get("profile"), identifier, privateKey);
-        getInstance().cacheProfile(profile);
-
-        return user;
-    }
-
-    static {
-        try {
-            loadBuiltInAccount("/mkm_hulk.js");
-            loadBuiltInAccount("/mkm_moki.js");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 }
