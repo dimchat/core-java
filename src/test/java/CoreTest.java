@@ -34,6 +34,7 @@ public class CoreTest extends TestCase {
         ID identifier = barrack.getID("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
 
         Meta meta = barrack.getMeta(identifier);
+        Log.info("meta: " + meta);
 
         identifier = barrack.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
         User user = barrack.getUser(identifier);
@@ -79,7 +80,7 @@ public class CoreTest extends TestCase {
 
         // transceiver
         transceiver = new Transceiver();
-        transceiver.setSocialNetworkDataSource(barrack);
-        transceiver.setCipherKeyDataSource(keyStore);
+        transceiver.setEntityDelegate(barrack);
+        transceiver.setCipherKeyDelegate(keyStore);
     }
 }

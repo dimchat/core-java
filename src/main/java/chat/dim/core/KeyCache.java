@@ -42,7 +42,7 @@ import chat.dim.impl.SymmetricKeyImpl;
  *  ~~~~~~~~~~~~~~~~~~~~
  *  Manage keys for conversations
  */
-public abstract class KeyCache implements CipherKeyDataSource {
+public abstract class KeyCache implements CipherKeyDelegate {
 
     // memory caches
     private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
@@ -123,24 +123,24 @@ public abstract class KeyCache implements CipherKeyDataSource {
                 SymmetricKey newKey = SymmetricKeyImpl.getInstance(entity2.getValue());
                 assert newKey != null;
                 // check whether exists an old key
-                SymmetricKey oldKey = getCipherKey(from, to);
+                SymmetricKey oldKey = getKey(from, to);
                 if (oldKey != newKey) {
                     changed = true;
                 }
                 // cache key with direction
-                setCipherKey(from, to, newKey);
+                setKey(from, to, newKey);
             }
         }
         return changed;
     }
 
-    private SymmetricKey getCipherKey(ID from, ID to) {
+    private SymmetricKey getKey(ID from, ID to) {
         assert from.isValid() && to.isValid();
         Map<ID, SymmetricKey> keyTable = keyMap.get(from);
         return keyTable == null ? null : keyTable.get(to);
     }
 
-    private void setCipherKey(ID from, ID to, SymmetricKey key) {
+    private void setKey(ID from, ID to, SymmetricKey key) {
         assert from.isValid() && to.isValid();
         Map<ID, SymmetricKey> keyTable = keyMap.get(from);
         if (keyTable == null) {
@@ -152,14 +152,14 @@ public abstract class KeyCache implements CipherKeyDataSource {
         keyTable.put(to, key);
     }
 
-    //-------- CipherKeyDataSource
+    //-------- CipherKeyDelegate
 
     @Override
-    public SymmetricKey cipherKey(ID sender, ID receiver) {
+    public SymmetricKey getCipherKey(ID sender, ID receiver) {
         if (receiver.isBroadcast()) {
             return PlainKey.getInstance();
         }
-        return getCipherKey(sender, receiver);
+        return getKey(sender, receiver);
     }
 
     @Override
@@ -168,7 +168,7 @@ public abstract class KeyCache implements CipherKeyDataSource {
             // broadcast message has no key
             return;
         }
-        setCipherKey(sender, receiver, key);
+        setKey(sender, receiver, key);
         isDirty = true;
     }
 

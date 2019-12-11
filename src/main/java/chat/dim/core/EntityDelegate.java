@@ -30,36 +30,33 @@
  */
 package chat.dim.core;
 
+import chat.dim.Group;
 import chat.dim.ID;
-import chat.dim.crypto.SymmetricKey;
+import chat.dim.User;
 
-public interface CipherKeyDataSource {
-
-    /**
-     *  Get cipher key for encrypt message from 'sender' to 'receiver'
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @return cipher key
-     */
-    SymmetricKey cipherKey(ID sender, ID receiver);
+public interface EntityDelegate {
 
     /**
-     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+     *  Create entity ID with String
      *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param key - cipher key
+     * @param string - ID string
+     * @return ID
      */
-    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
+    ID getID(Object string);
 
     /**
-     *  Update/create cipher key for encrypt message content
+     *  Create user with ID
      *
-     * @param sender - from where (user ID)
-     * @param receiver - to where (contact/group ID)
-     * @param key - old key to be reused (nullable)
-     * @return new key
+     * @param identifier - user ID
+     * @return user
      */
-    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
+    User getUser(ID identifier);
+
+    /**
+     *  Create group with ID
+     *
+     * @param identifier - group ID
+     * @return group
+     */
+    Group getGroup(ID identifier);
 }

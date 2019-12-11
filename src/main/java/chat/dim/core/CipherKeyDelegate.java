@@ -30,34 +30,36 @@
  */
 package chat.dim.core;
 
-import chat.dim.EntityDataSource;
-import chat.dim.Group;
 import chat.dim.ID;
-import chat.dim.User;
+import chat.dim.crypto.SymmetricKey;
 
-public interface SocialNetworkDataSource extends EntityDataSource {
-
-    /**
-     *  Create entity ID with String
-     *
-     * @param string - ID string
-     * @return ID
-     */
-    ID getID(Object string);
+public interface CipherKeyDelegate {
 
     /**
-     *  Create user with ID
+     *  Get cipher key for encrypt message from 'sender' to 'receiver'
      *
-     * @param identifier - user ID
-     * @return user
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @return cipher key
      */
-    User getUser(ID identifier);
+    SymmetricKey getCipherKey(ID sender, ID receiver);
 
     /**
-     *  Create group with ID
+     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
      *
-     * @param identifier - group ID
-     * @return group
+     * @param sender - from where (user or contact ID)
+     * @param receiver - to where (contact or user/group ID)
+     * @param key - cipher key
      */
-    Group getGroup(ID identifier);
+    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
+
+    /**
+     *  Update/create cipher key for encrypt message content
+     *
+     * @param sender - from where (user ID)
+     * @param receiver - to where (contact/group ID)
+     * @param key - old key to be reused (nullable)
+     * @return new key
+     */
+    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
 }

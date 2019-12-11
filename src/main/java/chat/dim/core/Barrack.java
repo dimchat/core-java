@@ -41,7 +41,7 @@ import chat.dim.crypto.VerifyKey;
  *  ~~~~~~~~~~~~~~~
  *  Manage meta for all entities
  */
-public abstract class Barrack implements SocialNetworkDataSource, UserDataSource, GroupDataSource {
+public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDataSource {
 
     // memory caches
     private Map<String, ID> idMap    = new HashMap<>();
@@ -136,7 +136,7 @@ public abstract class Barrack implements SocialNetworkDataSource, UserDataSource
         return new Group(identifier);
     }
 
-    //-------- SocialNetworkDataSource
+    //-------- EntityDelegate
 
     @Override
     public ID getID(Object string) {

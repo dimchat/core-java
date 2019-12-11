@@ -103,7 +103,7 @@ public class Facebook extends Barrack {
         return meta != null && profile.verify(meta.key);
     }
     
-    //-------- SocialNetworkDataSource
+    //-------- EntityDelegate
 
     @Override
     public User getUser(ID identifier) {
@@ -215,8 +215,8 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
     
     private Messenger()  {
         super();
-        setSocialNetworkDataSource(Facebook.getInstance());
-        setCipherKeyDataSource(KeyStore.getInstance());
+        setEntityDelegate(Facebook.getInstance());
+        setCipherKeyDelegate(KeyStore.getInstance());
     }
     
     public MessengerDelegate delegate = null;

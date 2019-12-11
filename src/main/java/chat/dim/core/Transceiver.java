@@ -44,70 +44,65 @@ import chat.dim.protocol.*;
 public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 
     // delegates
-    private WeakReference<SocialNetworkDataSource> socialNetworkDataSourceRef = null;
-    private WeakReference<CipherKeyDataSource> cipherKeyDataSourceRef = null;
+    private WeakReference<EntityDelegate> entityDelegateRef = null;
+    private WeakReference<CipherKeyDelegate> cipherKeyDelegateRef = null;
 
     public Transceiver() {
         super();
     }
 
-    public SocialNetworkDataSource getSocialNetworkDataSource() {
-        if (socialNetworkDataSourceRef == null) {
+    public EntityDelegate getEntityDelegate() {
+        if (entityDelegateRef == null) {
             return null;
         }
-        return socialNetworkDataSourceRef.get();
+        return entityDelegateRef.get();
     }
 
-    public void setSocialNetworkDataSource(SocialNetworkDataSource dataSource) {
-        socialNetworkDataSourceRef = new WeakReference<>(dataSource);
+    public void setEntityDelegate(EntityDelegate delegate) {
+        entityDelegateRef = new WeakReference<>(delegate);
     }
 
-    public CipherKeyDataSource getCipherKeyDataSource() {
-        if (cipherKeyDataSourceRef == null) {
+    public CipherKeyDelegate getCipherKeyDelegate() {
+        if (cipherKeyDelegateRef == null) {
             return null;
         }
-        return cipherKeyDataSourceRef.get();
+        return cipherKeyDelegateRef.get();
     }
 
-    public void setCipherKeyDataSource(CipherKeyDataSource dataSource) {
-        cipherKeyDataSourceRef = new WeakReference<>(dataSource);
+    public void setCipherKeyDelegate(CipherKeyDelegate delegate) {
+        cipherKeyDelegateRef = new WeakReference<>(delegate);
     }
 
     //--------
 
     protected ID getID(Object string) {
-        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
-        return dataSource.getID(string);
-    }
-
-    protected Meta getMeta(ID identifier) {
-        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
-        return dataSource.getMeta(identifier);
+        EntityDelegate delegate = getEntityDelegate();
+        return delegate.getID(string);
     }
 
     protected User getUser(ID identifier) {
-        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
-        return dataSource.getUser(identifier);
+        EntityDelegate delegate = getEntityDelegate();
+        return delegate.getUser(identifier);
     }
 
     protected Group getGroup(ID identifier) {
-        SocialNetworkDataSource dataSource = getSocialNetworkDataSource();
-        return dataSource.getGroup(identifier);
+        EntityDelegate delegate = getEntityDelegate();
+        return delegate.getGroup(identifier);
     }
 
     protected SymmetricKey getCipherKey(ID from, ID to) {
-        CipherKeyDataSource dataSource = getCipherKeyDataSource();
-        return dataSource.cipherKey(from, to);
+        CipherKeyDelegate delegate = getCipherKeyDelegate();
+        return delegate.getCipherKey(from, to);
     }
 
     protected SymmetricKey reuseCipherKey(ID from, ID to, SymmetricKey oldKey) {
-        CipherKeyDataSource dataSource = getCipherKeyDataSource();
-        return dataSource.reuseCipherKey(from, to, oldKey);
+        CipherKeyDelegate delegate = getCipherKeyDelegate();
+        return delegate.reuseCipherKey(from, to, oldKey);
     }
 
     protected void cacheCipherKey(ID from, ID to, SymmetricKey key) {
-        CipherKeyDataSource dataSource = getCipherKeyDataSource();
-        dataSource.cacheCipherKey(from, to, key);
+        CipherKeyDelegate delegate = getCipherKeyDelegate();
+        delegate.cacheCipherKey(from, to, key);
     }
 
     //--------
