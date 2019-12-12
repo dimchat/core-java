@@ -103,54 +103,50 @@ public class Facebook extends Barrack {
         return meta != null && profile.verify(meta.key);
     }
     
-    //-------- EntityDelegate
-
+    //-------- Barrack
+    
     @Override
-    public User getUser(ID identifier) {
-        User user = super.getUser(identifier);
-        if (user != null) {
-            return user;
+    protected User createUser(ID identifier) {
+        assert identifier.getType().isUser();
+        if (identifier.isBroadcast()) {
+            // create user 'anyone@anywhere'
+            return new User(identifier);
         }
-        // check meta and private key
-        Meta meta = getMeta(identifier);
-        if (meta == null) {
-            throw new NullPointerException("meta not found: " + identifier);
-        }
+        assert getMeta(identifier) != null;
+        // TODO: check user type
         NetworkType type = identifier.getType();
         if (type.isPerson()) {
-            user = new User(identifier);
-        } else if (type.isStation()) {
-            // FIXME: prevent station to be erased from memory cache
-            user = new Station(identifier);
-        } else {
-            throw new UnsupportedOperationException("unsupported user type: " + type);
+            return new User(identifier);
         }
-        cacheUser(user);
-        return user;
+        if (type.isRobot()) {
+            return new Robot(identifier);
+        }
+        if (type.isStation()) {
+            return new Station(identifier);
+        }
+        throw new TypeNotPresentException("Unsupported user type: " + type, null);
     }
 
     @Override
-    public Group getGroup(ID identifier) {
-        Group group = super.getGroup(identifier);
-        if (group != null) {
-            return group;
+    protected Group createGroup(ID identifier) {
+        assert identifier.getType().isGroup();
+        if (identifier.isBroadcast()) {
+            // create group 'everyone@everywhere'
+            return new Group(identifier);
         }
-        // check meta
-        Meta meta = getMeta(identifier);
-        if (meta == null) {
-            throw new NullPointerException("meta not found: " + identifier);
-        }
-        // create it with type
+        assert getMeta(identifier) != null;
+        // TODO: check group type
         NetworkType type = identifier.getType();
         if (type == NetworkType.Polylogue) {
-            group = new Polylogue(identifier);
-        } else if (type == NetworkType.Chatroom) {
-            group = new Chatroom(identifier);
-        } else {
-            throw new UnsupportedOperationException("unsupported group type: " + type);
+            return new Polylogue(identifier);
         }
-        cacheGroup(group);
-        return group;
+        if (type == NetworkType.Chatroom) {
+            return new Chatroom(identifier);
+        }
+        if (type.isProvider()) {
+            return new ServiceProvider(identifier);
+        }
+        throw new TypeNotPresentException("Unsupported group type: " + type, null);
     }
     
     static {
@@ -326,7 +322,7 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
         return serializeMessage(nMsg);
     }
 
-    private Content processMessage(ReliableMessage rMsg) {
+    protected Content processMessage(ReliableMessage rMsg) {
         // verify
         SecureMessage sMsg = verifyMessage(rMsg);
         // decrypt
