@@ -308,26 +308,29 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
     //  ConnectionDelegate
     //
     @Override
-    public byte[] receivedPackage(byte[] data) {
+    public byte[] onReceiveDataPackage(byte[] data) {
+        // 1. deserialize message
         ReliableMessage rMsg = deserializeMessage(data);
-        Content response = processMessage(rMsg);
+        // 2. process message
+        Content response = process(rMsg);
         if (response == null) {
             // nothing to response
             return null;
         }
+        // 3. pack response
         Facebook facebook = getFacebook();
-        ID sender = facebook.getID(rMsg.envelope.sender);
-        InstantMessage iMsg = packContent(response, sender);
+        User user = facebook.getCurrentUser();
+        assert user != null;
+        ID receiver = facebook.getID(rMsg.envelope.sender);
+        InstantMessage iMsg = new InstantMessage(response, user.identifier, receiver);
         ReliableMessage nMsg = signMessage(encryptMessage(iMsg));
+        // serialize message
         return serializeMessage(nMsg);
     }
 
-    protected Content processMessage(ReliableMessage rMsg) {
-        // verify
-        SecureMessage sMsg = verifyMessage(rMsg);
-        // decrypt
-        InstantMessage iMsg = decryptMessage(sMsg);
-        // TODO: processing iMsg.content
+    protected Content process(ReliableMessage rMsg) {
+        // TODO: try to verify/decrypt message and process it
+        return null;
     }
 }
 ```
@@ -393,10 +396,8 @@ Send.java
             }
         };
         
-        // 3. encode message package and send it out
-        String json = JSON.encode(rMsg);
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
-        return messenger.delegate.sendPackage(data, handler);
+        // 3. encode and send out
+        return messenger.sendMessage(rMsg, callback);
     }
     
     public void test() {
@@ -425,15 +426,16 @@ Receive.java
         InstantMessage iMsg = decryptMessage(sMsg);
 
         // OK
-        return iMsg;
+        return iMsg.content;
     }
     
-    @Override // StationDelegate
+    //
+    //  StationDelegate
+    //
+    @Override
     public void didReceivePackage(byte[] data, Station server) {
         // 1. decode message package
-        String json = new String(data, Charset.forName("UTF-8"));
-        Object msg = JSON.decode(json);
-        ReliableMessage rMsg = ReliableMessage.getInstance(msg);
+        ReliableMessage rMsg = messenger.deserializeMessage(data);
         
         // 2. verify and decrypt message
         Content content = unpack(rMsg);
