@@ -75,42 +75,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     //--------
 
-    protected ID getID(Object string) {
-        EntityDelegate delegate = getEntityDelegate();
-        return delegate.getID(string);
-    }
-
-    protected User getUser(ID identifier) {
-        EntityDelegate delegate = getEntityDelegate();
-        return delegate.getUser(identifier);
-    }
-
-    protected Group getGroup(ID identifier) {
-        EntityDelegate delegate = getEntityDelegate();
-        return delegate.getGroup(identifier);
-    }
-
-    protected SymmetricKey getCipherKey(ID from, ID to) {
-        CipherKeyDelegate delegate = getCipherKeyDelegate();
-        return delegate.getCipherKey(from, to);
-    }
-
-    protected SymmetricKey reuseCipherKey(ID from, ID to, SymmetricKey oldKey) {
-        CipherKeyDelegate delegate = getCipherKeyDelegate();
-        return delegate.reuseCipherKey(from, to, oldKey);
-    }
-
-    protected void cacheCipherKey(ID from, ID to, SymmetricKey key) {
-        CipherKeyDelegate delegate = getCipherKeyDelegate();
-        delegate.cacheCipherKey(from, to, key);
-    }
-
-    //--------
-
     private boolean isBroadcast(Message msg) {
-        ID receiver = getID(msg.getGroup());
+        EntityDelegate barrack = getEntityDelegate();
+        ID receiver = barrack.getID(msg.getGroup());
         if (receiver == null) {
-            receiver = getID(msg.envelope.receiver);
+            receiver = barrack.getID(msg.envelope.receiver);
         }
         return receiver.isBroadcast();
     }
@@ -125,10 +94,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
+        CipherKeyDelegate keyCache = getCipherKeyDelegate();
         // 1. get old key from store
-        SymmetricKey oldKey = getCipherKey(from, to);
+        SymmetricKey oldKey = keyCache.getCipherKey(from, to);
         // 2. get new key from delegate
-        SymmetricKey newKey = reuseCipherKey(from, to, oldKey);
+        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
         if (newKey == null) {
             if (oldKey == null) {
                 // 3. create a new key
@@ -144,7 +114,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
         // 4. update new key into the key store
         if (!newKey.equals(oldKey)) {
-            cacheCipherKey(from, to, newKey);
+            keyCache.cacheCipherKey(from, to, newKey);
         }
         return newKey;
     }
@@ -152,11 +122,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- Transform
 
     public SecureMessage encryptMessage(InstantMessage iMsg) {
-        ID sender = getID(iMsg.envelope.sender);
-        ID receiver = getID(iMsg.envelope.receiver);
+        EntityDelegate barrack = getEntityDelegate();
+        ID sender = barrack.getID(iMsg.envelope.sender);
+        ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        ID group = getID(iMsg.getGroup());
+        ID group = barrack.getID(iMsg.getGroup());
 
         // 1. get symmetric key
         SymmetricKey password;
@@ -176,7 +147,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         SecureMessage sMsg;
         if (receiver.getType().isGroup()) {
             // group message
-            Group grp = getGroup(receiver);
+            Group grp = barrack.getGroup(receiver);
             sMsg = iMsg.encrypt(password, grp.getMembers());
         } else {
             // personal message (or split group message)
@@ -328,7 +299,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         byte[] data = serializeKey(key, iMsg);
         // encrypt with receiver's public key
-        User contact = getUser(getID(receiver));
+        EntityDelegate barrack = getEntityDelegate();
+        User contact = barrack.getUser(barrack.getID(receiver));
         assert contact != null;
         return contact.encrypt(data);
     }
@@ -351,16 +323,19 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @SuppressWarnings("unchecked")
     public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
         assert !isBroadcast(sMsg) || keyData == null; // broadcast message has no key
-        ID from = getID(sender);
-        ID to = getID(receiver);
+        EntityDelegate barrack = getEntityDelegate();
+        CipherKeyDelegate keyCache = getCipherKeyDelegate();
+
+        ID from = barrack.getID(sender);
+        ID to = barrack.getID(receiver);
         SymmetricKey password = null;
         if (keyData == null) {
             // if key data is empty, get it from key store
-            password = getCipherKey(from, to);
+            password = keyCache.getCipherKey(from, to);
         } else {
             // decrypt key data with the receiver/group member's private key
-            ID identifier = getID(sMsg.envelope.receiver);
-            User user = getUser(identifier);
+            ID identifier = barrack.getID(sMsg.envelope.receiver);
+            User user = barrack.getUser(identifier);
             assert user != null;
             byte[] plaintext = user.decrypt(keyData);
             if (plaintext == null || plaintext.length == 0) {
@@ -369,7 +344,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             // deserialize it to symmetric key
             password = deserializeKey(plaintext, sMsg);
             // cache the new key in key store
-            cacheCipherKey(from, to, password);
+            keyCache.cacheCipherKey(from, to, password);
         }
         assert password != null;
         return password;
@@ -408,8 +383,9 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        ID from = getID(sender);
-        User user = getUser(from);
+        EntityDelegate barrack = getEntityDelegate();
+        ID from = barrack.getID(sender);
+        User user = barrack.getUser(from);
         assert user != null;
         return user.sign(data);
     }
@@ -428,7 +404,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        User contact = getUser(getID(sender));
+        EntityDelegate barrack = getEntityDelegate();
+        User contact = barrack.getUser(barrack.getID(sender));
         assert contact != null;
         return contact.verify(data, signature);
     }
