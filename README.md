@@ -62,8 +62,11 @@ public class Facebook extends Barrack {
     }
     
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
+        if (!getMeta(identifier).getKey().matches(privateKey)) {
+            return false;
+        }
         // TODO: save private key into safety storage
-        return false;
+        return true;
     }
     
     public boolean saveMeta(Meta meta, ID identifier) {
@@ -71,7 +74,7 @@ public class Facebook extends Barrack {
             return false;
         }
         // TODO: save meta to local/persistent storage
-        return false;
+        return true;
     }
     
     public boolean saveProfile(Profile profile) {
@@ -79,7 +82,7 @@ public class Facebook extends Barrack {
             return false;
         }
         // TODO: save profile in local storage
-        return false;
+        return true;
     }
     
     private boolean verifyProfile(Profile profile) {

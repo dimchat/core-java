@@ -44,17 +44,9 @@ import java.util.Map;
  */
 public class HandshakeCommand extends Command {
 
-    //-------- states begin --------
-    public static final int INIT    = 0;
-    public static final int START   = 1;  // C -> S, without session key(or session expired)
-    public static final int AGAIN   = 2;  // S -> C, with new session key
-    public static final int RESTART = 3;  // C -> S, with new session key
-    public static final int SUCCESS = 4;  // S -> C, handshake accepted
-    //-------- states end --------
-
     public final String message;
     public final String sessionKey;
-    public final int state;
+    public final HandshakeState state;
 
     public HandshakeCommand(Map<String, Object> dictionary) {
         super(dictionary);
@@ -79,20 +71,56 @@ public class HandshakeCommand extends Command {
         this("Hello world!", session);
     }
 
-    private static int getState(String text, String session) {
+    private static HandshakeState getState(String text, String session) {
         // check message
         if (text == null) {
-            return INIT;
-        } else if (text.equals("DIM!") || text.equals("OK!")) {
-            return SUCCESS;
-        } else if (text.equals("DIM?")) {
-            return AGAIN;
+            return HandshakeState.INIT;
+        }
+        if (text.equals("DIM!") || text.equals("OK!")) {
+            return HandshakeState.SUCCESS;
+        }
+        if (text.equals("DIM?")) {
+            return HandshakeState.AGAIN;
         }
         // check session key
         if (session == null) {
-            return START;
+            return HandshakeState.START;
         } else {
-            return RESTART;
+            return HandshakeState.RESTART;
         }
+    }
+
+    /**
+     *  Handshake state
+     */
+    public enum HandshakeState {
+        INIT,
+        START,    // C -> S, without session key(or session expired)
+        AGAIN,    // S -> C, with new session key
+        RESTART,  // C -> S, with new session key
+        SUCCESS,  // S -> C, handshake accepted
+    }
+
+    //
+    //  Factories
+    //
+
+    public static HandshakeCommand start() {
+        return restart(null);
+    }
+
+    public static HandshakeCommand restart(String sessionKey) {
+        return new HandshakeCommand(sessionKey);
+    }
+
+    public static HandshakeCommand again(String sessionKey) {
+        return new HandshakeCommand("DIM?", sessionKey);
+    }
+
+    public static HandshakeCommand success(String sessionKey) {
+        return new HandshakeCommand("DIM!", sessionKey);
+    }
+    public static HandshakeCommand success() {
+        return success(null);
     }
 }

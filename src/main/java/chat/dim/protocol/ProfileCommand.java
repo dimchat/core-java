@@ -45,13 +45,18 @@ import chat.dim.Profile;
  *      command   : "profile", // command name
  *      ID        : "{ID}",    // entity ID
  *      meta      : {...},     // only for handshaking with new friend
- *      profile   : {...}      // when profile is empty, means query for ID
+ *      profile   : {...},     // when profile is empty, means query for ID
+ *      signature : "..."      // old profile's signature for querying
  *  }
  */
 public class ProfileCommand extends MetaCommand {
 
+    private Profile profile;
+
     public ProfileCommand(Map<String, Object> dictionary) {
         super(dictionary);
+        // lazy
+        profile = null;
     }
 
     /**
@@ -63,7 +68,6 @@ public class ProfileCommand extends MetaCommand {
      */
     public ProfileCommand(ID identifier, Meta meta, Profile profile) {
         super(PROFILE, identifier, meta);
-        setMeta(meta);
         setProfile(profile);
     }
 
@@ -102,34 +106,35 @@ public class ProfileCommand extends MetaCommand {
      *
      */
     public Profile getProfile() {
-        Profile profile;
-        Object data = dictionary.get("profile");
-        if (data instanceof Profile) {
-            profile = (Profile) data;
-        } else if (data instanceof Map) {
-            // (v1.1)
-            //  profile (dictionary): {
-            //      "ID"        : "{ID}",
-            //      "data"      : "{...}",
-            //      "signature" : "{BASE64}"
-            //  }
-            profile = Profile.getInstance(data);
-            // put back the Profile object for next access
-            dictionary.put("profile", profile);
-        } else if (data instanceof String) {
-            // (v1.0)
-            //  profile data (JsON)
-            //  profile signature (Base64)
-            Map<String, Object> map = new HashMap<>();
-            map.put("ID", getIdentifier());
-            map.put("data", data);
-            map.put("signature", dictionary.get("signature"));
-            profile = Profile.getInstance(map);
-        } else {
-            assert data == null;
-            profile = null;
+        if (this.profile == null) {
+            Object data = dictionary.get("profile");
+            if (data instanceof Profile) {
+                this.profile = (Profile) data;
+            } else if (data instanceof Map) {
+                // (v1.1)
+                //  profile (dictionary): {
+                //      "ID"        : "{ID}",
+                //      "data"      : "{...}",
+                //      "signature" : "{BASE64}"
+                //  }
+                this.profile = Profile.getInstance(data);
+                // put back the Profile object for next access
+                dictionary.put("profile", this.profile);
+            } else if (data instanceof String) {
+                // (v1.0)
+                //  profile data (JsON)
+                //  profile signature (Base64)
+                Map<String, Object> map = new HashMap<>();
+                map.put("ID", getIdentifier());
+                map.put("data", data);
+                map.put("signature", dictionary.get("signature"));
+                this.profile = Profile.getInstance(map);
+            } else {
+                assert data == null;
+                this.profile = null;
+            }
         }
-        return profile;
+        return this.profile;
     }
 
     public void setProfile(Profile profile) {
@@ -140,6 +145,7 @@ public class ProfileCommand extends MetaCommand {
             assert dictionary.get("signature") == null;
             dictionary.put("profile", profile);
         }
+        this.profile = profile;
     }
 
     public String getSignature() {
@@ -156,5 +162,23 @@ public class ProfileCommand extends MetaCommand {
             assert dictionary.get("meta") == null;
             dictionary.put("signature", signature);
         }
+    }
+
+    //
+    //  Factories
+    //
+
+    public static ProfileCommand query(ID identifier) {
+        return new ProfileCommand(identifier);
+    }
+    public static ProfileCommand query(ID identifier, String signature) {
+        return new ProfileCommand(identifier, signature);
+    }
+
+    public static ProfileCommand response(ID identifier, Profile profile) {
+        return new ProfileCommand(identifier, profile);
+    }
+    public static ProfileCommand response(ID identifier, Meta meta, Profile profile) {
+        return new ProfileCommand(identifier, meta, profile);
     }
 }

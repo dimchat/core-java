@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.ID;
 import chat.dim.Meta;
 
 /**
@@ -46,8 +47,12 @@ import chat.dim.Meta;
  */
 public class MetaCommand extends Command {
 
+    private Meta meta;
+
     public MetaCommand(Map<String, Object> dictionary) {
         super(dictionary);
+        // lazy
+        meta = null;
     }
 
     MetaCommand(String command, Object identifier, Meta meta) {
@@ -93,16 +98,10 @@ public class MetaCommand extends Command {
      *
      */
     public Meta getMeta() throws ClassNotFoundException {
-        Meta meta = null;
-        Object data = dictionary.get("meta");
-        if (data != null) {
-            meta = Meta.getInstance(data);
-            if (data != meta) {
-                // put back the Meta object for next access
-                dictionary.put("meta", meta);
-            }
+        if (this.meta == null) {
+            this.meta = Meta.getInstance(dictionary.get("meta"));
         }
-        return meta;
+        return this.meta;
     }
 
     public void setMeta(Meta meta) {
@@ -111,5 +110,18 @@ public class MetaCommand extends Command {
         } else {
             dictionary.put("meta", meta);
         }
+        this.meta = meta;
+    }
+
+    //
+    //  Factories
+    //
+
+    public static MetaCommand query(ID identifier) {
+        return new MetaCommand(identifier);
+    }
+
+    public static MetaCommand response(ID identifier, Meta meta) {
+        return new MetaCommand(identifier, meta);
     }
 }

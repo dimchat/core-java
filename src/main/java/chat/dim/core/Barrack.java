@@ -120,6 +120,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
             // create user 'anyone@anywhere'
             return new User(identifier);
         }
+        // make sure meta exists
         assert getMeta(identifier) != null;
         // TODO: check user type
         return new User(identifier);
@@ -131,6 +132,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
             // create group 'everyone@everywhere'
             return new Group(identifier);
         }
+        // make sure meta exists
         assert getMeta(identifier) != null;
         // TODO: check group type
         return new Group(identifier);

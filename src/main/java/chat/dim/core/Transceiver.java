@@ -76,12 +76,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //--------
 
     private boolean isBroadcast(Message msg) {
-        EntityDelegate barrack = getEntityDelegate();
-        ID receiver = barrack.getID(msg.getGroup());
-        if (receiver == null) {
-            receiver = barrack.getID(msg.envelope.receiver);
+        Object receiver;
+        if (msg instanceof InstantMessage) {
+            receiver = ((InstantMessage) msg).content.getGroup();
+        } else {
+            receiver = msg.envelope.getGroup();
         }
-        return receiver.isBroadcast();
+        if (receiver == null) {
+            receiver = msg.envelope.receiver;
+        }
+        ID identifier = getEntityDelegate().getID(receiver);
+        return identifier != null && identifier.isBroadcast();
     }
 
     protected SymmetricKey getSymmetricKey(Map<String, Object> password) {
@@ -127,7 +132,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        ID group = barrack.getID(iMsg.getGroup());
+        ID group = barrack.getID(iMsg.content.getGroup());
 
         // 1. get symmetric key
         SymmetricKey password;
@@ -141,7 +146,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         if (iMsg.getDelegate() == null) {
             iMsg.setDelegate(this);
         }
-        assert iMsg.content != null;
 
         // 2. encrypt 'content' to 'data' for receiver/group members
         SecureMessage sMsg;
@@ -328,7 +332,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         ID from = barrack.getID(sender);
         ID to = barrack.getID(receiver);
-        SymmetricKey password = null;
+        SymmetricKey password;
         if (keyData == null) {
             // if key data is empty, get it from key store
             password = keyCache.getCipherKey(from, to);
