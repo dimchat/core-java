@@ -34,11 +34,29 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import chat.dim.*;
+import chat.dim.Content;
+import chat.dim.Group;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
+import chat.dim.InstantMessageDelegate;
+import chat.dim.Message;
+import chat.dim.ReliableMessage;
+import chat.dim.ReliableMessageDelegate;
+import chat.dim.SecureMessage;
+import chat.dim.SecureMessageDelegate;
+import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.protocol.*;
+import chat.dim.protocol.AudioContent;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.FileContent;
+import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.PageContent;
+import chat.dim.protocol.TextContent;
+import chat.dim.protocol.VideoContent;
 
 public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 

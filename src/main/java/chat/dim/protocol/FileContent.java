@@ -30,11 +30,10 @@
  */
 package chat.dim.protocol;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import chat.dim.Content;
+import chat.dim.digest.MD5;
 import chat.dim.format.Base64;
 
 /**
@@ -112,24 +111,11 @@ public class FileContent extends Content {
         return sb.toString();
     }
 
-    private static byte[] md5(byte[] data) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
-        md.reset();
-        md.update(data);
-        return md.digest();
-    }
-
     public void setData(byte[] fileData) {
         data = fileData;
 
         if (fileData != null && fileData.length > 0) {
-            byte[] hash = md5(fileData);
+            byte[] hash = MD5.digest(fileData);
             assert hash != null : "md5 error";
             String filename = hexEncode(hash);
             String ext = getFileExt();
