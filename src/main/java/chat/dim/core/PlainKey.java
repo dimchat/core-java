@@ -34,13 +34,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.impl.SymmetricKeyImpl;
 
 /**
  *  Symmetric key for broadcast message,
  *  which will do nothing when en/decoding message data
  */
-final class PlainKey extends SymmetricKeyImpl {
+final class PlainKey extends SymmetricKey {
 
     private final static String PLAIN = "PLAIN";
 

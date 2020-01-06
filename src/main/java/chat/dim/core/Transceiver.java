@@ -38,7 +38,6 @@ import chat.dim.*;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.protocol.*;
 
 public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
@@ -91,7 +90,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     protected SymmetricKey getSymmetricKey(Map<String, Object> password) {
         try {
-            return SymmetricKeyImpl.getInstance(password);
+            return SymmetricKey.getInstance(password);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -108,7 +107,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             if (oldKey == null) {
                 // 3. create a new key
                 try {
-                    newKey = SymmetricKeyImpl.generate(SymmetricKey.AES);
+                    newKey = SymmetricKey.generate(SymmetricKey.AES);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     return null;
