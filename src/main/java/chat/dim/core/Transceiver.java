@@ -99,28 +99,20 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
         CipherKeyDelegate keyCache = getCipherKeyDelegate();
-        // 1. get old key from store
-        SymmetricKey oldKey = keyCache.getCipherKey(from, to);
-        // 2. get new key from delegate
-        SymmetricKey newKey = keyCache.reuseCipherKey(from, to, oldKey);
-        if (newKey == null) {
-            if (oldKey == null) {
-                // 3. create a new key
-                try {
-                    newKey = SymmetricKey.generate(SymmetricKey.AES);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            } else {
-                newKey = oldKey;
+        // get old key from cache
+        SymmetricKey key = keyCache.getCipherKey(from, to);
+        if (key == null) {
+            try {
+                // create new key and cache it
+                key = SymmetricKey.generate(SymmetricKey.AES);
+                assert key != null : "failed to generate AES key";
+                keyCache.cacheCipherKey(from, to, key);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                return null;
             }
         }
-        // 4. update new key into the key store
-        if (!newKey.equals(oldKey)) {
-            keyCache.cacheCipherKey(from, to, newKey);
-        }
-        return newKey;
+        return key;
     }
 
     //-------- Transform
@@ -328,14 +320,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         assert !isBroadcast(sMsg) || keyData == null : "broadcast message has no key: " + sMsg;
         EntityDelegate barrack = getEntityDelegate();
         CipherKeyDelegate keyCache = getCipherKeyDelegate();
-
         ID from = barrack.getID(sender);
         ID to = barrack.getID(receiver);
-        SymmetricKey password;
-        if (keyData == null) {
-            // if key data is empty, get it from key store
-            password = keyCache.getCipherKey(from, to);
-        } else {
+        SymmetricKey password = null;
+        if (keyData != null) {
             // decrypt key data with the receiver/group member's private key
             ID identifier = barrack.getID(sMsg.envelope.receiver);
             User user = barrack.getUser(identifier);
@@ -346,9 +334,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             }
             // deserialize it to symmetric key
             password = deserializeKey(plaintext, sMsg);
-            // cache the new key in key store
-            keyCache.cacheCipherKey(from, to, password);
         }
+        password = keyCache.reuseCipherKey(from, to, password);
         assert password != null : "failed to get password from " + sender + " to " + receiver;
         return password;
     }

@@ -156,6 +156,7 @@ public abstract class KeyCache implements CipherKeyDelegate {
         if (receiver.isBroadcast()) {
             return PlainKey.getInstance();
         }
+        // get key from cache
         return getKey(sender, receiver);
     }
 
@@ -171,7 +172,13 @@ public abstract class KeyCache implements CipherKeyDelegate {
 
     @Override
     public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        // TODO: check whether renew the old key
-        return key;
+        if (key == null) {
+            // reuse key from cache
+            return getCipherKey(sender, receiver);
+        } else {
+            // cache the key for reuse
+            cacheCipherKey(sender, receiver, key);
+            return key;
+        }
     }
 }

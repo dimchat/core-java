@@ -54,7 +54,7 @@ public interface CipherKeyDelegate {
     void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
 
     /**
-     *  Update/create cipher key for encrypt message content
+     *  Get/cache cipher key for decrypt message fron 'sender' to 'receiver'
      *
      * @param sender - from where (user ID)
      * @param receiver - to where (contact/group ID)
