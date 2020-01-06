@@ -90,7 +90,6 @@ public class Facebook extends Barrack {
             return false;
         }
         ID identifier = profile.identifier;
-        assert identifier.isValid();
         NetworkType type = identifier.getType();
         Meta meta = null;
         if (type.isUser()) {
@@ -110,12 +109,10 @@ public class Facebook extends Barrack {
     
     @Override
     protected User createUser(ID identifier) {
-        assert identifier.getType().isUser();
         if (identifier.isBroadcast()) {
             // create user 'anyone@anywhere'
             return new User(identifier);
         }
-        assert getMeta(identifier) != null;
         // TODO: check user type
         NetworkType type = identifier.getType();
         if (type.isPerson()) {
@@ -132,12 +129,10 @@ public class Facebook extends Barrack {
 
     @Override
     protected Group createGroup(ID identifier) {
-        assert identifier.getType().isGroup();
         if (identifier.isBroadcast()) {
             // create group 'everyone@everywhere'
             return new Group(identifier);
         }
-        assert getMeta(identifier) != null;
         // TODO: check group type
         NetworkType type = identifier.getType();
         if (type == NetworkType.Polylogue) {
@@ -223,7 +218,6 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key = SymmetricKeyImpl.getInstance(password);
-        assert key == password && key != null;
         // check attachment for File/Image/Audio/Video message content
         if (content instanceof FileContent) {
             FileContent file = (FileContent) content;
@@ -243,7 +237,6 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
     @Override
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key = SymmetricKeyImpl.getInstance(password);
-        assert key == password && key != null;
         Content content = super.decryptContent(data, password, sMsg);
         if (content == null) {
             return null;
@@ -323,7 +316,6 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
         // 3. pack response
         Facebook facebook = getFacebook();
         User user = facebook.getCurrentUser();
-        assert user != null;
         ID receiver = facebook.getID(rMsg.envelope.sender);
         InstantMessage iMsg = new InstantMessage(response, user.identifier, receiver);
         ReliableMessage nMsg = signMessage(encryptMessage(iMsg));

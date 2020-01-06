@@ -113,13 +113,13 @@ public class FileContent extends Content {
     }
 
     private static byte[] md5(byte[] data) {
-        MessageDigest md = null;
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            return null;
         }
-        assert md != null;
         md.reset();
         md.update(data);
         return md.digest();
@@ -129,7 +129,9 @@ public class FileContent extends Content {
         data = fileData;
 
         if (fileData != null && fileData.length > 0) {
-            String filename = hexEncode(md5(fileData));
+            byte[] hash = md5(fileData);
+            assert hash != null : "md5 error";
+            String filename = hexEncode(hash);
             String ext = getFileExt();
             if (ext != null) {
                 filename = filename + "." + ext;

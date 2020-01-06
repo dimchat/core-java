@@ -6,7 +6,6 @@ public class Utils {
 
     public static byte[] readResourceFile(String filename) throws IOException {
         InputStream is = Utils.class.getResourceAsStream(filename);
-        assert is != null;
         int len = is.available();
         byte[] data = new byte[len];
         is.read(data, 0, len);

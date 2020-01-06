@@ -103,7 +103,7 @@ public class HistoryCommand extends Command {
             // return HistoryCommand object directly
             return (HistoryCommand) object;
         }
-        assert object instanceof Map;
+        assert object instanceof Map : "history error: " + object;
         Map<String, Object> dictionary = (Map<String, Object>) object;
         // check group
         if (dictionary.get("group") != null) {

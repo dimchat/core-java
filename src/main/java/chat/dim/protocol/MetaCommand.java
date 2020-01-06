@@ -57,8 +57,14 @@ public class MetaCommand extends Command {
 
     MetaCommand(String command, Object identifier, Meta meta) {
         super(command);
-        setIdentifier(identifier);
-        setMeta(meta);
+        // ID
+        assert identifier != null : "ID cannot be empty for meta command";
+        dictionary.put("ID", identifier);
+        // meta
+        if (meta != null) {
+            dictionary.put("meta", meta);
+        }
+        this.meta = meta;
     }
 
     /**
@@ -88,29 +94,16 @@ public class MetaCommand extends Command {
         return dictionary.get("ID");
     }
 
-    public void setIdentifier(Object identifier) {
-        assert identifier != null;
-        dictionary.put("ID", identifier);
-    }
-
     /*
      *  Entity Meta
      *
      */
     public Meta getMeta() throws ClassNotFoundException {
-        if (this.meta == null) {
-            this.meta = Meta.getInstance(dictionary.get("meta"));
-        }
-        return this.meta;
-    }
-
-    public void setMeta(Meta meta) {
         if (meta == null) {
-            dictionary.remove("meta");
-        } else {
-            dictionary.put("meta", meta);
+            Object dict = dictionary.get("meta");
+            meta = Meta.getInstance(dict);
         }
-        this.meta = meta;
+        return meta;
     }
 
     //

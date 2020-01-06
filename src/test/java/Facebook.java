@@ -67,7 +67,6 @@ public class Facebook extends Barrack {
     //---- Private Key
 
     protected boolean cachePrivateKey(PrivateKey key, ID identifier) {
-        assert identifier.isValid();
         privateKeyMap.put(identifier, key);
         return true;
     }

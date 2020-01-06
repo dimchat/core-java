@@ -80,7 +80,7 @@ public class Command extends Content {
         if (clazz.equals(Command.class)) {
             throw new IllegalArgumentException("should not add Command.class itself!");
         }
-        assert Command.class.isAssignableFrom(clazz); // asSubclass
+        assert Command.class.isAssignableFrom(clazz) : "error: " + clazz;
         commandClasses.put(command, clazz);
     }
 
@@ -97,7 +97,7 @@ public class Command extends Content {
         } else if (object instanceof Command) {
             return (Command) object;
         }
-        assert object instanceof Map;
+        assert object instanceof Map : "command error: " + object;
         Map<String, Object> dictionary = (Map<String, Object>) object;
         Class clazz = commandClass(dictionary);
         if (clazz != null) {

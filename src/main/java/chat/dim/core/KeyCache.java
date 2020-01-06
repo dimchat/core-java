@@ -121,7 +121,7 @@ public abstract class KeyCache implements CipherKeyDelegate {
             for (Map.Entry<String, Object> entity2 : table.entrySet()) {
                 ID to = ID.getInstance(entity2.getKey());
                 SymmetricKey newKey = SymmetricKeyImpl.getInstance(entity2.getValue());
-                assert newKey != null;
+                assert newKey != null : "key error(" + from + " -> " + to + "): " + entity2.getValue();
                 // check whether exists an old key
                 SymmetricKey oldKey = getKey(from, to);
                 if (oldKey != newKey) {
@@ -135,20 +135,18 @@ public abstract class KeyCache implements CipherKeyDelegate {
     }
 
     private SymmetricKey getKey(ID from, ID to) {
-        assert from.isValid() && to.isValid();
         Map<ID, SymmetricKey> keyTable = keyMap.get(from);
         return keyTable == null ? null : keyTable.get(to);
     }
 
     private void setKey(ID from, ID to, SymmetricKey key) {
-        assert from.isValid() && to.isValid();
+        assert key != null : "cipher key cannot be empty";
         Map<ID, SymmetricKey> keyTable = keyMap.get(from);
         if (keyTable == null) {
             keyTable = new HashMap<>();
             keyMap.put(from, keyTable);
         }
         //Map<ID, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
-        assert key != null;
         keyTable.put(to, key);
     }
 

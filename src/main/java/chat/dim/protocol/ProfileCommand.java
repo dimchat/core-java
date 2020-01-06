@@ -68,7 +68,11 @@ public class ProfileCommand extends MetaCommand {
      */
     public ProfileCommand(ID identifier, Meta meta, Profile profile) {
         super(PROFILE, identifier, meta);
-        setProfile(profile);
+        // profile
+        if (profile != null) {
+            dictionary.put("profile", profile);
+        }
+        this.profile = profile;
     }
 
     /**
@@ -98,7 +102,10 @@ public class ProfileCommand extends MetaCommand {
      */
     public ProfileCommand(ID identifier, String signature) {
         this(identifier, null, null);
-        setSignature(signature);
+        // signature
+        if (signature != null) {
+            dictionary.put("signature", signature);
+        }
     }
 
     /*
@@ -106,62 +113,35 @@ public class ProfileCommand extends MetaCommand {
      *
      */
     public Profile getProfile() {
-        if (this.profile == null) {
+        if (profile == null) {
             Object data = dictionary.get("profile");
-            if (data instanceof Profile) {
-                this.profile = (Profile) data;
-            } else if (data instanceof Map) {
-                // (v1.1)
-                //  profile (dictionary): {
-                //      "ID"        : "{ID}",
-                //      "data"      : "{...}",
-                //      "signature" : "{BASE64}"
-                //  }
-                this.profile = Profile.getInstance(data);
-                // put back the Profile object for next access
-                dictionary.put("profile", this.profile);
-            } else if (data instanceof String) {
-                // (v1.0)
-                //  profile data (JsON)
-                //  profile signature (Base64)
+            if (data instanceof String) {
+                // compatible with v1.0
+                //    "ID"        : "{ID}",
+                //    "profile"   : "{JsON}",
+                //    "signature" : "{BASE64}"
                 Map<String, Object> map = new HashMap<>();
                 map.put("ID", getIdentifier());
                 map.put("data", data);
                 map.put("signature", dictionary.get("signature"));
-                this.profile = Profile.getInstance(map);
+                data = map;
             } else {
-                assert data == null;
-                this.profile = null;
+                // (v1.1)
+                //    "ID"      : "{ID}",
+                //    "profile" : {
+                //        "ID"        : "{ID}",
+                //        "data"      : "{JsON}",
+                //        "signature" : "{BASE64}"
+                //    }
+                assert data == null || data instanceof Map: "profile data error: " + data;
             }
+            profile = Profile.getInstance(data);
         }
-        return this.profile;
-    }
-
-    public void setProfile(Profile profile) {
-        if (profile == null) {
-            dictionary.remove("profile");
-        } else {
-            assert dictionary.get("data") == null;
-            assert dictionary.get("signature") == null;
-            dictionary.put("profile", profile);
-        }
-        this.profile = profile;
+        return profile;
     }
 
     public String getSignature() {
-        //assert dictionary.get("profile") == null;
         return (String) dictionary.get("signature");
-    }
-
-    public void setSignature(String signature) {
-        if (signature == null) {
-            dictionary.remove("signature");
-        } else {
-            assert dictionary.get("data") == null;
-            assert dictionary.get("profile") == null;
-            assert dictionary.get("meta") == null;
-            dictionary.put("signature", signature);
-        }
     }
 
     //

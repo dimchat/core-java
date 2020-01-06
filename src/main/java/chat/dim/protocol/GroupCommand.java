@@ -127,8 +127,6 @@ public class GroupCommand extends HistoryCommand {
         // TODO: remove 'member'?
     }
 
-
-
     //-------- Runtime --------
 
     @SuppressWarnings("unchecked")
@@ -139,7 +137,7 @@ public class GroupCommand extends HistoryCommand {
             // return GroupCommand object directly
             return (GroupCommand) object;
         }
-        assert object instanceof Map;
+        assert object instanceof Map : "group command error: " + object;
         Map<String, Object> dictionary = (Map<String, Object>) object;
         Class clazz = commandClass(dictionary);
         if (clazz != null) {

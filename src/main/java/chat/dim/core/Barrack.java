@@ -82,13 +82,13 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     }
 
     protected boolean cache(ID identifier) {
-        assert identifier.isValid();
+        assert identifier.isValid() : "ID not valid: " + identifier;
         idMap.put(identifier.toString(), identifier);
         return true;
     }
 
     protected boolean cache(Meta meta, ID identifier) {
-        assert meta.matches(identifier);
+        assert meta.matches(identifier) : "meta not match ID: " + identifier + ", " + meta;
         metaMap.put(identifier, meta);
         return true;
     }
@@ -110,30 +110,30 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     }
 
     protected ID createID(String string) {
-        assert string != null;
+        assert string != null : "ID string should not be empty";
         return ID.getInstance(string);
     }
 
     protected User createUser(ID identifier) {
-        assert identifier.getType().isUser();
+        assert identifier.getType().isUser() : "user ID error: " + identifier;
         if (identifier.isBroadcast()) {
             // create user 'anyone@anywhere'
             return new User(identifier);
         }
         // make sure meta exists
-        assert getMeta(identifier) != null;
+        assert getMeta(identifier) != null : "failed to get meta for user: " + identifier;
         // TODO: check user type
         return new User(identifier);
     }
 
     protected Group createGroup(ID identifier) {
-        assert identifier.getType().isGroup();
+        assert identifier.getType().isGroup() : "group ID error: " + identifier;
         if (identifier.isBroadcast()) {
             // create group 'everyone@everywhere'
             return new Group(identifier);
         }
         // make sure meta exists
-        assert getMeta(identifier) != null;
+        assert getMeta(identifier) != null : "failed to get meta for group: " + identifier;
         // TODO: check group type
         return new Group(identifier);
     }
@@ -147,7 +147,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         } else if (string instanceof ID) {
             return (ID) string;
         }
-        assert string instanceof String;
+        assert string instanceof String : "ID error: " + string;
         // 1. get from ID cache
         ID identifier = idMap.get(string);
         if (identifier != null) {
@@ -198,7 +198,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public Meta getMeta(ID identifier) {
-        assert identifier.isValid();
+        assert identifier.isValid() : "Id not valid: " + identifier;
         return metaMap.get(identifier);
     }
 
@@ -220,7 +220,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public ID getFounder(ID group) {
-        assert group.getType().isGroup();
+        assert group.getType().isGroup() : "group ID error: " + group;
         // check for broadcast
         if (group.isBroadcast()) {
             String founder;
@@ -242,7 +242,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public ID getOwner(ID group) {
-        assert group.getType().isGroup();
+        assert group.getType().isGroup() : "group ID error: " + group;
         // check for broadcast
         if (group.isBroadcast()) {
             String owner;
@@ -264,7 +264,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public List<ID> getMembers(ID group) {
-        assert group.getType().isGroup();
+        assert group.getType().isGroup() : "group ID error: " + group;
         // check for broadcast
         if (group.isBroadcast()) {
             String member;
