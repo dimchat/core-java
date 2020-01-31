@@ -65,7 +65,7 @@ public class FileContent extends Content {
 
     protected FileContent(ContentType type, byte[] data, String filename) {
         super(type);
-        setUrl(null);
+        setURL(null);
         setData(data);
         setFilename(filename);
         setPassword(null);
@@ -77,7 +77,7 @@ public class FileContent extends Content {
 
     //-------- setters/getters --------
 
-    public void setUrl(String urlString) {
+    public void setURL(String urlString) {
         url = urlString;
         if (urlString == null) {
             dictionary.remove("URL");
@@ -86,7 +86,7 @@ public class FileContent extends Content {
         }
     }
 
-    public String getUrl() {
+    public String getURL() {
         return url;
     }
 

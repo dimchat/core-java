@@ -33,20 +33,22 @@ package chat.dim.protocol.group;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.HistoryCommand;
 
 /**
  *  NOTICE:
  *      This command is just for querying group info,
- *      should not be record in history database
+ *      should not be saved in group history
  */
-public class QueryCommand extends GroupCommand {
+public class QueryCommand extends Command {
 
     public QueryCommand(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
     public QueryCommand(ID group) {
-        super(QUERY, group);
+        super(HistoryCommand.QUERY);
+        setGroup(group);
     }
 }

@@ -81,7 +81,7 @@ public class PageContent extends Content {
         dictionary.put("URL", urlString);
     }
 
-    public String getUrl() {
+    public String getURL() {
         return url;
     }
 
