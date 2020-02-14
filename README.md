@@ -217,7 +217,7 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
 
     @Override
     public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
-        SymmetricKey key = SymmetricKeyImpl.getInstance(password);
+        SymmetricKey key = SymmetricKey.getInstance(password);
         // check attachment for File/Image/Audio/Video message content
         if (content instanceof FileContent) {
             FileContent file = (FileContent) content;
@@ -236,7 +236,7 @@ public class Messenger extends Transceiver implements ConnectionDelegate {
 
     @Override
     public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
-        SymmetricKey key = SymmetricKeyImpl.getInstance(password);
+        SymmetricKey key = SymmetricKey.getInstance(password);
         Content content = super.decryptContent(data, password, sMsg);
         if (content == null) {
             return null;
@@ -337,7 +337,7 @@ Register.java
 ```java
     public User register(String username) {
         // 1. generate private key
-        PrivateKey sk = PrivateKeyImpl.generate(PrivateKey.RSA);
+        PrivateKey sk = PrivateKey.generate(PrivateKey.RSA);
         
         // 2. generate meta with username(as seed) and private key
         String seed = username;
