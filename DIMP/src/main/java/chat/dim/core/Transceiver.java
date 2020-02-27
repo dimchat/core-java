@@ -141,16 +141,23 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        ID group = barrack.getID(iMsg.content.getGroup());
+
+        // NOTICE: while sending group message, don't split it before encrypting.
+        //         this means you could set group ID into message content, but
+        //         keep the "receiver" to be the group ID;
+        //         after encrypted (and signed), you could split the message
+        //         with group members before sending out, or just send it directly
+        //         to the group assistant to let it split messages for you!
+        //    BUT,
+        //         if you don't want to share the symmetric key with other members,
+        //         you could split it (set group ID into message content and
+        //         set contact ID to the "receiver") before encrypting, this usually
+        //         for sending group command to robot assistant,
+        //         which cannot shared the symmetric key (msg key) with other members.
 
         // 1. get symmetric key
-        SymmetricKey password;
-        if (group == null) {
-            password = getSymmetricKey(sender, receiver);
-        } else {
-            // group message
-            password = getSymmetricKey(sender, group);
-        }
+        SymmetricKey password = getSymmetricKey(sender, receiver);
+
         // check message delegate
         if (iMsg.getDelegate() == null) {
             iMsg.setDelegate(this);
