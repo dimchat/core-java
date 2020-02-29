@@ -33,13 +33,6 @@ package chat.dim.protocol;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.protocol.group.ExpelCommand;
-import chat.dim.protocol.group.InviteCommand;
-import chat.dim.protocol.group.JoinCommand;
-import chat.dim.protocol.group.QueryCommand;
-import chat.dim.protocol.group.QuitCommand;
-import chat.dim.protocol.group.ResetCommand;
-
 /**
  *  History command: {
  *      type : 0x89,
@@ -52,25 +45,11 @@ import chat.dim.protocol.group.ResetCommand;
  */
 public class HistoryCommand extends Command {
 
-    //-------- command names begin --------
+    //-------- history command names begin --------
     // account
     public static final String REGISTER = "register";
     public static final String SUICIDE  = "suicide";
-    // group: founder/owner
-    public static final String FOUND    = "found";
-    public static final String ABDICATE = "abdicate";
-    // group: member
-    public static final String INVITE   = "invite";
-    public static final String EXPEL    = "expel";
-    public static final String JOIN     = "join";
-    public static final String QUIT     = "quit";
-    public static final String QUERY    = "query";
-    public static final String RESET    = "reset";
-    // group: administrator/assistant
-    public static final String HIRE     = "hire";
-    public static final String FIRE     = "fire";
-    public static final String RESIGN   = "resign";
-    //-------- command names end --------
+    //-------- history command names end --------
 
     public final Date time;
 
@@ -117,21 +96,5 @@ public class HistoryCommand extends Command {
         }
         // custom history command
         return new HistoryCommand(dictionary);
-    }
-
-    static {
-        // Invite member to group
-        register(INVITE, InviteCommand.class);
-        // Expel member from group
-        register(EXPEL, ExpelCommand.class);
-        // Join group
-        register(JOIN, JoinCommand.class);
-        // Quit group
-        register(QUIT, QuitCommand.class);
-        // Reset group info
-        register(RESET, ResetCommand.class);
-        // Query group info
-        register(QUERY, QueryCommand.class);
-        // ...
     }
 }

@@ -34,8 +34,26 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.protocol.group.*;
 
 public class GroupCommand extends HistoryCommand {
+
+    //-------- group command names begin --------
+    // founder/owner
+    public static final String FOUND    = "found";
+    public static final String ABDICATE = "abdicate";
+    // member
+    public static final String INVITE   = "invite";
+    public static final String EXPEL    = "expel";
+    public static final String JOIN     = "join";
+    public static final String QUIT     = "quit";
+    public static final String QUERY    = "query";
+    public static final String RESET    = "reset";
+    // administrator/assistant
+    public static final String HIRE     = "hire";
+    public static final String FIRE     = "fire";
+    public static final String RESIGN   = "resign";
+    //-------- group command names end --------
 
     @SuppressWarnings("unchecked")
     public GroupCommand(Map<String, Object> dictionary) {
@@ -146,5 +164,21 @@ public class GroupCommand extends HistoryCommand {
         }
         // custom group command
         return new GroupCommand(dictionary);
+    }
+
+    static {
+        // Invite member to group
+        register(INVITE, InviteCommand.class);
+        // Expel member from group
+        register(EXPEL, ExpelCommand.class);
+        // Join group
+        register(JOIN, JoinCommand.class);
+        // Quit group
+        register(QUIT, QuitCommand.class);
+        // Reset group info
+        register(RESET, ResetCommand.class);
+        // Query group info
+        register(QUERY, QueryCommand.class);
+        // ...
     }
 }
