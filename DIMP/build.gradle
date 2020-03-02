@@ -18,7 +18,7 @@ plugins {
 
 group 'chat.dim'
 //version '1.0-SNAPSHOT'
-version '0.6.9'
+version '0.6.10'
 
 sourceCompatibility = 1.8
 
@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'chat.dim', name: 'DaoKeDao', version: '0.6.5'
+    compile group: 'chat.dim', name: 'DaoKeDao', version: '0.6.6'
     compile group: 'chat.dim', name: 'MingKeMing', version: '0.7.0'
 
     testCompile group: 'chat.dim', name: 'Plugins', version: '0.1.0'

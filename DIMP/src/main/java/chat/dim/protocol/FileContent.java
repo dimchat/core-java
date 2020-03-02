@@ -64,6 +64,9 @@ public class FileContent extends Content {
     }
 
     protected FileContent(ContentType type, byte[] data, String filename) {
+        this(type.value, data, filename);
+    }
+    protected FileContent(int type, byte[] data, String filename) {
         super(type);
         setURL(null);
         setData(data);

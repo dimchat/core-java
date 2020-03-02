@@ -61,6 +61,9 @@ public class Command extends Content {
     }
 
     protected Command(ContentType type, String cmd) {
+        this(type.value, cmd);
+    }
+    protected Command(int type, String cmd) {
         super(type);
         command = cmd;
         dictionary.put("command", cmd);
