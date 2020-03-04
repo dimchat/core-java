@@ -124,7 +124,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     }
 
     protected User createUser(ID identifier) {
-        assert identifier.getType().isUser() : "user ID error: " + identifier;
+        assert identifier.isUser() : "user ID error: " + identifier;
         if (identifier.isBroadcast()) {
             // create user 'anyone@anywhere'
             return new User(identifier);
@@ -136,7 +136,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     }
 
     protected Group createGroup(ID identifier) {
-        assert identifier.getType().isGroup() : "group ID error: " + identifier;
+        assert identifier.isGroup() : "group ID error: " + identifier;
         if (identifier.isBroadcast()) {
             // create group 'everyone@everywhere'
             return new Group(identifier);
@@ -229,7 +229,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public ID getFounder(ID group) {
-        assert group.getType().isGroup() : "group ID error: " + group;
+        assert group.isGroup() : "group ID error: " + group;
         // check for broadcast
         if (group.isBroadcast()) {
             String founder;
@@ -251,7 +251,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public ID getOwner(ID group) {
-        assert group.getType().isGroup() : "group ID error: " + group;
+        assert group.isGroup() : "group ID error: " + group;
         // check for broadcast
         if (group.isBroadcast()) {
             String owner;
@@ -273,7 +273,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public List<ID> getMembers(ID group) {
-        assert group.getType().isGroup() : "group ID error: " + group;
+        assert group.isGroup() : "group ID error: " + group;
         // check for broadcast
         if (group.isBroadcast()) {
             String member;

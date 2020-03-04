@@ -165,13 +165,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // 2. encrypt 'content' to 'data' for receiver/group members
         SecureMessage sMsg;
-        if (receiver.getType().isGroup()) {
+        if (receiver.isGroup()) {
             // group message
             Group grp = barrack.getGroup(receiver);
             sMsg = iMsg.encrypt(password, grp.getMembers());
         } else {
             // personal message (or split group message)
-            assert receiver.getType().isUser() : "receiver ID error: " + receiver;
+            assert receiver.isUser() : "receiver ID error: " + receiver;
             sMsg = iMsg.encrypt(password);
         }
 
