@@ -144,6 +144,32 @@ public abstract class KeyCache implements CipherKeyDelegate {
         if (keyTable == null) {
             keyTable = new HashMap<>();
             keyMap.put(from, keyTable);
+        } else {
+            SymmetricKey old = keyTable.get(to);
+            if (old != null) {
+                // check whether same key exists
+                boolean equals = true;
+                String k;
+                Object v1, v2;
+                for (Map.Entry<String, Object> entity : key.entrySet()) {
+                    k = entity.getKey();
+                    v1 = entity.getValue();
+                    v2 = old.get(k);
+                    if (v1 == null) {
+                        if (v2 == null) {
+                            continue;
+                        }
+                    } else if (v1.equals(v2)) {
+                        continue;
+                    }
+                    equals = false;
+                    break;
+                }
+                if (equals) {
+                    // no need to update
+                    return;
+                }
+            }
         }
         //Map<ID, SymmetricKey> keyTable = keyMap.computeIfAbsent(from, k -> new HashMap<>());
         keyTable.put(to, key);
@@ -158,6 +184,8 @@ public abstract class KeyCache implements CipherKeyDelegate {
         }
         // get key from cache
         return getKey(sender, receiver);
+
+        // TODO: override to check whether key expired for sending message
     }
 
     @Override
@@ -168,17 +196,5 @@ public abstract class KeyCache implements CipherKeyDelegate {
         }
         setKey(sender, receiver, key);
         isDirty = true;
-    }
-
-    @Override
-    public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        if (key == null) {
-            // reuse key from cache
-            return getCipherKey(sender, receiver);
-        } else {
-            // cache the key for reuse
-            cacheCipherKey(sender, receiver, key);
-            return key;
-        }
     }
 }

@@ -141,6 +141,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
+        ID group = barrack.getID(iMsg.content.getGroup());
 
         // NOTICE: while sending group message, don't split it before encrypting.
         //         this means you could set group ID into message content, but
@@ -156,7 +157,14 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //         which cannot shared the symmetric key (msg key) with other members.
 
         // 1. get symmetric key
-        SymmetricKey password = getSymmetricKey(sender, receiver);
+        SymmetricKey password;
+        if (group == null || (iMsg.content instanceof Command)) {
+            // personal message or (group) command
+            password = getSymmetricKey(sender, receiver);
+        } else {
+            // group message (excludes group command)
+            password = getSymmetricKey(sender, group);
+        }
 
         // check message delegate
         if (iMsg.getDelegate() == null) {
@@ -347,8 +355,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         CipherKeyDelegate keyCache = getCipherKeyDelegate();
         ID from = barrack.getID(sender);
         ID to = barrack.getID(receiver);
-        SymmetricKey password = null;
-        if (keyData != null) {
+        SymmetricKey password;
+        if (keyData == null) {
+            // get key from cache
+            password = keyCache.getCipherKey(from, to);
+        } else {
             // decrypt key data with the receiver/group member's private key
             ID identifier = barrack.getID(sMsg.envelope.receiver);
             User user = barrack.getUser(identifier);
@@ -360,7 +371,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             // deserialize it to symmetric key
             password = deserializeKey(plaintext, sMsg);
         }
-        password = keyCache.reuseCipherKey(from, to, password);
         assert password != null : "failed to get password from " + sender + " to " + receiver;
         return password;
     }
@@ -390,9 +400,27 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             //throw new NullPointerException("failed to decrypt data: " + password);
             return null;
         }
+        Content content = deserializeContent(plaintext, sMsg);
+        assert content != null : "content error: " + plaintext.length;
+
+        // check and cache key for reuse
+        EntityDelegate barrack = getEntityDelegate();
+        ID sender = barrack.getID(sMsg.envelope.sender);
+        ID group = barrack.getID(content.getGroup());
+        if (group == null || (content instanceof Command)) {
+            ID receiver = barrack.getID(sMsg.envelope.receiver);
+            // personal message or (group) command
+            // cache key with direction (sender -> receiver)
+            getCipherKeyDelegate().cacheCipherKey(sender, receiver, key);
+        } else {
+            // group message (excludes group command)
+            // cache the key with direction (sender -> group)
+            getCipherKeyDelegate().cacheCipherKey(sender, group, key);
+        }
+
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         after deserialize content, this job should be do in subclass
-        return deserializeContent(plaintext, sMsg);
+        return content;
     }
 
     @Override

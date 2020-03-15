@@ -52,14 +52,4 @@ public interface CipherKeyDelegate {
      * @param key - cipher key
      */
     void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
-
-    /**
-     *  Get/cache cipher key for decrypt message from 'sender' to 'receiver'
-     *
-     * @param sender - from where (user ID)
-     * @param receiver - to where (contact/group ID)
-     * @param key - old key to be reused (nullable)
-     * @return new key
-     */
-    SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key);
 }
