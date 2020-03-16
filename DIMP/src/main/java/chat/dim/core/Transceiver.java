@@ -135,13 +135,30 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     //-------- Transform
 
+    private ID getOvertGroup(Content content) {
+        Object group = content.getGroup();
+        if (group == null) {
+            return null;
+        }
+        ID identifier = getEntityDelegate().getID(group);
+        if (identifier.isBroadcast()) {
+            // broadcast message is always overt
+            return identifier;
+        }
+        if (content instanceof Command) {
+            // group command should be sent to each member directly, so
+            // don't expose group ID
+            return null;
+        }
+        return identifier;
+    }
+
     public SecureMessage encryptMessage(InstantMessage iMsg) {
         EntityDelegate barrack = getEntityDelegate();
         ID sender = barrack.getID(iMsg.envelope.sender);
         ID receiver = barrack.getID(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        ID group = barrack.getID(iMsg.content.getGroup());
 
         // NOTICE: while sending group message, don't split it before encrypting.
         //         this means you could set group ID into message content, but
@@ -153,12 +170,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //         if you don't want to share the symmetric key with other members,
         //         you could split it (set group ID into message content and
         //         set contact ID to the "receiver") before encrypting, this usually
-        //         for sending group command to robot assistant,
-        //         which cannot shared the symmetric key (msg key) with other members.
+        //         for sending group command to assistant robot, which should not
+        //         shared the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
+        ID group = getOvertGroup(iMsg.content);
         SymmetricKey password;
-        if (group == null || (iMsg.content instanceof Command)) {
+        if (group == null) {
             // personal message or (group) command
             password = getSymmetricKey(sender, receiver);
         } else {
@@ -182,6 +200,19 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             assert receiver.isUser() : "receiver ID error: " + receiver;
             sMsg = iMsg.encrypt(password);
         }
+
+        // overt group ID
+        if (group != null && !receiver.equals(group)) {
+            // NOTICE: this help the receiver knows the group ID
+            //         when the group message separated to multi-messages,
+            //         if don't want the others know you are the group members,
+            //         remove it.
+            sMsg.envelope.setGroup(group);
+        }
+
+        // NOTICE: copy content type to envelope
+        //         this help the intermediate nodes to recognize message type
+        sMsg.envelope.setType(iMsg.content.type);
 
         // OK
         return sMsg;
@@ -406,8 +437,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         // check and cache key for reuse
         EntityDelegate barrack = getEntityDelegate();
         ID sender = barrack.getID(sMsg.envelope.sender);
-        ID group = barrack.getID(content.getGroup());
-        if (group == null || (content instanceof Command)) {
+        ID group = getOvertGroup(content);
+        if (group == null) {
             ID receiver = barrack.getID(sMsg.envelope.receiver);
             // personal message or (group) command
             // cache key with direction (sender -> receiver)
