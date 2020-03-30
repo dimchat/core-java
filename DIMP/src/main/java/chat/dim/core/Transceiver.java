@@ -171,7 +171,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //         you could split it (set group ID into message content and
         //         set contact ID to the "receiver") before encrypting, this usually
         //         for sending group command to assistant robot, which should not
-        //         shared the symmetric key (group msg key) with other members.
+        //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
         ID group = getOvertGroup(iMsg.content);

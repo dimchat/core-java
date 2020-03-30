@@ -36,13 +36,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Group;
-import chat.dim.GroupDataSource;
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.User;
-import chat.dim.UserDataSource;
+import chat.dim.*;
 import chat.dim.crypto.EncryptKey;
+import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
 
 /**
@@ -118,34 +114,11 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         return true;
     }
 
-    protected ID createID(String string) {
-        assert string != null : "ID string should not be empty";
-        return ID.getInstance(string);
-    }
+    protected abstract ID createID(String string);
 
-    protected User createUser(ID identifier) {
-        assert identifier.isUser() : "user ID error: " + identifier;
-        if (identifier.isBroadcast()) {
-            // create user 'anyone@anywhere'
-            return new User(identifier);
-        }
-        // make sure meta exists
-        assert getMeta(identifier) != null : "failed to get meta for user: " + identifier;
-        // TODO: check user type
-        return new User(identifier);
-    }
+    protected abstract User createUser(ID identifier);
 
-    protected Group createGroup(ID identifier) {
-        assert identifier.isGroup() : "group ID error: " + identifier;
-        if (identifier.isBroadcast()) {
-            // create group 'everyone@everywhere'
-            return new Group(identifier);
-        }
-        // make sure meta exists
-        assert getMeta(identifier) != null : "failed to get meta for group: " + identifier;
-        // TODO: check group type
-        return new Group(identifier);
-    }
+    protected abstract Group createGroup(ID identifier);
 
     //-------- EntityDelegate
 
@@ -215,14 +188,54 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
-        // NOTICE: return nothing to use profile.key or meta.key
-        return null;
+        EncryptKey key = null;
+        // get profile.key
+        Profile profile = getProfile(user);
+        if (profile != null) {
+            key = profile.getKey();
+            if (key != null) {
+                // if profile.key exists,
+                //     use it for encryption
+                return key;
+            }
+        }
+        // get meta.key
+        Meta meta = getMeta(user);
+        if (meta != null) {
+            PublicKey metaKey = meta.getKey();
+            if (metaKey instanceof EncryptKey) {
+                // if profile.key not exists and meta.key is encrypt key,
+                //     use it for encryption
+                key = (EncryptKey) metaKey;
+            }
+        }
+        return key;
     }
 
     @Override
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
-        // NOTICE: return nothing to use meta.key
-        return null;
+        List<VerifyKey> keys = new ArrayList<>();
+        // get profile.key
+        Profile profile = getProfile(user);
+        if (profile != null) {
+            EncryptKey profileKey = profile.getKey();
+            if (profileKey instanceof VerifyKey) {
+                // the sender may use communication key to sign message.data,
+                // so try to verify it with profile.key here
+                keys.add((VerifyKey) profileKey);
+            }
+        }
+        // get meta.key
+        Meta meta = getMeta(user);
+        if (meta != null) {
+            VerifyKey metaKey = meta.getKey();
+            if (metaKey != null) {
+                // the sender may use identity key to sign message.data,
+                // try to verify it with meta.key
+                keys.add(metaKey);
+            }
+        }
+        return keys;
     }
 
     //-------- GroupDataSource
