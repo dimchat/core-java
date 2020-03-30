@@ -50,7 +50,6 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     // memory caches
     private Map<String, ID> idMap    = new HashMap<>();
-    private Map<ID, Meta>   metaMap  = new HashMap<>();
     private Map<ID, User>   userMap  = new HashMap<>();
     private Map<ID, Group>  groupMap = new HashMap<>();
 
@@ -67,7 +66,6 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     public int reduceMemory() {
         int finger = 0;
         finger = thanos(idMap, finger);
-        finger = thanos(metaMap, finger);
         finger = thanos(userMap, finger);
         finger = thanos(groupMap, finger);
         return finger >> 1;
@@ -89,12 +87,6 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     protected boolean cache(ID identifier) {
         assert identifier.isValid() : "ID not valid: " + identifier;
         idMap.put(identifier.toString(), identifier);
-        return true;
-    }
-
-    protected boolean cache(Meta meta, ID identifier) {
-        assert meta.matches(identifier) : "meta not match ID: " + identifier + ", " + meta;
-        metaMap.put(identifier, meta);
         return true;
     }
 
@@ -174,14 +166,6 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         }
         // failed to create Group
         return null;
-    }
-
-    //-------- EntityDataSource
-
-    @Override
-    public Meta getMeta(ID identifier) {
-        assert identifier.isValid() : "Id not valid: " + identifier;
-        return metaMap.get(identifier);
     }
 
     //-------- UserDataSource
