@@ -92,7 +92,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     //--------
 
-    private boolean isBroadcast(Message msg) {
+    protected boolean isBroadcast(Message msg) {
         Object receiver;
         if (msg instanceof InstantMessage) {
             receiver = ((InstantMessage) msg).content.getGroup();
@@ -434,19 +434,21 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         Content content = deserializeContent(plaintext, sMsg);
         assert content != null : "content error: " + plaintext.length;
 
-        // check and cache key for reuse
-        EntityDelegate barrack = getEntityDelegate();
-        ID sender = barrack.getID(sMsg.envelope.sender);
-        ID group = getOvertGroup(content);
-        if (group == null) {
-            ID receiver = barrack.getID(sMsg.envelope.receiver);
-            // personal message or (group) command
-            // cache key with direction (sender -> receiver)
-            getCipherKeyDelegate().cacheCipherKey(sender, receiver, key);
-        } else {
-            // group message (excludes group command)
-            // cache the key with direction (sender -> group)
-            getCipherKeyDelegate().cacheCipherKey(sender, group, key);
+        if (!isBroadcast(sMsg)) {
+            // check and cache key for reuse
+            EntityDelegate barrack = getEntityDelegate();
+            ID sender = barrack.getID(sMsg.envelope.sender);
+            ID group = getOvertGroup(content);
+            if (group == null) {
+                ID receiver = barrack.getID(sMsg.envelope.receiver);
+                // personal message or (group) command
+                // cache key with direction (sender -> receiver)
+                getCipherKeyDelegate().cacheCipherKey(sender, receiver, key);
+            } else {
+                // group message (excludes group command)
+                // cache the key with direction (sender -> group)
+                getCipherKeyDelegate().cacheCipherKey(sender, group, key);
+            }
         }
 
         // NOTICE: check attachment for File/Image/Audio/Video message content
