@@ -260,32 +260,6 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //       (do it by application)
     }
 
-    //-------- Serialization
-
-    protected byte[] serializeMessage(ReliableMessage rMsg) {
-        String json = JSON.encode(rMsg);
-        return json.getBytes(Charset.forName("UTF-8"));
-    }
-
-    @SuppressWarnings("unchecked")
-    protected ReliableMessage deserializeMessage(byte[] data) {
-        String json = new String(data, Charset.forName("UTF-8"));
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
-        // TODO: translate short keys
-        //       'S' -> 'sender'
-        //       'R' -> 'receiver'
-        //       'W' -> 'time'
-        //       'T' -> 'type'
-        //       'G' -> 'group'
-        //       ------------------
-        //       'D' -> 'data'
-        //       'V' -> 'signature'
-        //       'K' -> 'key'
-        //       ------------------
-        //       'M' -> 'meta'
-        return ReliableMessage.getInstance(dict);
-    }
-
     //-------- InstantMessageDelegate
 
     @Override
