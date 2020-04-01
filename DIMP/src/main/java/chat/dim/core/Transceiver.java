@@ -260,19 +260,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //       (do it by application)
     }
 
-    //-------- De/serialize message content and symmetric key
-
-    protected byte[] serializeContent(Content content, InstantMessage iMsg) {
-        assert content == iMsg.content : "message content not match: " + content;
-        String json = JSON.encode(content);
-        return json.getBytes(Charset.forName("UTF-8"));
-    }
-
-    protected byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
-        assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
-        String json = JSON.encode(password);
-        return json.getBytes(Charset.forName("UTF-8"));
-    }
+    //-------- Serialization
 
     protected byte[] serializeMessage(ReliableMessage rMsg) {
         String json = JSON.encode(rMsg);
@@ -298,41 +286,22 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return ReliableMessage.getInstance(dict);
     }
 
-    @SuppressWarnings("unchecked")
-    protected SymmetricKey deserializeKey(byte[] key, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-        String json = new String(key, Charset.forName("UTF-8"));
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
-        // TODO: translate short keys
-        //       'A' -> 'algorithm'
-        //       'D' -> 'data'
-        //       'V' -> 'iv'
-        //       'M' -> 'mode'
-        //       'P' -> 'padding'
-        return getSymmetricKey(dict);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Content deserializeContent(byte[] data, SecureMessage sMsg) {
-        assert sMsg.getData() != null;
-        String json = new String(data, Charset.forName("UTF-8"));
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
-        // TODO: translate short keys
-        //       'T' -> 'type'
-        //       'N' -> 'sn'
-        //       'G' -> 'group'
-        return Content.getInstance(dict);
-    }
-
     //-------- InstantMessageDelegate
 
     @Override
-    public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
+    public byte[] serializeContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
+
+        assert content == iMsg.content : "message content not match: " + content;
+        String json = JSON.encode(content);
+        return json.getBytes(Charset.forName("UTF-8"));
+    }
+
+    @Override
+    public byte[] encryptContent(byte[] data, Map<String, Object> password, InstantMessage iMsg) {
         SymmetricKey key = getSymmetricKey(password);
         assert key != null && key == password : "irregular symmetric key: " + password;
-        byte[] data = serializeContent(content, iMsg);
         return key.encrypt(data);
     }
 
@@ -347,16 +316,18 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
+    public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
+        assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
+        String json = JSON.encode(password);
+        return json.getBytes(Charset.forName("UTF-8"));
+    }
+
+    @Override
+    public byte[] encryptKey(byte[] data, Object receiver, InstantMessage iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
         }
-        SymmetricKey key = getSymmetricKey(password);
-        assert key == password : "irregular symmetric key: " + password;
-        // TODO: check whether support reused key
-
-        byte[] data = serializeKey(key, iMsg);
         // encrypt with receiver's public key
         EntityDelegate barrack = getEntityDelegate();
         User contact = barrack.getUser(barrack.getID(receiver));
@@ -380,30 +351,45 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, Object> decryptKey(byte[] keyData, Object sender, Object receiver, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg) || keyData == null : "broadcast message has no key: " + sMsg;
-        EntityDelegate barrack = getEntityDelegate();
-        CipherKeyDelegate keyCache = getCipherKeyDelegate();
-        ID from = barrack.getID(sender);
-        ID to = barrack.getID(receiver);
-        SymmetricKey password;
-        if (keyData == null) {
-            // get key from cache
-            password = keyCache.getCipherKey(from, to);
-        } else {
-            // decrypt key data with the receiver/group member's private key
-            ID identifier = barrack.getID(sMsg.envelope.receiver);
-            User user = barrack.getUser(identifier);
-            assert user != null : "failed to get decrypt keys: " + identifier;
-            byte[] plaintext = user.decrypt(keyData);
-            if (plaintext == null || plaintext.length == 0) {
-                throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
-            }
-            // deserialize it to symmetric key
-            password = deserializeKey(plaintext, sMsg);
+    public byte[] decryptKey(byte[] key, Object sender, Object receiver, SecureMessage sMsg) {
+        if (key == null) {
+            return null;
         }
-        assert password != null : "failed to get password from " + sender + " to " + receiver;
-        return password;
+        assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+        // decrypt key data with the receiver/group member's private key
+        EntityDelegate barrack = getEntityDelegate();
+        ID identifier = barrack.getID(sMsg.envelope.receiver);
+        User user = barrack.getUser(identifier);
+        assert user != null : "failed to get decrypt keys: " + identifier;
+        byte[] plaintext = user.decrypt(key);
+        if (plaintext == null || plaintext.length == 0) {
+            throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
+        }
+        return plaintext;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> deserializeKey(byte[] key, Object sender, Object receiver, SecureMessage sMsg) {
+        if (key == null) {
+            // get key from cache
+            EntityDelegate barrack = getEntityDelegate();
+            CipherKeyDelegate keyCache = getCipherKeyDelegate();
+            ID from = barrack.getID(sender);
+            ID to = barrack.getID(receiver);
+            return keyCache.getCipherKey(from, to);
+        } else {
+            assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+            String json = new String(key, Charset.forName("UTF-8"));
+            Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+            // TODO: translate short keys
+            //       'A' -> 'algorithm'
+            //       'D' -> 'data'
+            //       'V' -> 'iv'
+            //       'M' -> 'mode'
+            //       'P' -> 'padding'
+            return getSymmetricKey(dict);
+        }
     }
 
     @Override
@@ -419,22 +405,35 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     @SuppressWarnings("unchecked")
-    public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
+    public byte[] decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key = getSymmetricKey(password);
         assert key == password : "irregular symmetric key: " + password;
         if (key == null) {
             return null;
         }
-        // decrypt message.data to content
+        // decrypt message.data
         byte[] plaintext = key.decrypt(data);
         if (plaintext == null) {
-            //throw new NullPointerException("failed to decrypt data: " + password);
-            return null;
+            throw new NullPointerException("failed to decrypt data: " + password);
         }
-        Content content = deserializeContent(plaintext, sMsg);
-        assert content != null : "content error: " + plaintext.length;
+        return plaintext;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Content deserializeContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
+        assert sMsg.getData() != null;
+        String json = new String(data, Charset.forName("UTF-8"));
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+        // TODO: translate short keys
+        //       'T' -> 'type'
+        //       'N' -> 'sn'
+        //       'G' -> 'group'
+        Content content = Content.getInstance(dict);
 
         if (!isBroadcast(sMsg)) {
+            SymmetricKey key = getSymmetricKey(password);
+            assert key == password : "irregular symmetric key: " + password;
             // check and cache key for reuse
             EntityDelegate barrack = getEntityDelegate();
             ID sender = barrack.getID(sMsg.envelope.sender);
