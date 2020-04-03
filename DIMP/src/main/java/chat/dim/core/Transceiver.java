@@ -92,7 +92,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     //--------
 
-    protected boolean isBroadcast(Message msg) {
+    private boolean isBroadcast(Message msg) {
         Object receiver;
         if (msg instanceof InstantMessage) {
             receiver = ((InstantMessage) msg).content.getGroup();
@@ -291,17 +291,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     @Override
     public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
-        assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
+        if (isBroadcast(iMsg)) {
+            // broadcast message has no key
+            return null;
+        }
         String json = JSON.encode(password);
         return json.getBytes(Charset.forName("UTF-8"));
     }
 
     @Override
     public byte[] encryptKey(byte[] data, Object receiver, InstantMessage iMsg) {
-        if (isBroadcast(iMsg)) {
-            // broadcast message has no key
-            return null;
-        }
+        assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         // encrypt with receiver's public key
         EntityDelegate barrack = getEntityDelegate();
         User contact = barrack.getUser(barrack.getID(receiver));
