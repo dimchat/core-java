@@ -172,11 +172,10 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
-        EncryptKey key = null;
         // get profile.key
         Profile profile = getProfile(user);
         if (profile != null) {
-            key = profile.getKey();
+            EncryptKey key = profile.getKey();
             if (key != null) {
                 // if profile.key exists,
                 //     use it for encryption
@@ -190,10 +189,10 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
             if (metaKey instanceof EncryptKey) {
                 // if profile.key not exists and meta.key is encrypt key,
                 //     use it for encryption
-                key = (EncryptKey) metaKey;
+                return (EncryptKey) metaKey;
             }
         }
-        return key;
+        return null;
     }
 
     @Override

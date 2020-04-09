@@ -180,9 +180,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         if (group == null) {
             // personal message or (group) command
             password = getSymmetricKey(sender, receiver);
+            assert password != null : "failed to get msg key: " + sender + " -> " + receiver;
         } else {
             // group message (excludes group command)
             password = getSymmetricKey(sender, group);
+            assert password != null : "failed to get msg key: " + sender + " -> " + group;
         }
 
         // check message delegate
@@ -200,6 +202,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             // personal message (or split group message)
             assert receiver.isUser() : "receiver ID error: " + receiver;
             sMsg = iMsg.encrypt(password);
+        }
+        if (sMsg == null) {
+            // public key for encryption not found
+            // TODO: suspend this message for waiting receiver's meta
+            return null;
         }
 
         // overt group ID
@@ -226,6 +233,28 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         assert sMsg.getData() != null : "message data cannot be empty";
         // sign 'data' by sender
         return sMsg.sign();
+    }
+
+    protected byte[] serializeMessage(ReliableMessage rMsg) {
+        return JSON.encode(rMsg);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected ReliableMessage deserializeMessage(byte[] data) {
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
+        // TODO: translate short keys
+        //       'S' -> 'sender'
+        //       'R' -> 'receiver'
+        //       'W' -> 'time'
+        //       'T' -> 'type'
+        //       'G' -> 'group'
+        //       ------------------
+        //       'D' -> 'data'
+        //       'V' -> 'signature'
+        //       'K' -> 'key'
+        //       ------------------
+        //       'M' -> 'meta'
+        return ReliableMessage.getInstance(dict);
     }
 
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
@@ -301,10 +330,11 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @Override
     public byte[] encryptKey(byte[] data, Object receiver, InstantMessage iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
-        // encrypt with receiver's public key
+        // TODO: make sure the receiver's public key exists
         EntityDelegate barrack = getEntityDelegate();
         User contact = barrack.getUser(barrack.getID(receiver));
         assert contact != null : "failed to get encrypt key for receiver: " + receiver;
+        // encrypt with receiver's public key
         return contact.encrypt(data);
     }
 
@@ -325,20 +355,13 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @Override
     @SuppressWarnings("unchecked")
     public byte[] decryptKey(byte[] key, Object sender, Object receiver, SecureMessage sMsg) {
-        if (key == null) {
-            return null;
-        }
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
         EntityDelegate barrack = getEntityDelegate();
         ID identifier = barrack.getID(sMsg.envelope.receiver);
         User user = barrack.getUser(identifier);
         assert user != null : "failed to get decrypt keys: " + identifier;
-        byte[] plaintext = user.decrypt(key);
-        if (plaintext == null || plaintext.length == 0) {
-            throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
-        }
-        return plaintext;
+        return user.decrypt(key);
     }
 
     @Override
@@ -378,16 +401,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @SuppressWarnings("unchecked")
     public byte[] decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         SymmetricKey key = getSymmetricKey(password);
-        assert key == password : "irregular symmetric key: " + password;
         if (key == null) {
-            return null;
+            throw new NullPointerException("irregular symmetric key: " + password);
         }
-        // decrypt message.data
-        byte[] plaintext = key.decrypt(data);
-        if (plaintext == null) {
-            throw new NullPointerException("failed to decrypt data: " + password);
-        }
-        return plaintext;
+        return key.decrypt(data);
     }
 
     @Override
