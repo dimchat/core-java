@@ -48,6 +48,7 @@ import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
@@ -268,8 +269,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         //         before serialize content, this job should be do in subclass
 
         assert content == iMsg.content : "message content not match: " + content;
-        String json = JSON.encode(content);
-        return json.getBytes(Charset.forName("UTF-8"));
+        return JSON.encode(content);
     }
 
     @Override
@@ -284,7 +284,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         if (isBroadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
-            return new String(data, Charset.forName("UTF-8"));
+            return UTF8.decode(data);
         }
         return Base64.encode(data);
     }
@@ -295,8 +295,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             // broadcast message has no key
             return null;
         }
-        String json = JSON.encode(password);
-        return json.getBytes(Charset.forName("UTF-8"));
+        return JSON.encode(password);
     }
 
     @Override
@@ -354,8 +353,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             return keyCache.getCipherKey(from, to);
         } else {
             assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-            String json = new String(key, Charset.forName("UTF-8"));
-            Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+            Map<String, Object> dict = (Map<String, Object>) JSON.decode(key);
             // TODO: translate short keys
             //       'A' -> 'algorithm'
             //       'D' -> 'data'
@@ -371,8 +369,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         if (isBroadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
-            String json = (String) data;
-            return json.getBytes(Charset.forName("UTF-8"));
+            return UTF8.encode((String) data);
         }
         return Base64.decode((String) data);
     }
@@ -397,8 +394,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     @SuppressWarnings("unchecked")
     public Content deserializeContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
         assert sMsg.getData() != null;
-        String json = new String(data, Charset.forName("UTF-8"));
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(json);
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
