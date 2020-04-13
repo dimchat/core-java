@@ -111,14 +111,14 @@ public class GroupCommand extends HistoryCommand {
      *
      */
     public Object getMember() {
-        return dictionary.get("member");
+        return get("member");
     }
 
     public void setMember(Object member) {
         if (member == null) {
-            dictionary.remove("member");
+            remove("member");
         } else {
-            dictionary.put("member", member);
+            put("member", member);
         }
     }
 
@@ -127,7 +127,7 @@ public class GroupCommand extends HistoryCommand {
      *
      */
     public List getMembers() {
-        Object members = dictionary.get("members");
+        Object members = get("members");
         if (members == null) {
             // TODO: get from 'member'?
             return null;
@@ -138,9 +138,9 @@ public class GroupCommand extends HistoryCommand {
 
     public void setMembers(List members) {
         if (members == null) {
-            dictionary.remove("members");
+            remove("members");
         } else {
-            dictionary.put("members", members);
+            put("members", members);
         }
         // TODO: remove 'member'?
     }

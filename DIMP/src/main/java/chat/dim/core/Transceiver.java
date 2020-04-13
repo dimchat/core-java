@@ -31,7 +31,6 @@
 package chat.dim.core;
 
 import java.lang.ref.WeakReference;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import chat.dim.Content;
@@ -491,10 +490,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
         // Command
         Content.register(ContentType.COMMAND, Command.class);
-        // - HandshakeCommand
         // - MetaCommand
         //   - ProfileCommand
-        // - ReceiptCommand
 
         // History
         Content.register(ContentType.HISTORY, HistoryCommand.class);

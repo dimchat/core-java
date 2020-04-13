@@ -66,13 +66,12 @@ public class HistoryCommand extends Command {
     public HistoryCommand(String command) {
         super(ContentType.HISTORY, command);
         time = new Date();
-        dictionary.put("time", getTimestamp(time));
+        put("time", getTimestamp(time));
     }
 
     private long getTimestamp(Date time) {
         return time.getTime() / 1000;
     }
-
     private Date getDate(Number timestamp) {
         return new Date(timestamp.longValue() * 1000);
     }

@@ -44,11 +44,8 @@ import chat.dim.Content;
  */
 public class TextContent extends Content {
 
-    private String text;
-
     public TextContent(Map<String, Object> dictionary) {
         super(dictionary);
-        text = (String) dictionary.get("text");
     }
 
     public TextContent(String message) {
@@ -59,11 +56,10 @@ public class TextContent extends Content {
     //-------- setter/getter --------
 
     public void setText(String message) {
-        text = message;
-        dictionary.put("text", message);
+        put("text", message);
     }
 
     public String getText() {
-        return text;
+        return (String) get("text");
     }
 }

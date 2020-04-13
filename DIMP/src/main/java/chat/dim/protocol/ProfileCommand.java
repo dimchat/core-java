@@ -70,7 +70,7 @@ public class ProfileCommand extends MetaCommand {
         super(PROFILE, identifier, meta);
         // profile
         if (profile != null) {
-            dictionary.put("profile", profile);
+            put("profile", profile);
         }
         this.profile = profile;
     }
@@ -104,7 +104,7 @@ public class ProfileCommand extends MetaCommand {
         this(identifier, null, null);
         // signature
         if (signature != null) {
-            dictionary.put("signature", signature);
+            put("signature", signature);
         }
     }
 
@@ -114,7 +114,7 @@ public class ProfileCommand extends MetaCommand {
      */
     public Profile getProfile() {
         if (profile == null) {
-            Object data = dictionary.get("profile");
+            Object data = get("profile");
             if (data instanceof String) {
                 // compatible with v1.0
                 //    "ID"        : "{ID}",
@@ -123,7 +123,7 @@ public class ProfileCommand extends MetaCommand {
                 Map<String, Object> map = new HashMap<>();
                 map.put("ID", getIdentifier());
                 map.put("data", data);
-                map.put("signature", dictionary.get("signature"));
+                map.put("signature", get("signature"));
                 data = map;
             } else {
                 // (v1.1)
@@ -141,7 +141,7 @@ public class ProfileCommand extends MetaCommand {
     }
 
     public String getSignature() {
-        return (String) dictionary.get("signature");
+        return (String) get("signature");
     }
 
     //

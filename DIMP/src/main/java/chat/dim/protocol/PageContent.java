@@ -78,7 +78,7 @@ public class PageContent extends Content {
 
     public void setURL(String urlString) {
         url = urlString;
-        dictionary.put("URL", urlString);
+        put("URL", urlString);
     }
 
     public String getURL() {
@@ -87,7 +87,7 @@ public class PageContent extends Content {
 
     public void setTitle(String text) {
         title = text;
-        dictionary.put("title", text);
+        put("title", text);
     }
 
     public String getTitle() {
@@ -96,7 +96,7 @@ public class PageContent extends Content {
 
     public void setDesc(String text) {
         desc = text;
-        dictionary.put("desc", text);
+        put("desc", text);
     }
 
     public String getDesc() {
@@ -106,9 +106,9 @@ public class PageContent extends Content {
     public void setIcon(byte[] imageData) {
         icon = imageData;
         if (imageData == null) {
-            dictionary.remove("icon");
+            remove("icon");
         } else {
-            dictionary.put("icon", Base64.encode(imageData));
+            put("icon", Base64.encode(imageData));
         }
     }
 

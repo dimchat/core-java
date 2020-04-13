@@ -47,10 +47,11 @@ import chat.dim.Content;
 public class Command extends Content {
 
     //-------- command names begin --------
-    public static final String HANDSHAKE = "handshake";
-    public static final String RECEIPT   = "receipt";
     public static final String META      = "meta";
     public static final String PROFILE   = "profile";
+    public static final String RECEIPT   = "receipt";
+    public static final String HANDSHAKE = "handshake";
+    public static final String LOGIN     = "login";
     //-------- command names end --------
 
     public final String command;
@@ -66,7 +67,7 @@ public class Command extends Content {
     protected Command(int type, String cmd) {
         super(type);
         command = cmd;
-        dictionary.put("command", cmd);
+        put("command", cmd);
     }
 
     public Command(String command) {
@@ -112,8 +113,6 @@ public class Command extends Content {
     }
 
     static {
-        // Handshake
-        register(HANDSHAKE, HandshakeCommand.class);
         // Meta
         register(META, MetaCommand.class);
         // Profile

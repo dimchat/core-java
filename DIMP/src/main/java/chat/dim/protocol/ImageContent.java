@@ -69,9 +69,9 @@ public class ImageContent extends FileContent {
     public void setThumbnail(byte[] imageData) {
         thumbnail = imageData;
         if (imageData == null) {
-            dictionary.remove("thumbnail");
+            remove("thumbnail");
         } else {
-            dictionary.put("thumbnail", Base64.encode(imageData));
+            put("thumbnail", Base64.encode(imageData));
         }
     }
 

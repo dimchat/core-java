@@ -69,9 +69,9 @@ public class VideoContent extends FileContent {
     public void setSnapshot(byte[] imageData) {
         snapshot = imageData;
         if (imageData == null) {
-            dictionary.remove("snapshot");
+            remove("snapshot");
         } else {
-            dictionary.put("snapshot", Base64.encode(imageData));
+            put("snapshot", Base64.encode(imageData));
         }
     }
 

@@ -83,9 +83,9 @@ public class FileContent extends Content {
     public void setURL(String urlString) {
         url = urlString;
         if (urlString == null) {
-            dictionary.remove("URL");
+            remove("URL");
         } else {
-            dictionary.put("URL", urlString);
+            put("URL", urlString);
         }
     }
 
@@ -125,12 +125,12 @@ public class FileContent extends Content {
             if (ext != null) {
                 filename = filename + "." + ext;
             }
-            dictionary.put("filename", filename);
+            put("filename", filename);
 
             // file data
-            dictionary.put("data", Base64.encode(fileData));
+            put("data", Base64.encode(fileData));
         } else {
-            dictionary.remove("data");
+            remove("data");
         }
     }
 
@@ -141,9 +141,9 @@ public class FileContent extends Content {
     public void setFilename(String name) {
         filename = name;
         if (name == null) {
-            dictionary.remove("filename");
+            remove("filename");
         } else {
-            dictionary.put("filename", name);
+            put("filename", name);
         }
     }
 
@@ -154,9 +154,9 @@ public class FileContent extends Content {
     public void setPassword(Map<String, Object> key) {
         password = key;
         if (key == null) {
-            dictionary.remove("password");
+            remove("password");
         } else {
-            dictionary.put("password", key);
+            put("password", key);
         }
     }
 
