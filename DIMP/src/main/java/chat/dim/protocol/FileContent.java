@@ -33,7 +33,6 @@ package chat.dim.protocol;
 import java.util.Map;
 
 import chat.dim.Content;
-import chat.dim.digest.MD5;
 import chat.dim.format.Base64;
 
 /**
@@ -48,19 +47,12 @@ import chat.dim.format.Base64;
  */
 public class FileContent extends Content {
 
-    private String url;
     private byte[] data; // file data (plaintext)
-    private String filename;
-
-    private Map<String, Object> password; // symmetric key to decrypt the encrypted data from URL
 
     @SuppressWarnings("unchecked")
     public FileContent(Map<String, Object> dictionary) {
         super(dictionary);
-        url = (String) dictionary.get("URL");
-        data = null; // NOTICE: file data should not exists here
-        filename = (String) dictionary.get("filename");
-        password = (Map<String, Object>) dictionary.get("password");
+        data = null;
     }
 
     protected FileContent(ContentType type, byte[] data, String filename) {
@@ -69,8 +61,8 @@ public class FileContent extends Content {
     protected FileContent(int type, byte[] data, String filename) {
         super(type);
         setURL(null);
-        setData(data);
         setFilename(filename);
+        setData(data);
         setPassword(null);
     }
 
@@ -81,7 +73,6 @@ public class FileContent extends Content {
     //-------- setters/getters --------
 
     public void setURL(String urlString) {
-        url = urlString;
         if (urlString == null) {
             remove("URL");
         } else {
@@ -90,43 +81,13 @@ public class FileContent extends Content {
     }
 
     public String getURL() {
-        return url;
-    }
-
-    public String getFileExt() {
-        if (filename == null) {
-            return null;
-        }
-        int pos = filename.lastIndexOf('.');
-        if (pos < 0) {
-            return null;
-        }
-        return filename.substring(pos + 1);
-    }
-
-    private static String hexEncode(byte[] data) {
-        StringBuilder sb = new StringBuilder();
-        String hex;
-        for (byte ch : data) {
-            hex = Integer.toHexString(ch & 0xFF);
-            sb.append(hex.length() == 1 ? "0" + hex : hex);
-        }
-        return sb.toString();
+        return (String) get("URL");
     }
 
     public void setData(byte[] fileData) {
         data = fileData;
 
         if (fileData != null && fileData.length > 0) {
-            byte[] hash = MD5.digest(fileData);
-            assert hash != null : "md5 error";
-            String filename = hexEncode(hash);
-            String ext = getFileExt();
-            if (ext != null) {
-                filename = filename + "." + ext;
-            }
-            put("filename", filename);
-
             // file data
             put("data", Base64.encode(fileData));
         } else {
@@ -135,11 +96,16 @@ public class FileContent extends Content {
     }
 
     public byte[] getData() {
+        if (data == null) {
+            String base64 = (String) get("data");
+            if (base64 != null) {
+                data = Base64.decode(base64);
+            }
+        }
         return data;
     }
 
     public void setFilename(String name) {
-        filename = name;
         if (name == null) {
             remove("filename");
         } else {
@@ -148,11 +114,11 @@ public class FileContent extends Content {
     }
 
     public String getFilename() {
-        return filename;
+        return (String) get("filename");
     }
 
+    // symmetric key to decrypt the encrypted data from URL
     public void setPassword(Map<String, Object> key) {
-        password = key;
         if (key == null) {
             remove("password");
         } else {
@@ -160,7 +126,8 @@ public class FileContent extends Content {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getPassword() {
-        return password;
+        return (Map<String, Object>) get("password");
     }
 }
