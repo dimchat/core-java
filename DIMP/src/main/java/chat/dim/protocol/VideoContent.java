@@ -47,21 +47,14 @@ import chat.dim.format.Base64;
  */
 public class VideoContent extends FileContent {
 
-    private byte[] snapshot;
+    private byte[] snapshot = null;
 
     public VideoContent(Map<String, Object> dictionary) {
         super(dictionary);
-        String base64 = (String) dictionary.get("snapshot");
-        if (base64 == null) {
-            snapshot = null;
-        } else {
-            snapshot = Base64.decode(base64);
-        }
     }
 
     public VideoContent(byte[] data, String filename) {
         super(ContentType.VIDEO, data, filename);
-        snapshot = null;
     }
 
     //-------- setter/getter --------
@@ -76,6 +69,12 @@ public class VideoContent extends FileContent {
     }
 
     public byte[] getSnapshot() {
+        if (snapshot == null) {
+            String base64 = (String) dictionary.get("snapshot");
+            if (base64 != null) {
+                snapshot = Base64.decode(base64);
+            }
+        }
         return snapshot;
     }
 }

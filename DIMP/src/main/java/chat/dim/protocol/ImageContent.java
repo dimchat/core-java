@@ -47,21 +47,14 @@ import chat.dim.format.Base64;
  */
 public class ImageContent extends FileContent {
 
-    private byte[] thumbnail;
+    private byte[] thumbnail = null;
 
     public ImageContent(Map<String, Object> dictionary) {
         super(dictionary);
-        String base64 = (String) dictionary.get("thumbnail");
-        if (base64 == null) {
-            thumbnail = null;
-        } else {
-            thumbnail = Base64.decode(base64);
-        }
     }
 
     public ImageContent(byte[] data, String filename) {
         super(ContentType.IMAGE, data, filename);
-        thumbnail = null;
     }
 
     //-------- setter/getter --------
@@ -76,6 +69,12 @@ public class ImageContent extends FileContent {
     }
 
     public byte[] getThumbnail() {
+        if (thumbnail == null) {
+            String base64 = (String) dictionary.get("thumbnail");
+            if (base64 != null) {
+                thumbnail = Base64.decode(base64);
+            }
+        }
         return thumbnail;
     }
 }

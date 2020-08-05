@@ -48,22 +48,10 @@ import chat.dim.format.Base64;
  */
 public class PageContent extends Content {
 
-    private String url;
-    private String title;
-    private String desc;
-    private byte[] icon;
+    private byte[] icon = null;
 
     public PageContent(Map<String, Object> dictionary) {
         super(dictionary);
-        url   = (String) dictionary.get("URL");
-        title = (String) dictionary.get("title");
-        desc  = (String) dictionary.get("desc");
-        String base64 = (String) dictionary.get("icon");
-        if (base64 == null) {
-            icon = null;
-        } else {
-            icon = Base64.decode(base64);
-        }
     }
 
     public PageContent(String url, String title, String desc, byte[] icon) {
@@ -77,30 +65,27 @@ public class PageContent extends Content {
     //-------- setters/getters --------
 
     public void setURL(String urlString) {
-        url = urlString;
         put("URL", urlString);
     }
 
     public String getURL() {
-        return url;
+        return (String) dictionary.get("URL");
     }
 
     public void setTitle(String text) {
-        title = text;
         put("title", text);
     }
 
     public String getTitle() {
-        return title;
+        return (String) dictionary.get("title");
     }
 
     public void setDesc(String text) {
-        desc = text;
         put("desc", text);
     }
 
     public String getDesc() {
-        return desc;
+        return (String) dictionary.get("desc");
     }
 
     public void setIcon(byte[] imageData) {
@@ -113,6 +98,12 @@ public class PageContent extends Content {
     }
 
     public byte[] getIcon() {
+        if (icon == null) {
+            String base64 = (String) dictionary.get("icon");
+            if (base64 != null) {
+                icon = Base64.decode(base64);
+            }
+        }
         return icon;
     }
 }
