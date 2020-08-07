@@ -31,8 +31,6 @@
 package chat.dim.protocol;
 
 import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
 import chat.dim.ReliableMessage;
 import chat.dim.crypto.SymmetricKey;
 
@@ -48,7 +46,7 @@ import java.util.Map;
  */
 public class ForwardContent extends Content {
 
-    public final ReliableMessage<ID, SymmetricKey, Meta, Profile> forwardMessage;
+    public final ReliableMessage<ID, SymmetricKey> forwardMessage;
 
     public ForwardContent(Map<String, Object> dictionary) {
         super(dictionary);
@@ -56,7 +54,7 @@ public class ForwardContent extends Content {
         forwardMessage = ReliableMessage.getInstance(dictionary.get("forward"));
     }
 
-    public ForwardContent(ReliableMessage<ID, SymmetricKey, Meta, Profile> message) {
+    public ForwardContent(ReliableMessage<ID, SymmetricKey> message) {
         super(ContentType.FORWARD);
         forwardMessage = message;
         put("forward", message);

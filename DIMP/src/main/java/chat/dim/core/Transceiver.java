@@ -39,8 +39,6 @@ import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.InstantMessageDelegate;
 import chat.dim.Message;
-import chat.dim.Meta;
-import chat.dim.Profile;
 import chat.dim.ReliableMessage;
 import chat.dim.ReliableMessageDelegate;
 import chat.dim.SecureMessage;
@@ -51,8 +49,7 @@ import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Command;
 
-public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Meta, Profile>,
-        ReliableMessageDelegate<ID, SymmetricKey, Meta, Profile> {
+public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, ReliableMessageDelegate<ID, SymmetricKey> {
 
     // delegates
     private WeakReference<EntityDelegate> entityDelegateRef = null;
@@ -89,7 +86,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     private boolean isBroadcast(Message<ID> msg) {
         ID receiver;
         if (msg instanceof InstantMessage) {
-            receiver = ((InstantMessage<ID, SymmetricKey, Meta, Profile>) msg).content.getGroup();
+            receiver = ((InstantMessage<ID, SymmetricKey>) msg).content.getGroup();
         } else {
             receiver = msg.envelope.getGroup();
         }
@@ -136,7 +133,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
         return group;
     }
 
-    public SecureMessage<ID, SymmetricKey, Meta, Profile> encryptMessage(InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
+    public SecureMessage<ID, SymmetricKey> encryptMessage(InstantMessage<ID, SymmetricKey> iMsg) {
         ID sender = iMsg.envelope.sender;
         ID receiver = iMsg.envelope.receiver;
         // if 'group' exists and the 'receiver' is a group ID,
@@ -174,7 +171,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
         }
 
         // 2. encrypt 'content' to 'data' for receiver/group members
-        SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg;
+        SecureMessage<ID, SymmetricKey> sMsg;
         if (receiver.isGroup()) {
             // group message
             Group grp = getEntityDelegate().getGroup(receiver);
@@ -207,7 +204,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
         return sMsg;
     }
 
-    public ReliableMessage<ID, SymmetricKey, Meta, Profile> signMessage(SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public ReliableMessage<ID, SymmetricKey> signMessage(SecureMessage<ID, SymmetricKey> sMsg) {
         if (sMsg.getDelegate() == null) {
             sMsg.setDelegate(this);
         }
@@ -216,12 +213,12 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
         return sMsg.sign();
     }
 
-    protected byte[] serializeMessage(ReliableMessage<ID, SymmetricKey, Meta, Profile> rMsg) {
+    protected byte[] serializeMessage(ReliableMessage<ID, SymmetricKey> rMsg) {
         return JSON.encode(rMsg);
     }
 
     @SuppressWarnings("unchecked")
-    protected ReliableMessage<ID, SymmetricKey, Meta, Profile> deserializeMessage(byte[] data) {
+    protected ReliableMessage<ID, SymmetricKey> deserializeMessage(byte[] data) {
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'S' -> 'sender'
@@ -238,7 +235,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
         return ReliableMessage.getInstance(dict);
     }
 
-    public SecureMessage<ID, SymmetricKey, Meta, Profile> verifyMessage(ReliableMessage<ID, SymmetricKey, Meta, Profile> rMsg) {
+    public SecureMessage<ID, SymmetricKey> verifyMessage(ReliableMessage<ID, SymmetricKey> rMsg) {
         //
         //  TODO: check [Meta Protocol]
         //        make sure the sender's meta exists
@@ -253,7 +250,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
         return rMsg.verify();
     }
 
-    public InstantMessage<ID, SymmetricKey, Meta, Profile> decryptMessage(SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public InstantMessage<ID, SymmetricKey> decryptMessage(SecureMessage<ID, SymmetricKey> sMsg) {
         //
         //  NOTICE: make sure the receiver is YOU!
         //          which means the receiver's private key exists;
@@ -274,7 +271,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     //-------- InstantMessageDelegate
 
     @Override
-    public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
+    public byte[] serializeContent(Content<ID> content, SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
 
@@ -283,12 +280,12 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage iMsg) {
+    public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
         return password.encrypt(data);
     }
 
     @Override
-    public Object encodeData(byte[] data, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
+    public Object encodeData(byte[] data, InstantMessage<ID, SymmetricKey> iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
@@ -298,7 +295,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
+    public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
@@ -307,7 +304,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public byte[] encryptKey(byte[] data, ID receiver, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
+    public byte[] encryptKey(byte[] data, ID receiver, InstantMessage<ID, SymmetricKey> iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         // TODO: make sure the receiver's public key exists
         User contact = getEntityDelegate().getUser(receiver);
@@ -317,7 +314,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public Object encodeKey(byte[] key, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
+    public Object encodeKey(byte[] key, InstantMessage<ID, SymmetricKey> iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         return Base64.encode(key);
     }
@@ -325,13 +322,13 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     //-------- SecureMessageDelegate
 
     @Override
-    public byte[] decodeKey(Object key, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public byte[] decodeKey(Object key, SecureMessage<ID, SymmetricKey> sMsg) {
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         return Base64.decode((String) key);
     }
 
     @Override
-    public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey> sMsg) {
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
         ID identifier = sMsg.envelope.receiver;
@@ -341,7 +338,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey> sMsg) {
         if (key == null) {
             // get key from cache
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
@@ -366,7 +363,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public byte[] decodeData(Object data, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public byte[] decodeData(Object data, SecureMessage<ID, SymmetricKey> sMsg) {
         if (isBroadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
@@ -376,12 +373,12 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+    public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage<ID, SymmetricKey> sMsg) {
         return password.decrypt(data);
     }
 
     @Override
-    public Content<ID> deserializeContent(byte[] data, SymmetricKey password, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
+    public Content<ID> deserializeContent(byte[] data, SymmetricKey password, SecureMessage<ID, SymmetricKey> sMsg) {
         assert sMsg.getData() != null;
         //noinspection unchecked
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
@@ -414,50 +411,28 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Met
     }
 
     @Override
-    public byte[] signData(byte[] data, ID sender, SecureMessage sMsg) {
+    public byte[] signData(byte[] data, ID sender, SecureMessage<ID, SymmetricKey> sMsg) {
         User user = getEntityDelegate().getUser(sender);
         assert user != null : "failed to get sign key for sender: " + sender;
         return user.sign(data);
     }
 
     @Override
-    public Object encodeSignature(byte[] signature, SecureMessage sMsg) {
+    public Object encodeSignature(byte[] signature, SecureMessage<ID, SymmetricKey> sMsg) {
         return Base64.encode(signature);
     }
 
     //-------- ReliableMessageDelegate
 
     @Override
-    public byte[] decodeSignature(Object signature, ReliableMessage rMsg) {
+    public byte[] decodeSignature(Object signature, ReliableMessage<ID, SymmetricKey> rMsg) {
         return Base64.decode((String) signature);
     }
 
     @Override
-    public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
+    public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
         User contact = getEntityDelegate().getUser(sender);
         assert contact != null : "failed to get verify key for sender: " + sender;
         return contact.verify(data, signature);
-    }
-
-    //
-    //  Extra info parser for ReliableMessage
-    //
-    static {
-        ReliableMessage.parser = new ReliableMessage.Parser() {
-            @Override
-            public Object getMeta(Object meta) {
-                try {
-                    return Meta.getInstance(meta);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            public Object getProfile(Object profile) {
-                return Profile.getInstance(profile);
-            }
-        };
     }
 }

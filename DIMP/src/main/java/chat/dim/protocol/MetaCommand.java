@@ -35,7 +35,6 @@ import java.util.Map;
 import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.Meta;
-import chat.dim.ReliableMessage;
 
 /**
  *  Command message: {
@@ -96,7 +95,12 @@ public class MetaCommand extends Command {
      *
      */
     public Meta getMeta() {
-        return (Meta) ReliableMessage.parser.getMeta(get("meta"));
+        try {
+            return Meta.getInstance(get("meta"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     //
