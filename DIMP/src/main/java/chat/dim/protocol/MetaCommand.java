@@ -32,8 +32,10 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.Meta;
+import chat.dim.ReliableMessage;
 
 /**
  *  Command message: {
@@ -47,12 +49,8 @@ import chat.dim.Meta;
  */
 public class MetaCommand extends Command {
 
-    private Meta meta;
-
     public MetaCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        // lazy
-        meta = null;
     }
 
     MetaCommand(String command, Object identifier, Meta meta) {
@@ -64,7 +62,6 @@ public class MetaCommand extends Command {
         if (meta != null) {
             put("meta", meta);
         }
-        this.meta = meta;
     }
 
     /**
@@ -90,20 +87,16 @@ public class MetaCommand extends Command {
      *  Entity ID (or String)
      *
      */
-    public Object getIdentifier() {
-        return get("ID");
+    public ID getIdentifier() {
+        return (ID) Envelope.parser.getID(get("ID"));
     }
 
     /*
      *  Entity Meta
      *
      */
-    public Meta getMeta() throws ClassNotFoundException {
-        if (meta == null) {
-            Object dict = get("meta");
-            meta = Meta.getInstance(dict);
-        }
-        return meta;
+    public Meta getMeta() {
+        return (Meta) ReliableMessage.parser.getMeta(get("meta"));
     }
 
     //

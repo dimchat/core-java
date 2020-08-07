@@ -36,6 +36,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
+import chat.dim.ReliableMessage;
 
 /**
  *  Command message: {
@@ -135,7 +136,7 @@ public class ProfileCommand extends MetaCommand {
                 //    }
                 assert data == null || data instanceof Map: "profile data error: " + data;
             }
-            profile = Profile.getInstance(data);
+            profile = (Profile) ReliableMessage.parser.getProfile(data);
         }
         return profile;
     }
