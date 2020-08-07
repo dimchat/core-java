@@ -30,9 +30,10 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.ID;
-
+import java.util.HashMap;
 import java.util.Map;
+
+import chat.dim.ID;
 
 public class Content extends chat.dim.Content<ID> {
 
@@ -46,6 +47,45 @@ public class Content extends chat.dim.Content<ID> {
 
     protected Content(int msgType) {
         super(msgType);
+    }
+
+    //-------- Runtime --------
+
+    private static Map<Integer, Class> contentClasses = new HashMap<>();
+
+    public static void register(ContentType type, Class clazz) {
+        register(type.value, clazz);
+    }
+
+    public static void register(int type, Class clazz) {
+        if (clazz == null) {
+            contentClasses.remove(type);
+        } else if (clazz.equals(Content.class)) {
+            throw new IllegalArgumentException("should not add Content itself!");
+        } else {
+            assert Content.class.isAssignableFrom(clazz) : "error: " + clazz;
+            contentClasses.put(type, clazz);
+        }
+    }
+
+    public static Content getInstance(Object object) {
+        if (object == null) {
+            return null;
+        }
+        //noinspection unchecked
+        Map<String, Object> dictionary = (Map<String, Object>) object;
+        // create instance by subclass (with content type)
+        int type = (int) dictionary.get("type");
+        Class clazz = contentClasses.get(type);
+        //noinspection unchecked
+        if (clazz != null && !clazz.isAssignableFrom(object.getClass())) {
+            return (Content) createInstance(clazz, dictionary);
+        }
+        if (object instanceof Content) {
+            // return Content object directly
+            return (Content) object;
+        }
+        return new Content(dictionary);
     }
 
     static {

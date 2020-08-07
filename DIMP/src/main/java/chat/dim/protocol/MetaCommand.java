@@ -32,7 +32,6 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.Meta;
 
@@ -87,7 +86,7 @@ public class MetaCommand extends Command {
      *
      */
     public ID getIdentifier() {
-        return (ID) Envelope.parser.getID(get("ID"));
+        return getDelegate().getID(get("ID"));
     }
 
     /*

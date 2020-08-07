@@ -86,12 +86,12 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     private boolean isBroadcast(Message<ID> msg) {
         ID receiver;
         if (msg instanceof InstantMessage) {
-            receiver = ((InstantMessage<ID, SymmetricKey>) msg).content.getGroup();
+            receiver = ((InstantMessage<ID, SymmetricKey>) msg).getContent().getGroup();
         } else {
             receiver = msg.envelope.getGroup();
         }
         if (receiver == null) {
-            receiver = msg.envelope.receiver;
+            receiver = msg.envelope.getReceiver();
         }
         return receiver != null && receiver.isBroadcast();
     }
@@ -134,8 +134,8 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     }
 
     public SecureMessage<ID, SymmetricKey> encryptMessage(InstantMessage<ID, SymmetricKey> iMsg) {
-        ID sender = iMsg.envelope.sender;
-        ID receiver = iMsg.envelope.receiver;
+        ID sender = iMsg.envelope.getSender();
+        ID receiver = iMsg.envelope.getReceiver();
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
 
@@ -153,7 +153,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
-        ID group = getOvertGroup(iMsg.content);
+        ID group = getOvertGroup(iMsg.getContent());
         SymmetricKey password;
         if (group == null) {
             // personal message or (group) command
@@ -198,7 +198,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
         // NOTICE: copy content type to envelope
         //         this help the intermediate nodes to recognize message type
-        sMsg.envelope.setType(iMsg.content.type);
+        sMsg.envelope.setType(iMsg.getContent().type);
 
         // OK
         return sMsg;
@@ -268,6 +268,20 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         //       (do it by application)
     }
 
+    //-------- MessageDelegate
+
+    @Override
+    public ID getID(Object identifier) {
+        return getEntityDelegate().getID(identifier);
+    }
+
+    @Override
+    public Content<ID> getContent(Object contentMap) {
+        Content<ID> content = chat.dim.protocol.Content.getInstance(contentMap);
+        content.setDelegate(this);
+        return content;
+    }
+
     //-------- InstantMessageDelegate
 
     @Override
@@ -275,7 +289,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
 
-        assert content == iMsg.content : "message content not match: " + content;
+        assert content == iMsg.getContent() : "message content not match: " + content;
         return JSON.encode(content);
     }
 
@@ -331,7 +345,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey> sMsg) {
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
-        ID identifier = sMsg.envelope.receiver;
+        ID identifier = sMsg.envelope.getReceiver();
         User user = getEntityDelegate().getUser(identifier);
         assert user != null : "failed to get decrypt keys: " + identifier;
         return user.decrypt(key);
@@ -387,14 +401,14 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         //       'N' -> 'sn'
         //       'G' -> 'group'
         //noinspection unchecked
-        Content<ID> content = Content.getInstance(dict);
+        Content<ID> content = getContent(dict);
 
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
-            ID sender = sMsg.envelope.sender;
+            ID sender = sMsg.envelope.getSender();
             ID group = getOvertGroup(content);
             if (group == null) {
-                ID receiver = sMsg.envelope.receiver;
+                ID receiver = sMsg.envelope.getReceiver();
                 // personal message or (group) command
                 // cache key with direction (sender -> receiver)
                 getCipherKeyDelegate().cacheCipherKey(sender, receiver, password);
