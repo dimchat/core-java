@@ -33,8 +33,6 @@ package chat.dim.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Content;
-
 /**
  *  Command message: {
  *      type : 0x88,

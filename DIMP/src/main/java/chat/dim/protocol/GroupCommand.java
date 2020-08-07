@@ -34,7 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.protocol.group.*;
+import chat.dim.protocol.group.ExpelCommand;
+import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.JoinCommand;
+import chat.dim.protocol.group.QueryCommand;
+import chat.dim.protocol.group.QuitCommand;
+import chat.dim.protocol.group.ResetCommand;
 
 public class GroupCommand extends HistoryCommand {
 

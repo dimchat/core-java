@@ -39,26 +39,20 @@ import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.InstantMessageDelegate;
 import chat.dim.Message;
+import chat.dim.Meta;
+import chat.dim.Profile;
 import chat.dim.ReliableMessage;
 import chat.dim.ReliableMessageDelegate;
 import chat.dim.SecureMessage;
-import chat.dim.SecureMessageDelegate;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
-import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.FileContent;
-import chat.dim.protocol.HistoryCommand;
-import chat.dim.protocol.ImageContent;
-import chat.dim.protocol.PageContent;
-import chat.dim.protocol.TextContent;
-import chat.dim.protocol.VideoContent;
 
-public class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
+public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey, Meta, Profile>,
+        ReliableMessageDelegate<ID, SymmetricKey, Meta, Profile> {
 
     // delegates
     private WeakReference<EntityDelegate> entityDelegateRef = null;
@@ -92,27 +86,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     //--------
 
-    private boolean isBroadcast(Message msg) {
-        Object receiver;
+    private boolean isBroadcast(Message<ID> msg) {
+        ID receiver;
         if (msg instanceof InstantMessage) {
-            receiver = ((InstantMessage) msg).content.getGroup();
+            receiver = ((InstantMessage<ID, SymmetricKey, Meta, Profile>) msg).content.getGroup();
         } else {
             receiver = msg.envelope.getGroup();
         }
         if (receiver == null) {
             receiver = msg.envelope.receiver;
         }
-        ID identifier = getEntityDelegate().getID(receiver);
-        return identifier != null && identifier.isBroadcast();
-    }
-
-    protected SymmetricKey getSymmetricKey(Map<String, Object> password) {
-        try {
-            return SymmetricKey.getInstance(password);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return receiver != null && receiver.isBroadcast();
     }
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
@@ -135,28 +119,26 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
 
     //-------- Transform
 
-    private ID getOvertGroup(Content content) {
-        Object group = content.getGroup();
+    private ID getOvertGroup(Content<ID> content) {
+        ID group = content.getGroup();
         if (group == null) {
             return null;
         }
-        ID identifier = getEntityDelegate().getID(group);
-        if (identifier.isBroadcast()) {
+        if (group.isBroadcast()) {
             // broadcast message is always overt
-            return identifier;
+            return group;
         }
         if (content instanceof Command) {
             // group command should be sent to each member directly, so
             // don't expose group ID
             return null;
         }
-        return identifier;
+        return group;
     }
 
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
-        EntityDelegate barrack = getEntityDelegate();
-        ID sender = barrack.getID(iMsg.envelope.sender);
-        ID receiver = barrack.getID(iMsg.envelope.receiver);
+    public SecureMessage<ID, SymmetricKey, Meta, Profile> encryptMessage(InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
+        ID sender = iMsg.envelope.sender;
+        ID receiver = iMsg.envelope.receiver;
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
 
@@ -192,10 +174,10 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         }
 
         // 2. encrypt 'content' to 'data' for receiver/group members
-        SecureMessage sMsg;
+        SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg;
         if (receiver.isGroup()) {
             // group message
-            Group grp = barrack.getGroup(receiver);
+            Group grp = getEntityDelegate().getGroup(receiver);
             sMsg = iMsg.encrypt(password, grp.getMembers());
         } else {
             // personal message (or split group message)
@@ -225,7 +207,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return sMsg;
     }
 
-    public ReliableMessage signMessage(SecureMessage sMsg) {
+    public ReliableMessage<ID, SymmetricKey, Meta, Profile> signMessage(SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         if (sMsg.getDelegate() == null) {
             sMsg.setDelegate(this);
         }
@@ -234,12 +216,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return sMsg.sign();
     }
 
-    protected byte[] serializeMessage(ReliableMessage rMsg) {
+    protected byte[] serializeMessage(ReliableMessage<ID, SymmetricKey, Meta, Profile> rMsg) {
         return JSON.encode(rMsg);
     }
 
     @SuppressWarnings("unchecked")
-    protected ReliableMessage deserializeMessage(byte[] data) {
+    protected ReliableMessage<ID, SymmetricKey, Meta, Profile> deserializeMessage(byte[] data) {
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'S' -> 'sender'
@@ -256,7 +238,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return ReliableMessage.getInstance(dict);
     }
 
-    public SecureMessage verifyMessage(ReliableMessage rMsg) {
+    public SecureMessage<ID, SymmetricKey, Meta, Profile> verifyMessage(ReliableMessage<ID, SymmetricKey, Meta, Profile> rMsg) {
         //
         //  TODO: check [Meta Protocol]
         //        make sure the sender's meta exists
@@ -271,7 +253,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
         return rMsg.verify();
     }
 
-    public InstantMessage decryptMessage(SecureMessage sMsg) {
+    public InstantMessage<ID, SymmetricKey, Meta, Profile> decryptMessage(SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         //
         //  NOTICE: make sure the receiver is YOU!
         //          which means the receiver's private key exists;
@@ -292,7 +274,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- InstantMessageDelegate
 
     @Override
-    public byte[] serializeContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
+    public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
 
@@ -301,14 +283,12 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    public byte[] encryptContent(byte[] data, Map<String, Object> password, InstantMessage iMsg) {
-        SymmetricKey key = getSymmetricKey(password);
-        assert key != null && key == password : "irregular symmetric key: " + password;
-        return key.encrypt(data);
+    public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage iMsg) {
+        return password.encrypt(data);
     }
 
     @Override
-    public Object encodeData(byte[] data, InstantMessage iMsg) {
+    public Object encodeData(byte[] data, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
@@ -318,7 +298,7 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
+    public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
@@ -327,18 +307,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    public byte[] encryptKey(byte[] data, Object receiver, InstantMessage iMsg) {
+    public byte[] encryptKey(byte[] data, ID receiver, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         // TODO: make sure the receiver's public key exists
-        EntityDelegate barrack = getEntityDelegate();
-        User contact = barrack.getUser(barrack.getID(receiver));
+        User contact = getEntityDelegate().getUser(receiver);
         assert contact != null : "failed to get encrypt key for receiver: " + receiver;
         // encrypt with receiver's public key
         return contact.encrypt(data);
     }
 
     @Override
-    public Object encodeKey(byte[] key, InstantMessage iMsg) {
+    public Object encodeKey(byte[] key, InstantMessage<ID, SymmetricKey, Meta, Profile> iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         return Base64.encode(key);
     }
@@ -346,35 +325,30 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     //-------- SecureMessageDelegate
 
     @Override
-    public byte[] decodeKey(Object key, SecureMessage sMsg) {
+    public byte[] decodeKey(Object key, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         return Base64.decode((String) key);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public byte[] decryptKey(byte[] key, Object sender, Object receiver, SecureMessage sMsg) {
+    public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
-        EntityDelegate barrack = getEntityDelegate();
-        ID identifier = barrack.getID(sMsg.envelope.receiver);
-        User user = barrack.getUser(identifier);
+        ID identifier = sMsg.envelope.receiver;
+        User user = getEntityDelegate().getUser(identifier);
         assert user != null : "failed to get decrypt keys: " + identifier;
         return user.decrypt(key);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> deserializeKey(byte[] key, Object sender, Object receiver, SecureMessage sMsg) {
+    public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         if (key == null) {
             // get key from cache
-            EntityDelegate barrack = getEntityDelegate();
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
-            ID from = barrack.getID(sender);
-            ID to = barrack.getID(receiver);
-            return keyCache.getCipherKey(from, to);
+            return keyCache.getCipherKey(sender, receiver);
         } else {
             assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+            //noinspection unchecked
             Map<String, Object> dict = (Map<String, Object>) JSON.decode(key);
             // TODO: translate short keys
             //       'A' -> 'algorithm'
@@ -382,12 +356,17 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
             //       'V' -> 'iv'
             //       'M' -> 'mode'
             //       'P' -> 'padding'
-            return getSymmetricKey(dict);
+            try {
+                return SymmetricKey.getInstance(dict);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 
     @Override
-    public byte[] decodeData(Object data, SecureMessage sMsg) {
+    public byte[] decodeData(Object data, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         if (isBroadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
@@ -397,42 +376,35 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public byte[] decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
-        SymmetricKey key = getSymmetricKey(password);
-        if (key == null) {
-            throw new NullPointerException("irregular symmetric key: " + password);
-        }
-        return key.decrypt(data);
+    public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+        return password.decrypt(data);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Content deserializeContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
+    public Content<ID> deserializeContent(byte[] data, SymmetricKey password, SecureMessage<ID, SymmetricKey, Meta, Profile> sMsg) {
         assert sMsg.getData() != null;
+        //noinspection unchecked
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
         //       'G' -> 'group'
-        Content content = Content.getInstance(dict);
+        //noinspection unchecked
+        Content<ID> content = Content.getInstance(dict);
 
         if (!isBroadcast(sMsg)) {
-            SymmetricKey key = getSymmetricKey(password);
-            assert key == password : "irregular symmetric key: " + password;
             // check and cache key for reuse
-            EntityDelegate barrack = getEntityDelegate();
-            ID sender = barrack.getID(sMsg.envelope.sender);
+            ID sender = sMsg.envelope.sender;
             ID group = getOvertGroup(content);
             if (group == null) {
-                ID receiver = barrack.getID(sMsg.envelope.receiver);
+                ID receiver = sMsg.envelope.receiver;
                 // personal message or (group) command
                 // cache key with direction (sender -> receiver)
-                getCipherKeyDelegate().cacheCipherKey(sender, receiver, key);
+                getCipherKeyDelegate().cacheCipherKey(sender, receiver, password);
             } else {
                 // group message (excludes group command)
                 // cache the key with direction (sender -> group)
-                getCipherKeyDelegate().cacheCipherKey(sender, group, key);
+                getCipherKeyDelegate().cacheCipherKey(sender, group, password);
             }
         }
 
@@ -442,10 +414,8 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    public byte[] signData(byte[] data, Object sender, SecureMessage sMsg) {
-        EntityDelegate barrack = getEntityDelegate();
-        ID from = barrack.getID(sender);
-        User user = barrack.getUser(from);
+    public byte[] signData(byte[] data, ID sender, SecureMessage sMsg) {
+        User user = getEntityDelegate().getUser(sender);
         assert user != null : "failed to get sign key for sender: " + sender;
         return user.sign(data);
     }
@@ -463,46 +433,31 @@ public class Transceiver implements InstantMessageDelegate, SecureMessageDelegat
     }
 
     @Override
-    public boolean verifyDataSignature(byte[] data, byte[] signature, Object sender, ReliableMessage rMsg) {
-        EntityDelegate barrack = getEntityDelegate();
-        User contact = barrack.getUser(barrack.getID(sender));
+    public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
+        User contact = getEntityDelegate().getUser(sender);
         assert contact != null : "failed to get verify key for sender: " + sender;
         return contact.verify(data, signature);
     }
 
+    //
+    //  Extra info parser for ReliableMessage
+    //
     static {
-        // Text
-        Content.register(ContentType.TEXT, TextContent.class);
+        ReliableMessage.parser = new ReliableMessage.Parser() {
+            @Override
+            public Object getMeta(Object meta) {
+                try {
+                    return Meta.getInstance(meta);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
 
-        // File
-        Content.register(ContentType.FILE, FileContent.class);
-        // - Image
-        Content.register(ContentType.IMAGE, ImageContent.class);
-        // - Audio
-        Content.register(ContentType.AUDIO, AudioContent.class);
-        // - Video
-        Content.register(ContentType.VIDEO, VideoContent.class);
-
-        // Page
-        Content.register(ContentType.PAGE, PageContent.class);
-
-        // Quote
-
-        // Command
-        Content.register(ContentType.COMMAND, Command.class);
-        // - MetaCommand
-        //   - ProfileCommand
-
-        // History
-        Content.register(ContentType.HISTORY, HistoryCommand.class);
-        // - GroupCommand
-        //   - InviteCommand
-        //   - ExpelCommand
-        //   - JoinCommand
-        //   - QuitCommand
-        //   - QueryCommand
-        //   - ResetCommand
-
-        // ...
+            @Override
+            public Object getProfile(Object profile) {
+                return Profile.getInstance(profile);
+            }
+        };
     }
 }

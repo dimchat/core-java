@@ -30,34 +30,60 @@
  */
 package chat.dim.protocol;
 
+import chat.dim.ID;
+
 import java.util.Map;
 
-/**
- *  Text message: {
- *      type : 0x01,
- *      sn   : 123,
- *
- *      text : "..."
- *  }
- */
-public class TextContent extends Content {
+public class Content extends chat.dim.Content<ID> {
 
-    public TextContent(Map<String, Object> dictionary) {
+    protected Content(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
-    public TextContent(String message) {
-        super(ContentType.TEXT);
-        setText(message);
+    protected Content(ContentType msgType) {
+        super(msgType);
     }
 
-    //-------- setter/getter --------
-
-    public void setText(String message) {
-        put("text", message);
+    protected Content(int msgType) {
+        super(msgType);
     }
 
-    public String getText() {
-        return (String) get("text");
+    static {
+        // Forward content for Top-Secret message
+        register(ContentType.FORWARD, ForwardContent.class);
+
+        // Text
+        register(ContentType.TEXT, TextContent.class);
+
+        // File
+        register(ContentType.FILE, FileContent.class);
+        // - Image
+        register(ContentType.IMAGE, ImageContent.class);
+        // - Audio
+        register(ContentType.AUDIO, AudioContent.class);
+        // - Video
+        register(ContentType.VIDEO, VideoContent.class);
+
+        // Page
+        register(ContentType.PAGE, PageContent.class);
+
+        // Quote
+
+        // Command
+        register(ContentType.COMMAND, Command.class);
+        // - MetaCommand
+        //   - ProfileCommand
+
+        // History
+        register(ContentType.HISTORY, HistoryCommand.class);
+        // - GroupCommand
+        //   - InviteCommand
+        //   - ExpelCommand
+        //   - JoinCommand
+        //   - QuitCommand
+        //   - QueryCommand
+        //   - ResetCommand
+
+        // ...
     }
 }
