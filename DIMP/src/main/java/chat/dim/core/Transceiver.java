@@ -84,6 +84,10 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     //--------
 
     private boolean isBroadcast(Message<ID> msg) {
+        // check message delegate
+        if (msg.getDelegate() == null) {
+            msg.setDelegate(this);
+        }
         ID receiver;
         if (msg instanceof InstantMessage) {
             receiver = ((InstantMessage<ID, SymmetricKey>) msg).getContent().getGroup();
@@ -134,6 +138,10 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     }
 
     public SecureMessage<ID, SymmetricKey> encryptMessage(InstantMessage<ID, SymmetricKey> iMsg) {
+        // check message delegate
+        if (iMsg.getDelegate() == null) {
+            iMsg.setDelegate(this);
+        }
         ID sender = iMsg.envelope.getSender();
         ID receiver = iMsg.envelope.getReceiver();
         // if 'group' exists and the 'receiver' is a group ID,
@@ -163,11 +171,6 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
             // group message (excludes group command)
             password = getSymmetricKey(sender, group);
             assert password != null : "failed to get msg key: " + sender + " -> " + group;
-        }
-
-        // check message delegate
-        if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(this);
         }
 
         // 2. encrypt 'content' to 'data' for receiver/group members
@@ -205,6 +208,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     }
 
     public ReliableMessage<ID, SymmetricKey> signMessage(SecureMessage<ID, SymmetricKey> sMsg) {
+        // check message delegate
         if (sMsg.getDelegate() == null) {
             sMsg.setDelegate(this);
         }
@@ -236,30 +240,32 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     }
 
     public SecureMessage<ID, SymmetricKey> verifyMessage(ReliableMessage<ID, SymmetricKey> rMsg) {
+        // check message delegate
+        if (rMsg.getDelegate() == null) {
+            rMsg.setDelegate(this);
+        }
         //
         //  TODO: check [Meta Protocol]
         //        make sure the sender's meta exists
         //        (do in by application)
         //
 
-        if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(this);
-        }
         assert rMsg.getSignature() != null : "message signature cannot be empty";
         // verify 'data' with 'signature'
         return rMsg.verify();
     }
 
     public InstantMessage<ID, SymmetricKey> decryptMessage(SecureMessage<ID, SymmetricKey> sMsg) {
+        // check message delegate
+        if (sMsg.getDelegate() == null) {
+            sMsg.setDelegate(this);
+        }
         //
         //  NOTICE: make sure the receiver is YOU!
         //          which means the receiver's private key exists;
         //          if the receiver is a group ID, split it first
         //
 
-        if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(this);
-        }
         assert sMsg.getData() != null : "message data cannot be empty";
         // decrypt 'data' to 'content'
         return sMsg.decrypt();
