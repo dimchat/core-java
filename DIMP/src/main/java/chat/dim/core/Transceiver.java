@@ -170,7 +170,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         } else {
             // group message (excludes group command)
             password = getSymmetricKey(sender, group);
-            assert password != null : "failed to get msg key: " + sender + " -> " + group;
+            assert password != null : "failed to get group msg key: " + sender + " -> " + group;
         }
 
         // 2. encrypt 'content' to 'data' for receiver/group members
@@ -178,6 +178,9 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         if (receiver.isGroup()) {
             // group message
             Group grp = getEntityDelegate().getGroup(receiver);
+            if (grp == null) {
+                throw new NullPointerException("failed to get group: " + receiver);
+            }
             sMsg = iMsg.encrypt(password, grp.getMembers());
         } else {
             // personal message (or split group message)
@@ -292,6 +295,10 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
     @Override
     public byte[] serializeContent(Content<ID> content, SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
+        // check message delegate
+        if (iMsg.getDelegate() == null) {
+            iMsg.setDelegate(this);
+        }
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
 
@@ -349,6 +356,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
     @Override
     public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey> sMsg) {
+        // NOTICE: the receiver will be group ID in a group message here
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
         ID identifier = sMsg.envelope.getReceiver();
@@ -359,6 +367,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
     @Override
     public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey> sMsg) {
+        // NOTICE: the receiver will be group ID in a group message here
         if (key == null) {
             // get key from cache
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
