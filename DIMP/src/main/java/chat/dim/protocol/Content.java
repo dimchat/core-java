@@ -68,22 +68,20 @@ public class Content extends chat.dim.Content<ID> {
         }
     }
 
-    public static Content getInstance(Object object) {
-        if (object == null) {
+    @SuppressWarnings("unchecked")
+    public static Content getInstance(Map<String, Object> dictionary) {
+        if (dictionary == null) {
             return null;
         }
-        //noinspection unchecked
-        Map<String, Object> dictionary = (Map<String, Object>) object;
         // create instance by subclass (with content type)
         int type = (int) dictionary.get("type");
         Class clazz = contentClasses.get(type);
-        //noinspection unchecked
-        if (clazz != null && !clazz.isAssignableFrom(object.getClass())) {
+        if (clazz != null && !clazz.isAssignableFrom(dictionary.getClass())) {
             return (Content) createInstance(clazz, dictionary);
         }
-        if (object instanceof Content) {
+        if (dictionary instanceof Content) {
             // return Content object directly
-            return (Content) object;
+            return (Content) dictionary;
         }
         return new Content(dictionary);
     }

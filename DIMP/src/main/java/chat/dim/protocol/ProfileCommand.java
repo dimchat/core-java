@@ -112,6 +112,7 @@ public class ProfileCommand extends MetaCommand {
      * Profile
      *
      */
+    @SuppressWarnings("unchecked")
     public Profile getProfile() {
         if (profile == null) {
             Object data = get("profile");
@@ -135,7 +136,7 @@ public class ProfileCommand extends MetaCommand {
                 //    }
                 assert data == null || data instanceof Map: "profile data error: " + data;
             }
-            profile = Profile.getInstance(data);
+            profile = Profile.getInstance((Map<String, Object>) data);
         }
         return profile;
     }

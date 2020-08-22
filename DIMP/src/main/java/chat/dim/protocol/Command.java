@@ -93,18 +93,17 @@ public class Command extends Content {
     }
 
     @SuppressWarnings("unchecked")
-    public static Command getInstance(Object object) {
-        if (object == null) {
+    public static Command getInstance(Map<String, Object> dictionary) {
+        if (dictionary == null) {
             return null;
-        } else if (object instanceof Command) {
-            return (Command) object;
         }
-        assert object instanceof Map : "command error: " + object;
-        Map<String, Object> dictionary = (Map<String, Object>) object;
+        // create instance by subclass (with command name)
         Class clazz = commandClass(dictionary);
-        if (clazz != null) {
-            // create instance by subclass (with command name)
+        if (clazz != null && !clazz.isAssignableFrom(dictionary.getClass())) {
             return (Command) createInstance(clazz, dictionary);
+        }
+        if (dictionary instanceof Command) {
+            return (Command) dictionary;
         }
         // custom command
         return new Command(dictionary);

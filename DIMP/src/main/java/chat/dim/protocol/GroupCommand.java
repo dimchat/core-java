@@ -153,19 +153,18 @@ public class GroupCommand extends HistoryCommand {
     //-------- Runtime --------
 
     @SuppressWarnings("unchecked")
-    public static GroupCommand getInstance(Object object) {
-        if (object == null) {
+    public static GroupCommand getInstance(Map<String, Object> dictionary) {
+        if (dictionary == null) {
             return null;
-        } else if (object instanceof GroupCommand) {
-            // return GroupCommand object directly
-            return (GroupCommand) object;
         }
-        assert object instanceof Map : "group command error: " + object;
-        Map<String, Object> dictionary = (Map<String, Object>) object;
         Class clazz = commandClass(dictionary);
-        if (clazz != null) {
+        if (clazz != null && !clazz.isAssignableFrom(dictionary.getClass())) {
             // create instance by subclass (with command name)
             return (GroupCommand) createInstance(clazz, dictionary);
+        }
+        if (dictionary instanceof GroupCommand) {
+            // return GroupCommand object directly
+            return (GroupCommand) dictionary;
         }
         // custom group command
         return new GroupCommand(dictionary);

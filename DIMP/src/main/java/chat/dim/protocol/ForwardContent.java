@@ -48,10 +48,15 @@ public class ForwardContent extends Content {
 
     public final ReliableMessage<ID, SymmetricKey> forwardMessage;
 
+    @SuppressWarnings("unchecked")
     public ForwardContent(Map<String, Object> dictionary) {
         super(dictionary);
-        //noinspection unchecked
-        forwardMessage = ReliableMessage.getInstance(dictionary.get("forward"));
+        Object info = dictionary.get("forward");
+        if (info instanceof Map) {
+            forwardMessage = ReliableMessage.getInstance((Map<String, Object>) info);
+        } else {
+            throw new NullPointerException("forward message not found");
+        }
     }
 
     public ForwardContent(ReliableMessage<ID, SymmetricKey> message) {

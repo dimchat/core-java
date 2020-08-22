@@ -93,13 +93,17 @@ public class MetaCommand extends Command {
      *  Entity Meta
      *
      */
+    @SuppressWarnings("unchecked")
     public Meta getMeta() {
         try {
-            return Meta.getInstance(get("meta"));
+            Object info = get("meta");
+            if (info instanceof Map) {
+                return Meta.getInstance((Map<String, Object>) info);
+            }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     //

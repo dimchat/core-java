@@ -119,7 +119,7 @@ public abstract class KeyCache implements CipherKeyDelegate {
             Map<String, Object> table = entry1.getValue();
             for (Map.Entry<String, Object> entity2 : table.entrySet()) {
                 ID to = ID.getInstance(entity2.getKey());
-                SymmetricKey newKey = SymmetricKey.getInstance(entity2.getValue());
+                SymmetricKey newKey = SymmetricKey.getInstance((Map<String, Object>) entity2.getValue());
                 assert newKey != null : "key error(" + from + " -> " + to + "): " + entity2.getValue();
                 // check whether exists an old key
                 SymmetricKey oldKey = getKey(from, to);

@@ -79,19 +79,18 @@ public class HistoryCommand extends Command {
     //-------- Runtime --------
 
     @SuppressWarnings("unchecked")
-    public static HistoryCommand getInstance(Object object) {
-        if (object == null) {
+    public static HistoryCommand getInstance(Map<String, Object> dictionary) {
+        if (dictionary == null) {
             return null;
-        } else if (object instanceof HistoryCommand) {
-            // return HistoryCommand object directly
-            return (HistoryCommand) object;
         }
-        assert object instanceof Map : "history error: " + object;
-        Map<String, Object> dictionary = (Map<String, Object>) object;
         // check group
         if (dictionary.get("group") != null) {
             // create instance as group command
             return GroupCommand.getInstance(dictionary);
+        }
+        if (dictionary instanceof HistoryCommand) {
+            // return HistoryCommand object directly
+            return (HistoryCommand) dictionary;
         }
         // custom history command
         return new HistoryCommand(dictionary);

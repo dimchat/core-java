@@ -285,8 +285,8 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
     }
 
     @Override
-    public Content<ID> getContent(Object contentMap) {
-        Content<ID> content = chat.dim.protocol.Content.getInstance(contentMap);
+    public Content<ID> getContent(Map<String, Object> dictionary) {
+        Content<ID> content = chat.dim.protocol.Content.getInstance(dictionary);
         content.setDelegate(this);
         return content;
     }
@@ -365,6 +365,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         return user.decrypt(key);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage<ID, SymmetricKey> sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
@@ -374,7 +375,6 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
             return keyCache.getCipherKey(sender, receiver);
         } else {
             assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-            //noinspection unchecked
             Map<String, Object> dict = (Map<String, Object>) JSON.decode(key);
             // TODO: translate short keys
             //       'A' -> 'algorithm'
@@ -406,16 +406,15 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         return password.decrypt(data);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Content<ID> deserializeContent(byte[] data, SymmetricKey password, SecureMessage<ID, SymmetricKey> sMsg) {
         assert sMsg.getData() != null;
-        //noinspection unchecked
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
         //       'G' -> 'group'
-        //noinspection unchecked
         Content<ID> content = getContent(dict);
 
         if (!isBroadcast(sMsg)) {
