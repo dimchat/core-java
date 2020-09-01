@@ -53,8 +53,8 @@ public class ImageContent extends FileContent {
         super(dictionary);
     }
 
-    public ImageContent(byte[] data, String filename) {
-        super(ContentType.IMAGE, data, filename);
+    public ImageContent(String filename, byte[] data) {
+        super(ContentType.IMAGE, filename, data);
     }
 
     //-------- setter/getter --------

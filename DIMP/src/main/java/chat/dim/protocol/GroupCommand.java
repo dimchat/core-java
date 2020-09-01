@@ -60,8 +60,7 @@ public class GroupCommand extends HistoryCommand {
     public static final String RESIGN   = "resign";
     //-------- group command names end --------
 
-    @SuppressWarnings("unchecked")
-    public GroupCommand(Map<String, Object> dictionary) {
+    protected GroupCommand(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
@@ -115,8 +114,8 @@ public class GroupCommand extends HistoryCommand {
      *  Member ID (or String)
      *
      */
-    public Object getMember() {
-        return get("member");
+    public ID getMember() {
+        return getDelegate().getID(get("member"));
     }
 
     public void setMember(Object member) {

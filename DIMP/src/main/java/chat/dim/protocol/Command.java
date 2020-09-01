@@ -52,24 +52,26 @@ public class Command extends Content {
     public static final String LOGIN     = "login";
     //-------- command names end --------
 
-    public final String command;
-
-    public Command(Map<String, Object> dictionary) {
+    protected Command(Map<String, Object> dictionary) {
         super(dictionary);
-        command = (String) dictionary.get("command");
     }
 
-    protected Command(ContentType type, String cmd) {
-        this(type.value, cmd);
-    }
-    protected Command(int type, String cmd) {
+    Command(ContentType type, String cmd) {
         super(type);
-        command = cmd;
         put("command", cmd);
     }
 
     public Command(String command) {
         this(ContentType.COMMAND, command);
+    }
+
+    /**
+     *  Get command name
+     *
+     * @return command name string
+     */
+    public String getCommand() {
+        return (String) dictionary.get("command");
     }
 
     //-------- Runtime --------
@@ -86,7 +88,7 @@ public class Command extends Content {
         commandClasses.put(command, clazz);
     }
 
-    static Class commandClass(Map<String, Object> dictionary) {
+    protected static Class commandClass(Map<String, Object> dictionary) {
         // get subclass by command name
         String command = (String) dictionary.get("command");
         return commandClasses.get(command);

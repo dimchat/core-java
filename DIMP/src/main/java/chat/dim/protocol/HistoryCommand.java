@@ -30,7 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -51,34 +50,16 @@ public class HistoryCommand extends Command {
     public static final String SUICIDE  = "suicide";
     //-------- history command names end --------
 
-    public final Date time;
-
     public HistoryCommand(Map<String, Object> dictionary) {
         super(dictionary);
-        Object timestamp = dictionary.get("time");
-        if (timestamp == null) {
-            time = null;
-        } else {
-            time = getDate((Number) timestamp);
-        }
     }
 
     public HistoryCommand(String command) {
         super(ContentType.HISTORY, command);
-        time = new Date();
-        put("time", getTimestamp(time));
-    }
-
-    private long getTimestamp(Date time) {
-        return time.getTime() / 1000;
-    }
-    private Date getDate(Number timestamp) {
-        return new Date(timestamp.longValue() * 1000);
     }
 
     //-------- Runtime --------
 
-    @SuppressWarnings("unchecked")
     public static HistoryCommand getInstance(Map<String, Object> dictionary) {
         if (dictionary == null) {
             return null;

@@ -92,10 +92,10 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         if (msg instanceof InstantMessage) {
             receiver = ((InstantMessage<ID, SymmetricKey>) msg).getContent().getGroup();
         } else {
-            receiver = msg.envelope.getGroup();
+            receiver = msg.getGroup();
         }
         if (receiver == null) {
-            receiver = msg.envelope.getReceiver();
+            receiver = msg.getReceiver();
         }
         return receiver != null && receiver.isBroadcast();
     }
@@ -120,7 +120,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
     //-------- Transform
 
-    private ID getOvertGroup(Content<ID> content) {
+    private static ID getOvertGroup(Content<ID> content) {
         ID group = content.getGroup();
         if (group == null) {
             return null;
@@ -142,8 +142,8 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         if (iMsg.getDelegate() == null) {
             iMsg.setDelegate(this);
         }
-        ID sender = iMsg.envelope.getSender();
-        ID receiver = iMsg.envelope.getReceiver();
+        ID sender = iMsg.getSender();
+        ID receiver = iMsg.getReceiver();
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
 
@@ -199,12 +199,12 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
             //         when the group message separated to multi-messages,
             //         if don't want the others know you are the group members,
             //         remove it.
-            sMsg.envelope.setGroup(group);
+            sMsg.getEnvelope().setGroup(group);
         }
 
         // NOTICE: copy content type to envelope
         //         this help the intermediate nodes to recognize message type
-        sMsg.envelope.setType(iMsg.getContent().type);
+        sMsg.getEnvelope().setType(iMsg.getContent().getType());
 
         // OK
         return sMsg;
@@ -359,7 +359,7 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         // NOTICE: the receiver will be group ID in a group message here
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
-        ID identifier = sMsg.envelope.getReceiver();
+        ID identifier = sMsg.getReceiver();
         User user = getEntityDelegate().getUser(identifier);
         assert user != null : "failed to get decrypt keys: " + identifier;
         return user.decrypt(key);
@@ -419,10 +419,10 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
-            ID sender = sMsg.envelope.getSender();
+            ID sender = sMsg.getSender();
             ID group = getOvertGroup(content);
             if (group == null) {
-                ID receiver = sMsg.envelope.getReceiver();
+                ID receiver = sMsg.getReceiver();
                 // personal message or (group) command
                 // cache key with direction (sender -> receiver)
                 getCipherKeyDelegate().cacheCipherKey(sender, receiver, password);

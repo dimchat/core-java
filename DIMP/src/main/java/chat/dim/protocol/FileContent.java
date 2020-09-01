@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 
 /**
@@ -47,26 +48,27 @@ import chat.dim.format.Base64;
 public class FileContent extends Content {
 
     private byte[] data; // file data (plaintext)
+    private SymmetricKey key; // key to decrypt data
 
-    @SuppressWarnings("unchecked")
     public FileContent(Map<String, Object> dictionary) {
         super(dictionary);
+        // lazy load
         data = null;
+        key = null;
     }
 
-    protected FileContent(ContentType type, byte[] data, String filename) {
-        this(type.value, data, filename);
+    protected FileContent(ContentType type, String filename, byte[] data) {
+        this(type.value, filename, data);
     }
-    protected FileContent(int type, byte[] data, String filename) {
+    protected FileContent(int type, String filename, byte[] data) {
         super(type);
-        setURL(null);
         setFilename(filename);
         setData(data);
-        setPassword(null);
+        key = null;
     }
 
-    public FileContent(byte[] data, String filename) {
-        this(ContentType.FILE, data, filename);
+    public FileContent(String filename, byte[] data) {
+        this(ContentType.FILE, filename, data);
     }
 
     //-------- setters/getters --------
@@ -84,14 +86,13 @@ public class FileContent extends Content {
     }
 
     public void setData(byte[] fileData) {
-        data = fileData;
-
         if (fileData != null && fileData.length > 0) {
             // file data
             put("data", Base64.encode(fileData));
         } else {
             remove("data");
         }
+        data = fileData;
     }
 
     public byte[] getData() {
@@ -117,16 +118,23 @@ public class FileContent extends Content {
     }
 
     // symmetric key to decrypt the encrypted data from URL
-    public void setPassword(Map<String, Object> key) {
-        if (key == null) {
+    public void setPassword(SymmetricKey password) {
+        if (password == null) {
             remove("password");
         } else {
-            put("password", key);
+            put("password", password);
         }
+        key = password;
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> getPassword() {
-        return (Map<String, Object>) get("password");
+    public SymmetricKey getPassword() throws ClassNotFoundException {
+        if (key == null) {
+            Object password = get("password");
+            if (password instanceof Map) {
+                key = SymmetricKey.getInstance((Map<String, Object>) password);
+            }
+        }
+        return key;
     }
 }

@@ -51,7 +51,7 @@ public class MetaCommand extends Command {
         super(dictionary);
     }
 
-    MetaCommand(String command, Object identifier, Meta meta) {
+    public MetaCommand(String command, Object identifier, Meta meta) {
         super(command);
         // ID
         assert identifier != null : "ID cannot be empty for meta command";

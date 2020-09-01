@@ -49,7 +49,7 @@ public class AudioContent extends FileContent {
         super(dictionary);
     }
 
-    public AudioContent(byte[] data, String filename) {
-        super(ContentType.AUDIO, data, filename);
+    public AudioContent(String filename, byte[] data) {
+        super(ContentType.AUDIO, filename, data);
     }
 }

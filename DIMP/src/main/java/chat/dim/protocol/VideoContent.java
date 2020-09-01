@@ -53,8 +53,8 @@ public class VideoContent extends FileContent {
         super(dictionary);
     }
 
-    public VideoContent(byte[] data, String filename) {
-        super(ContentType.VIDEO, data, filename);
+    public VideoContent(String filename, byte[] data) {
+        super(ContentType.VIDEO, filename, data);
     }
 
     //-------- setter/getter --------
