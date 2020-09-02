@@ -88,16 +88,11 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
         if (msg.getDelegate() == null) {
             msg.setDelegate(this);
         }
-        ID receiver;
-        if (msg instanceof InstantMessage) {
-            receiver = ((InstantMessage<ID, SymmetricKey>) msg).getContent().getGroup();
-        } else {
-            receiver = msg.getGroup();
-        }
+        ID receiver = msg.getGroup();
         if (receiver == null) {
             receiver = msg.getReceiver();
         }
-        return receiver != null && receiver.isBroadcast();
+        return receiver.isBroadcast();
     }
 
     private SymmetricKey getSymmetricKey(ID from, ID to) {
@@ -295,14 +290,8 @@ public class Transceiver implements InstantMessageDelegate<ID, SymmetricKey>, Re
 
     @Override
     public byte[] serializeContent(Content<ID> content, SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
-        // check message delegate
-        if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(this);
-        }
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
-
-        assert content == iMsg.getContent() : "message content not match: " + content;
         return JSON.encode(content);
     }
 
