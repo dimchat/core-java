@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.core.BaseContent;
 import chat.dim.format.Base64;
 
 /**
@@ -45,7 +46,7 @@ import chat.dim.format.Base64;
  *      desc  : "..."
  *  }
  */
-public class PageContent extends Content {
+public class PageContent extends BaseContent {
 
     private byte[] icon = null;
 
@@ -68,7 +69,7 @@ public class PageContent extends Content {
     }
 
     public String getURL() {
-        return (String) dictionary.get("URL");
+        return (String) get("URL");
     }
 
     public void setTitle(String text) {
@@ -76,7 +77,7 @@ public class PageContent extends Content {
     }
 
     public String getTitle() {
-        return (String) dictionary.get("title");
+        return (String) get("title");
     }
 
     public void setDesc(String text) {
@@ -84,7 +85,7 @@ public class PageContent extends Content {
     }
 
     public String getDesc() {
-        return (String) dictionary.get("desc");
+        return (String) get("desc");
     }
 
     public void setIcon(byte[] imageData) {
@@ -98,7 +99,7 @@ public class PageContent extends Content {
 
     public byte[] getIcon() {
         if (icon == null) {
-            String base64 = (String) dictionary.get("icon");
+            String base64 = (String) get("icon");
             if (base64 != null) {
                 icon = Base64.decode(base64);
             }

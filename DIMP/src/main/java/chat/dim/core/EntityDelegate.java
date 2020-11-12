@@ -31,18 +31,10 @@
 package chat.dim.core;
 
 import chat.dim.Group;
-import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.protocol.ID;
 
 public interface EntityDelegate {
-
-    /**
-     *  Create entity ID with String
-     *
-     * @param string - ID string
-     * @return ID
-     */
-    ID getID(Object string);
 
     /**
      *  Create user with ID

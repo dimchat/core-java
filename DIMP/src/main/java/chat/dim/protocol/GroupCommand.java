@@ -33,7 +33,7 @@ package chat.dim.protocol;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.JoinCommand;
@@ -115,7 +115,7 @@ public class GroupCommand extends HistoryCommand {
      *
      */
     public ID getMember() {
-        return getDelegate().getID(get("member"));
+        return Entity.parseID(get("member"));
     }
 
     public void setMember(Object member) {

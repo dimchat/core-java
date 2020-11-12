@@ -32,6 +32,8 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.core.BaseContent;
+
 /**
  *  Text message: {
  *      type : 0x01,
@@ -40,7 +42,7 @@ import java.util.Map;
  *      text : "..."
  *  }
  */
-public class TextContent extends Content {
+public class TextContent extends BaseContent {
 
     public TextContent(Map<String, Object> dictionary) {
         super(dictionary);

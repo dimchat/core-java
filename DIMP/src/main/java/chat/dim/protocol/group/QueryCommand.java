@@ -32,8 +32,8 @@ package chat.dim.protocol.group;
 
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.ID;
 
 /**
  *  NOTICE:

@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.core.BaseContent;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 
@@ -45,7 +46,7 @@ import chat.dim.format.Base64;
  *      filename : "..."
  *  }
  */
-public class FileContent extends Content {
+public class FileContent extends BaseContent {
 
     private byte[] data; // file data (plaintext)
     private SymmetricKey key; // key to decrypt data

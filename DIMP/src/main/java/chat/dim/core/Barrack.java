@@ -36,16 +36,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.GroupDataSource;
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.UserDataSource;
 import chat.dim.crypto.EncryptKey;
-import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.mkm.BroadcastAddress;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
+import chat.dim.protocol.Profile;
 
 /**
  *  Entity Database
@@ -55,7 +56,6 @@ import chat.dim.crypto.VerifyKey;
 public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDataSource {
 
     // memory caches
-    private Map<String, ID> idMap    = new HashMap<>();
     private Map<ID, User>   userMap  = new HashMap<>();
     private Map<ID, Group>  groupMap = new HashMap<>();
 
@@ -71,7 +71,6 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
      */
     public int reduceMemory() {
         int finger = 0;
-        finger = thanos(idMap, finger);
         finger = thanos(userMap, finger);
         finger = thanos(groupMap, finger);
         return finger >> 1;
@@ -90,12 +89,6 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         return finger;
     }
 
-    protected boolean cache(ID identifier) {
-        assert identifier.isValid() : "ID not valid: " + identifier;
-        idMap.put(identifier.toString(), identifier);
-        return true;
-    }
-
     protected boolean cache(User user) {
         if (user.getDataSource() == null) {
             user.setDataSource(this);
@@ -112,35 +105,11 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         return true;
     }
 
-    protected abstract ID createID(String string);
-
     protected abstract User createUser(ID identifier);
 
     protected abstract Group createGroup(ID identifier);
 
     //-------- EntityDelegate
-
-    @Override
-    public ID getID(Object string) {
-        if (string == null) {
-            return null;
-        } else if (string instanceof ID) {
-            return (ID) string;
-        }
-        assert string instanceof String : "ID error: " + string;
-        // 1. get from ID cache
-        ID identifier = idMap.get(string);
-        if (identifier != null) {
-            return identifier;
-        }
-        // 2. create and cache it
-        identifier = createID((String) string);
-        if (identifier != null && cache(identifier)) {
-            return identifier;
-        }
-        // failed to create ID
-        return null;
-    }
 
     @Override
     public User getUser(ID identifier) {
@@ -191,7 +160,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         // get meta.key
         Meta meta = getMeta(user);
         if (meta != null) {
-            PublicKey metaKey = meta.getKey();
+            VerifyKey metaKey = meta.getKey();
             if (metaKey instanceof EncryptKey) {
                 // if profile.key not exists and meta.key is encrypt key,
                 //     use it for encryption
@@ -231,11 +200,10 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
 
     @Override
     public ID getFounder(ID group) {
-        assert group.isGroup() : "group ID error: " + group;
         // check for broadcast
-        if (group.isBroadcast()) {
+        if (group.getAddress() instanceof BroadcastAddress) {
             String founder;
-            String name = group.name;
+            String name = group.getName();
             int len = name == null ? 0 : name.length();
             if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
                 // Consensus: the founder of group 'everyone@everywhere'
@@ -246,18 +214,17 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
                 //          'anyone@anywhere', or 'xxx.founder@anywhere'
                 founder = name + ".founder@anywhere";
             }
-            return getID(founder);
+            return Entity.parseID(founder);
         }
         return null;
     }
 
     @Override
     public ID getOwner(ID group) {
-        assert group.isGroup() : "group ID error: " + group;
         // check for broadcast
-        if (group.isBroadcast()) {
+        if (group.getAddress() instanceof BroadcastAddress) {
             String owner;
-            String name = group.name;
+            String name = group.getName();
             int len = name == null ? 0 : name.length();
             if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
                 // Consensus: the owner of group 'everyone@everywhere'
@@ -268,18 +235,17 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
                 //          'anyone@anywhere', or 'xxx.owner@anywhere'
                 owner = name + ".owner@anywhere";
             }
-            return getID(owner);
+            return Entity.parseID(owner);
         }
         return null;
     }
 
     @Override
     public List<ID> getMembers(ID group) {
-        assert group.isGroup() : "group ID error: " + group;
         // check for broadcast
-        if (group.isBroadcast()) {
+        if (group.getAddress() instanceof BroadcastAddress) {
             String member;
-            String name = group.name;
+            String name = group.getName();
             int len = name == null ? 0 : name.length();
             if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
                 // Consensus: the member of group 'everyone@everywhere'
@@ -297,7 +263,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
                 members.add(owner);
             }
             // check and add member
-            ID identifier = getID(member);
+            ID identifier = Entity.parseID(member);
             if (identifier != null && !identifier.equals(owner)) {
                 members.add(identifier);
             }

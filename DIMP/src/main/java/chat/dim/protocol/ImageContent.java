@@ -70,7 +70,7 @@ public class ImageContent extends FileContent {
 
     public byte[] getThumbnail() {
         if (thumbnail == null) {
-            String base64 = (String) dictionary.get("thumbnail");
+            String base64 = (String) get("thumbnail");
             if (base64 != null) {
                 thumbnail = Base64.decode(base64);
             }

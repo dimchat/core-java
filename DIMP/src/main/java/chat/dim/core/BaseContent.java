@@ -28,24 +28,34 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.core;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
+import chat.dim.protocol.AudioContent;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.FileContent;
+import chat.dim.protocol.ForwardContent;
+import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.PageContent;
+import chat.dim.protocol.TextContent;
+import chat.dim.protocol.VideoContent;
 
-public class Content extends chat.dim.Content<ID> {
+public class BaseContent extends chat.dim.dkd.BaseContent {
 
-    protected Content(Map<String, Object> dictionary) {
+    protected BaseContent(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
-    protected Content(ContentType msgType) {
+    protected BaseContent(ContentType msgType) {
         super(msgType);
     }
 
-    protected Content(int msgType) {
+    protected BaseContent(int msgType) {
         super(msgType);
     }
 
@@ -69,10 +79,11 @@ public class Content extends chat.dim.Content<ID> {
     }
 
     @SuppressWarnings("unchecked")
-    public static Content getInstance(Map<String, Object> dictionary) {
-        if (dictionary == null) {
+    public static Content getInstance(Object content) {
+        if (content == null) {
             return null;
         }
+        Map<String, Object> dictionary = (Map<String, Object>) content;
         // create instance by subclass (with content type)
         int type = (int) dictionary.get("type");
         Class clazz = contentClasses.get(type);
@@ -83,7 +94,7 @@ public class Content extends chat.dim.Content<ID> {
             // return Content object directly
             return (Content) dictionary;
         }
-        return new Content(dictionary);
+        return new BaseContent(dictionary);
     }
 
     static {

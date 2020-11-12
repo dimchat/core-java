@@ -33,9 +33,7 @@ package chat.dim.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
+import chat.dim.Entity;
 
 /**
  *  Command message: {
@@ -136,7 +134,7 @@ public class ProfileCommand extends MetaCommand {
                 //    }
                 assert data == null || data instanceof Map: "profile data error: " + data;
             }
-            profile = Profile.getInstance((Map<String, Object>) data);
+            profile = Entity.parseProfile(data);
         }
         return profile;
     }

@@ -30,8 +30,8 @@
  */
 package chat.dim.core;
 
-import chat.dim.ID;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.protocol.ID;
 
 public interface CipherKeyDelegate {
 

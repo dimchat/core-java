@@ -32,9 +32,8 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.ReliableMessage;
-import chat.dim.crypto.SymmetricKey;
+import chat.dim.core.BaseContent;
+import chat.dim.dkd.RelayMessage;
 
 /**
  *  Top-Secret message: {
@@ -44,9 +43,9 @@ import chat.dim.crypto.SymmetricKey;
  *      forward : {...}  // reliable (secure + certified) message
  *  }
  */
-public class ForwardContent extends Content {
+public class ForwardContent extends BaseContent {
 
-    private ReliableMessage<ID, SymmetricKey> forwardMessage;
+    private ReliableMessage forwardMessage;
 
     public ForwardContent(Map<String, Object> dictionary) {
         super(dictionary);
@@ -54,18 +53,18 @@ public class ForwardContent extends Content {
         forwardMessage = null;
     }
 
-    public ForwardContent(ReliableMessage<ID, SymmetricKey> message) {
+    public ForwardContent(ReliableMessage message) {
         super(ContentType.FORWARD);
         forwardMessage = message;
         put("forward", message);
     }
 
     @SuppressWarnings("unchecked")
-    public ReliableMessage<ID, SymmetricKey> getMessage() {
+    public ReliableMessage getMessage() {
         if (forwardMessage == null) {
-            Object info = dictionary.get("forward");
+            Object info = get("forward");
             if (info instanceof Map) {
-                forwardMessage = ReliableMessage.getInstance((Map<String, Object>) info);
+                forwardMessage = new RelayMessage((Map<String, Object>) info);
             } else {
                 throw new NullPointerException("forward message not found");
             }

@@ -33,6 +33,8 @@ package chat.dim.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.core.BaseContent;
+
 /**
  *  Command message: {
  *      type : 0x88,
@@ -42,7 +44,7 @@ import java.util.Map;
  *      extra   : info   // command parameters
  *  }
  */
-public class Command extends Content {
+public class Command extends BaseContent {
 
     //-------- command names begin --------
     public static final String META      = "meta";
@@ -71,7 +73,7 @@ public class Command extends Content {
      * @return command name string
      */
     public String getCommand() {
-        return (String) dictionary.get("command");
+        return (String) get("command");
     }
 
     //-------- Runtime --------

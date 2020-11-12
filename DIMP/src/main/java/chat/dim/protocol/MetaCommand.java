@@ -32,8 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Meta;
+import chat.dim.Entity;
 
 /**
  *  Command message: {
@@ -86,7 +85,7 @@ public class MetaCommand extends Command {
      *
      */
     public ID getIdentifier() {
-        return getDelegate().getID(get("ID"));
+        return Entity.parseID(get("ID"));
     }
 
     /*
@@ -95,15 +94,8 @@ public class MetaCommand extends Command {
      */
     @SuppressWarnings("unchecked")
     public Meta getMeta() {
-        try {
-            Object info = get("meta");
-            if (info instanceof Map) {
-                return Meta.getInstance((Map<String, Object>) info);
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+        Object info = get("meta");
+        return Entity.parseMeta((Map<String, Object>) info);
     }
 
     //
