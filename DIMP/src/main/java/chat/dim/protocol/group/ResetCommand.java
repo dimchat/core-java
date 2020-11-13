@@ -42,7 +42,7 @@ public class ResetCommand extends GroupCommand {
         super(dictionary);
     }
 
-    public ResetCommand(ID group, List members) {
+    public ResetCommand(ID group, List<ID> members) {
         super(RESET, group, members);
     }
 }

@@ -50,14 +50,14 @@ public class MetaCommand extends Command {
         super(dictionary);
     }
 
-    public MetaCommand(String command, Object identifier, Meta meta) {
+    public MetaCommand(String command, ID identifier, Meta meta) {
         super(command);
         // ID
         assert identifier != null : "ID cannot be empty for meta command";
-        put("ID", identifier);
+        put("ID", identifier.toString());
         // meta
         if (meta != null) {
-            put("meta", meta);
+            put("meta", meta.getMap());
         }
     }
 
@@ -67,7 +67,7 @@ public class MetaCommand extends Command {
      * @param identifier - entity ID
      * @param meta - entity Meta
      */
-    public MetaCommand(Object identifier, Meta meta) {
+    public MetaCommand(ID identifier, Meta meta) {
         this(META, identifier, meta);
     }
 
@@ -76,7 +76,7 @@ public class MetaCommand extends Command {
      *
      * @param identifier - entity ID
      */
-    public MetaCommand(Object identifier) {
+    public MetaCommand(ID identifier) {
         this(identifier, null);
     }
 
@@ -94,8 +94,11 @@ public class MetaCommand extends Command {
      */
     @SuppressWarnings("unchecked")
     public Meta getMeta() {
-        Object info = get("meta");
-        return Entity.parseMeta((Map<String, Object>) info);
+        Object meta = get("meta");
+        if (meta instanceof Map) {
+            return Entity.parseMeta((Map<String, Object>) meta);
+        }
+        return null;
     }
 
     //

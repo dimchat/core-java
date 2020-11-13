@@ -124,7 +124,7 @@ public class FileContent extends BaseContent {
         if (password == null) {
             remove("password");
         } else {
-            put("password", password);
+            put("password", password.getMap());
         }
         key = password;
     }

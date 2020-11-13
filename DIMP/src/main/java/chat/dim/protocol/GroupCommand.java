@@ -30,6 +30,7 @@
  */
 package chat.dim.protocol;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +60,30 @@ public class GroupCommand extends HistoryCommand {
     public static final String FIRE     = "fire";
     public static final String RESIGN   = "resign";
     //-------- group command names end --------
+
+    public static List<ID> convertList(List<String> members) {
+        List<ID> array = new ArrayList<>();
+        ID id;
+        for (String item : members) {
+            id = Entity.parseID(item);
+            if (id == null) {
+                continue;
+            }
+            array.add(id);
+        }
+        return array;
+    }
+
+    public static List<String> revertList(List<ID> members) {
+        List<String> array = new ArrayList<>();
+        for (ID item : members) {
+            array.add(item.toString());
+        }
+        return array;
+    }
+
+    private ID member = null;
+    private List<ID> members = null;
 
     protected GroupCommand(Map<String, Object> dictionary) {
         super(dictionary);
@@ -104,7 +129,7 @@ public class GroupCommand extends HistoryCommand {
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    public GroupCommand(String command, ID groupID, List memberList) {
+    public GroupCommand(String command, ID groupID, List<ID> memberList) {
         super(command);
         setGroup(groupID);
         setMembers(memberList);
@@ -115,38 +140,47 @@ public class GroupCommand extends HistoryCommand {
      *
      */
     public ID getMember() {
-        return Entity.parseID(get("member"));
+        if (member == null) {
+            member = Entity.parseID(get("member"));
+        }
+        return member;
     }
 
-    public void setMember(Object member) {
+    public void setMember(ID member) {
         if (member == null) {
             remove("member");
         } else {
-            put("member", member);
+            put("member", member.toString());
         }
+        this.member = member;
     }
 
     /*
      *  Member ID (or String) list
      *
      */
-    public List getMembers() {
-        Object members = get("members");
+    @SuppressWarnings("unchecked")
+    public List<ID> getMembers() {
         if (members == null) {
-            // TODO: get from 'member'?
-            return null;
-        } else {
-            return (List) members;
+            Object array = get("members");
+            if (array == null) {
+                // TODO: get from 'member'?
+                return null;
+            } else {
+                members = convertList((List<String>) array);
+            }
         }
+        return members;
     }
 
-    public void setMembers(List members) {
+    public void setMembers(List<ID> members) {
         if (members == null) {
             remove("members");
         } else {
-            put("members", members);
+            put("members", revertList(members));
         }
         // TODO: remove 'member'?
+        this.members = members;
     }
 
     /**

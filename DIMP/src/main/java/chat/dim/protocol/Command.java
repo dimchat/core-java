@@ -57,9 +57,9 @@ public class Command extends BaseContent {
         super(dictionary);
     }
 
-    Command(ContentType type, String cmd) {
+    Command(ContentType type, String command) {
         super(type);
-        put("command", cmd);
+        put("command", command);
     }
 
     public Command(String command) {

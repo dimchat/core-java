@@ -68,7 +68,7 @@ public class ProfileCommand extends MetaCommand {
         super(PROFILE, identifier, meta);
         // profile
         if (profile != null) {
-            put("profile", profile);
+            put("profile", profile.getMap());
         }
         this.profile = profile;
     }
@@ -120,7 +120,7 @@ public class ProfileCommand extends MetaCommand {
                 //    "profile"   : "{JsON}",
                 //    "signature" : "{BASE64}"
                 Map<String, Object> map = new HashMap<>();
-                map.put("ID", getIdentifier());
+                map.put("ID", getIdentifier().toString());
                 map.put("data", data);
                 map.put("signature", get("signature"));
                 data = map;
@@ -134,7 +134,9 @@ public class ProfileCommand extends MetaCommand {
                 //    }
                 assert data == null || data instanceof Map: "profile data error: " + data;
             }
-            profile = Entity.parseProfile(data);
+            if (data != null) {
+                profile = Entity.parseProfile((Map<String, Object>) data);
+            }
         }
         return profile;
     }

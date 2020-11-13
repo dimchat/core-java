@@ -56,7 +56,7 @@ public class ForwardContent extends BaseContent {
     public ForwardContent(ReliableMessage message) {
         super(ContentType.FORWARD);
         forwardMessage = message;
-        put("forward", message);
+        put("forward", message.getMap());
     }
 
     @SuppressWarnings("unchecked")
