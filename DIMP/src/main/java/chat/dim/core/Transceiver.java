@@ -37,6 +37,7 @@ import chat.dim.Group;
 import chat.dim.MessageDelegate;
 import chat.dim.MessageFactory;
 import chat.dim.User;
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
@@ -102,15 +103,10 @@ public class Transceiver implements MessageDelegate {
         // get old key from cache
         SymmetricKey key = keyCache.getCipherKey(from, to);
         if (key == null) {
-            try {
-                // create new key and cache it
-                key = SymmetricKey.generate(SymmetricKey.AES);
-                assert key != null : "failed to generate AES key";
-                keyCache.cacheCipherKey(from, to, key);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
+            // create new key and cache it
+            key = KeyFactory.getSymmetricKey(SymmetricKey.AES);
+            assert key != null : "failed to generate AES key";
+            keyCache.cacheCipherKey(from, to, key);
         }
         return key;
     }
@@ -358,12 +354,7 @@ public class Transceiver implements MessageDelegate {
             //       'V' -> 'iv'
             //       'M' -> 'mode'
             //       'P' -> 'padding'
-            try {
-                return SymmetricKey.getInstance(dict);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
+            return KeyFactory.getSymmetricKey(dict);
         }
     }
 
