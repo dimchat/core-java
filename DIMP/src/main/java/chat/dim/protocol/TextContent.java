@@ -30,9 +30,9 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
+import chat.dim.dkd.BaseContent;
 
-import chat.dim.core.BaseContent;
+import java.util.Map;
 
 /**
  *  Text message: {

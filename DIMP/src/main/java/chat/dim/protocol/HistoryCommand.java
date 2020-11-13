@@ -58,22 +58,34 @@ public class HistoryCommand extends Command {
         super(ContentType.HISTORY, command);
     }
 
-    //-------- Runtime --------
+    /**
+     *  Command Parser
+     *  ~~~~~~~~~~~~~~
+     */
+    public static class Parser {
 
-    public static HistoryCommand getInstance(Map<String, Object> dictionary) {
-        if (dictionary == null) {
-            return null;
+        /**
+         *  Parse map object to command
+         *
+         * @param cmd - command info
+         * @return Command
+         */
+        public HistoryCommand parseHistory(Map<String, Object> cmd) {
+
+            Object group = cmd.get("group");
+            if (group != null) {
+                // group command
+                return GroupCommand.parseCommand(cmd);
+            }
+
+            return new HistoryCommand(cmd);
         }
-        // check group
-        if (dictionary.get("group") != null) {
-            // create instance as group command
-            return GroupCommand.getInstance(dictionary);
-        }
-        if (dictionary instanceof HistoryCommand) {
-            // return HistoryCommand object directly
-            return (HistoryCommand) dictionary;
-        }
-        // custom history command
-        return new HistoryCommand(dictionary);
+    }
+
+    // default parser
+    public static Parser parser = new Parser();
+
+    public static HistoryCommand parseHistory(Map<String, Object> cmd) {
+        return parser.parseHistory(cmd);
     }
 }

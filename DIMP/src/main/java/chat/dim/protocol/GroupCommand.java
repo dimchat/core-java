@@ -149,39 +149,50 @@ public class GroupCommand extends HistoryCommand {
         // TODO: remove 'member'?
     }
 
-    //-------- Runtime --------
+    /**
+     *  Command Parser
+     *  ~~~~~~~~~~~~~~
+     */
+    public static class Parser {
 
-    @SuppressWarnings("unchecked")
-    public static GroupCommand getInstance(Map<String, Object> dictionary) {
-        if (dictionary == null) {
-            return null;
+        /**
+         *  Parse map object to command
+         *
+         * @param cmd - command info
+         * @return Command
+         */
+        public GroupCommand parseCommand(Map<String, Object> cmd) {
+            String command = (String) cmd.get("command");
+
+            if (command.equals(INVITE)) {
+                return new InviteCommand(cmd);
+            }
+            if (command.equals(EXPEL)) {
+                return new ExpelCommand(cmd);
+            }
+
+            if (command.equals(JOIN)) {
+                return new JoinCommand(cmd);
+            }
+            if (command.equals(QUIT)) {
+                return new QuitCommand(cmd);
+            }
+
+            if (command.equals(RESET)) {
+                return new ResetCommand(cmd);
+            }
+            if (command.equals(QUERY)) {
+                return new QueryCommand(cmd);
+            }
+
+            return new GroupCommand(cmd);
         }
-        Class clazz = commandClass(dictionary);
-        if (clazz != null && !clazz.isAssignableFrom(dictionary.getClass())) {
-            // create instance by subclass (with command name)
-            return (GroupCommand) createInstance(clazz, dictionary);
-        }
-        if (dictionary instanceof GroupCommand) {
-            // return GroupCommand object directly
-            return (GroupCommand) dictionary;
-        }
-        // custom group command
-        return new GroupCommand(dictionary);
     }
 
-    static {
-        // Invite member to group
-        register(INVITE, InviteCommand.class);
-        // Expel member from group
-        register(EXPEL, ExpelCommand.class);
-        // Join group
-        register(JOIN, JoinCommand.class);
-        // Quit group
-        register(QUIT, QuitCommand.class);
-        // Reset group info
-        register(RESET, ResetCommand.class);
-        // Query group info
-        register(QUERY, QueryCommand.class);
-        // ...
+    // default parser
+    public static Parser parser = new Parser();
+
+    public static GroupCommand parseCommand(Map<String, Object> cmd) {
+        return parser.parseCommand(cmd);
     }
 }

@@ -30,10 +30,9 @@
  */
 package chat.dim.protocol;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.core.BaseContent;
+import chat.dim.dkd.BaseContent;
 
 /**
  *  Command message: {
@@ -76,48 +75,42 @@ public class Command extends BaseContent {
         return (String) get("command");
     }
 
-    //-------- Runtime --------
+    /**
+     *  Command Parser
+     *  ~~~~~~~~~~~~~~
+     */
+    public static class Parser {
 
-    private static Map<String, Class> commandClasses = new HashMap<>();
+        /**
+         *  Parse map object to command
+         *
+         * @param cmd - command info
+         * @return Command
+         */
+        public Command parseCommand(Map<String, Object> cmd) {
+            String command = (String) cmd.get("command");
 
-    @SuppressWarnings("unchecked")
-    public static void register(String command, Class clazz) {
-        // check whether clazz is subclass of CommandContent
-        if (clazz.equals(Command.class)) {
-            throw new IllegalArgumentException("should not add Command.class itself!");
+            if (command.equals(META)) {
+                return new MetaCommand(cmd);
+            }
+            if (command.equals(PROFILE)) {
+                return new ProfileCommand(cmd);
+            }
+
+            Object group = cmd.get("group");
+            if (group != null) {
+                // group command
+                return GroupCommand.parseCommand(cmd);
+            }
+
+            return new Command(cmd);
         }
-        assert Command.class.isAssignableFrom(clazz) : "error: " + clazz;
-        commandClasses.put(command, clazz);
     }
 
-    protected static Class commandClass(Map<String, Object> dictionary) {
-        // get subclass by command name
-        String command = (String) dictionary.get("command");
-        return commandClasses.get(command);
-    }
+    // default parser
+    public static Parser parser = new Parser();
 
-    @SuppressWarnings("unchecked")
-    public static Command getInstance(Map<String, Object> dictionary) {
-        if (dictionary == null) {
-            return null;
-        }
-        // create instance by subclass (with command name)
-        Class clazz = commandClass(dictionary);
-        if (clazz != null && !clazz.isAssignableFrom(dictionary.getClass())) {
-            return (Command) createInstance(clazz, dictionary);
-        }
-        if (dictionary instanceof Command) {
-            return (Command) dictionary;
-        }
-        // custom command
-        return new Command(dictionary);
-    }
-
-    static {
-        // Meta
-        register(META, MetaCommand.class);
-        // Profile
-        register(PROFILE, ProfileCommand.class);
-        // ...
+    public static Command parseCommand(Map<String, Object> cmd) {
+        return parser.parseCommand(cmd);
     }
 }
