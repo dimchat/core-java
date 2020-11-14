@@ -432,6 +432,7 @@ public class Transceiver implements MessageDelegate {
     }
 
     static {
+        // replace content parser
         MessageFactory.contentParser = new ContentParser();
     }
 }

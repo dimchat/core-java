@@ -84,6 +84,14 @@ public class ContentParser implements Content.Parser {
         int type = (int) content.get("type");
 
         //
+        //  Core Contents
+        //
+        Content core = parseContent(content, type);
+        if (core != null) {
+            return core;
+        }
+
+        //
         //  Commands
         //
         if (type == ContentType.COMMAND.value) {
@@ -101,14 +109,6 @@ public class ContentParser implements Content.Parser {
                 return (HistoryCommand) content;
             }
             return HistoryCommand.parseHistory(content);
-        }
-
-        //
-        //  Core Contents
-        //
-        Content core = parseContent(content, type);
-        if (core != null) {
-            return core;
         }
 
         return new BaseContent(content);

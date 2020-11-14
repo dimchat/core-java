@@ -101,20 +101,20 @@ public class Command extends BaseContent {
         public Command parseCommand(Map<String, Object> cmd) {
 
             //
-            //  Group Commands
-            //
-            Object group = cmd.get("group");
-            if (group != null) {
-                return GroupCommand.parseCommand(cmd);
-            }
-
-            //
             //  Core Commands
             //
             String name = (String) cmd.get("command");
             Command core = parseCommand(cmd, name);
             if (core != null) {
                 return core;
+            }
+
+            //
+            //  Group Commands
+            //
+            Object group = cmd.get("group");
+            if (group != null) {
+                return GroupCommand.parseCommand(cmd);
             }
 
             return new Command(cmd);
