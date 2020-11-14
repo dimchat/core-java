@@ -81,6 +81,17 @@ public class Command extends BaseContent {
      */
     public static class Parser {
 
+        // override to support other command name
+        protected Command parseCommand(Map<String, Object> cmd, String name) {
+            if (META.equals(name)) {
+                return new MetaCommand(cmd);
+            }
+            if (PROFILE.equals(name)) {
+                return new ProfileCommand(cmd);
+            }
+            return null;
+        }
+
         /**
          *  Parse map object to command
          *
@@ -88,19 +99,22 @@ public class Command extends BaseContent {
          * @return Command
          */
         public Command parseCommand(Map<String, Object> cmd) {
-            String command = (String) cmd.get("command");
 
-            if (command.equals(META)) {
-                return new MetaCommand(cmd);
-            }
-            if (command.equals(PROFILE)) {
-                return new ProfileCommand(cmd);
-            }
-
+            //
+            //  Group Commands
+            //
             Object group = cmd.get("group");
             if (group != null) {
-                // group command
                 return GroupCommand.parseCommand(cmd);
+            }
+
+            //
+            //  Core Commands
+            //
+            String name = (String) cmd.get("command");
+            Command core = parseCommand(cmd, name);
+            if (core != null) {
+                return core;
             }
 
             return new Command(cmd);

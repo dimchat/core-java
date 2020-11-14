@@ -72,9 +72,9 @@ public class HistoryCommand extends Command {
          */
         public HistoryCommand parseHistory(Map<String, Object> cmd) {
 
+            // check group commands
             Object group = cmd.get("group");
             if (group != null) {
-                // group command
                 return GroupCommand.parseCommand(cmd);
             }
 

@@ -47,31 +47,8 @@ import chat.dim.protocol.VideoContent;
 
 public class ContentParser implements Content.Parser {
 
-    @Override
-    public Content parseContent(Map<String, Object> content) {
-
-        int type = (int) content.get("type");
-
-        //
-        //  Commands
-        //
-
-        if (type == ContentType.COMMAND.value) {
-            if (content instanceof Command) {
-                return (Command) content;
-            }
-            return Command.parseCommand(content);
-        }
-        if (type == ContentType.HISTORY.value) {
-            if (content instanceof Command) {
-                return (Command) content;
-            }
-            return HistoryCommand.parseHistory(content);
-        }
-
-        //
-        //  Contents
-        //
+    // override to support other content type
+    protected Content parseContent(Map<String, Object> content, int type) {
 
         if (type == ContentType.FORWARD.value) {
             return new ForwardContent(content);
@@ -96,6 +73,42 @@ public class ContentParser implements Content.Parser {
 
         if (type == ContentType.PAGE.value) {
             return new PageContent(content);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Content parseContent(Map<String, Object> content) {
+
+        int type = (int) content.get("type");
+
+        //
+        //  Commands
+        //
+        if (type == ContentType.COMMAND.value) {
+            if (content instanceof Command) {
+                return (Command) content;
+            }
+            return Command.parseCommand(content);
+        }
+
+        //
+        //  History Commands
+        //
+        if (type == ContentType.HISTORY.value) {
+            if (content instanceof HistoryCommand) {
+                return (HistoryCommand) content;
+            }
+            return HistoryCommand.parseHistory(content);
+        }
+
+        //
+        //  Core Contents
+        //
+        Content core = parseContent(content, type);
+        if (core != null) {
+            return core;
         }
 
         return new BaseContent(content);
