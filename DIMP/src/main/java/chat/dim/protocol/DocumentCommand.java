@@ -47,58 +47,58 @@ import chat.dim.Entity;
  *      signature : "..."      // old profile's signature for querying
  *  }
  */
-public class ProfileCommand extends MetaCommand {
+public class DocumentCommand extends MetaCommand {
 
-    private Profile profile;
+    private Document doc;
 
-    public ProfileCommand(Map<String, Object> dictionary) {
+    public DocumentCommand(Map<String, Object> dictionary) {
         super(dictionary);
         // lazy
-        profile = null;
+        doc = null;
     }
 
     /**
-     *  Send Meta and Profile to new friend
+     *  Send Meta and Document to new friend
      *
      * @param identifier - entity ID
      * @param meta - entity Meta
-     * @param profile - entity Profile
+     * @param doc - entity Document
      */
-    public ProfileCommand(ID identifier, Meta meta, Profile profile) {
+    public DocumentCommand(ID identifier, Meta meta, Document doc) {
         super(PROFILE, identifier, meta);
-        // profile
-        if (profile != null) {
-            put("profile", profile.getMap());
+        // document
+        if (doc != null) {
+            put("profile", doc.getMap());
         }
-        this.profile = profile;
+        this.doc = doc;
     }
 
     /**
-     *  Response Profile
+     *  Response Entity Document
      *
      * @param identifier - entity ID
-     * @param profile - entity Profile
+     * @param doc - entity Document
      */
-    public ProfileCommand(ID identifier, Profile profile) {
-        this(identifier, null, profile);
+    public DocumentCommand(ID identifier, Document doc) {
+        this(identifier, null, doc);
     }
 
     /**
-     *  Query Profile
+     *  Query Entity Document
      *
      * @param identifier - entity ID
      */
-    public ProfileCommand(ID identifier) {
+    public DocumentCommand(ID identifier) {
         this(identifier, null, null);
     }
 
     /**
-     *  Query profile for updating with current signature
+     *  Query Entity Document for updating with current signature
      *
      * @param identifier - entity ID
-     * @param signature - profile signature
+     * @param signature - document signature
      */
-    public ProfileCommand(ID identifier, String signature) {
+    public DocumentCommand(ID identifier, String signature) {
         this(identifier, null, null);
         // signature
         if (signature != null) {
@@ -107,13 +107,15 @@ public class ProfileCommand extends MetaCommand {
     }
 
     /*
-     * Profile
-     *
+     * Document
      */
     @SuppressWarnings("unchecked")
-    public Profile getProfile() {
-        if (profile == null) {
+    public Document getDocument() {
+        if (doc == null) {
             Object data = get("profile");
+            if (data == null) {
+                data = get("document");
+            }
             if (data instanceof String) {
                 // compatible with v1.0
                 //    "ID"        : "{ID}",
@@ -132,13 +134,13 @@ public class ProfileCommand extends MetaCommand {
                 //        "data"      : "{JsON}",
                 //        "signature" : "{BASE64}"
                 //    }
-                assert data == null || data instanceof Map: "profile data error: " + data;
+                assert data == null || data instanceof Map: "entity document data error: " + data;
             }
             if (data != null) {
-                profile = Entity.parseProfile((Map<String, Object>) data);
+                doc = Entity.parseDocument((Map<String, Object>) data);
             }
         }
-        return profile;
+        return doc;
     }
 
     public String getSignature() {
@@ -149,17 +151,17 @@ public class ProfileCommand extends MetaCommand {
     //  Factories
     //
 
-    public static ProfileCommand query(ID identifier) {
-        return new ProfileCommand(identifier);
+    public static DocumentCommand query(ID identifier) {
+        return new DocumentCommand(identifier);
     }
-    public static ProfileCommand query(ID identifier, String signature) {
-        return new ProfileCommand(identifier, signature);
+    public static DocumentCommand query(ID identifier, String signature) {
+        return new DocumentCommand(identifier, signature);
     }
 
-    public static ProfileCommand response(ID identifier, Profile profile) {
-        return new ProfileCommand(identifier, profile);
+    public static DocumentCommand response(ID identifier, Document doc) {
+        return new DocumentCommand(identifier, doc);
     }
-    public static ProfileCommand response(ID identifier, Meta meta, Profile profile) {
-        return new ProfileCommand(identifier, meta, profile);
+    public static DocumentCommand response(ID identifier, Meta meta, Document doc) {
+        return new DocumentCommand(identifier, meta, doc);
     }
 }

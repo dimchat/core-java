@@ -48,6 +48,7 @@ public class Command extends BaseContent {
     //-------- command names begin --------
     public static final String META      = "meta";
     public static final String PROFILE   = "profile";
+    public static final String DOCUMENT  = "document";
     public static final String RECEIPT   = "receipt";
     public static final String HANDSHAKE = "handshake";
     public static final String LOGIN     = "login";
@@ -86,8 +87,8 @@ public class Command extends BaseContent {
             if (META.equals(name)) {
                 return new MetaCommand(cmd);
             }
-            if (PROFILE.equals(name)) {
-                return new ProfileCommand(cmd);
+            if (PROFILE.equals(name) || DOCUMENT.equals(name)) {
+                return new DocumentCommand(cmd);
             }
             return null;
         }

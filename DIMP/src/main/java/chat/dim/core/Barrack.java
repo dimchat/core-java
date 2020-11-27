@@ -44,9 +44,9 @@ import chat.dim.UserDataSource;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.mkm.BroadcastAddress;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.Profile;
 import chat.dim.protocol.Visa;
 
 /**
@@ -149,14 +149,14 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     @Override
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
         List<VerifyKey> keys = new ArrayList<>();
-        // get profile.key
-        Profile profile = getProfile(user, Profile.VISA);
-        if (profile instanceof Visa) {
-            EncryptKey profileKey = ((Visa) profile).getKey();
-            if (profileKey instanceof VerifyKey) {
+        // get visa.key
+        Document doc = getDocument(user, Document.VISA);
+        if (doc instanceof Visa) {
+            EncryptKey visaKey = ((Visa) doc).getKey();
+            if (visaKey instanceof VerifyKey) {
                 // the sender may use communication key to sign message.data,
-                // so try to verify it with profile.key here
-                keys.add((VerifyKey) profileKey);
+                // so try to verify it with visa.key here
+                keys.add((VerifyKey) visaKey);
             }
         }
         // get meta.key
