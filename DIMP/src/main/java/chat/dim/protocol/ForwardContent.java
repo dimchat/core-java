@@ -32,7 +32,6 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.MessageFactory;
 import chat.dim.dkd.BaseContent;
 
 /**
@@ -64,7 +63,7 @@ public class ForwardContent extends BaseContent {
         if (forwardMessage == null) {
             Object info = get("forward");
             if (info instanceof Map) {
-                forwardMessage = MessageFactory.getReliableMessage((Map<String, Object>) info);
+                forwardMessage = ReliableMessage.parse((Map<String, Object>) info);
             } else {
                 throw new NullPointerException("forward message not found");
             }

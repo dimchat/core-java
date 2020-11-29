@@ -33,8 +33,6 @@ package chat.dim.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Entity;
-
 /**
  *  Command message: {
  *      type : 0x88,
@@ -137,7 +135,7 @@ public class DocumentCommand extends MetaCommand {
                 assert data == null || data instanceof Map: "entity document data error: " + data;
             }
             if (data != null) {
-                doc = Entity.parseDocument((Map<String, Object>) data);
+                doc = Document.parse((Map<String, Object>) data);
             }
         }
         return doc;

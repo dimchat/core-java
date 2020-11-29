@@ -32,7 +32,6 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.BaseContent;
 import chat.dim.format.Base64;
@@ -134,7 +133,7 @@ public class FileContent extends BaseContent {
         if (key == null) {
             Object password = get("password");
             if (password instanceof Map) {
-                key = KeyFactory.getSymmetricKey((Map<String, Object>) password);
+                key = SymmetricKey.parse((Map<String, Object>) password);
             }
         }
         return key;

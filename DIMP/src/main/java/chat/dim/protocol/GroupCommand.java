@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.JoinCommand;
@@ -65,7 +64,7 @@ public class GroupCommand extends HistoryCommand {
         List<ID> array = new ArrayList<>();
         ID id;
         for (String item : members) {
-            id = Entity.parseID(item);
+            id = ID.parse(item);
             if (id == null) {
                 continue;
             }
@@ -141,7 +140,7 @@ public class GroupCommand extends HistoryCommand {
      */
     public ID getMember() {
         if (member == null) {
-            member = Entity.parseID(get("member"));
+            member = ID.parse(get("member"));
         }
         return member;
     }

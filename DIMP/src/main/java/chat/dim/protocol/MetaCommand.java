@@ -32,8 +32,6 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.Entity;
-
 /**
  *  Command message: {
  *      type : 0x88,
@@ -85,7 +83,7 @@ public class MetaCommand extends Command {
      *
      */
     public ID getIdentifier() {
-        return Entity.parseID(get("ID"));
+        return ID.parse(get("ID"));
     }
 
     /*
@@ -96,7 +94,7 @@ public class MetaCommand extends Command {
     public Meta getMeta() {
         Object meta = get("meta");
         if (meta instanceof Map) {
-            return Entity.parseMeta((Map<String, Object>) meta);
+            return Meta.parse((Map<String, Object>) meta);
         }
         return null;
     }

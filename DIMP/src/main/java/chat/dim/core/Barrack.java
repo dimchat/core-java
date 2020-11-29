@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.GroupDataSource;
 import chat.dim.User;
@@ -190,7 +189,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
                 //          'anyone@anywhere', or 'xxx.founder@anywhere'
                 founder = name + ".founder@anywhere";
             }
-            return Entity.parseID(founder);
+            return ID.parse(founder);
         }
         return null;
     }
@@ -211,7 +210,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
                 //          'anyone@anywhere', or 'xxx.owner@anywhere'
                 owner = name + ".owner@anywhere";
             }
-            return Entity.parseID(owner);
+            return ID.parse(owner);
         }
         return null;
     }
@@ -239,7 +238,7 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
                 members.add(owner);
             }
             // check and add member
-            ID identifier = Entity.parseID(member);
+            ID identifier = ID.parse(member);
             if (identifier != null && !identifier.equals(owner)) {
                 members.add(identifier);
             }

@@ -35,10 +35,9 @@ import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.MessageDelegate;
-import chat.dim.MessageFactory;
 import chat.dim.User;
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.dkd.Factories;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
@@ -48,7 +47,6 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Message;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
@@ -104,7 +102,7 @@ public class Transceiver implements MessageDelegate {
         SymmetricKey key = keyCache.getCipherKey(from, to);
         if (key == null) {
             // create new key and cache it
-            key = KeyFactory.getSymmetricKey(SymmetricKey.AES);
+            key = SymmetricKey.generate(SymmetricKey.AES);
             assert key != null : "failed to generate AES key";
             keyCache.cacheCipherKey(from, to, key);
         }
@@ -168,7 +166,7 @@ public class Transceiver implements MessageDelegate {
 
         // 2. encrypt 'content' to 'data' for receiver/group members
         SecureMessage sMsg;
-        if (NetworkType.isGroup(receiver.getType())) {
+        if (ID.isGroup(receiver)) {
             // group message
             Group grp = getEntityDelegate().getGroup(receiver);
             if (grp == null) {
@@ -231,7 +229,7 @@ public class Transceiver implements MessageDelegate {
         //       'K' -> 'key'
         //       ------------------
         //       'M' -> 'meta'
-        return MessageFactory.getReliableMessage(dict);
+        return ReliableMessage.parse(dict);
     }
 
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
@@ -354,7 +352,7 @@ public class Transceiver implements MessageDelegate {
             //       'V' -> 'iv'
             //       'M' -> 'mode'
             //       'P' -> 'padding'
-            return KeyFactory.getSymmetricKey(dict);
+            return SymmetricKey.parse(dict);
         }
     }
 
@@ -382,7 +380,7 @@ public class Transceiver implements MessageDelegate {
         //       'T' -> 'type'
         //       'N' -> 'sn'
         //       'G' -> 'group'
-        Content content = MessageFactory.getContent(dict);
+        Content content = Content.parse(dict);
 
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
@@ -433,6 +431,6 @@ public class Transceiver implements MessageDelegate {
 
     static {
         // replace content parser
-        MessageFactory.contentParser = new ContentParser();
+        Factories.contentFactory = new ContentParser();
     }
 }

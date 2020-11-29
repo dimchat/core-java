@@ -45,7 +45,7 @@ import chat.dim.protocol.PageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.VideoContent;
 
-public class ContentParser implements Content.Parser {
+public class ContentParser implements Content.Factory {
 
     // override to support other content type
     protected Content parseContent(Map<String, Object> content, int type) {
