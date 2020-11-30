@@ -37,13 +37,14 @@ import chat.dim.Group;
 import chat.dim.MessageDelegate;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.dkd.Factories;
+import chat.dim.dkd.ContentFactory;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.BroadcastAddress;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Message;
@@ -430,7 +431,8 @@ public class Transceiver implements MessageDelegate {
     }
 
     static {
-        // replace content parser
-        Factories.contentFactory = new ContentParser();
+        // register command content parser
+        ContentFactory.register(ContentType.COMMAND, new CommandFactory.CommandParser());
+        ContentFactory.register(ContentType.HISTORY, new CommandFactory.HistoryParser());
     }
 }

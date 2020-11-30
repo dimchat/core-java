@@ -54,7 +54,7 @@ public class Command extends BaseContent {
     public static final String LOGIN     = "login";
     //-------- command names end --------
 
-    protected Command(Map<String, Object> dictionary) {
+    public Command(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
@@ -74,58 +74,5 @@ public class Command extends BaseContent {
      */
     public String getCommand() {
         return (String) get("command");
-    }
-
-    /**
-     *  Command Parser
-     *  ~~~~~~~~~~~~~~
-     */
-    public static class Parser {
-
-        // override to support other command name
-        protected Command parseCommand(Map<String, Object> cmd, String name) {
-            if (META.equals(name)) {
-                return new MetaCommand(cmd);
-            }
-            if (PROFILE.equals(name) || DOCUMENT.equals(name)) {
-                return new DocumentCommand(cmd);
-            }
-            return null;
-        }
-
-        /**
-         *  Parse map object to command
-         *
-         * @param cmd - command info
-         * @return Command
-         */
-        public Command parseCommand(Map<String, Object> cmd) {
-
-            //
-            //  Core Commands
-            //
-            String name = (String) cmd.get("command");
-            Command core = parseCommand(cmd, name);
-            if (core != null) {
-                return core;
-            }
-
-            //
-            //  Group Commands
-            //
-            Object group = cmd.get("group");
-            if (group != null) {
-                return GroupCommand.parse(cmd);
-            }
-
-            return new Command(cmd);
-        }
-    }
-
-    // default parser
-    public static Parser parser = new Parser();
-
-    public static Command parse(Map<String, Object> cmd) {
-        return parser.parseCommand(cmd);
     }
 }

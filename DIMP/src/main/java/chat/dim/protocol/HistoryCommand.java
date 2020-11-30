@@ -57,37 +57,4 @@ public class HistoryCommand extends Command {
     public HistoryCommand(String command) {
         super(ContentType.HISTORY, command);
     }
-
-    /**
-     *  Command Parser
-     *  ~~~~~~~~~~~~~~
-     */
-    public static class Parser {
-
-        /**
-         *  Parse map object to command
-         *
-         * @param cmd - command info
-         * @return Command
-         */
-        public HistoryCommand parseHistory(Map<String, Object> cmd) {
-
-            //
-            //  Group Commands
-            //
-            Object group = cmd.get("group");
-            if (group != null) {
-                return GroupCommand.parse(cmd);
-            }
-
-            return new HistoryCommand(cmd);
-        }
-    }
-
-    // default parser
-    public static Parser parser = new Parser();
-
-    public static HistoryCommand parse(Map<String, Object> cmd) {
-        return parser.parseHistory(cmd);
-    }
 }

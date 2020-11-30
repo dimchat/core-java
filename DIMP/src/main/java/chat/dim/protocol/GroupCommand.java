@@ -34,13 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.protocol.group.ExpelCommand;
-import chat.dim.protocol.group.InviteCommand;
-import chat.dim.protocol.group.JoinCommand;
-import chat.dim.protocol.group.QueryCommand;
-import chat.dim.protocol.group.QuitCommand;
-import chat.dim.protocol.group.ResetCommand;
-
 public class GroupCommand extends HistoryCommand {
 
     //-------- group command names begin --------
@@ -84,7 +77,7 @@ public class GroupCommand extends HistoryCommand {
     private ID member = null;
     private List<ID> members = null;
 
-    protected GroupCommand(Map<String, Object> dictionary) {
+    public GroupCommand(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
@@ -180,52 +173,5 @@ public class GroupCommand extends HistoryCommand {
         }
         // TODO: remove 'member'?
         this.members = members;
-    }
-
-    /**
-     *  Command Parser
-     *  ~~~~~~~~~~~~~~
-     */
-    public static class Parser {
-
-        /**
-         *  Parse map object to command
-         *
-         * @param cmd - command info
-         * @return Command
-         */
-        public GroupCommand parseCommand(Map<String, Object> cmd) {
-            String command = (String) cmd.get("command");
-
-            if (command.equals(INVITE)) {
-                return new InviteCommand(cmd);
-            }
-            if (command.equals(EXPEL)) {
-                return new ExpelCommand(cmd);
-            }
-
-            if (command.equals(JOIN)) {
-                return new JoinCommand(cmd);
-            }
-            if (command.equals(QUIT)) {
-                return new QuitCommand(cmd);
-            }
-
-            if (command.equals(RESET)) {
-                return new ResetCommand(cmd);
-            }
-            if (command.equals(QUERY)) {
-                return new QueryCommand(cmd);
-            }
-
-            return new GroupCommand(cmd);
-        }
-    }
-
-    // default parser
-    public static Parser parser = new Parser();
-
-    public static GroupCommand parse(Map<String, Object> cmd) {
-        return parser.parseCommand(cmd);
     }
 }
