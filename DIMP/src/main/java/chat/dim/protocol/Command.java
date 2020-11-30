@@ -115,7 +115,7 @@ public class Command extends BaseContent {
             //
             Object group = cmd.get("group");
             if (group != null) {
-                return GroupCommand.parseCommand(cmd);
+                return GroupCommand.parse(cmd);
             }
 
             return new Command(cmd);
@@ -125,7 +125,7 @@ public class Command extends BaseContent {
     // default parser
     public static Parser parser = new Parser();
 
-    public static Command parseCommand(Map<String, Object> cmd) {
+    public static Command parse(Map<String, Object> cmd) {
         return parser.parseCommand(cmd);
     }
 }

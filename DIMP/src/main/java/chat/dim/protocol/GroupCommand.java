@@ -225,7 +225,7 @@ public class GroupCommand extends HistoryCommand {
     // default parser
     public static Parser parser = new Parser();
 
-    public static GroupCommand parseCommand(Map<String, Object> cmd) {
+    public static GroupCommand parse(Map<String, Object> cmd) {
         return parser.parseCommand(cmd);
     }
 }

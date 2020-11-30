@@ -98,7 +98,7 @@ public class ContentParser implements Content.Factory {
             if (content instanceof Command) {
                 return (Command) content;
             }
-            return Command.parseCommand(content);
+            return Command.parse(content);
         }
 
         //
@@ -108,7 +108,7 @@ public class ContentParser implements Content.Factory {
             if (content instanceof HistoryCommand) {
                 return (HistoryCommand) content;
             }
-            return HistoryCommand.parseHistory(content);
+            return HistoryCommand.parse(content);
         }
 
         return new BaseContent(content);

@@ -77,7 +77,7 @@ public class HistoryCommand extends Command {
             //
             Object group = cmd.get("group");
             if (group != null) {
-                return GroupCommand.parseCommand(cmd);
+                return GroupCommand.parse(cmd);
             }
 
             return new HistoryCommand(cmd);
@@ -87,7 +87,7 @@ public class HistoryCommand extends Command {
     // default parser
     public static Parser parser = new Parser();
 
-    public static HistoryCommand parseHistory(Map<String, Object> cmd) {
+    public static HistoryCommand parse(Map<String, Object> cmd) {
         return parser.parseHistory(cmd);
     }
 }
