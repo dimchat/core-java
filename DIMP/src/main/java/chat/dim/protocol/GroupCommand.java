@@ -53,27 +53,6 @@ public class GroupCommand extends HistoryCommand {
     public static final String RESIGN   = "resign";
     //-------- group command names end --------
 
-    public static List<ID> convertList(List<String> members) {
-        List<ID> array = new ArrayList<>();
-        ID id;
-        for (String item : members) {
-            id = ID.parse(item);
-            if (id == null) {
-                continue;
-            }
-            array.add(id);
-        }
-        return array;
-    }
-
-    public static List<String> revertList(List<ID> members) {
-        List<String> array = new ArrayList<>();
-        for (ID item : members) {
-            array.add(item.toString());
-        }
-        return array;
-    }
-
     private ID member = null;
     private List<ID> members = null;
 
@@ -159,7 +138,7 @@ public class GroupCommand extends HistoryCommand {
                 // TODO: get from 'member'?
                 return null;
             } else {
-                members = convertList((List<String>) array);
+                members = ID.convert((List<String>) array);
             }
         }
         return members;
@@ -169,7 +148,7 @@ public class GroupCommand extends HistoryCommand {
         if (members == null) {
             remove("members");
         } else {
-            put("members", revertList(members));
+            put("members", ID.revert(members));
         }
         // TODO: remove 'member'?
         this.members = members;

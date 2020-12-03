@@ -129,7 +129,7 @@ public final class CommandFactory {
         }
     }
 
-    static {
+    static void registerAll() {
         //
         //  Register content parsers
         //
@@ -144,11 +144,21 @@ public final class CommandFactory {
 
         ContentFactory.register(ContentType.PAGE, PageContent::new);
 
+        ContentFactory.register(ContentType.COMMAND, new CommandParser());
+        ContentFactory.register(ContentType.HISTORY, new HistoryParser());
+
         //
         //  Register command parsers
         //
         register(Command.META, MetaCommand::new);
         register(Command.PROFILE, DocumentCommand::new);
         register(Command.DOCUMENT, DocumentCommand::new);
+
+        register(GroupCommand.INVITE, InviteCommand::new);
+        register(GroupCommand.EXPEL, ExpelCommand::new);
+        register(GroupCommand.JOIN, JoinCommand::new);
+        register(GroupCommand.QUIT, QuitCommand::new);
+        register(GroupCommand.QUERY, QueryCommand::new);
+        register(GroupCommand.RESET, ResetCommand::new);
     }
 }
