@@ -57,20 +57,18 @@ import chat.dim.protocol.group.ResetCommand;
 
 public final class CommandFactory {
 
-    private static final Map<String, Content.Parser<Command>> parsers = new HashMap<>();
+    private static final Map<String, Content.Parser<Command>> commandParsers = new HashMap<>();
 
     public static void register(String command, Content.Parser<Command> parser) {
-        parsers.put(command, parser);
+        commandParsers.put(command, parser);
     }
 
-    static class CommandParser implements Content.Parser<Command> {
-
-        private final GroupCommandParser groupCommandParser = new GroupCommandParser();
+    public static class CommandParser implements Content.Parser<Command> {
 
         @Override
         public Command parse(Map<String, Object> cmd) {
             String command = (String) cmd.get("command");
-            Content.Parser<Command> parser = parsers.get(command);
+            Content.Parser<Command> parser = commandParsers.get(command);
             if (parser != null) {
                 return parser.parse(cmd);
             }
@@ -83,9 +81,7 @@ public final class CommandFactory {
         }
     }
 
-    static class HistoryParser implements Content.Parser<HistoryCommand> {
-
-        private final GroupCommandParser groupCommandParser = new GroupCommandParser();
+    public static class HistoryParser implements Content.Parser<HistoryCommand> {
 
         @Override
         public HistoryCommand parse(Map<String, Object> cmd) {
@@ -98,7 +94,9 @@ public final class CommandFactory {
         }
     }
 
-    static class GroupCommandParser implements Content.Parser<GroupCommand> {
+    public static GroupCommandParser groupCommandParser = new GroupCommandParser();
+
+    public static class GroupCommandParser implements Content.Parser<GroupCommand> {
 
         @Override
         public GroupCommand parse(Map<String, Object> cmd) {
