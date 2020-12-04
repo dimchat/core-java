@@ -129,7 +129,7 @@ public final class CommandFactory {
         }
     }
 
-    static void registerAll() {
+    static {
         //
         //  Register content parsers
         //

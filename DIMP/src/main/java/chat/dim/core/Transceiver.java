@@ -427,9 +427,4 @@ public class Transceiver implements MessageDelegate {
         assert contact != null : "failed to get verify key for sender: " + sender;
         return contact.verify(data, signature);
     }
-
-    static {
-        // register command content parser
-        CommandFactory.registerAll();
-    }
 }
