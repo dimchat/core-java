@@ -30,23 +30,15 @@
  */
 package chat.dim.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.GroupDataSource;
 import chat.dim.User;
 import chat.dim.UserDataSource;
-import chat.dim.crypto.EncryptKey;
-import chat.dim.crypto.VerifyKey;
-import chat.dim.mkm.BroadcastAddress;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Meta;
-import chat.dim.protocol.Visa;
 
 /**
  *  Entity Database
@@ -56,8 +48,8 @@ import chat.dim.protocol.Visa;
 public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDataSource {
 
     // memory caches
-    private Map<ID, User>   userMap  = new HashMap<>();
-    private Map<ID, Group>  groupMap = new HashMap<>();
+    private Map<ID, User>  userMap  = new HashMap<>();
+    private Map<ID, Group> groupMap = new HashMap<>();
 
     protected Barrack() {
         super();
@@ -89,20 +81,18 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
         return finger;
     }
 
-    protected boolean cache(User user) {
+    private void cache(User user) {
         if (user.getDataSource() == null) {
             user.setDataSource(this);
         }
         userMap.put(user.identifier, user);
-        return true;
     }
 
-    protected boolean cache(Group group) {
+    private void cache(Group group) {
         if (group.getDataSource() == null) {
             group.setDataSource(this);
         }
         groupMap.put(group.identifier, group);
-        return true;
     }
 
     protected abstract User createUser(ID identifier);
@@ -115,135 +105,27 @@ public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDa
     public User getUser(ID identifier) {
         // 1. get from user cache
         User user = userMap.get(identifier);
-        if (user != null) {
-            return user;
+        if (user == null) {
+            // 2. create user and cache it
+            user = createUser(identifier);
+            if (user != null) {
+                cache(user);
+            }
         }
-        // 2. create user and cache it
-        user = createUser(identifier);
-        if (user != null && cache(user)) {
-            return user;
-        }
-        // failed to create User
-        return null;
+        return user;
     }
 
     @Override
     public Group getGroup(ID identifier) {
         // 1. get from group cache
         Group group = groupMap.get(identifier);
-        if (group != null) {
-            return group;
-        }
-        // 2. create group and cache it
-        group = createGroup(identifier);
-        if (group != null && cache(group)) {
-            return group;
-        }
-        // failed to create Group
-        return null;
-    }
-
-    //-------- UserDataSource
-
-    @Override
-    public List<VerifyKey> getPublicKeysForVerification(ID user) {
-        List<VerifyKey> keys = new ArrayList<>();
-        // get visa.key
-        Document doc = getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
-            EncryptKey visaKey = ((Visa) doc).getKey();
-            if (visaKey instanceof VerifyKey) {
-                // the sender may use communication key to sign message.data,
-                // so try to verify it with visa.key here
-                keys.add((VerifyKey) visaKey);
+        if (group == null) {
+            // 2. create group and cache it
+            group = createGroup(identifier);
+            if (group != null) {
+                cache(group);
             }
         }
-        // get meta.key
-        Meta meta = getMeta(user);
-        if (meta != null) {
-            VerifyKey metaKey = meta.getKey();
-            if (metaKey != null) {
-                // the sender may use identity key to sign message.data,
-                // try to verify it with meta.key
-                keys.add(metaKey);
-            }
-        }
-        return keys;
-    }
-
-    //-------- GroupDataSource
-
-    @Override
-    public ID getFounder(ID group) {
-        // check for broadcast
-        if (group.getAddress() instanceof BroadcastAddress) {
-            String founder;
-            String name = group.getName();
-            int len = name == null ? 0 : name.length();
-            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
-                // Consensus: the founder of group 'everyone@everywhere'
-                //            'Albert Moky'
-                founder = "moky@anywhere";
-            } else {
-                // DISCUSS: who should be the founder of group 'xxx@everywhere'?
-                //          'anyone@anywhere', or 'xxx.founder@anywhere'
-                founder = name + ".founder@anywhere";
-            }
-            return ID.parse(founder);
-        }
-        return null;
-    }
-
-    @Override
-    public ID getOwner(ID group) {
-        // check for broadcast
-        if (group.getAddress() instanceof BroadcastAddress) {
-            String owner;
-            String name = group.getName();
-            int len = name == null ? 0 : name.length();
-            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
-                // Consensus: the owner of group 'everyone@everywhere'
-                //            'anyone@anywhere'
-                owner = "anyone@anywhere";
-            } else {
-                // DISCUSS: who should be the owner of group 'xxx@everywhere'?
-                //          'anyone@anywhere', or 'xxx.owner@anywhere'
-                owner = name + ".owner@anywhere";
-            }
-            return ID.parse(owner);
-        }
-        return null;
-    }
-
-    @Override
-    public List<ID> getMembers(ID group) {
-        // check for broadcast
-        if (group.getAddress() instanceof BroadcastAddress) {
-            String member;
-            String name = group.getName();
-            int len = name == null ? 0 : name.length();
-            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
-                // Consensus: the member of group 'everyone@everywhere'
-                //            'anyone@anywhere'
-                member = "anyone@anywhere";
-            } else {
-                // DISCUSS: who should be the member of group 'xxx@everywhere'?
-                //          'anyone@anywhere', or 'xxx.member@anywhere'
-                member = name + ".member@anywhere";
-            }
-            // add owner first
-            ID owner = getOwner(group);
-            List<ID> members = new ArrayList<>();
-            if (owner != null) {
-                members.add(owner);
-            }
-            // check and add member
-            ID identifier = ID.parse(member);
-            if (identifier != null && !identifier.equals(owner)) {
-                members.add(identifier);
-            }
-            return members;
-        }
-        return null;
+        return group;
     }
 }

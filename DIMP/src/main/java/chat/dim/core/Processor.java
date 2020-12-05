@@ -45,6 +45,10 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
+/**
+ *  Message Processor
+ *  ~~~~~~~~~~~~~~~~~
+ */
 public abstract class Processor {
 
     private final WeakReference<MessageDelegate> delegateRef;
