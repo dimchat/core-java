@@ -52,6 +52,8 @@ public class Command extends BaseContent {
     public static final String RECEIPT   = "receipt";
     public static final String HANDSHAKE = "handshake";
     public static final String LOGIN     = "login";
+
+    public static final String UNKNOWN   = "unknown";
     //-------- command names end --------
 
     public Command(Map<String, Object> dictionary) {

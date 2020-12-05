@@ -33,7 +33,6 @@ package chat.dim.core;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import chat.dim.Group;
 import chat.dim.MessageDelegate;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
@@ -65,7 +64,6 @@ public class Transceiver implements MessageDelegate {
         }
         return entityDelegateRef.get();
     }
-
     public void setEntityDelegate(EntityDelegate delegate) {
         entityDelegateRef = new WeakReference<>(delegate);
     }
@@ -76,12 +74,9 @@ public class Transceiver implements MessageDelegate {
         }
         return cipherKeyDelegateRef.get();
     }
-
     public void setCipherKeyDelegate(CipherKeyDelegate delegate) {
         cipherKeyDelegateRef = new WeakReference<>(delegate);
     }
-
-    //--------
 
     private boolean isBroadcast(Message msg) {
         // check message delegate
@@ -95,22 +90,10 @@ public class Transceiver implements MessageDelegate {
         return receiver.getAddress() instanceof BroadcastAddress;
     }
 
-    private SymmetricKey getSymmetricKey(ID from, ID to) {
-        CipherKeyDelegate keyCache = getCipherKeyDelegate();
-        // get old key from cache
-        SymmetricKey key = keyCache.getCipherKey(from, to);
-        if (key == null) {
-            // create new key and cache it
-            key = SymmetricKey.generate(SymmetricKey.AES);
-            assert key != null : "failed to generate AES key";
-            keyCache.cacheCipherKey(from, to, key);
-        }
-        return key;
-    }
+    //-------- MessageDelegate
 
-    //-------- Transform
-
-    private static ID getOvertGroup(Content content) {
+    @Override
+    public ID getOvertGroup(Content content) {
         ID group = content.getGroup();
         if (group == null) {
             return null;
@@ -125,145 +108,6 @@ public class Transceiver implements MessageDelegate {
             return null;
         }
         return group;
-    }
-
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
-        // check message delegate
-        if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(this);
-        }
-        ID sender = iMsg.getSender();
-        ID receiver = iMsg.getReceiver();
-        // if 'group' exists and the 'receiver' is a group ID,
-        // they must be equal
-
-        // NOTICE: while sending group message, don't split it before encrypting.
-        //         this means you could set group ID into message content, but
-        //         keep the "receiver" to be the group ID;
-        //         after encrypted (and signed), you could split the message
-        //         with group members before sending out, or just send it directly
-        //         to the group assistant to let it split messages for you!
-        //    BUT,
-        //         if you don't want to share the symmetric key with other members,
-        //         you could split it (set group ID into message content and
-        //         set contact ID to the "receiver") before encrypting, this usually
-        //         for sending group command to assistant robot, which should not
-        //         share the symmetric key (group msg key) with other members.
-
-        // 1. get symmetric key
-        ID group = getOvertGroup(iMsg.getContent());
-        SymmetricKey password;
-        if (group == null) {
-            // personal message or (group) command
-            password = getSymmetricKey(sender, receiver);
-            assert password != null : "failed to get msg key: " + sender + " -> " + receiver;
-        } else {
-            // group message (excludes group command)
-            password = getSymmetricKey(sender, group);
-            assert password != null : "failed to get group msg key: " + sender + " -> " + group;
-        }
-
-        // 2. encrypt 'content' to 'data' for receiver/group members
-        SecureMessage sMsg;
-        if (ID.isGroup(receiver)) {
-            // group message
-            Group grp = getEntityDelegate().getGroup(receiver);
-            if (grp == null) {
-                throw new NullPointerException("failed to get group: " + receiver);
-            }
-            sMsg = iMsg.encrypt(password, grp.getMembers());
-        } else {
-            // personal message (or split group message)
-            sMsg = iMsg.encrypt(password);
-        }
-        if (sMsg == null) {
-            // public key for encryption not found
-            // TODO: suspend this message for waiting receiver's meta
-            return null;
-        }
-
-        // overt group ID
-        if (group != null && !receiver.equals(group)) {
-            // NOTICE: this help the receiver knows the group ID
-            //         when the group message separated to multi-messages,
-            //         if don't want the others know you are the group members,
-            //         remove it.
-            sMsg.getEnvelope().setGroup(group);
-        }
-
-        // NOTICE: copy content type to envelope
-        //         this help the intermediate nodes to recognize message type
-        sMsg.getEnvelope().setType(iMsg.getContent().getType());
-
-        // OK
-        return sMsg;
-    }
-
-    public ReliableMessage signMessage(SecureMessage sMsg) {
-        // check message delegate
-        if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(this);
-        }
-        assert sMsg.getData() != null : "message data cannot be empty";
-        // sign 'data' by sender
-        return sMsg.sign();
-    }
-
-    protected byte[] serializeMessage(ReliableMessage rMsg) {
-        return JSON.encode(rMsg);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected ReliableMessage deserializeMessage(byte[] data) {
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
-        // TODO: translate short keys
-        //       'S' -> 'sender'
-        //       'R' -> 'receiver'
-        //       'W' -> 'time'
-        //       'T' -> 'type'
-        //       'G' -> 'group'
-        //       ------------------
-        //       'D' -> 'data'
-        //       'V' -> 'signature'
-        //       'K' -> 'key'
-        //       ------------------
-        //       'M' -> 'meta'
-        return ReliableMessage.parse(dict);
-    }
-
-    public SecureMessage verifyMessage(ReliableMessage rMsg) {
-        // check message delegate
-        if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(this);
-        }
-        //
-        //  TODO: check [Meta Protocol]
-        //        make sure the sender's meta exists
-        //        (do in by application)
-        //
-
-        assert rMsg.getSignature() != null : "message signature cannot be empty";
-        // verify 'data' with 'signature'
-        return rMsg.verify();
-    }
-
-    public InstantMessage decryptMessage(SecureMessage sMsg) {
-        // check message delegate
-        if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(this);
-        }
-        //
-        //  NOTICE: make sure the receiver is YOU!
-        //          which means the receiver's private key exists;
-        //          if the receiver is a group ID, split it first
-        //
-
-        assert sMsg.getData() != null : "message data cannot be empty";
-        // decrypt 'data' to 'content'
-        return sMsg.decrypt();
-
-        // TODO: check top-secret message
-        //       (do it by application)
     }
 
     //-------- InstantMessageDelegate
