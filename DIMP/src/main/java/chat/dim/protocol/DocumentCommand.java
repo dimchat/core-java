@@ -111,9 +111,6 @@ public class DocumentCommand extends MetaCommand {
     public Document getDocument() {
         if (doc == null) {
             Object data = get("profile");
-            if (data == null) {
-                data = get("document");
-            }
             if (data instanceof String) {
                 // compatible with v1.0
                 //    "ID"        : "{ID}",
@@ -125,6 +122,9 @@ public class DocumentCommand extends MetaCommand {
                 map.put("signature", get("signature"));
                 data = map;
             } else {
+                if (data == null) {
+                    data = get("document");
+                }
                 // (v1.1)
                 //    "ID"      : "{ID}",
                 //    "profile" : {

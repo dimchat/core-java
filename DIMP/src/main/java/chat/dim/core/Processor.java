@@ -275,14 +275,13 @@ public abstract class Processor {
 
         // process content from sender
         Content content = iMsg.getContent();
-        ID sender = iMsg.getSender();
-        Content response = process(content, sender, rMsg);
+        Content response = process(content, rMsg);
         if (response == null) {
             // nothing to respond
             return null;
         }
 
-        // check receiver
+        ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
         User user = getLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
@@ -294,18 +293,5 @@ public abstract class Processor {
 
     // TODO: override to check group
     // TODO: override to filter the response
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
-        // check message delegate
-        if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(getDelegate());
-        }
-        // call CPU to process it
-        Content.Processor<Content> cpu = getContentProcessor(content);
-        if (cpu == null) {
-            throw new NullPointerException("failed to get processor for content: " + content);
-        }
-        return cpu.process(content, sender, rMsg);
-    }
-
-    protected abstract Content.Processor<Content> getContentProcessor(Content content);
+    protected abstract Content process(Content content, ReliableMessage rMsg);
 }
