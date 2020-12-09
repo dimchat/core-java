@@ -34,10 +34,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import chat.dim.EntityDelegate;
 import chat.dim.Group;
-import chat.dim.GroupDataSource;
 import chat.dim.User;
-import chat.dim.UserDataSource;
 import chat.dim.protocol.ID;
 
 /**
@@ -45,7 +44,7 @@ import chat.dim.protocol.ID;
  *  ~~~~~~~~~~~~~~~
  *  Manage meta for all entities
  */
-public abstract class Barrack implements EntityDelegate, UserDataSource, GroupDataSource {
+public abstract class Barrack implements EntityDelegate, User.DataSource, Group.DataSource {
 
     // memory caches
     private Map<ID, User>  userMap  = new HashMap<>();

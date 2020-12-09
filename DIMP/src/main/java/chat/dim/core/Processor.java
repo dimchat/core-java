@@ -34,7 +34,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.MessageDelegate;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
@@ -42,6 +41,7 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Message;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
@@ -51,14 +51,14 @@ import chat.dim.protocol.SecureMessage;
  */
 public abstract class Processor {
 
-    private final WeakReference<MessageDelegate> delegateRef;
+    private final WeakReference<Message.Delegate> delegateRef;
 
-    protected Processor(MessageDelegate delegate) {
+    protected Processor(Message.Delegate delegate) {
         super();
         delegateRef = new WeakReference<>(delegate);
     }
 
-    protected MessageDelegate getDelegate() {
+    protected Message.Delegate getDelegate() {
         return delegateRef.get();
     }
 
@@ -180,8 +180,8 @@ public abstract class Processor {
             rMsg.setDelegate(getDelegate());
         }
         //
-        //  TODO: check [Meta Protocol]
-        //        make sure the sender's meta exists
+        //  TODO: check [Visa Protocol]
+        //        make sure the sender's meta(visa) exists
         //        (do in by application)
         //
 
@@ -291,7 +291,5 @@ public abstract class Processor {
         return InstantMessage.create(env, response);
     }
 
-    // TODO: override to check group
-    // TODO: override to filter the response
     protected abstract Content process(Content content, ReliableMessage rMsg);
 }

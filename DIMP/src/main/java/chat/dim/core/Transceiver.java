@@ -33,13 +33,13 @@ package chat.dim.core;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import chat.dim.MessageDelegate;
+import chat.dim.CipherKeyDelegate;
+import chat.dim.EntityDelegate;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
-import chat.dim.mkm.BroadcastAddress;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
@@ -48,7 +48,7 @@ import chat.dim.protocol.Message;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
-public class Transceiver implements MessageDelegate {
+public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Delegate {
 
     // delegates
     private WeakReference<EntityDelegate> entityDelegateRef = null;
@@ -87,7 +87,7 @@ public class Transceiver implements MessageDelegate {
         if (receiver == null) {
             receiver = msg.getReceiver();
         }
-        return receiver.getAddress() instanceof BroadcastAddress;
+        return ID.isBroadcast(receiver);
     }
 
     //-------- MessageDelegate
@@ -98,7 +98,7 @@ public class Transceiver implements MessageDelegate {
         if (group == null) {
             return null;
         }
-        if (group.getAddress() instanceof BroadcastAddress) {
+        if (ID.isBroadcast(group)) {
             // broadcast message is always overt
             return group;
         }
