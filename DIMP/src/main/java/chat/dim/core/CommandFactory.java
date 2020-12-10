@@ -65,69 +65,63 @@ public final class CommandFactory {
 
     public static class CommandParser implements Content.Parser<Command> {
 
+        protected Content.Parser<Command> getParser(String name) {
+            return commandParsers.get(name);
+        }
+        protected Content.Parser<Command> getParser(Map<String, Object> cmd) {
+            String command = (String) cmd.get("command");
+            return getParser(command);
+        }
+
         @Override
         public Command parse(Map<String, Object> cmd) {
-            String command = (String) cmd.get("command");
-            Content.Parser<Command> parser = commandParsers.get(command);
+            Content.Parser<Command> parser = getParser(cmd);
+            if (parser == null) {
+                // Check for group commands
+                Object group = cmd.get("group");
+                if (group != null) {
+                    parser = getParser("group");
+                }
+            }
             if (parser != null) {
                 return parser.parse(cmd);
-            }
-            // Group Commands
-            Object group = cmd.get("group");
-            if (group != null) {
-                return groupCommandParser.parse(cmd);
             }
             return new Command(cmd);
         }
     }
 
-    public static class HistoryParser implements Content.Parser<HistoryCommand> {
+    public static class HistoryParser extends CommandParser {
 
         @Override
-        public HistoryCommand parse(Map<String, Object> cmd) {
-            // Group Commands
-            Object group = cmd.get("group");
-            if (group != null) {
-                return groupCommandParser.parse(cmd);
+        public Command parse(Map<String, Object> cmd) {
+            Content.Parser<Command> parser = getParser(cmd);
+            if (parser == null) {
+                // Check for group commands
+                Object group = cmd.get("group");
+                if (group != null) {
+                    parser = getParser("group");
+                }
+            }
+            if (parser != null) {
+                return parser.parse(cmd);
             }
             return new HistoryCommand(cmd);
         }
     }
 
-    public static GroupCommandParser groupCommandParser = new GroupCommandParser();
-
-    public static class GroupCommandParser implements Content.Parser<GroupCommand> {
+    public static class GroupCommandParser extends HistoryParser {
 
         @Override
-        public GroupCommand parse(Map<String, Object> cmd) {
-            String command = (String) cmd.get("command");
-
-            if (command.equals(GroupCommand.INVITE)) {
-                return new InviteCommand(cmd);
+        public Command parse(Map<String, Object> cmd) {
+            Content.Parser<Command> parser = getParser(cmd);
+            if (parser != null) {
+                return parser.parse(cmd);
             }
-            if (command.equals(GroupCommand.EXPEL)) {
-                return new ExpelCommand(cmd);
-            }
-
-            if (command.equals(GroupCommand.JOIN)) {
-                return new JoinCommand(cmd);
-            }
-            if (command.equals(GroupCommand.QUIT)) {
-                return new QuitCommand(cmd);
-            }
-
-            if (command.equals(GroupCommand.RESET)) {
-                return new ResetCommand(cmd);
-            }
-            if (command.equals(GroupCommand.QUERY)) {
-                return new QueryCommand(cmd);
-            }
-
             return new GroupCommand(cmd);
         }
     }
 
-    static {
+    public static void registerCoreParsers() {
         //
         //  Register content parsers
         //
@@ -152,6 +146,7 @@ public final class CommandFactory {
         register(Command.PROFILE, DocumentCommand::new);
         register(Command.DOCUMENT, DocumentCommand::new);
 
+        register("group", new GroupCommandParser());
         register(GroupCommand.INVITE, InviteCommand::new);
         register(GroupCommand.EXPEL, ExpelCommand::new);
         register(GroupCommand.JOIN, JoinCommand::new);
