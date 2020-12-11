@@ -30,9 +30,26 @@
  */
 package chat.dim;
 
+import java.util.List;
+
 import chat.dim.protocol.ID;
 
 public interface EntityDelegate {
+
+    /**
+     *  Get all local users (for decrypting received message)
+     *
+     * @return users with private key
+     */
+    List<User> getLocalUsers();
+
+    /**
+     *  Select local user for receiver
+     *
+     * @param receiver - user/group ID
+     * @return local user
+     */
+    User selectLocalUser(ID receiver);
 
     /**
      *  Create user with ID

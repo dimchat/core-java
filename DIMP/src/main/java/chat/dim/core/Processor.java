@@ -31,9 +31,11 @@
 package chat.dim.core;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.Map;
 
+import chat.dim.CipherKeyDelegate;
+import chat.dim.EntityDelegate;
+import chat.dim.Group;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
@@ -51,20 +53,26 @@ import chat.dim.protocol.SecureMessage;
  */
 public abstract class Processor {
 
-    private final WeakReference<Message.Delegate> delegateRef;
+    private final WeakReference<Message.Delegate> messageDelegateRef;
+    private final WeakReference<EntityDelegate> entityDelegateRef;
+    private final WeakReference<CipherKeyDelegate> cipherKeyDelegateRef;
 
-    protected Processor(Message.Delegate delegate) {
+    protected Processor(Message.Delegate transceiver, EntityDelegate barrack, CipherKeyDelegate keyCache) {
         super();
-        delegateRef = new WeakReference<>(delegate);
+        messageDelegateRef = new WeakReference<>(transceiver);
+        entityDelegateRef = new WeakReference<>(barrack);
+        cipherKeyDelegateRef = new WeakReference<>(keyCache);
     }
 
-    protected Message.Delegate getDelegate() {
-        return delegateRef.get();
+    protected Message.Delegate getMessageDelegate() {
+        return messageDelegateRef.get();
     }
-
-    protected abstract User getLocalUser(ID receiver);
-    protected abstract List<ID> getMembers(ID group);
-    protected abstract SymmetricKey getSymmetricKey(ID from, ID to);
+    protected EntityDelegate getEntityDelegate() {
+        return entityDelegateRef.get();
+    }
+    protected CipherKeyDelegate getCipherKeyDelegate() {
+        return cipherKeyDelegateRef.get();
+    }
 
     //
     //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
@@ -73,7 +81,7 @@ public abstract class Processor {
     public SecureMessage encryptMessage(InstantMessage iMsg) {
         // check message delegate
         if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(getDelegate());
+            iMsg.setDelegate(getMessageDelegate());
         }
         ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
@@ -94,15 +102,15 @@ public abstract class Processor {
         //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
-        ID group = getDelegate().getOvertGroup(iMsg.getContent());
+        ID group = getMessageDelegate().getOvertGroup(iMsg.getContent());
         SymmetricKey password;
         if (group == null) {
             // personal message or (group) command
-            password = getSymmetricKey(sender, receiver);
+            password = getCipherKeyDelegate().getCipherKey(sender, receiver, true);
             assert password != null : "failed to get msg key: " + sender + " -> " + receiver;
         } else {
             // group message (excludes group command)
-            password = getSymmetricKey(sender, group);
+            password = getCipherKeyDelegate().getCipherKey(sender, group, true);
             assert password != null : "failed to get group msg key: " + sender + " -> " + group;
         }
 
@@ -110,7 +118,8 @@ public abstract class Processor {
         SecureMessage sMsg;
         if (ID.isGroup(receiver)) {
             // group message
-            sMsg = iMsg.encrypt(password, getMembers(receiver));
+            Group grp = getEntityDelegate().getGroup(receiver);
+            sMsg = iMsg.encrypt(password, grp.getMembers());
         } else {
             // personal message (or split group message)
             sMsg = iMsg.encrypt(password);
@@ -141,7 +150,7 @@ public abstract class Processor {
     public ReliableMessage signMessage(SecureMessage sMsg) {
         // check message delegate
         if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(getDelegate());
+            sMsg.setDelegate(getMessageDelegate());
         }
         assert sMsg.getData() != null : "message data cannot be empty";
         // sign 'data' by sender
@@ -177,7 +186,7 @@ public abstract class Processor {
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
         // check message delegate
         if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(getDelegate());
+            rMsg.setDelegate(getMessageDelegate());
         }
         //
         //  TODO: check [Visa Protocol]
@@ -193,7 +202,7 @@ public abstract class Processor {
     public InstantMessage decryptMessage(SecureMessage sMsg) {
         // check message delegate
         if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(getDelegate());
+            sMsg.setDelegate(getMessageDelegate());
         }
         //
         //  NOTICE: make sure the receiver is YOU!
@@ -270,7 +279,7 @@ public abstract class Processor {
     protected InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
         // check message delegate
         if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(getDelegate());
+            iMsg.setDelegate(getMessageDelegate());
         }
 
         // process content from sender
@@ -283,7 +292,7 @@ public abstract class Processor {
 
         ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
-        User user = getLocalUser(receiver);
+        User user = getEntityDelegate().selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
 
         // pack message

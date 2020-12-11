@@ -40,9 +40,10 @@ public interface CipherKeyDelegate {
      *
      * @param sender - from where (user or contact ID)
      * @param receiver - to where (contact or user/group ID)
+     * @param generate - generate when key not exists
      * @return cipher key
      */
-    SymmetricKey getCipherKey(ID sender, ID receiver);
+    SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate);
 
     /**
      *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')

@@ -185,7 +185,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         if (key == null) {
             // get key from cache
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
-            return keyCache.getCipherKey(sender, receiver);
+            return keyCache.getCipherKey(sender, receiver, false);
         } else {
             assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
             Map<String, Object> dict = (Map<String, Object>) JSON.decode(key);
