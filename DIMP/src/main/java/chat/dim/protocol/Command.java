@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.core.Factories;
 import chat.dim.dkd.BaseContent;
 
 /**
@@ -52,8 +53,6 @@ public class Command extends BaseContent {
     public static final String RECEIPT   = "receipt";
     public static final String HANDSHAKE = "handshake";
     public static final String LOGIN     = "login";
-
-    public static final String UNKNOWN   = "unknown";
     //-------- command names end --------
 
     public Command(Map<String, Object> dictionary) {
@@ -75,6 +74,35 @@ public class Command extends BaseContent {
      * @return command name string
      */
     public String getCommand() {
-        return (String) get("command");
+        return getCommand(getMap());
+    }
+
+    public static String getCommand(Map<String, Object> cmd) {
+        return (String) cmd.get("command");
+    }
+
+    //
+    //  Factory method
+    //
+    public static Factory getFactory(String command) {
+        return Factories.commandFactories.get(command);
+    }
+    public static void register(String command, Factory factory) {
+        Factories.commandFactories.put(command, factory);
+    }
+
+    /**
+     *  Command Factory
+     *  ~~~~~~~~~~~~~~~
+     */
+    public interface Factory {
+
+        /**
+         *  Parse map object to command
+         *
+         * @param cmd - command info
+         * @return Command
+         */
+        Command parseCommand(Map<String, Object> cmd);
     }
 }
