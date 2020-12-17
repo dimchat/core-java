@@ -57,15 +57,7 @@ import chat.dim.protocol.group.ResetCommand;
 
 public class Factories {
 
-    public static class ContentFactory implements Content.Factory {
-
-        @Override
-        public Content parseContent(Map<String, Object> content) {
-            return new BaseContent(content);
-        }
-    }
-
-    public static class CommandFactory implements Content.Factory {
+    public static class CommandFactory implements Content.Factory, Command.Factory {
 
         @Override
         public Content parseContent(Map<String, Object> content) {
@@ -78,61 +70,52 @@ public class Factories {
                     factory = Command.getFactory("group");
                 }
                 if (factory == null) {
-                    // unknown command
-                    factory = Command.getFactory("*");
-                    if (factory == null) {
-                        return new Command(content);
-                    }
+                    factory = this;
                 }
             }
             return factory.parseCommand(content);
         }
-    }
-
-    public static class HistoryCommandFactory implements Content.Factory {
-
-        @Override
-        public Content parseContent(Map<String, Object> content) {
-            String command = Command.getCommand(content);
-            // get factory by command name
-            Command.Factory factory = Command.getFactory(command);
-            if (factory == null) {
-                // check for group command
-                if (Content.getGroup(content) != null) {
-                    factory = Command.getFactory("group");
-                }
-                if (factory == null) {
-                    // unknown command
-                    factory = Command.getFactory("*");
-                    if (factory == null) {
-                        return new HistoryCommand(content);
-                    }
-                }
-            }
-            return factory.parseCommand(content);
-        }
-    }
-
-    public static class GroupCommandFactory implements Command.Factory {
 
         @Override
         public Command parseCommand(Map<String, Object> cmd) {
-            String command = Command.getCommand(cmd);
+            return new Command(cmd);
+        }
+    }
+
+    public static class HistoryCommandFactory extends CommandFactory {
+
+        @Override
+        public Command parseCommand(Map<String, Object> cmd) {
+            return new HistoryCommand(cmd);
+        }
+    }
+
+    public static class GroupCommandFactory extends HistoryCommandFactory {
+
+        @Override
+        public Content parseContent(Map<String, Object> content) {
+            String command = Command.getCommand(content);
             // get factory by command name
             Command.Factory factory = Command.getFactory(command);
-            if (factory == null || factory == this) {
-                return new GroupCommand(cmd);
+            if (factory == null) {
+                factory = this;
             }
-            return factory.parseCommand(cmd);
+            return factory.parseCommand(content);
+        }
+
+        @Override
+        public Command parseCommand(Map<String, Object> cmd) {
+            return new GroupCommand(cmd);
         }
     }
 
     public static final Map<String, Command.Factory> commandFactories = new HashMap<>();
 
-    static {
-        //
-        //  Register content factories
-        //
+    /**
+     *  Register core content factories
+     */
+    static void registerContentFactories() {
+        // core contents
         Content.register(ContentType.FORWARD, ForwardContent::new);
 
         Content.register(ContentType.TEXT, TextContent::new);
@@ -144,18 +127,24 @@ public class Factories {
 
         Content.register(ContentType.PAGE, PageContent::new);
 
+        // commands
         Content.register(ContentType.COMMAND, new CommandFactory());
         Content.register(ContentType.HISTORY, new HistoryCommandFactory());
 
-        Content.register(0, new ContentFactory());  // unknown
+        // unknown content type
+        Content.register(0, BaseContent::new);
+    }
 
-        //
-        //  Register command factories
-        //
+    /**
+     *  Register core command factories
+     */
+    static void registerCommandFactories() {
+        // core commands
         Command.register(Command.META, MetaCommand::new);
         Command.register(Command.PROFILE, DocumentCommand::new);
         Command.register(Command.DOCUMENT, DocumentCommand::new);
 
+        // group commands
         Command.register("group", new GroupCommandFactory());
         Command.register(GroupCommand.INVITE, InviteCommand::new);
         Command.register(GroupCommand.EXPEL, ExpelCommand::new);

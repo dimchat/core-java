@@ -58,24 +58,34 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         super();
     }
 
+    /**
+     *  Delegate for getting entity
+     *
+     * @param barrack - entity delegate
+     */
+    public void setEntityDelegate(EntityDelegate barrack) {
+        entityDelegateRef = new WeakReference<>(barrack);
+    }
     public EntityDelegate getEntityDelegate() {
         if (entityDelegateRef == null) {
             return null;
         }
         return entityDelegateRef.get();
     }
-    public void setEntityDelegate(EntityDelegate delegate) {
-        entityDelegateRef = new WeakReference<>(delegate);
-    }
 
+    /**
+     *  Delegate for getting message key
+     *
+     * @param keyCache - key store
+     */
+    public void setCipherKeyDelegate(CipherKeyDelegate keyCache) {
+        cipherKeyDelegateRef = new WeakReference<>(keyCache);
+    }
     public CipherKeyDelegate getCipherKeyDelegate() {
         if (cipherKeyDelegateRef == null) {
             return null;
         }
         return cipherKeyDelegateRef.get();
-    }
-    public void setCipherKeyDelegate(CipherKeyDelegate delegate) {
-        cipherKeyDelegateRef = new WeakReference<>(delegate);
     }
 
     private boolean isBroadcast(Message msg) {
