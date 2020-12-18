@@ -31,6 +31,7 @@
 package chat.dim.core;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.CipherKeyDelegate;
@@ -116,7 +117,18 @@ public class Packer {
         if (ID.isGroup(receiver)) {
             // group message
             Group grp = getEntityDelegate().getGroup(receiver);
-            sMsg = iMsg.encrypt(password, grp.getMembers());
+            if (grp == null) {
+                // group not ready
+                // TODO: suspend this message for waiting group's meta
+                return null;
+            }
+            List<ID> members = grp.getMembers();
+            if (members == null || members.size() == 0) {
+                // group members not found
+                // TODO: suspend this message for waiting group's membership
+                return null;
+            }
+            sMsg = iMsg.encrypt(password, members);
         } else {
             // personal message (or split group message)
             sMsg = iMsg.encrypt(password);

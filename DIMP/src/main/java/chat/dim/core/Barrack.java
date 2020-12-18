@@ -30,6 +30,7 @@
  */
 package chat.dim.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,10 +39,14 @@ import java.util.Map;
 import chat.dim.EntityDelegate;
 import chat.dim.Group;
 import chat.dim.User;
+import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.protocol.Bulletin;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Visa;
 
 /**
  *  Entity Database
@@ -102,18 +107,14 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
 
     protected abstract Group createGroup(ID identifier);
 
-    //-------- group
+    //-------- group membership
 
     public boolean isFounder(ID member, ID group) {
         // check member's public key with group's meta.key
         Meta gMeta = getMeta(group);
-        if (gMeta == null) {
-            throw new NullPointerException("failed to get meta for group: " + group);
-        }
+        assert gMeta != null : "failed to get meta for group: " + group;
         Meta mMeta = getMeta(member);
-        if (mMeta == null) {
-            throw new NullPointerException("failed to get meta for member: " + member);
-        }
+        assert mMeta != null : "failed to get meta for member: " + member;
         return gMeta.matches(mMeta.getKey());
     }
 
@@ -122,31 +123,6 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
             return isFounder(member, group);
         }
         throw new UnsupportedOperationException("only Polylogue so far");
-    }
-
-    public boolean containsMember(ID member, ID group) {
-        List<ID> members = getMembers(group);
-        if (members != null && members.contains(member)) {
-            return true;
-        }
-        ID owner = getOwner(group);
-        return owner != null && owner.equals(member);
-    }
-
-    /**
-     *  Get assistants for this group
-     *
-     * @param group - group ID
-     * @return robot ID list
-     */
-    public abstract List<ID> getAssistants(ID group);
-
-    public boolean containsAssistant(ID user, ID group) {
-        List<ID> assistants = getAssistants(group);
-        if (assistants == null) {
-            return false;
-        }
-        return assistants.contains(user);
     }
 
     //-------- EntityDelegate
@@ -162,9 +138,14 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
         }
         if (ID.isGroup(receiver)) {
             // group message (recipient not designated)
+            List<ID> members = getMembers(receiver);
+            if (members == null || members.size() == 0) {
+                // TODO: group not ready, waiting for group info
+                return null;
+            }
             for (User item : users) {
-                if (containsMember(item.identifier, receiver)) {
-                    // set this item to be current user?
+                if (members.contains(item.identifier)) {
+                    // TODO: set this item to be current user?
                     return item;
                 }
             }
@@ -212,15 +193,69 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     //-------- User DataSource
 
     @Override
-    public List<VerifyKey> getPublicKeysForVerification(ID user) {
-        // return null to user [visa.key, meta.key]
+    public EncryptKey getPublicKeyForEncryption(ID user) {
+        // 1. get key from visa
+        Document doc = getDocument(user, Document.VISA);
+        if (doc instanceof Visa) {
+            EncryptKey key = ((Visa) doc).getKey();
+            if (key != null) {
+                return key;
+            }
+        }
+        // 2. get key from meta
+        Meta meta = getMeta(user);
+        if (meta != null) {
+            Object key = meta.getKey();
+            if (key instanceof EncryptKey) {
+                return (EncryptKey) key;
+            }
+        }
         return null;
+    }
+
+    @Override
+    public List<VerifyKey> getPublicKeysForVerification(ID user) {
+        List<VerifyKey> keys = new ArrayList<>();
+        // 1. get key from visa
+        Document doc = getDocument(user, Document.VISA);
+        if (doc instanceof Visa) {
+            Object key = ((Visa) doc).getKey();
+            if (key instanceof VerifyKey) {
+                // the sender may use communication key to sign message.data,
+                // so try to verify it with visa.key here
+                keys.add((VerifyKey) key);
+            }
+        }
+        // 2. get key from meta
+        Meta meta = getMeta(user);
+        if (meta != null) {
+            // the sender may use identity key to sign message.data,
+            // try to verify it with meta.key
+            keys.add(meta.getKey());
+        }
+        return keys;
     }
 
     //-------- Group DataSource
 
     @Override
     public ID getFounder(ID group) {
+        // check broadcast group
+        if (ID.isBroadcast(group)) {
+            // founder of broadcast group
+            String name = group.getName();
+            int len = name == null ? 0 : name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                // Consensus: the founder of group 'everyone@everywhere'
+                //            'Albert Moky'
+                return ID.parse("moky@anywhere");
+            } else {
+                // DISCUSS: who should be the founder of group 'xxx@everywhere'?
+                //          'anyone@anywhere', or 'xxx.founder@anywhere'
+                return ID.parse(name + ".founder@anywhere");
+            }
+        }
+        // check group meta
         Meta gMeta = getMeta(group);
         if (gMeta == null) {
             // FIXME: when group profile was arrived but the meta still on the way,
@@ -250,12 +285,70 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
 
     @Override
     public ID getOwner(ID group) {
+        // check broadcast group
+        if (ID.isBroadcast(group)) {
+            // owner of broadcast group
+            String name = group.getName();
+            int len = name == null ? 0 : name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                // Consensus: the owner of group 'everyone@everywhere'
+                //            'anyone@anywhere'
+                return ID.ANYONE;
+            } else {
+                // DISCUSS: who should be the owner of group 'xxx@everywhere'?
+                //          'anyone@anywhere', or 'xxx.owner@anywhere'
+                return ID.parse(name + ".owner@anywhere");
+            }
+        }
         // check group type
         if (NetworkType.Polylogue.equals(group.getType())) {
             // Polylogue's owner is its founder
             return getFounder(group);
         }
         // TODO: load owner from database
+        return null;
+    }
+
+    @Override
+    public List<ID> getMembers(ID group) {
+        if (ID.isBroadcast(group)) {
+            // members of broadcast group
+            ID member;
+            ID owner;
+            String name = group.getName();
+            int len = name == null ? 0 : name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                // Consensus: the member of group 'everyone@everywhere'
+                //            'anyone@anywhere'
+                member = ID.ANYONE;
+                owner = ID.ANYONE;
+            } else {
+                // DISCUSS: who should be the member of group 'xxx@everywhere'?
+                //          'anyone@anywhere', or 'xxx.member@anywhere'
+                member = ID.parse(name + ".member@anywhere");
+                owner = ID.parse(name + ".owner@anywhere");
+            }
+            assert owner != null : "failed to get owner of broadcast group";
+            // add owner first
+            List<ID> members = new ArrayList<>();
+            members.add(owner);
+            // check and add member
+            if (!owner.equals(member)) {
+                members.add(member);
+            }
+            return members;
+        }
+        // TODO: load members from database
+        return null;
+    }
+
+    @Override
+    public List<ID> getAssistants(ID group) {
+        Document doc = getDocument(group, Document.BULLETIN);
+        if (doc instanceof Bulletin) {
+            return ((Bulletin) doc).getAssistants();
+        }
+        // TODO: get group bots from SP configuration
         return null;
     }
 }
