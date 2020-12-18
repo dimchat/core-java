@@ -66,7 +66,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     public void setEntityDelegate(EntityDelegate barrack) {
         entityDelegateRef = new WeakReference<>(barrack);
     }
-    public EntityDelegate getEntityDelegate() {
+    protected EntityDelegate getEntityDelegate() {
         if (entityDelegateRef == null) {
             return null;
         }
@@ -81,7 +81,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     public void setCipherKeyDelegate(CipherKeyDelegate keyCache) {
         cipherKeyDelegateRef = new WeakReference<>(keyCache);
     }
-    public CipherKeyDelegate getCipherKeyDelegate() {
+    protected CipherKeyDelegate getCipherKeyDelegate() {
         if (cipherKeyDelegateRef == null) {
             return null;
         }
