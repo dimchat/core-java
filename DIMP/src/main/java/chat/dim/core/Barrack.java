@@ -145,7 +145,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
             }
             for (User item : users) {
                 if (members.contains(item.identifier)) {
-                    // TODO: set this item to be current user?
+                    // DISCUSS: set this item to be current user?
                     return item;
                 }
             }
@@ -154,7 +154,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
             // 2. split group message
             for (User item : users) {
                 if (receiver.equals(item.identifier)) {
-                    // set this item to be current user?
+                    // DISCUSS: set this item to be current user?
                     return item;
                 }
             }
@@ -192,24 +192,35 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
 
     //-------- User DataSource
 
+    private EncryptKey getVisaKey(ID user) {
+        Document doc = getDocument(user, Document.VISA);
+        if (doc instanceof Visa) {
+            Visa visa = (Visa) doc;
+            if (visa.isValid()) {
+                return visa.getKey();
+            }
+        }
+        return null;
+    }
+    private VerifyKey getMetaKey(ID user) {
+        Meta meta = getMeta(user);
+        assert meta != null : "failed to get meta for ID: " + user;
+        return meta.getKey();
+    }
+
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
         // 1. get key from visa
-        Document doc = getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
-            EncryptKey key = ((Visa) doc).getKey();
-            if (key != null) {
-                return key;
-            }
+        EncryptKey visaKey = getVisaKey(user);
+        if (visaKey != null) {
+            return visaKey;
         }
         // 2. get key from meta
-        Meta meta = getMeta(user);
-        if (meta != null) {
-            Object key = meta.getKey();
-            if (key instanceof EncryptKey) {
-                return (EncryptKey) key;
-            }
+        VerifyKey metaKey = getMetaKey(user);
+        if (metaKey instanceof EncryptKey) {
+            return (EncryptKey) metaKey;
         }
+        //throw new NullPointerException("failed to get encrypt key for user: " + user);
         return null;
     }
 
@@ -217,22 +228,20 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
         List<VerifyKey> keys = new ArrayList<>();
         // 1. get key from visa
-        Document doc = getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
-            Object key = ((Visa) doc).getKey();
-            if (key instanceof VerifyKey) {
-                // the sender may use communication key to sign message.data,
-                // so try to verify it with visa.key here
-                keys.add((VerifyKey) key);
-            }
+        EncryptKey visaKey = getVisaKey(user);
+        if (visaKey instanceof VerifyKey) {
+            // the sender may use communication key to sign message.data,
+            // so try to verify it with visa.key here
+            keys.add((VerifyKey) visaKey);
         }
         // 2. get key from meta
-        Meta meta = getMeta(user);
-        if (meta != null) {
+        VerifyKey metaKey = getMetaKey(user);
+        if (metaKey != null) {
             // the sender may use identity key to sign message.data,
             // try to verify it with meta.key
-            keys.add(meta.getKey());
+            keys.add(metaKey);
         }
+        assert keys.size() > 0 : "failed to get verify key for user: " + user;
         return keys;
     }
 
