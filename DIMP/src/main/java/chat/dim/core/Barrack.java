@@ -355,7 +355,9 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     public List<ID> getAssistants(ID group) {
         Document doc = getDocument(group, Document.BULLETIN);
         if (doc instanceof Bulletin) {
-            return ((Bulletin) doc).getAssistants();
+            if (doc.isValid()) {
+                return ((Bulletin) doc).getAssistants();
+            }
         }
         // TODO: get group bots from SP configuration
         return null;

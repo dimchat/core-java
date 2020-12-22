@@ -89,10 +89,6 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     }
 
     private boolean isBroadcast(Message msg) {
-        // check message delegate
-        if (msg.getDelegate() == null) {
-            msg.setDelegate(this);
-        }
         ID receiver = msg.getGroup();
         if (receiver == null) {
             receiver = msg.getReceiver();

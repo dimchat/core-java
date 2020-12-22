@@ -128,11 +128,6 @@ public abstract class Processor {
     }
 
     protected InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
-        // check message delegate
-        if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(getMessageDelegate());
-        }
-
         // process content from sender
         Content content = iMsg.getContent();
         Content response = process(content, rMsg);
@@ -141,6 +136,7 @@ public abstract class Processor {
             return null;
         }
 
+        // select a local user to build message
         ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
         User user = getEntityDelegate().selectLocalUser(receiver);
