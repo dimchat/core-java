@@ -115,20 +115,28 @@ public class Factories {
      *  Register core content factories
      */
     static void registerContentFactories() {
-        // core contents
-        Content.register(ContentType.FORWARD, ForwardContent::new);
 
+        // Top-Secret
+        Content.register(ContentType.FORWARD, ForwardContent::new);
+        // Text
         Content.register(ContentType.TEXT, TextContent::new);
 
+        // File
         Content.register(ContentType.FILE, FileContent::new);
+        // Image
         Content.register(ContentType.IMAGE, ImageContent::new);
+        // Audio
         Content.register(ContentType.AUDIO, AudioContent::new);
+        // Video
         Content.register(ContentType.VIDEO, VideoContent::new);
 
+        // Web Page
         Content.register(ContentType.PAGE, PageContent::new);
 
-        // commands
+        // Command
         Content.register(ContentType.COMMAND, new CommandFactory());
+
+        // History Command
         Content.register(ContentType.HISTORY, new HistoryCommandFactory());
 
         // unknown content type
@@ -139,12 +147,15 @@ public class Factories {
      *  Register core command factories
      */
     static void registerCommandFactories() {
-        // core commands
+
+        // Meta Command
         Command.register(Command.META, MetaCommand::new);
+
+        // Document Command
         Command.register(Command.PROFILE, DocumentCommand::new);
         Command.register(Command.DOCUMENT, DocumentCommand::new);
 
-        // group commands
+        // Group Commands
         Command.register("group", new GroupCommandFactory());
         Command.register(GroupCommand.INVITE, InviteCommand::new);
         Command.register(GroupCommand.EXPEL, ExpelCommand::new);
