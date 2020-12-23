@@ -204,7 +204,10 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     }
     private VerifyKey getMetaKey(ID user) {
         Meta meta = getMeta(user);
-        assert meta != null : "failed to get meta for ID: " + user;
+        if (meta == null) {
+            //throw new NullPointerException("failed to get meta for ID: " + user);
+            return null;
+        }
         return meta.getKey();
     }
 
