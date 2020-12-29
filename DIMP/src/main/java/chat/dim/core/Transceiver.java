@@ -33,8 +33,6 @@ package chat.dim.core;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import chat.dim.CipherKeyDelegate;
-import chat.dim.EntityDelegate;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;

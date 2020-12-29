@@ -28,10 +28,12 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim;
+package chat.dim.core;
 
 import java.util.List;
 
+import chat.dim.Group;
+import chat.dim.User;
 import chat.dim.protocol.ID;
 
 public interface EntityDelegate {

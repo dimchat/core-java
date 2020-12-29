@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.EntityDelegate;
 import chat.dim.Group;
 import chat.dim.User;
 import chat.dim.crypto.EncryptKey;

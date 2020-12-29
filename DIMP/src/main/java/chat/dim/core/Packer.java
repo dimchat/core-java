@@ -34,8 +34,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.CipherKeyDelegate;
-import chat.dim.EntityDelegate;
 import chat.dim.Group;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;

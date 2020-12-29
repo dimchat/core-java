@@ -32,7 +32,6 @@ package chat.dim.core;
 
 import java.lang.ref.WeakReference;
 
-import chat.dim.EntityDelegate;
 import chat.dim.User;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
