@@ -76,7 +76,7 @@ public abstract class Processor {
         // 1. deserialize message
         ReliableMessage rMsg = getPacker().deserializeMessage(data);
         if (rMsg == null) {
-            // no message received
+            // no valid message received
             return null;
         }
         // 2. process message

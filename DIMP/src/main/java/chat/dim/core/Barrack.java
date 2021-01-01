@@ -118,7 +118,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     }
 
     public boolean isOwner(ID member, ID group) {
-        if (NetworkType.Polylogue.equals(group.getType())) {
+        if (NetworkType.POLYLOGUE.equals(group.getType())) {
             return isFounder(member, group);
         }
         throw new UnsupportedOperationException("only Polylogue so far");
@@ -215,11 +215,14 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
         // 1. get key from visa
         EncryptKey visaKey = getVisaKey(user);
         if (visaKey != null) {
+            // if visa.key exists, use it for encryption
             return visaKey;
         }
         // 2. get key from meta
         VerifyKey metaKey = getMetaKey(user);
         if (metaKey instanceof EncryptKey) {
+            // if profile.key not exists and meta.key is encrypt key,
+            // use it for encryption
             return (EncryptKey) metaKey;
         }
         //throw new NullPointerException("failed to get encrypt key for user: " + user);
@@ -280,7 +283,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
             for (ID item : members) {
                 mMeta = getMeta(item);
                 if (mMeta == null) {
-                    // failed to get member meta
+                    // failed to get member's meta
                     continue;
                 }
                 if (gMeta.matches(mMeta.getKey())) {
@@ -312,7 +315,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
             }
         }
         // check group type
-        if (NetworkType.Polylogue.equals(group.getType())) {
+        if (NetworkType.POLYLOGUE.equals(group.getType())) {
             // Polylogue's owner is its founder
             return getFounder(group);
         }
@@ -322,6 +325,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
 
     @Override
     public List<ID> getMembers(ID group) {
+        // check broadcast group
         if (ID.isBroadcast(group)) {
             // members of broadcast group
             ID member;

@@ -228,6 +228,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         //       'N' -> 'sn'
         //       'G' -> 'group'
         Content content = Content.parse(dict);
+        assert content != null : "content error: " + data.length;
 
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
