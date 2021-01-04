@@ -38,7 +38,6 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -51,6 +50,9 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     // delegates
     private WeakReference<EntityDelegate> entityDelegateRef = null;
     private WeakReference<CipherKeyDelegate> cipherKeyDelegateRef = null;
+
+    private WeakReference<MessagePacker> messagePackerRef = null;
+    private WeakReference<MessageProcessor> messageProcessorRef = null;
 
     public Transceiver() {
         super();
@@ -86,32 +88,92 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         return cipherKeyDelegateRef.get();
     }
 
+    /**
+     *  Delegate for packing message
+     *
+     * @param packer - message packer
+     */
+    public void setMessagePacker(MessagePacker packer) {
+        messagePackerRef = new WeakReference<>(packer);
+    }
+    protected MessagePacker getMessagePacker() {
+        if (messagePackerRef == null) {
+            return null;
+        }
+        return messagePackerRef.get();
+    }
+
+    /**
+     *  Delegate for processing message
+     *
+     * @param processor - message processor
+     */
+    public void setMessageProcessor(MessageProcessor processor) {
+        messageProcessorRef = new WeakReference<>(processor);
+    }
+    protected MessageProcessor getMessageProcessor() {
+        if (messageProcessorRef == null) {
+            return null;
+        }
+        return messageProcessorRef.get();
+    }
+
+    //
+    //  Interfaces for Packing Message
+    //
+    public SecureMessage encryptMessage(InstantMessage iMsg) {
+        return getMessagePacker().encryptMessage(iMsg);
+    }
+
+    public ReliableMessage signMessage(SecureMessage sMsg) {
+        return getMessagePacker().signMessage(sMsg);
+    }
+
+    public byte[] serializeMessage(ReliableMessage rMsg) {
+        return getMessagePacker().serializeMessage(rMsg);
+    }
+
+    public ReliableMessage deserializeMessage(byte[] data) {
+        return getMessagePacker().deserializeMessage(data);
+    }
+
+    public SecureMessage verifyMessage(ReliableMessage rMsg) {
+        return getMessagePacker().verifyMessage(rMsg);
+    }
+
+    public InstantMessage decryptMessage(SecureMessage sMsg) {
+        return getMessagePacker().decryptMessage(sMsg);
+    }
+
+    //
+    //  Interfaces for Processing Message
+    //
+    public byte[] process(byte[] data) {
+        return getMessageProcessor().process(data);
+    }
+
+    public ReliableMessage process(ReliableMessage rMsg) {
+        return getMessageProcessor().process(rMsg);
+    }
+
+    public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
+        return getMessageProcessor().process(sMsg, rMsg);
+    }
+
+    public InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
+        return getMessageProcessor().process(iMsg, rMsg);
+    }
+
+    public Content process(Content content, ReliableMessage rMsg) {
+        return getMessageProcessor().process(content, rMsg);
+    }
+
     private boolean isBroadcast(Message msg) {
         ID receiver = msg.getGroup();
         if (receiver == null) {
             receiver = msg.getReceiver();
         }
         return ID.isBroadcast(receiver);
-    }
-
-    //-------- MessageDelegate
-
-    @Override
-    public ID getOvertGroup(Content content) {
-        ID group = content.getGroup();
-        if (group == null) {
-            return null;
-        }
-        if (ID.isBroadcast(group)) {
-            // broadcast message is always overt
-            return group;
-        }
-        if (content instanceof Command) {
-            // group command should be sent to each member directly, so
-            // don't expose group ID
-            return null;
-        }
-        return group;
     }
 
     //-------- InstantMessageDelegate
@@ -233,7 +295,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
             ID sender = sMsg.getSender();
-            ID group = getOvertGroup(content);
+            ID group = getMessagePacker().getOvertGroup(content);
             if (group == null) {
                 ID receiver = sMsg.getReceiver();
                 // personal message or (group) command

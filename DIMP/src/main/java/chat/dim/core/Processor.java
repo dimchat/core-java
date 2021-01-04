@@ -37,7 +37,6 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.Message;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
@@ -45,108 +44,101 @@ import chat.dim.protocol.SecureMessage;
  *  Message Processor
  *  ~~~~~~~~~~~~~~~~~
  */
-public abstract class Processor {
+public abstract class Processor implements MessageProcessor {
 
-    private final WeakReference<EntityDelegate> entityDelegateRef;
-    private final WeakReference<Message.Delegate> messageDelegateRef;
-    private final WeakReference<Packer> packerRef;
+    private final WeakReference<Transceiver> transceiverRef;
 
-    protected Processor(EntityDelegate barrack, Message.Delegate transceiver, Packer packer) {
+    protected Processor(Transceiver transceiver) {
         super();
-        entityDelegateRef = new WeakReference<>(barrack);
-        messageDelegateRef = new WeakReference<>(transceiver);
-        packerRef = new WeakReference<>(packer);
+        transceiverRef = new WeakReference<>(transceiver);
     }
 
+    protected Transceiver getTransceiver() {
+        return transceiverRef.get();
+    }
     protected EntityDelegate getEntityDelegate() {
-        return entityDelegateRef.get();
+        return getTransceiver().getEntityDelegate();
     }
-    protected Message.Delegate getMessageDelegate() {
-        return messageDelegateRef.get();
-    }
-    protected Packer getPacker() {
-        return packerRef.get();
+    protected MessagePacker getMessagePacker() {
+        return getTransceiver().getMessagePacker();
     }
 
-    //
-    //  Processing Message
-    //
-
+    @Override
     public byte[] process(byte[] data) {
         // 1. deserialize message
-        ReliableMessage rMsg = getPacker().deserializeMessage(data);
+        ReliableMessage rMsg = getMessagePacker().deserializeMessage(data);
         if (rMsg == null) {
             // no valid message received
             return null;
         }
         // 2. process message
-        rMsg = process(rMsg);
+        rMsg = getTransceiver().process(rMsg);
         if (rMsg == null) {
             // nothing to respond
             return null;
         }
         // 3. serialize message
-        return getPacker().serializeMessage(rMsg);
+        return getMessagePacker().serializeMessage(rMsg);
     }
 
-    // TODO: override to check broadcast message before calling it
-    // TODO: override to deliver to the receiver when catch exception "receiver error ..."
+    @Override
     public ReliableMessage process(ReliableMessage rMsg) {
+        // TODO: override to check broadcast message before calling it
         // 1. verify message
-        SecureMessage sMsg = getPacker().verifyMessage(rMsg);
+        SecureMessage sMsg = getMessagePacker().verifyMessage(rMsg);
         if (sMsg == null) {
             // waiting for sender's meta if not exists
             return null;
         }
         // 2. process message
-        sMsg = process(sMsg, rMsg);
+        sMsg = getTransceiver().process(sMsg, rMsg);
         if (sMsg == null) {
             // nothing to respond
             return null;
         }
         // 3. sign message
-        return getPacker().signMessage(sMsg);
+        return getMessagePacker().signMessage(sMsg);
+        // TODO: override to deliver to the receiver when catch exception "receiver error ..."
     }
 
-    protected SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
+    @Override
+    public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
         // 1. decrypt message
-        InstantMessage iMsg = getPacker().decryptMessage(sMsg);
+        InstantMessage iMsg = getMessagePacker().decryptMessage(sMsg);
         if (iMsg == null) {
             // cannot decrypt this message, not for you?
             // delivering message to other receiver?
             return null;
         }
         // 2. process message
-        iMsg = process(iMsg, rMsg);
+        iMsg = getTransceiver().process(iMsg, rMsg);
         if (iMsg == null) {
             // nothing to respond
             return null;
         }
         // 3. encrypt message
-        return getPacker().encryptMessage(iMsg);
+        return getMessagePacker().encryptMessage(iMsg);
     }
 
-    protected InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
-        // process content from sender
-        Content content = iMsg.getContent();
-        Content response = process(content, rMsg);
+    @Override
+    public InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
+        // 1. process content
+        Content response = getTransceiver().process(iMsg.getContent(), rMsg);
         if (response == null) {
             // nothing to respond
             return null;
         }
 
-        // select a local user to build message
+        // 2. select a local user to build message
         ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
         User user = getEntityDelegate().selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
 
-        // pack message
+        // 3. pack message
         Envelope env = Envelope.create(user.identifier, sender, null);
         return InstantMessage.create(env, response);
     }
-
-    protected abstract Content process(Content content, ReliableMessage rMsg);
 
     /**
      *  Register Core Content/Command Factories

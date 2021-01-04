@@ -37,9 +37,10 @@ import java.util.Map;
 import chat.dim.Group;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.Message;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
@@ -47,37 +48,48 @@ import chat.dim.protocol.SecureMessage;
  *  Message Packer
  *  ~~~~~~~~~~~~~~
  */
-public class Packer {
+public class Packer implements MessagePacker {
 
-    private final WeakReference<EntityDelegate> entityDelegateRef;
-    private final WeakReference<Message.Delegate> messageDelegateRef;
-    private final WeakReference<CipherKeyDelegate> cipherKeyDelegateRef;
+    private final WeakReference<Transceiver> transceiverRef;
 
-    public Packer(EntityDelegate barrack, Message.Delegate transceiver, CipherKeyDelegate keyCache) {
+    public Packer(Transceiver messenger) {
         super();
-        entityDelegateRef = new WeakReference<>(barrack);
-        messageDelegateRef = new WeakReference<>(transceiver);
-        cipherKeyDelegateRef = new WeakReference<>(keyCache);
+        transceiverRef = new WeakReference<>(messenger);
     }
 
-    protected EntityDelegate getEntityDelegate() {
-        return entityDelegateRef.get();
+    protected Transceiver getTransceiver() {
+        return transceiverRef.get();
     }
-    protected Message.Delegate getMessageDelegate() {
-        return messageDelegateRef.get();
+    protected EntityDelegate getEntityDelegate() {
+        return getTransceiver().getEntityDelegate();
     }
     protected CipherKeyDelegate getCipherKeyDelegate() {
-        return cipherKeyDelegateRef.get();
+        return getTransceiver().getCipherKeyDelegate();
     }
 
-    //
-    //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
-    //
+    @Override
+    public ID getOvertGroup(Content content) {
+        ID group = content.getGroup();
+        if (group == null) {
+            return null;
+        }
+        if (ID.isBroadcast(group)) {
+            // broadcast message is always overt
+            return group;
+        }
+        if (content instanceof Command) {
+            // group command should be sent to each member directly, so
+            // don't expose group ID
+            return null;
+        }
+        return group;
+    }
 
+    @Override
     public SecureMessage encryptMessage(InstantMessage iMsg) {
         // check message delegate
         if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(getMessageDelegate());
+            iMsg.setDelegate(getTransceiver());
         }
         ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
@@ -98,7 +110,7 @@ public class Packer {
         //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
-        ID group = getMessageDelegate().getOvertGroup(iMsg.getContent());
+        ID group = getOvertGroup(iMsg.getContent());
         SymmetricKey password;
         if (group == null) {
             // personal message or (group) command
@@ -154,25 +166,24 @@ public class Packer {
         return sMsg;
     }
 
+    @Override
     public ReliableMessage signMessage(SecureMessage sMsg) {
         // check message delegate
         if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(getMessageDelegate());
+            sMsg.setDelegate(getTransceiver());
         }
         assert sMsg.getData() != null : "message data cannot be empty";
         // sign 'data' by sender
         return sMsg.sign();
     }
 
+    @Override
     public byte[] serializeMessage(ReliableMessage rMsg) {
         return JSON.encode(rMsg);
     }
 
-    //
-    //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
-    //
-
     @SuppressWarnings("unchecked")
+    @Override
     public ReliableMessage deserializeMessage(byte[] data) {
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
@@ -190,10 +201,11 @@ public class Packer {
         return ReliableMessage.parse(dict);
     }
 
+    @Override
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
         // check message delegate
         if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(getMessageDelegate());
+            rMsg.setDelegate(getTransceiver());
         }
         //
         //  TODO: check [Visa Protocol]
@@ -206,10 +218,11 @@ public class Packer {
         return rMsg.verify();
     }
 
+    @Override
     public InstantMessage decryptMessage(SecureMessage sMsg) {
         // check message delegate
         if (sMsg.getDelegate() == null) {
-            sMsg.setDelegate(getMessageDelegate());
+            sMsg.setDelegate(getTransceiver());
         }
         //
         //  NOTICE: make sure the receiver is YOU!
