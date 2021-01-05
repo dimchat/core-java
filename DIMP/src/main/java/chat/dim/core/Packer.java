@@ -73,7 +73,7 @@ public class Packer implements MessagePacker {
         if (group == null) {
             return null;
         }
-        if (ID.isBroadcast(group)) {
+        if (group.isBroadcast()) {
             // broadcast message is always overt
             return group;
         }
@@ -84,6 +84,10 @@ public class Packer implements MessagePacker {
         }
         return group;
     }
+
+    //
+    //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
+    //
 
     @Override
     public SecureMessage encryptMessage(InstantMessage iMsg) {
@@ -124,7 +128,7 @@ public class Packer implements MessagePacker {
 
         // 2. encrypt 'content' to 'data' for receiver/group members
         SecureMessage sMsg;
-        if (ID.isGroup(receiver)) {
+        if (receiver.isGroup()) {
             // group message
             Group grp = getEntityDelegate().getGroup(receiver);
             if (grp == null) {
@@ -181,6 +185,10 @@ public class Packer implements MessagePacker {
     public byte[] serializeMessage(ReliableMessage rMsg) {
         return JSON.encode(rMsg);
     }
+
+    //
+    //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
+    //
 
     @SuppressWarnings("unchecked")
     @Override

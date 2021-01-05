@@ -173,7 +173,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         if (receiver == null) {
             receiver = msg.getReceiver();
         }
-        return ID.isBroadcast(receiver);
+        return receiver.isBroadcast();
     }
 
     //-------- InstantMessageDelegate

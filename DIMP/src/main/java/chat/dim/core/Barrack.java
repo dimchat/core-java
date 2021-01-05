@@ -131,11 +131,11 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
         List<User> users = getLocalUsers();
         if (users == null || users.size() == 0) {
             throw new NullPointerException("local users should not be empty");
-        } else if (ID.isBroadcast(receiver)) {
+        } else if (receiver.isBroadcast()) {
             // broadcast message can decrypt by anyone, so just return current user
             return users.get(0);
         }
-        if (ID.isGroup(receiver)) {
+        if (receiver.isGroup()) {
             // group message (recipient not designated)
             List<ID> members = getMembers(receiver);
             if (members == null || members.size() == 0) {
@@ -255,7 +255,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     @Override
     public ID getFounder(ID group) {
         // check broadcast group
-        if (ID.isBroadcast(group)) {
+        if (group.isBroadcast()) {
             // founder of broadcast group
             String name = group.getName();
             int len = name == null ? 0 : name.length();
@@ -300,7 +300,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     @Override
     public ID getOwner(ID group) {
         // check broadcast group
-        if (ID.isBroadcast(group)) {
+        if (group.isBroadcast()) {
             // owner of broadcast group
             String name = group.getName();
             int len = name == null ? 0 : name.length();
@@ -326,7 +326,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
     @Override
     public List<ID> getMembers(ID group) {
         // check broadcast group
-        if (ID.isBroadcast(group)) {
+        if (group.isBroadcast()) {
             // members of broadcast group
             ID member;
             ID owner;

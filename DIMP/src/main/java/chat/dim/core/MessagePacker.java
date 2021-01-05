@@ -87,7 +87,7 @@ public interface MessagePacker {
     ReliableMessage deserializeMessage(byte[] data);
 
     /**
-     *  Verify content data
+     *  Verify encrypted content data
      *
      * @param rMsg - network message
      * @return encrypted message
