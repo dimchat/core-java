@@ -51,8 +51,8 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     private WeakReference<EntityDelegate> entityDelegateRef = null;
     private WeakReference<CipherKeyDelegate> cipherKeyDelegateRef = null;
 
-    private WeakReference<MessagePacker> messagePackerRef = null;
-    private WeakReference<MessageProcessor> messageProcessorRef = null;
+    private WeakReference<Packer> packerRef = null;
+    private WeakReference<Processor> processorRef = null;
 
     public Transceiver() {
         super();
@@ -93,14 +93,14 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
      *
      * @param packer - message packer
      */
-    public void setMessagePacker(MessagePacker packer) {
-        messagePackerRef = new WeakReference<>(packer);
+    public void setPacker(Packer packer) {
+        packerRef = new WeakReference<>(packer);
     }
-    protected MessagePacker getMessagePacker() {
-        if (messagePackerRef == null) {
+    protected Packer getPacker() {
+        if (packerRef == null) {
             return null;
         }
-        return messagePackerRef.get();
+        return packerRef.get();
     }
 
     /**
@@ -108,64 +108,64 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
      *
      * @param processor - message processor
      */
-    public void setMessageProcessor(MessageProcessor processor) {
-        messageProcessorRef = new WeakReference<>(processor);
+    public void setProcessor(Processor processor) {
+        processorRef = new WeakReference<>(processor);
     }
-    protected MessageProcessor getMessageProcessor() {
-        if (messageProcessorRef == null) {
+    protected Processor getProcessor() {
+        if (processorRef == null) {
             return null;
         }
-        return messageProcessorRef.get();
+        return processorRef.get();
     }
 
     //
     //  Interfaces for Packing Message
     //
     public SecureMessage encryptMessage(InstantMessage iMsg) {
-        return getMessagePacker().encryptMessage(iMsg);
+        return getPacker().encryptMessage(iMsg);
     }
 
     public ReliableMessage signMessage(SecureMessage sMsg) {
-        return getMessagePacker().signMessage(sMsg);
+        return getPacker().signMessage(sMsg);
     }
 
     public byte[] serializeMessage(ReliableMessage rMsg) {
-        return getMessagePacker().serializeMessage(rMsg);
+        return getPacker().serializeMessage(rMsg);
     }
 
     public ReliableMessage deserializeMessage(byte[] data) {
-        return getMessagePacker().deserializeMessage(data);
+        return getPacker().deserializeMessage(data);
     }
 
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
-        return getMessagePacker().verifyMessage(rMsg);
+        return getPacker().verifyMessage(rMsg);
     }
 
     public InstantMessage decryptMessage(SecureMessage sMsg) {
-        return getMessagePacker().decryptMessage(sMsg);
+        return getPacker().decryptMessage(sMsg);
     }
 
     //
     //  Interfaces for Processing Message
     //
     public byte[] process(byte[] data) {
-        return getMessageProcessor().process(data);
+        return getProcessor().process(data);
     }
 
     public ReliableMessage process(ReliableMessage rMsg) {
-        return getMessageProcessor().process(rMsg);
+        return getProcessor().process(rMsg);
     }
 
     public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
-        return getMessageProcessor().process(sMsg, rMsg);
+        return getProcessor().process(sMsg, rMsg);
     }
 
     public InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
-        return getMessageProcessor().process(iMsg, rMsg);
+        return getProcessor().process(iMsg, rMsg);
     }
 
     public Content process(Content content, ReliableMessage rMsg) {
-        return getMessageProcessor().process(content, rMsg);
+        return getProcessor().process(content, rMsg);
     }
 
     private boolean isBroadcast(Message msg) {
@@ -295,7 +295,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
             ID sender = sMsg.getSender();
-            ID group = getMessagePacker().getOvertGroup(content);
+            ID group = getPacker().getOvertGroup(content);
             if (group == null) {
                 ID receiver = sMsg.getReceiver();
                 // personal message or (group) command
@@ -337,5 +337,118 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         User contact = getEntityDelegate().getUser(sender);
         assert contact != null : "failed to get verify key for sender: " + sender;
         return contact.verify(data, signature);
+    }
+
+    public interface Packer {
+
+        /**
+         *  Get group ID which should be exposed to public network
+         *
+         * @param content - message content
+         * @return exposed group ID
+         */
+        ID getOvertGroup(Content content);
+
+        //
+        //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
+        //
+
+        /**
+         *  Encrypt message content
+         *
+         * @param iMsg - plain message
+         * @return encrypted message
+         */
+        SecureMessage encryptMessage(InstantMessage iMsg);
+
+        /**
+         *  Sign content data
+         *
+         * @param sMsg - encrypted message
+         * @return network message
+         */
+        ReliableMessage signMessage(SecureMessage sMsg);
+
+        /**
+         *  Serialize network message
+         *
+         * @param rMsg - network message
+         * @return data package
+         */
+        byte[] serializeMessage(ReliableMessage rMsg);
+
+        //
+        //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
+        //
+
+        /**
+         *  Deserialize network message
+         *
+         * @param data - data package
+         * @return network message
+         */
+        ReliableMessage deserializeMessage(byte[] data);
+
+        /**
+         *  Verify encrypted content data
+         *
+         * @param rMsg - network message
+         * @return encrypted message
+         */
+        SecureMessage verifyMessage(ReliableMessage rMsg);
+
+        /**
+         *  Decrypt message content
+         *
+         * @param sMsg - encrypted message
+         * @return plain message
+         */
+        InstantMessage decryptMessage(SecureMessage sMsg);
+    }
+
+    public interface Processor {
+
+        /**
+         *  Process data package
+         *
+         * @param data - data to be processed
+         * @return response data
+         */
+        byte[] process(byte[] data);
+
+        /**
+         *  Process network message
+         *
+         * @param rMsg - message to be processed
+         * @return response message
+         */
+        ReliableMessage process(ReliableMessage rMsg);
+
+        /**
+         *  Process encrypted message
+         *
+         * @param sMsg - message to be processed
+         * @param rMsg - message received
+         * @return response message
+         */
+        SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg);
+
+        /**
+         *  Process plain message
+         *
+         * @param iMsg - message to be processed
+         * @param rMsg - message received
+         * @return response message
+         */
+        InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg);
+
+        /**
+         *  Process message content
+         *
+         * @param content - content to be processed
+         * @param rMsg - message received
+         * @return response content
+         */
+        Content process(Content content, ReliableMessage rMsg);
     }
 }

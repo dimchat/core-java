@@ -48,7 +48,7 @@ import chat.dim.protocol.SecureMessage;
  *  Message Packer
  *  ~~~~~~~~~~~~~~
  */
-public class Packer implements MessagePacker {
+public class Packer implements Transceiver.Packer {
 
     private final WeakReference<Transceiver> transceiverRef;
 

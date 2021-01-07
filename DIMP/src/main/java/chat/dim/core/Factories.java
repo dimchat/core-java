@@ -114,7 +114,7 @@ public class Factories {
     /**
      *  Register core content factories
      */
-    static void registerContentFactories() {
+    public static void registerContentFactories() {
 
         // Top-Secret
         Content.register(ContentType.FORWARD, ForwardContent::new);
@@ -146,7 +146,7 @@ public class Factories {
     /**
      *  Register core command factories
      */
-    static void registerCommandFactories() {
+    public static void registerCommandFactories() {
 
         // Meta Command
         Command.register(Command.META, MetaCommand::new);

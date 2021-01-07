@@ -44,7 +44,7 @@ import chat.dim.protocol.SecureMessage;
  *  Message Processor
  *  ~~~~~~~~~~~~~~~~~
  */
-public abstract class Processor implements MessageProcessor {
+public abstract class Processor implements Transceiver.Processor {
 
     private final WeakReference<Transceiver> transceiverRef;
 
@@ -59,14 +59,14 @@ public abstract class Processor implements MessageProcessor {
     protected EntityDelegate getEntityDelegate() {
         return getTransceiver().getEntityDelegate();
     }
-    protected MessagePacker getMessagePacker() {
-        return getTransceiver().getMessagePacker();
+    protected Transceiver.Packer getPacker() {
+        return getTransceiver().getPacker();
     }
 
     @Override
     public byte[] process(byte[] data) {
         // 1. deserialize message
-        ReliableMessage rMsg = getMessagePacker().deserializeMessage(data);
+        ReliableMessage rMsg = getPacker().deserializeMessage(data);
         if (rMsg == null) {
             // no valid message received
             return null;
@@ -78,14 +78,14 @@ public abstract class Processor implements MessageProcessor {
             return null;
         }
         // 3. serialize message
-        return getMessagePacker().serializeMessage(rMsg);
+        return getPacker().serializeMessage(rMsg);
     }
 
     @Override
     public ReliableMessage process(ReliableMessage rMsg) {
         // TODO: override to check broadcast message before calling it
         // 1. verify message
-        SecureMessage sMsg = getMessagePacker().verifyMessage(rMsg);
+        SecureMessage sMsg = getPacker().verifyMessage(rMsg);
         if (sMsg == null) {
             // waiting for sender's meta if not exists
             return null;
@@ -97,14 +97,14 @@ public abstract class Processor implements MessageProcessor {
             return null;
         }
         // 3. sign message
-        return getMessagePacker().signMessage(sMsg);
+        return getPacker().signMessage(sMsg);
         // TODO: override to deliver to the receiver when catch exception "receiver error ..."
     }
 
     @Override
     public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
         // 1. decrypt message
-        InstantMessage iMsg = getMessagePacker().decryptMessage(sMsg);
+        InstantMessage iMsg = getPacker().decryptMessage(sMsg);
         if (iMsg == null) {
             // cannot decrypt this message, not for you?
             // delivering message to other receiver?
@@ -117,7 +117,7 @@ public abstract class Processor implements MessageProcessor {
             return null;
         }
         // 3. encrypt message
-        return getMessagePacker().encryptMessage(iMsg);
+        return getPacker().encryptMessage(iMsg);
     }
 
     @Override
@@ -138,13 +138,5 @@ public abstract class Processor implements MessageProcessor {
         // 3. pack message
         Envelope env = Envelope.create(user.identifier, sender, null);
         return InstantMessage.create(env, response);
-    }
-
-    /**
-     *  Register Core Content/Command Factories
-     */
-    public static void registerCoreFactories() {
-        Factories.registerContentFactories();
-        Factories.registerCommandFactories();
     }
 }
