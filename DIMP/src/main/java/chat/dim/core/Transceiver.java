@@ -121,6 +121,10 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     //
     //  Interfaces for Packing Message
     //
+    public ID getOvertGroup(Content content) {
+        return getPacker().getOvertGroup(content);
+    }
+
     public SecureMessage encryptMessage(InstantMessage iMsg) {
         return getPacker().encryptMessage(iMsg);
     }
@@ -295,7 +299,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
             ID sender = sMsg.getSender();
-            ID group = getPacker().getOvertGroup(content);
+            ID group = getOvertGroup(content);
             if (group == null) {
                 ID receiver = sMsg.getReceiver();
                 // personal message or (group) command
