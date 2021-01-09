@@ -32,6 +32,8 @@ package chat.dim;
 
 import java.util.List;
 
+import chat.dim.protocol.Bulletin;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 
 public class Group extends Entity {
@@ -45,6 +47,14 @@ public class Group extends Entity {
     @Override
     public DataSource getDataSource() {
         return (DataSource) super.getDataSource();
+    }
+
+    public Bulletin getBulletin() {
+        Document doc = getDocument(Document.BULLETIN);
+        if (doc instanceof Bulletin) {
+            return (Bulletin) doc;
+        }
+        return null;
     }
 
     public ID getFounder() {

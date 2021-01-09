@@ -37,6 +37,7 @@ import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 
@@ -62,6 +63,14 @@ public class User extends Entity {
     @Override
     public DataSource getDataSource() {
         return (DataSource) super.getDataSource();
+    }
+
+    public Visa getVisa() {
+        Document doc = getDocument(Document.VISA);
+        if (doc instanceof Visa) {
+            return (Visa) doc;
+        }
+        return null;
     }
 
     /**
