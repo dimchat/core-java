@@ -262,7 +262,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
             if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
                 // Consensus: the founder of group 'everyone@everywhere'
                 //            'Albert Moky'
-                return ID.parse("moky@anywhere");
+                return ID.FOUNDER;
             } else {
                 // DISCUSS: who should be the founder of group 'xxx@everywhere'?
                 //          'anyone@anywhere', or 'xxx.founder@anywhere'
