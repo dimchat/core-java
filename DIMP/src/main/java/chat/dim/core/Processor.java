@@ -56,17 +56,11 @@ public abstract class Processor implements Transceiver.Processor {
     protected Transceiver getTransceiver() {
         return transceiverRef.get();
     }
-    protected EntityDelegate getEntityDelegate() {
-        return getTransceiver().getEntityDelegate();
-    }
-    protected Transceiver.Packer getPacker() {
-        return getTransceiver().getPacker();
-    }
 
     @Override
     public byte[] process(byte[] data) {
         // 1. deserialize message
-        ReliableMessage rMsg = getPacker().deserializeMessage(data);
+        ReliableMessage rMsg = getTransceiver().deserializeMessage(data);
         if (rMsg == null) {
             // no valid message received
             return null;
@@ -78,14 +72,14 @@ public abstract class Processor implements Transceiver.Processor {
             return null;
         }
         // 3. serialize message
-        return getPacker().serializeMessage(rMsg);
+        return getTransceiver().serializeMessage(rMsg);
     }
 
     @Override
     public ReliableMessage process(ReliableMessage rMsg) {
         // TODO: override to check broadcast message before calling it
         // 1. verify message
-        SecureMessage sMsg = getPacker().verifyMessage(rMsg);
+        SecureMessage sMsg = getTransceiver().verifyMessage(rMsg);
         if (sMsg == null) {
             // waiting for sender's meta if not exists
             return null;
@@ -97,14 +91,14 @@ public abstract class Processor implements Transceiver.Processor {
             return null;
         }
         // 3. sign message
-        return getPacker().signMessage(sMsg);
+        return getTransceiver().signMessage(sMsg);
         // TODO: override to deliver to the receiver when catch exception "receiver error ..."
     }
 
     @Override
     public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
         // 1. decrypt message
-        InstantMessage iMsg = getPacker().decryptMessage(sMsg);
+        InstantMessage iMsg = getTransceiver().decryptMessage(sMsg);
         if (iMsg == null) {
             // cannot decrypt this message, not for you?
             // delivering message to other receiver?
@@ -117,7 +111,7 @@ public abstract class Processor implements Transceiver.Processor {
             return null;
         }
         // 3. encrypt message
-        return getPacker().encryptMessage(iMsg);
+        return getTransceiver().encryptMessage(iMsg);
     }
 
     @Override
@@ -132,7 +126,7 @@ public abstract class Processor implements Transceiver.Processor {
         // 2. select a local user to build message
         ID sender = iMsg.getSender();
         ID receiver = iMsg.getReceiver();
-        User user = getEntityDelegate().selectLocalUser(receiver);
+        User user = getTransceiver().selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
 
         // 3. pack message

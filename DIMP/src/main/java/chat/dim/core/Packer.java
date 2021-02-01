@@ -60,12 +60,6 @@ public class Packer implements Transceiver.Packer {
     protected Transceiver getTransceiver() {
         return transceiverRef.get();
     }
-    protected EntityDelegate getEntityDelegate() {
-        return getTransceiver().getEntityDelegate();
-    }
-    protected CipherKeyDelegate getCipherKeyDelegate() {
-        return getTransceiver().getCipherKeyDelegate();
-    }
 
     @Override
     public ID getOvertGroup(Content content) {
@@ -118,11 +112,11 @@ public class Packer implements Transceiver.Packer {
         SymmetricKey password;
         if (group == null) {
             // personal message or (group) command
-            password = getCipherKeyDelegate().getCipherKey(sender, receiver, true);
+            password = getTransceiver().getCipherKey(sender, receiver, true);
             assert password != null : "failed to get msg key: " + sender + " -> " + receiver;
         } else {
             // group message (excludes group command)
-            password = getCipherKeyDelegate().getCipherKey(sender, group, true);
+            password = getTransceiver().getCipherKey(sender, group, true);
             assert password != null : "failed to get group msg key: " + sender + " -> " + group;
         }
 
@@ -130,7 +124,7 @@ public class Packer implements Transceiver.Packer {
         SecureMessage sMsg;
         if (receiver.isGroup()) {
             // group message
-            Group grp = getEntityDelegate().getGroup(receiver);
+            Group grp = getTransceiver().getGroup(receiver);
             if (grp == null) {
                 // group not ready
                 // TODO: suspend this message for waiting group's meta

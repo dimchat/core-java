@@ -33,6 +33,7 @@ package chat.dim.core;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
+import chat.dim.Group;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
@@ -49,7 +50,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
 
     // delegates
     private WeakReference<EntityDelegate> entityDelegateRef = null;
-    private WeakReference<CipherKeyDelegate> cipherKeyDelegateRef = null;
+    private WeakReference<CipherKeyDelegate> keyDelegateRef = null;
 
     private WeakReference<Packer> packerRef = null;
     private WeakReference<Processor> processorRef = null;
@@ -67,10 +68,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         entityDelegateRef = new WeakReference<>(barrack);
     }
     protected EntityDelegate getEntityDelegate() {
-        if (entityDelegateRef == null) {
-            return null;
-        }
-        return entityDelegateRef.get();
+        return entityDelegateRef == null ? null : entityDelegateRef.get();
     }
 
     /**
@@ -79,13 +77,10 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
      * @param keyCache - key store
      */
     public void setCipherKeyDelegate(CipherKeyDelegate keyCache) {
-        cipherKeyDelegateRef = new WeakReference<>(keyCache);
+        keyDelegateRef = new WeakReference<>(keyCache);
     }
     protected CipherKeyDelegate getCipherKeyDelegate() {
-        if (cipherKeyDelegateRef == null) {
-            return null;
-        }
-        return cipherKeyDelegateRef.get();
+        return keyDelegateRef == null ? null : keyDelegateRef.get();
     }
 
     /**
@@ -97,10 +92,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         packerRef = new WeakReference<>(packer);
     }
     protected Packer getPacker() {
-        if (packerRef == null) {
-            return null;
-        }
-        return packerRef.get();
+        return packerRef == null ? null : packerRef.get();
     }
 
     /**
@@ -112,10 +104,33 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         processorRef = new WeakReference<>(processor);
     }
     protected Processor getProcessor() {
-        if (processorRef == null) {
-            return null;
-        }
-        return processorRef.get();
+        return processorRef == null ? null : processorRef.get();
+    }
+
+    //
+    //  Interfaces for User/Group
+    //
+    public User selectLocalUser(ID receiver) {
+        return getEntityDelegate().selectLocalUser(receiver);
+    }
+
+    public User getUser(ID identifier) {
+        return getEntityDelegate().selectLocalUser(identifier);
+    }
+
+    public Group getGroup(ID identifier) {
+        return getEntityDelegate().getGroup(identifier);
+    }
+
+    //
+    //  Interfaces for Cipher Key
+    //
+    public SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate) {
+        return getCipherKeyDelegate().getCipherKey(sender, receiver, generate);
+    }
+
+    public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
+        getCipherKeyDelegate().cacheCipherKey(sender, receiver, key);
     }
 
     //
@@ -216,11 +231,8 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     @Override
     public byte[] encryptKey(byte[] data, ID receiver, InstantMessage iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
-        // TODO: make sure the receiver's public key exists
-        User contact = getEntityDelegate().getUser(receiver);
-        assert contact != null : "failed to get encrypt key for receiver: " + receiver;
-        // encrypt with receiver's public key
-        return contact.encrypt(data);
+        // NOTICE: make sure the receiver's public key exists
+        return getUser(receiver).encrypt(data);
     }
 
     @Override
@@ -243,9 +255,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
         ID identifier = sMsg.getReceiver();
-        User user = getEntityDelegate().getUser(identifier);
-        assert user != null : "failed to get decrypt keys: " + identifier;
-        return user.decrypt(key);
+        return getUser(identifier).decrypt(key);
     }
 
     @SuppressWarnings("unchecked")
@@ -254,8 +264,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
         // NOTICE: the receiver will be group ID in a group message here
         if (key == null) {
             // get key from cache
-            CipherKeyDelegate keyCache = getCipherKeyDelegate();
-            return keyCache.getCipherKey(sender, receiver, false);
+            return getCipherKey(sender, receiver, false);
         } else {
             assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
             Map<String, Object> dict = (Map<String, Object>) JSON.decode(key);
@@ -304,11 +313,11 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
                 ID receiver = sMsg.getReceiver();
                 // personal message or (group) command
                 // cache key with direction (sender -> receiver)
-                getCipherKeyDelegate().cacheCipherKey(sender, receiver, password);
+                cacheCipherKey(sender, receiver, password);
             } else {
                 // group message (excludes group command)
                 // cache the key with direction (sender -> group)
-                getCipherKeyDelegate().cacheCipherKey(sender, group, password);
+                cacheCipherKey(sender, group, password);
             }
         }
 
@@ -319,9 +328,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
 
     @Override
     public byte[] signData(byte[] data, ID sender, SecureMessage sMsg) {
-        User user = getEntityDelegate().getUser(sender);
-        assert user != null : "failed to get sign key for sender: " + sender;
-        return user.sign(data);
+        return getUser(sender).sign(data);
     }
 
     @Override
@@ -338,9 +345,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
-        User contact = getEntityDelegate().getUser(sender);
-        assert contact != null : "failed to get verify key for sender: " + sender;
-        return contact.verify(data, signature);
+        return getUser(sender).verify(data, signature);
     }
 
     public interface Packer {

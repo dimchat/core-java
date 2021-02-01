@@ -55,8 +55,8 @@ import chat.dim.protocol.Visa;
 public abstract class Barrack implements EntityDelegate, User.DataSource, Group.DataSource {
 
     // memory caches
-    private Map<ID, User>  userMap  = new HashMap<>();
-    private Map<ID, Group> groupMap = new HashMap<>();
+    private final Map<ID, User>  userMap  = new HashMap<>();
+    private final Map<ID, Group> groupMap = new HashMap<>();
 
     protected Barrack() {
         super();
@@ -75,8 +75,8 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
         return finger >> 1;
     }
 
-    public static int thanos(Map map, int finger) {
-        Iterator iterator = map.entrySet().iterator();
+    public static <K, V> int thanos(Map<K, V> map, int finger) {
+        Iterator<Map.Entry<K, V>> iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
             iterator.next();
             if ((++finger & 1) == 1) {
@@ -106,23 +106,12 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
 
     protected abstract Group createGroup(ID identifier);
 
-    //-------- group membership
-
-    public boolean isFounder(ID member, ID group) {
-        // check member's public key with group's meta.key
-        Meta gMeta = getMeta(group);
-        assert gMeta != null : "failed to get meta for group: " + group;
-        Meta mMeta = getMeta(member);
-        assert mMeta != null : "failed to get meta for member: " + member;
-        return gMeta.matches(mMeta.getKey());
-    }
-
-    public boolean isOwner(ID member, ID group) {
-        if (NetworkType.POLYLOGUE.equals(group.getType())) {
-            return isFounder(member, group);
-        }
-        throw new UnsupportedOperationException("only Polylogue so far");
-    }
+    /**
+     *  Get all local users (for decrypting received message)
+     *
+     * @return users with private key
+     */
+    public abstract List<User> getLocalUsers();
 
     //-------- EntityDelegate
 
