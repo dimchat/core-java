@@ -115,7 +115,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     }
 
     public User getUser(ID identifier) {
-        return getEntityDelegate().selectLocalUser(identifier);
+        return getEntityDelegate().getUser(identifier);
     }
 
     public Group getGroup(ID identifier) {
