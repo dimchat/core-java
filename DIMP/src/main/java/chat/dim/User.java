@@ -224,7 +224,7 @@ public class User extends Entity {
 
         /**
          *  Get user's public key for encryption
-         *  (profile.key or meta.key)
+         *  (visa.key or meta.key)
          *
          * @param user - user ID
          * @return visa.key or meta.key

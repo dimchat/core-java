@@ -108,7 +108,7 @@ public class Packer implements Transceiver.Packer {
         //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
-        ID group = getOvertGroup(iMsg.getContent());
+        ID group = getTransceiver().getOvertGroup(iMsg.getContent());
         SymmetricKey password;
         if (group == null) {
             // personal message or (group) command

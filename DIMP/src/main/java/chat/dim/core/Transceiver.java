@@ -60,7 +60,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     }
 
     /**
-     *  Delegate for getting entity
+     *  Delegate for User/Group
      *
      * @param barrack - entity delegate
      */
@@ -72,7 +72,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     }
 
     /**
-     *  Delegate for getting message key
+     *  Delegate for Cipher Key
      *
      * @param keyCache - key store
      */
@@ -84,7 +84,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     }
 
     /**
-     *  Delegate for packing message
+     *  Delegate for Packing Message
      *
      * @param packer - message packer
      */
@@ -96,7 +96,7 @@ public class Transceiver implements InstantMessage.Delegate, ReliableMessage.Del
     }
 
     /**
-     *  Delegate for processing message
+     *  Delegate for Processing Message
      *
      * @param processor - message processor
      */

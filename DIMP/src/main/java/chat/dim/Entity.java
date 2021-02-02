@@ -44,10 +44,8 @@ import chat.dim.protocol.Meta;
  *  properties:
  *      identifier - entity ID
  *      type       - entity type
- *      number     - search number
  *      meta       - meta for generate ID
  *      document   - entity document
- *      name       - nickname
  */
 public class Entity {
 

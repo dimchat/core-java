@@ -210,7 +210,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
         // 2. get key from meta
         VerifyKey metaKey = getMetaKey(user);
         if (metaKey instanceof EncryptKey) {
-            // if profile.key not exists and meta.key is encrypt key,
+            // if visa.key not exists and meta.key is encrypt key,
             // use it for encryption
             return (EncryptKey) metaKey;
         }
