@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.User;
 import chat.dim.crypto.EncryptKey;
@@ -52,7 +53,7 @@ import chat.dim.protocol.Visa;
  *  ~~~~~~~~~~~~~~~
  *  Manage meta for all entities
  */
-public abstract class Barrack implements EntityDelegate, User.DataSource, Group.DataSource {
+public abstract class Barrack implements Entity.Delegate, User.DataSource, Group.DataSource {
 
     // memory caches
     private final Map<ID, User>  userMap  = new HashMap<>();
@@ -113,7 +114,7 @@ public abstract class Barrack implements EntityDelegate, User.DataSource, Group.
      */
     public abstract List<User> getLocalUsers();
 
-    //-------- EntityDelegate
+    //-------- Entity Delegate
 
     @Override
     public User selectLocalUser(ID receiver) {

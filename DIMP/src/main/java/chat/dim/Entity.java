@@ -130,4 +130,35 @@ public class Entity {
          */
         Document getDocument(ID identifier, String type);
     }
+
+    /**
+     *  Entity Delegate
+     *  ~~~~~~~~~~~~~~~
+     */
+    public interface Delegate {
+
+        /**
+         *  Select local user for receiver
+         *
+         * @param receiver - user/group ID
+         * @return local user
+         */
+        User selectLocalUser(ID receiver);
+
+        /**
+         *  Create user with ID
+         *
+         * @param identifier - user ID
+         * @return user
+         */
+        User getUser(ID identifier);
+
+        /**
+         *  Create group with ID
+         *
+         * @param identifier - group ID
+         * @return group
+         */
+        Group getGroup(ID identifier);
+    }
 }

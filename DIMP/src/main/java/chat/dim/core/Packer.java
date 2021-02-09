@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Group;
+import chat.dim.Transceiver;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.protocol.Command;
@@ -45,10 +46,10 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
 /**
- *  Message Packer
- *  ~~~~~~~~~~~~~~
+ *  Core Packer
+ *  ~~~~~~~~~~~
  */
-public class Packer implements Transceiver.Packer {
+public class Packer implements chat.dim.Packer {
 
     private final WeakReference<Transceiver> transceiverRef;
 

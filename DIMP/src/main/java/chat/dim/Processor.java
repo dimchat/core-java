@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,29 +28,59 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim;
 
-import chat.dim.crypto.SymmetricKey;
-import chat.dim.protocol.ID;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SecureMessage;
 
-public interface CipherKeyDelegate {
-
-    /**
-     *  Get cipher key for encrypt message from 'sender' to 'receiver'
-     *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param generate - generate when key not exists
-     * @return cipher key
-     */
-    SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate);
+/**
+ *  Message Processor
+ *  ~~~~~~~~~~~~~~~~~
+ */
+public interface Processor {
 
     /**
-     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+     *  Process data package
      *
-     * @param sender - from where (user or contact ID)
-     * @param receiver - to where (contact or user/group ID)
-     * @param key - cipher key
+     * @param data - data to be processed
+     * @return response data
      */
-    void cacheCipherKey(ID sender, ID receiver, SymmetricKey key);
+    byte[] process(byte[] data);
+
+    /**
+     *  Process network message
+     *
+     * @param rMsg - message to be processed
+     * @return response message
+     */
+    ReliableMessage process(ReliableMessage rMsg);
+
+    /**
+     *  Process encrypted message
+     *
+     * @param sMsg - message to be processed
+     * @param rMsg - message received
+     * @return response message
+     */
+    SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg);
+
+    /**
+     *  Process plain message
+     *
+     * @param iMsg - message to be processed
+     * @param rMsg - message received
+     * @return response message
+     */
+    InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg);
+
+    /**
+     *  Process message content
+     *
+     * @param content - content to be processed
+     * @param rMsg - message received
+     * @return response content
+     */
+    Content process(Content content, ReliableMessage rMsg);
 }

@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,35 +28,16 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim;
 
-import chat.dim.Group;
-import chat.dim.User;
-import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.ReliableMessage;
 
-public interface EntityDelegate {
-
-    /**
-     *  Select local user for receiver
-     *
-     * @param receiver - user/group ID
-     * @return local user
-     */
-    User selectLocalUser(ID receiver);
-
-    /**
-     *  Create user with ID
-     *
-     * @param identifier - user ID
-     * @return user
-     */
-    User getUser(ID identifier);
-
-    /**
-     *  Create group with ID
-     *
-     * @param identifier - group ID
-     * @return group
-     */
-    Group getGroup(ID identifier);
+/**
+ *  Message Transceiver
+ *  ~~~~~~~~~~~~~~~~~~~
+ */
+public interface Transceiver extends Entity.Delegate, CipherKeyDelegate,
+        Packer, Processor,
+        InstantMessage.Delegate, ReliableMessage.Delegate {
 }

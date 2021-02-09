@@ -32,6 +32,7 @@ package chat.dim.core;
 
 import java.lang.ref.WeakReference;
 
+import chat.dim.Transceiver;
 import chat.dim.User;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
@@ -41,10 +42,10 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
 /**
- *  Message Processor
- *  ~~~~~~~~~~~~~~~~~
+ *  Core Processor
+ *  ~~~~~~~~~~~~~~
  */
-public abstract class Processor implements Transceiver.Processor {
+public abstract class Processor implements chat.dim.Processor {
 
     private final WeakReference<Transceiver> transceiverRef;
 

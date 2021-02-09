@@ -79,7 +79,7 @@ public class MetaCommand extends Command {
     }
 
     /*
-     *  Entity ID (or String)
+     *  Entity ID
      *
      */
     public ID getIdentifier() {
