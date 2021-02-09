@@ -30,14 +30,11 @@
  */
 package chat.dim;
 
-import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.Message;
 
 /**
  *  Message Transceiver
  *  ~~~~~~~~~~~~~~~~~~~
  */
-public interface Transceiver extends Entity.Delegate, CipherKeyDelegate,
-        Packer, Processor,
-        InstantMessage.Delegate, ReliableMessage.Delegate {
+public interface Transceiver extends Entity.Delegate, CipherKeyDelegate, Message.Delegate, Packer, Processor {
 }

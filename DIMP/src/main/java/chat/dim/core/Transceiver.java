@@ -54,7 +54,7 @@ import chat.dim.protocol.SecureMessage;
  *  Core Transceiver
  *  ~~~~~~~~~~~~~~~~
  */
-public class Transceiver implements chat.dim.Transceiver {
+public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate {
 
     private WeakReference<Entity.Delegate> entityDelegateRef = null;
     private WeakReference<CipherKeyDelegate> keyDelegateRef = null;
