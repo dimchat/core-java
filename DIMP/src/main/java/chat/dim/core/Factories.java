@@ -45,8 +45,10 @@ import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.MoneyContent;
 import chat.dim.protocol.PageContent;
 import chat.dim.protocol.TextContent;
+import chat.dim.protocol.TransferContent;
 import chat.dim.protocol.VideoContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
@@ -132,6 +134,11 @@ public class Factories {
 
         // Web Page
         Content.register(ContentType.PAGE, PageContent::new);
+
+        // Money
+        Content.register(ContentType.MONEY, MoneyContent::new);
+        Content.register(ContentType.TRANSFER, TransferContent::new);
+        // ...
 
         // Command
         Content.register(ContentType.COMMAND, new CommandFactory());
