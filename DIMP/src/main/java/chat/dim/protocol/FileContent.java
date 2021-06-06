@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.BaseContent;
 import chat.dim.format.Base64;
@@ -49,7 +50,7 @@ import chat.dim.format.Base64;
 public class FileContent extends BaseContent {
 
     private byte[] data; // file data (plaintext)
-    private SymmetricKey key; // key to decrypt data
+    private DecryptKey key; // key to decrypt data
 
     public FileContent(Map<String, Object> dictionary) {
         super(dictionary);
@@ -119,7 +120,7 @@ public class FileContent extends BaseContent {
     }
 
     // symmetric key to decrypt the encrypted data from URL
-    public void setPassword(SymmetricKey password) {
+    public void setPassword(DecryptKey password) {
         if (password == null) {
             remove("password");
         } else {
@@ -129,7 +130,7 @@ public class FileContent extends BaseContent {
     }
 
     @SuppressWarnings("unchecked")
-    public SymmetricKey getPassword() {
+    public DecryptKey getPassword() {
         if (key == null) {
             Object password = get("password");
             if (password instanceof Map) {

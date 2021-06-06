@@ -44,8 +44,13 @@ import java.util.Map;
  */
 public class MetaCommand extends Command {
 
+    private ID identifier;
+    private Meta meta;
+
     public MetaCommand(Map<String, Object> dictionary) {
         super(dictionary);
+        identifier = null;
+        meta = null;
     }
 
     public MetaCommand(String command, ID identifier, Meta meta) {
@@ -53,10 +58,12 @@ public class MetaCommand extends Command {
         // ID
         assert identifier != null : "ID cannot be empty for meta command";
         put("ID", identifier.toString());
+        this.identifier = identifier;
         // meta
         if (meta != null) {
             put("meta", meta.getMap());
         }
+        this.meta = meta;
     }
 
     /**
@@ -83,7 +90,10 @@ public class MetaCommand extends Command {
      *
      */
     public ID getIdentifier() {
-        return ID.parse(get("ID"));
+        if (identifier == null) {
+            identifier = ID.parse(get("ID"));
+        }
+        return identifier;
     }
 
     /*
@@ -92,11 +102,13 @@ public class MetaCommand extends Command {
      */
     @SuppressWarnings("unchecked")
     public Meta getMeta() {
-        Object meta = get("meta");
-        if (meta instanceof Map) {
-            return Meta.parse((Map<String, Object>) meta);
+        if (meta == null) {
+            Object info = get("meta");
+            if (info instanceof Map) {
+                meta = Meta.parse((Map<String, Object>) info);
+            }
         }
-        return null;
+        return meta;
     }
 
     //

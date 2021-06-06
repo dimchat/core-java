@@ -52,4 +52,14 @@ public class AudioContent extends FileContent {
     public AudioContent(String filename, byte[] data) {
         super(ContentType.AUDIO, filename, data);
     }
+
+    //-------- setter/getter --------
+
+    public void setText(String message) {
+        put("text", message);
+    }
+
+    public String getText() {
+        return (String) get("text");
+    }
 }

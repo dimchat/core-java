@@ -122,6 +122,7 @@ public class GroupCommand extends HistoryCommand {
         } else {
             put("member", member.toString());
         }
+        // TODO: remove 'members'?
         this.member = member;
     }
 
