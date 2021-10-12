@@ -30,6 +30,8 @@
  */
 package chat.dim;
 
+import java.util.List;
+
 import chat.dim.protocol.Content;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
@@ -45,42 +47,42 @@ public interface Processor {
      *  Process data package
      *
      * @param data - data to be processed
-     * @return response data
+     * @return responses
      */
-    byte[] process(byte[] data);
+    List<byte[]> process(byte[] data);
 
     /**
      *  Process network message
      *
      * @param rMsg - message to be processed
-     * @return response message
+     * @return response messages
      */
-    ReliableMessage process(ReliableMessage rMsg);
+    List<ReliableMessage> process(ReliableMessage rMsg);
 
     /**
      *  Process encrypted message
      *
      * @param sMsg - message to be processed
      * @param rMsg - message received
-     * @return response message
+     * @return response messages
      */
-    SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg);
+    List<SecureMessage> process(SecureMessage sMsg, ReliableMessage rMsg);
 
     /**
      *  Process plain message
      *
      * @param iMsg - message to be processed
      * @param rMsg - message received
-     * @return response message
+     * @return response messages
      */
-    InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg);
+    List<InstantMessage> process(InstantMessage iMsg, ReliableMessage rMsg);
 
     /**
      *  Process message content
      *
      * @param content - content to be processed
      * @param rMsg - message received
-     * @return response content
+     * @return response contents
      */
-    Content process(Content content, ReliableMessage rMsg);
+    List<Content> process(Content content, ReliableMessage rMsg);
 }

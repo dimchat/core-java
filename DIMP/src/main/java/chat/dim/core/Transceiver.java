@@ -31,6 +31,7 @@
 package chat.dim.core;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.CipherKeyDelegate;
@@ -118,17 +119,17 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     //  Interfaces for User/Group
     //
     @Override
-    public User selectLocalUser(ID receiver) {
+    public User selectLocalUser(final ID receiver) {
         return getEntityDelegate().selectLocalUser(receiver);
     }
 
     @Override
-    public User getUser(ID identifier) {
+    public User getUser(final ID identifier) {
         return getEntityDelegate().getUser(identifier);
     }
 
     @Override
-    public Group getGroup(ID identifier) {
+    public Group getGroup(final ID identifier) {
         return getEntityDelegate().getGroup(identifier);
     }
 
@@ -136,12 +137,12 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     //  Interfaces for Cipher Key
     //
     @Override
-    public SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate) {
+    public SymmetricKey getCipherKey(final ID sender, final ID receiver, final boolean generate) {
         return getCipherKeyDelegate().getCipherKey(sender, receiver, generate);
     }
 
     @Override
-    public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
+    public void cacheCipherKey(final ID sender, final ID receiver, final SymmetricKey key) {
         getCipherKeyDelegate().cacheCipherKey(sender, receiver, key);
     }
 
@@ -149,37 +150,37 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     //  Interfaces for Packing Message
     //
     @Override
-    public ID getOvertGroup(Content content) {
+    public ID getOvertGroup(final Content content) {
         return getPacker().getOvertGroup(content);
     }
 
     @Override
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
+    public SecureMessage encryptMessage(final InstantMessage iMsg) {
         return getPacker().encryptMessage(iMsg);
     }
 
     @Override
-    public ReliableMessage signMessage(SecureMessage sMsg) {
+    public ReliableMessage signMessage(final SecureMessage sMsg) {
         return getPacker().signMessage(sMsg);
     }
 
     @Override
-    public byte[] serializeMessage(ReliableMessage rMsg) {
+    public byte[] serializeMessage(final ReliableMessage rMsg) {
         return getPacker().serializeMessage(rMsg);
     }
 
     @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
+    public ReliableMessage deserializeMessage(final byte[] data) {
         return getPacker().deserializeMessage(data);
     }
 
     @Override
-    public SecureMessage verifyMessage(ReliableMessage rMsg) {
+    public SecureMessage verifyMessage(final ReliableMessage rMsg) {
         return getPacker().verifyMessage(rMsg);
     }
 
     @Override
-    public InstantMessage decryptMessage(SecureMessage sMsg) {
+    public InstantMessage decryptMessage(final SecureMessage sMsg) {
         return getPacker().decryptMessage(sMsg);
     }
 
@@ -187,31 +188,31 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     //  Interfaces for Processing Message
     //
     @Override
-    public byte[] process(byte[] data) {
+    public List<byte[]> process(final byte[] data) {
         return getProcessor().process(data);
     }
 
     @Override
-    public ReliableMessage process(ReliableMessage rMsg) {
+    public List<ReliableMessage> process(final ReliableMessage rMsg) {
         return getProcessor().process(rMsg);
     }
 
     @Override
-    public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
+    public List<SecureMessage> process(final SecureMessage sMsg, final ReliableMessage rMsg) {
         return getProcessor().process(sMsg, rMsg);
     }
 
     @Override
-    public InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
+    public List<InstantMessage> process(final InstantMessage iMsg, final ReliableMessage rMsg) {
         return getProcessor().process(iMsg, rMsg);
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
+    public List<Content> process(final Content content, final ReliableMessage rMsg) {
         return getProcessor().process(content, rMsg);
     }
 
-    private boolean isBroadcast(Message msg) {
+    private boolean isBroadcast(final Message msg) {
         ID receiver = msg.getGroup();
         if (receiver == null) {
             receiver = msg.getReceiver();
@@ -222,19 +223,19 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     //-------- InstantMessageDelegate
 
     @Override
-    public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
+    public byte[] serializeContent(final Content content, final SymmetricKey password, final InstantMessage iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
         return JSON.encode(content);
     }
 
     @Override
-    public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage iMsg) {
+    public byte[] encryptContent(final byte[] data, final SymmetricKey password, final InstantMessage iMsg) {
         return password.encrypt(data);
     }
 
     @Override
-    public Object encodeData(byte[] data, InstantMessage iMsg) {
+    public Object encodeData(final byte[] data, final InstantMessage iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
@@ -244,7 +245,7 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     }
 
     @Override
-    public byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
+    public byte[] serializeKey(final SymmetricKey password, final InstantMessage iMsg) {
         if (isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
@@ -253,14 +254,14 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     }
 
     @Override
-    public byte[] encryptKey(byte[] data, ID receiver, InstantMessage iMsg) {
+    public byte[] encryptKey(final byte[] data, final ID receiver, final InstantMessage iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         // NOTICE: make sure the receiver's public key exists
         return getUser(receiver).encrypt(data);
     }
 
     @Override
-    public Object encodeKey(byte[] key, InstantMessage iMsg) {
+    public Object encodeKey(final byte[] key, final InstantMessage iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         return Base64.encode(key);
     }
@@ -268,23 +269,23 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     //-------- SecureMessageDelegate
 
     @Override
-    public byte[] decodeKey(Object key, SecureMessage sMsg) {
+    public byte[] decodeKey(final Object key, final SecureMessage sMsg) {
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         return Base64.decode((String) key);
     }
 
     @Override
-    public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
+    public byte[] decryptKey(final byte[] key, final ID sender, final ID receiver, final SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         // decrypt key data with the receiver/group member's private key
-        ID identifier = sMsg.getReceiver();
+        final ID identifier = sMsg.getReceiver();
         return getUser(identifier).decrypt(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
+    public SymmetricKey deserializeKey(final byte[] key, final ID sender, final ID receiver, final SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         if (key == null) {
             // get key from cache
@@ -303,7 +304,7 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     }
 
     @Override
-    public byte[] decodeData(Object data, SecureMessage sMsg) {
+    public byte[] decodeData(final Object data, final SecureMessage sMsg) {
         if (isBroadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
@@ -313,28 +314,28 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     }
 
     @Override
-    public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+    public byte[] decryptContent(final byte[] data, final SymmetricKey password, final SecureMessage sMsg) {
         return password.decrypt(data);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+    public Content deserializeContent(final byte[] data, final SymmetricKey password, final SecureMessage sMsg) {
         assert sMsg.getData() != null;
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
+        final Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
         //       'G' -> 'group'
-        Content content = Content.parse(dict);
+        final Content content = Content.parse(dict);
         assert content != null : "content error: " + data.length;
 
         if (!isBroadcast(sMsg)) {
             // check and cache key for reuse
-            ID sender = sMsg.getSender();
-            ID group = getOvertGroup(content);
+            final ID sender = sMsg.getSender();
+            final ID group = getOvertGroup(content);
             if (group == null) {
-                ID receiver = sMsg.getReceiver();
+                final ID receiver = sMsg.getReceiver();
                 // personal message or (group) command
                 // cache key with direction (sender -> receiver)
                 cacheCipherKey(sender, receiver, password);
@@ -351,24 +352,25 @@ public class Transceiver implements chat.dim.Transceiver, InstantMessage.Delegat
     }
 
     @Override
-    public byte[] signData(byte[] data, ID sender, SecureMessage sMsg) {
+    public byte[] signData(final byte[] data, final ID sender, final SecureMessage sMsg) {
         return getUser(sender).sign(data);
     }
 
     @Override
-    public Object encodeSignature(byte[] signature, SecureMessage sMsg) {
+    public Object encodeSignature(final byte[] signature, final SecureMessage sMsg) {
         return Base64.encode(signature);
     }
 
     //-------- ReliableMessageDelegate
 
     @Override
-    public byte[] decodeSignature(Object signature, ReliableMessage rMsg) {
+    public byte[] decodeSignature(final Object signature, final ReliableMessage rMsg) {
         return Base64.decode((String) signature);
     }
 
     @Override
-    public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
+    public boolean verifyDataSignature(final byte[] data, final byte[] signature,
+                                       final ID sender, final ReliableMessage rMsg) {
         return getUser(sender).verify(data, signature);
     }
 }

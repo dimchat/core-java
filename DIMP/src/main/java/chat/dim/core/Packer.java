@@ -63,8 +63,8 @@ public class Packer implements chat.dim.Packer {
     }
 
     @Override
-    public ID getOvertGroup(Content content) {
-        ID group = content.getGroup();
+    public ID getOvertGroup(final Content content) {
+        final ID group = content.getGroup();
         if (group == null) {
             return null;
         }
@@ -85,13 +85,14 @@ public class Packer implements chat.dim.Packer {
     //
 
     @Override
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
+    public SecureMessage encryptMessage(final InstantMessage iMsg) {
+        final Transceiver transceiver = getTransceiver();
         // check message delegate
         if (iMsg.getDelegate() == null) {
-            iMsg.setDelegate(getTransceiver());
+            iMsg.setDelegate(transceiver);
         }
-        ID sender = iMsg.getSender();
-        ID receiver = iMsg.getReceiver();
+        final ID sender = iMsg.getSender();
+        final ID receiver = iMsg.getReceiver();
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
 
@@ -109,29 +110,29 @@ public class Packer implements chat.dim.Packer {
         //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
-        ID group = getTransceiver().getOvertGroup(iMsg.getContent());
-        SymmetricKey password;
+        final ID group = transceiver.getOvertGroup(iMsg.getContent());
+        final SymmetricKey password;
         if (group == null) {
             // personal message or (group) command
-            password = getTransceiver().getCipherKey(sender, receiver, true);
+            password = transceiver.getCipherKey(sender, receiver, true);
             assert password != null : "failed to get msg key: " + sender + " -> " + receiver;
         } else {
             // group message (excludes group command)
-            password = getTransceiver().getCipherKey(sender, group, true);
+            password = transceiver.getCipherKey(sender, group, true);
             assert password != null : "failed to get group msg key: " + sender + " -> " + group;
         }
 
         // 2. encrypt 'content' to 'data' for receiver/group members
-        SecureMessage sMsg;
+        final SecureMessage sMsg;
         if (receiver.isGroup()) {
             // group message
-            Group grp = getTransceiver().getGroup(receiver);
+            final Group grp = transceiver.getGroup(receiver);
             if (grp == null) {
                 // group not ready
                 // TODO: suspend this message for waiting group's meta
                 return null;
             }
-            List<ID> members = grp.getMembers();
+            final List<ID> members = grp.getMembers();
             if (members == null || members.size() == 0) {
                 // group members not found
                 // TODO: suspend this message for waiting group's membership
@@ -166,7 +167,7 @@ public class Packer implements chat.dim.Packer {
     }
 
     @Override
-    public ReliableMessage signMessage(SecureMessage sMsg) {
+    public ReliableMessage signMessage(final SecureMessage sMsg) {
         // check message delegate
         if (sMsg.getDelegate() == null) {
             sMsg.setDelegate(getTransceiver());
@@ -177,7 +178,7 @@ public class Packer implements chat.dim.Packer {
     }
 
     @Override
-    public byte[] serializeMessage(ReliableMessage rMsg) {
+    public byte[] serializeMessage(final ReliableMessage rMsg) {
         return JSON.encode(rMsg);
     }
 
@@ -187,8 +188,8 @@ public class Packer implements chat.dim.Packer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
-        Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
+    public ReliableMessage deserializeMessage(final byte[] data) {
+        final Map<String, Object> dict = (Map<String, Object>) JSON.decode(data);
         // TODO: translate short keys
         //       'S' -> 'sender'
         //       'R' -> 'receiver'
@@ -205,7 +206,7 @@ public class Packer implements chat.dim.Packer {
     }
 
     @Override
-    public SecureMessage verifyMessage(ReliableMessage rMsg) {
+    public SecureMessage verifyMessage(final ReliableMessage rMsg) {
         // check message delegate
         if (rMsg.getDelegate() == null) {
             rMsg.setDelegate(getTransceiver());
@@ -222,7 +223,7 @@ public class Packer implements chat.dim.Packer {
     }
 
     @Override
-    public InstantMessage decryptMessage(SecureMessage sMsg) {
+    public InstantMessage decryptMessage(final SecureMessage sMsg) {
         // check message delegate
         if (sMsg.getDelegate() == null) {
             sMsg.setDelegate(getTransceiver());

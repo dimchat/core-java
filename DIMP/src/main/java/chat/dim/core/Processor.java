@@ -31,6 +31,8 @@
 package chat.dim.core;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import chat.dim.Transceiver;
 import chat.dim.User;
@@ -59,79 +61,120 @@ public abstract class Processor implements chat.dim.Processor {
     }
 
     @Override
-    public byte[] process(byte[] data) {
+    public List<byte[]> process(final byte[] data) {
+        final Transceiver transceiver = getTransceiver();
         // 1. deserialize message
-        ReliableMessage rMsg = getTransceiver().deserializeMessage(data);
+        final ReliableMessage rMsg = transceiver.deserializeMessage(data);
         if (rMsg == null) {
             // no valid message received
             return null;
         }
         // 2. process message
-        rMsg = getTransceiver().process(rMsg);
-        if (rMsg == null) {
+        final List<ReliableMessage> responses = transceiver.process(rMsg);
+        if (responses == null || responses.size() == 0) {
             // nothing to respond
             return null;
         }
         // 3. serialize message
-        return getTransceiver().serializeMessage(rMsg);
+        final List<byte[]> packages = new ArrayList<>();
+        byte[] pack;
+        for (ReliableMessage res: responses) {
+            pack = transceiver.serializeMessage(res);
+            if (pack == null) {
+                // should not happen
+                continue;
+            }
+            packages.add(pack);
+        }
+        return packages;
     }
 
     @Override
-    public ReliableMessage process(ReliableMessage rMsg) {
+    public List<ReliableMessage> process(final ReliableMessage rMsg) {
         // TODO: override to check broadcast message before calling it
+        final Transceiver transceiver = getTransceiver();
         // 1. verify message
-        SecureMessage sMsg = getTransceiver().verifyMessage(rMsg);
+        final SecureMessage sMsg = transceiver.verifyMessage(rMsg);
         if (sMsg == null) {
             // waiting for sender's meta if not exists
             return null;
         }
         // 2. process message
-        sMsg = getTransceiver().process(sMsg, rMsg);
-        if (sMsg == null) {
+        final List<SecureMessage> responses = transceiver.process(sMsg, rMsg);
+        if (responses == null || responses.size() == 0) {
             // nothing to respond
             return null;
         }
-        // 3. sign message
-        return getTransceiver().signMessage(sMsg);
+        // 3. sign messages
+        final List<ReliableMessage> messages = new ArrayList<>();
+        ReliableMessage msg;
+        for (SecureMessage res : responses) {
+            msg = transceiver.signMessage(res);
+            if (msg == null) {
+                // should not happen
+                continue;
+            }
+            messages.add(msg);
+        }
+        return messages;
         // TODO: override to deliver to the receiver when catch exception "receiver error ..."
     }
 
     @Override
-    public SecureMessage process(SecureMessage sMsg, ReliableMessage rMsg) {
+    public List<SecureMessage> process(final SecureMessage sMsg, final ReliableMessage rMsg) {
+        final Transceiver transceiver = getTransceiver();
         // 1. decrypt message
-        InstantMessage iMsg = getTransceiver().decryptMessage(sMsg);
+        final InstantMessage iMsg = transceiver.decryptMessage(sMsg);
         if (iMsg == null) {
             // cannot decrypt this message, not for you?
             // delivering message to other receiver?
             return null;
         }
         // 2. process message
-        iMsg = getTransceiver().process(iMsg, rMsg);
-        if (iMsg == null) {
+        final List<InstantMessage> responses = transceiver.process(iMsg, rMsg);
+        if (responses == null || responses.size() == 0) {
             // nothing to respond
             return null;
         }
-        // 3. encrypt message
-        return getTransceiver().encryptMessage(iMsg);
+        // 3. encrypt messages
+        final List<SecureMessage> messages = new ArrayList<>();
+        SecureMessage msg;
+        for (InstantMessage res : responses) {
+            msg = transceiver.encryptMessage(res);
+            if (msg == null) {
+                // should not happen
+                continue;
+            }
+            messages.add(msg);
+        }
+        return messages;
     }
 
     @Override
-    public InstantMessage process(InstantMessage iMsg, ReliableMessage rMsg) {
+    public List<InstantMessage> process(final InstantMessage iMsg, final ReliableMessage rMsg) {
+        final Transceiver transceiver = getTransceiver();
         // 1. process content
-        Content response = getTransceiver().process(iMsg.getContent(), rMsg);
-        if (response == null) {
+        final List<Content> responses = transceiver.process(iMsg.getContent(), rMsg);
+        if (responses == null || responses.size() == 0) {
             // nothing to respond
             return null;
         }
-
         // 2. select a local user to build message
-        ID sender = iMsg.getSender();
-        ID receiver = iMsg.getReceiver();
-        User user = getTransceiver().selectLocalUser(receiver);
+        final ID sender = iMsg.getSender();
+        final ID receiver = iMsg.getReceiver();
+        final User user = transceiver.selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
-
-        // 3. pack message
-        Envelope env = Envelope.create(user.identifier, sender, null);
-        return InstantMessage.create(env, response);
+        // 3. pack messages
+        final List<InstantMessage> messages = new ArrayList<>();
+        Envelope env;
+        for (Content res : responses) {
+            if (res == null) {
+                // should not happen
+                continue;
+            }
+            env = Envelope.create(user.identifier, sender, null);
+            messages.add(InstantMessage.create(env, res));
+        }
+        return messages;
     }
 }
