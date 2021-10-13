@@ -48,8 +48,8 @@ public class Command extends BaseContent {
 
     //-------- command names begin --------
     public static final String META      = "meta";
-    public static final String PROFILE   = "profile";
     public static final String DOCUMENT  = "document";
+
     public static final String RECEIPT   = "receipt";
     public static final String HANDSHAKE = "handshake";
     public static final String LOGIN     = "login";

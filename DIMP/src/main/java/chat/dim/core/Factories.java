@@ -159,8 +159,10 @@ public class Factories {
         Command.register(Command.META, MetaCommand::new);
 
         // Document Command
-        Command.register(Command.PROFILE, DocumentCommand::new);
         Command.register(Command.DOCUMENT, DocumentCommand::new);
+        Command.register("profile", DocumentCommand::new);
+        Command.register("visa", DocumentCommand::new);
+        Command.register("bulletin", DocumentCommand::new);
 
         // Group Commands
         Command.register("group", new GroupCommandFactory());
@@ -170,5 +172,10 @@ public class Factories {
         Command.register(GroupCommand.QUIT, QuitCommand::new);
         Command.register(GroupCommand.QUERY, QueryCommand::new);
         Command.register(GroupCommand.RESET, ResetCommand::new);
+    }
+
+    public static void registerCoreFactories() {
+        registerContentFactories();
+        registerCommandFactories();
     }
 }

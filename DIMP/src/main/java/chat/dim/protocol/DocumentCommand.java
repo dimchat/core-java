@@ -63,7 +63,7 @@ public class DocumentCommand extends MetaCommand {
      * @param doc - entity Document
      */
     public DocumentCommand(ID identifier, Meta meta, Document doc) {
-        super(PROFILE, identifier, meta);
+        super(DOCUMENT, identifier, meta);
         // document
         if (doc != null) {
             put("profile", doc.getMap());
