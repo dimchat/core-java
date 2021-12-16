@@ -42,7 +42,6 @@ import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MoneyContent;
@@ -58,58 +57,6 @@ import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 
 public class Factories {
-
-    public static class CommandFactory implements Content.Factory, Command.Factory {
-
-        @Override
-        public Content parseContent(Map<String, Object> content) {
-            String command = Command.getCommand(content);
-            // get factory by command name
-            Command.Factory factory = Command.getFactory(command);
-            if (factory == null) {
-                // check for group command
-                if (Content.getGroup(content) != null) {
-                    factory = Command.getFactory("group");
-                }
-                if (factory == null) {
-                    factory = this;
-                }
-            }
-            return factory.parseCommand(content);
-        }
-
-        @Override
-        public Command parseCommand(Map<String, Object> cmd) {
-            return new Command(cmd);
-        }
-    }
-
-    public static class HistoryCommandFactory extends CommandFactory {
-
-        @Override
-        public Command parseCommand(Map<String, Object> cmd) {
-            return new HistoryCommand(cmd);
-        }
-    }
-
-    public static class GroupCommandFactory extends HistoryCommandFactory {
-
-        @Override
-        public Content parseContent(Map<String, Object> content) {
-            String command = Command.getCommand(content);
-            // get factory by command name
-            Command.Factory factory = Command.getFactory(command);
-            if (factory == null) {
-                factory = this;
-            }
-            return factory.parseCommand(content);
-        }
-
-        @Override
-        public Command parseCommand(Map<String, Object> cmd) {
-            return new GroupCommand(cmd);
-        }
-    }
 
     public static final Map<String, Command.Factory> commandFactories = new HashMap<>();
 

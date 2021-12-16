@@ -30,12 +30,10 @@
  */
 package chat.dim;
 
-import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.ReliableMessage;
-
 /**
- *  Message Transceiver
- *  ~~~~~~~~~~~~~~~~~~~
+ *  Entity Database
+ *  ~~~~~~~~~~~~~~~
+ *  Manage meta for all entities
  */
-public interface Transceiver extends CipherKeyDelegate, InstantMessage.Delegate, ReliableMessage.Delegate {
+public interface Barrack extends Entity.Delegate, User.DataSource, Group.DataSource {
 }

@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2020 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2020 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,29 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim;
+package chat.dim.core;
 
-import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.ReliableMessage;
+import java.util.Map;
 
-/**
- *  Message Transceiver
- *  ~~~~~~~~~~~~~~~~~~~
- */
-public interface Transceiver extends CipherKeyDelegate, InstantMessage.Delegate, ReliableMessage.Delegate {
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.GroupCommand;
+
+public class GroupCommandFactory extends HistoryCommandFactory {
+
+    @Override
+    public Content parseContent(Map<String, Object> content) {
+        String command = Command.getCommand(content);
+        // get factory by command name
+        Command.Factory factory = Command.getFactory(command);
+        if (factory == null) {
+            factory = this;
+        }
+        return factory.parseCommand(content);
+    }
+
+    @Override
+    public Command parseCommand(Map<String, Object> cmd) {
+        return new GroupCommand(cmd);
+    }
 }
