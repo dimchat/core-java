@@ -44,7 +44,7 @@ public class CommandFactory implements Content.Factory, Command.Factory {
         Command.Factory factory = Command.getFactory(command);
         if (factory == null) {
             // check for group command
-            if (Content.getGroup(content) != null) {
+            if (content.get("group") != null) {
                 factory = Command.getFactory("group");
             }
             if (factory == null) {
