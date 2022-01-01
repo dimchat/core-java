@@ -46,12 +46,14 @@ import chat.dim.protocol.SecureMessage;
 /**
  *  Message Transceiver
  *  ~~~~~~~~~~~~~~~~~~~
+ *
+ *  Converting message format between PlainMessage and NetworkMessage
  */
 public abstract class Transceiver implements InstantMessage.Delegate, ReliableMessage.Delegate {
 
     protected abstract Entity.Delegate getEntityDelegate();
 
-    protected boolean isBroadcast(Message msg) {
+    protected static boolean isBroadcast(Message msg) {
         ID receiver = msg.getGroup();
         if (receiver == null) {
             receiver = msg.getReceiver();
@@ -95,8 +97,11 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     @Override
     public byte[] encryptKey(byte[] data, ID receiver, InstantMessage iMsg) {
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
+        Entity.Delegate barrack = getEntityDelegate();
+        assert barrack != null : "entity delegate not set yet";
         // NOTICE: make sure the receiver's public key exists
-        User user = getEntityDelegate().getUser(receiver);
+        User user = barrack.getUser(receiver);
+        assert user != null : "failed to encrypt for receiver: " + receiver;
         return user.encrypt(data);
     }
 
@@ -118,9 +123,12 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+        Entity.Delegate barrack = getEntityDelegate();
+        assert barrack != null : "entity delegate not set yet";
         // decrypt key data with the receiver/group member's private key
         ID identifier = sMsg.getReceiver();
-        User user = getEntityDelegate().getUser(identifier);
+        User user = barrack.getUser(identifier);
+        assert user != null : "failed to create local user: " + identifier;
         return user.decrypt(key);
     }
 
@@ -168,7 +176,10 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
 
     @Override
     public byte[] signData(byte[] data, ID sender, SecureMessage sMsg) {
-        User user = getEntityDelegate().getUser(sender);
+        Entity.Delegate barrack = getEntityDelegate();
+        assert barrack != null : "entity delegate not set yet";
+        User user = barrack.getUser(sender);
+        assert user != null : "failed to sign with sender: " + sender;
         return user.sign(data);
     }
 
@@ -186,7 +197,10 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
-        User user = getEntityDelegate().getUser(sender);
+        Entity.Delegate barrack = getEntityDelegate();
+        assert barrack != null : "entity delegate not set yet";
+        User user = barrack.getUser(sender);
+        assert user != null : "failed to verify signature for sender: " + sender;
         return user.verify(data, signature);
     }
 }

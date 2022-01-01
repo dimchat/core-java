@@ -49,7 +49,7 @@ public interface Processor {
      * @param data - data to be processed
      * @return responses
      */
-    List<byte[]> process(byte[] data);
+    List<byte[]> processPackage(byte[] data);
 
     /**
      *  Process network message
@@ -57,7 +57,7 @@ public interface Processor {
      * @param rMsg - message to be processed
      * @return response messages
      */
-    List<ReliableMessage> process(ReliableMessage rMsg);
+    List<ReliableMessage> processMessage(ReliableMessage rMsg);
 
     /**
      *  Process encrypted message
@@ -66,7 +66,7 @@ public interface Processor {
      * @param rMsg - message received
      * @return response messages
      */
-    List<SecureMessage> process(SecureMessage sMsg, ReliableMessage rMsg);
+    List<SecureMessage> processMessage(SecureMessage sMsg, ReliableMessage rMsg);
 
     /**
      *  Process plain message
@@ -75,7 +75,7 @@ public interface Processor {
      * @param rMsg - message received
      * @return response messages
      */
-    List<InstantMessage> process(InstantMessage iMsg, ReliableMessage rMsg);
+    List<InstantMessage> processMessage(InstantMessage iMsg, ReliableMessage rMsg);
 
     /**
      *  Process message content
@@ -84,5 +84,5 @@ public interface Processor {
      * @param rMsg - message received
      * @return response contents
      */
-    List<Content> process(Content content, ReliableMessage rMsg);
+    List<Content> processContent(Content content, ReliableMessage rMsg);
 }

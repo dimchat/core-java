@@ -100,11 +100,15 @@ public class Entity {
     }
 
     public Meta getMeta() {
-        return getDataSource().getMeta(identifier);
+        DataSource delegate = getDataSource();
+        assert delegate != null : "entity delegate not set yet";
+        return delegate.getMeta(identifier);
     }
 
     public Document getDocument(String type) {
-        return getDataSource().getDocument(identifier, type);
+        DataSource delegate = getDataSource();
+        assert delegate != null : "entity delegate not set yet";
+        return delegate.getDocument(identifier, type);
     }
 
     /**
@@ -136,14 +140,6 @@ public class Entity {
      *  ~~~~~~~~~~~~~~~
      */
     public interface Delegate {
-
-        /**
-         *  Select local user for receiver
-         *
-         * @param receiver - user/group ID
-         * @return local user
-         */
-        User selectLocalUser(ID receiver);
 
         /**
          *  Create user with ID

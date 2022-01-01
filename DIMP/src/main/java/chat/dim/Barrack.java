@@ -45,68 +45,10 @@ import chat.dim.protocol.Visa;
 /**
  *  Entity Database
  *  ~~~~~~~~~~~~~~~
- *  Manage meta for all entities
+ *
+ *  Manage meta/document for all entities
  */
 public abstract class Barrack implements Entity.Delegate, User.DataSource, Group.DataSource {
-
-    /**
-     *  Get all local users (for decrypting received message)
-     *
-     * @return users with private key
-     */
-    public abstract List<User> getLocalUsers();
-
-    /**
-     *  Get current user (for signing and sending message)
-     *
-     * @return User
-     */
-    public User getCurrentUser() {
-        List<User> users = getLocalUsers();
-        if (users == null || users.size() == 0) {
-            return null;
-        }
-        return users.get(0);
-    }
-
-    //-------- Entity Delegate
-
-    @Override
-    public User selectLocalUser(ID receiver) {
-        List<User> users = getLocalUsers();
-        if (users == null || users.size() == 0) {
-            throw new NullPointerException("local users should not be empty");
-        } else if (receiver.isBroadcast()) {
-            // broadcast message can decrypt by anyone, so just return current user
-            return users.get(0);
-        }
-        if (receiver.isGroup()) {
-            // group message (recipient not designated)
-            List<ID> members = getMembers(receiver);
-            if (members == null || members.size() == 0) {
-                // TODO: group not ready, waiting for group info
-                return null;
-            }
-            for (User item : users) {
-                if (members.contains(item.identifier)) {
-                    // DISCUSS: set this item to be current user?
-                    return item;
-                }
-            }
-        } else {
-            // 1. personal message
-            // 2. split group message
-            for (User item : users) {
-                if (receiver.equals(item.identifier)) {
-                    // DISCUSS: set this item to be current user?
-                    return item;
-                }
-            }
-        }
-        return null;
-    }
-
-    //-------- User DataSource
 
     private EncryptKey getVisaKey(ID user) {
         Document doc = getDocument(user, Document.VISA);
@@ -126,6 +68,61 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
         }
         return meta.getKey();
     }
+
+    private static String getGroupSeed(ID group) {
+        String name = group.getName();
+        if (name != null) {
+            int len = name.length();
+            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
+                name = null;
+            }
+        }
+        return name;
+    }
+
+    protected static ID getBroadcastFounder(ID group) {
+        String name = getGroupSeed(group);
+        if (name == null) {
+            // Consensus: the founder of group 'everyone@everywhere'
+            //            'Albert Moky'
+            return ID.FOUNDER;
+        } else {
+            // DISCUSS: who should be the founder of group 'xxx@everywhere'?
+            //          'anyone@anywhere', or 'xxx.founder@anywhere'
+            return ID.parse(name + ".founder@anywhere");
+        }
+    }
+    protected static ID getBroadcastOwner(ID group) {
+        String name = getGroupSeed(group);
+        if (name == null) {
+            // Consensus: the owner of group 'everyone@everywhere'
+            //            'anyone@anywhere'
+            return ID.ANYONE;
+        } else {
+            // DISCUSS: who should be the owner of group 'xxx@everywhere'?
+            //          'anyone@anywhere', or 'xxx.owner@anywhere'
+            return ID.parse(name + ".owner@anywhere");
+        }
+    }
+    protected static List<ID> getBroadcastMembers(ID group) {
+        List<ID> members = new ArrayList<>();
+        String name = getGroupSeed(group);
+        if (name == null) {
+            // Consensus: the member of group 'everyone@everywhere'
+            //            'anyone@anywhere'
+            members.add(ID.ANYONE);
+        } else {
+            // DISCUSS: who should be the member of group 'xxx@everywhere'?
+            //          'anyone@anywhere', or 'xxx.member@anywhere'
+            ID owner = ID.parse(name + ".owner@anywhere");
+            ID member = ID.parse(name + ".member@anywhere");
+            members.add(owner);
+            members.add(member);
+        }
+        return members;
+    }
+
+    //-------- User DataSource
 
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
@@ -168,59 +165,6 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
     }
 
     //-------- Group DataSource
-
-    private String getGroupSeed(ID group) {
-        String name = group.getName();
-        if (name != null) {
-            int len = name.length();
-            if (len == 0 || (len == 8 && name.equalsIgnoreCase("everyone"))) {
-                name = null;
-            }
-        }
-        return name;
-    }
-
-    protected ID getBroadcastFounder(ID group) {
-        String name = getGroupSeed(group);
-        if (name == null) {
-            // Consensus: the founder of group 'everyone@everywhere'
-            //            'Albert Moky'
-            return ID.FOUNDER;
-        } else {
-            // DISCUSS: who should be the founder of group 'xxx@everywhere'?
-            //          'anyone@anywhere', or 'xxx.founder@anywhere'
-            return ID.parse(name + ".founder@anywhere");
-        }
-    }
-    protected ID getBroadcastOwner(ID group) {
-        String name = getGroupSeed(group);
-        if (name == null) {
-            // Consensus: the owner of group 'everyone@everywhere'
-            //            'anyone@anywhere'
-            return ID.ANYONE;
-        } else {
-            // DISCUSS: who should be the owner of group 'xxx@everywhere'?
-            //          'anyone@anywhere', or 'xxx.owner@anywhere'
-            return ID.parse(name + ".owner@anywhere");
-        }
-    }
-    protected List<ID> getBroadcastMembers(ID group) {
-        List<ID> members = new ArrayList<>();
-        String name = getGroupSeed(group);
-        if (name == null) {
-            // Consensus: the member of group 'everyone@everywhere'
-            //            'anyone@anywhere'
-            members.add(ID.ANYONE);
-        } else {
-            // DISCUSS: who should be the member of group 'xxx@everywhere'?
-            //          'anyone@anywhere', or 'xxx.member@anywhere'
-            ID owner = ID.parse(name + ".owner@anywhere");
-            ID member = ID.parse(name + ".member@anywhere");
-            members.add(owner);
-            members.add(member);
-        }
-        return members;
-    }
 
     @Override
     public ID getFounder(ID group) {

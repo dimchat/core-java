@@ -38,6 +38,7 @@ import chat.dim.protocol.ID;
 
 public class Group extends Entity {
 
+    // once the group founder is set, it will never change
     private ID founder = null;
 
     public Group(ID identifier) {
@@ -59,23 +60,31 @@ public class Group extends Entity {
 
     public ID getFounder() {
         if (founder == null) {
-            founder = getDataSource().getFounder(identifier);
+            DataSource delegate = getDataSource();
+            assert delegate != null : "group delegate not set yet";
+            founder = delegate.getFounder(identifier);
         }
         return founder;
     }
 
     public ID getOwner() {
-        return getDataSource().getOwner(identifier);
+        DataSource delegate = getDataSource();
+        assert delegate != null : "group delegate not set yet";
+        return delegate.getOwner(identifier);
     }
 
     // NOTICE: the owner must be a member
     //         (usually the first one)
     public List<ID> getMembers() {
-        return getDataSource().getMembers(identifier);
+        DataSource delegate = getDataSource();
+        assert delegate != null : "group delegate not set yet";
+        return delegate.getMembers(identifier);
     }
 
     public List<ID> getAssistants() {
-        return getDataSource().getAssistants(identifier);
+        DataSource delegate = getDataSource();
+        assert delegate != null : "group delegate not set yet";
+        return delegate.getAssistants(identifier);
     }
 
     /**

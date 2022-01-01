@@ -79,7 +79,9 @@ public class User extends Entity {
      * @return contact list
      */
     public List<ID> getContacts() {
-        return getDataSource().getContacts(identifier);
+        DataSource delegate = getDataSource();
+        assert delegate != null : "user delegate not set yet";
+        return delegate.getContacts(identifier);
     }
 
     /**
@@ -90,9 +92,11 @@ public class User extends Entity {
      * @return true on correct
      */
     public boolean verify(byte[] data, byte[] signature) {
+        DataSource delegate = getDataSource();
+        assert delegate != null : "user delegate not set yet";
         // NOTICE: I suggest using the private key paired with meta.key to sign message
         //         so here should return the meta.key
-        List<VerifyKey> keys = getDataSource().getPublicKeysForVerification(identifier);
+        List<VerifyKey> keys = delegate.getPublicKeysForVerification(identifier);
         for (VerifyKey key : keys) {
             if (key.verify(data, signature)) {
                 // matched!
@@ -109,9 +113,11 @@ public class User extends Entity {
      * @return encrypted data
      */
     public byte[] encrypt(byte[] plaintext) {
+        DataSource delegate = getDataSource();
+        assert delegate != null : "user delegate not set yet";
         // NOTICE: meta.key will never changed, so use visa.key to encrypt message
         //         is a better way
-        EncryptKey key = getDataSource().getPublicKeyForEncryption(identifier);
+        EncryptKey key = delegate.getPublicKeyForEncryption(identifier);
         assert key != null : "failed to get encrypt key for user: " + identifier;
         return key.encrypt(plaintext);
     }
@@ -127,9 +133,11 @@ public class User extends Entity {
      * @return signature
      */
     public byte[] sign(byte[] data) {
+        DataSource delegate = getDataSource();
+        assert delegate != null : "user delegate not set yet";
         // NOTICE: I suggest use the private key which paired to visa.key
         //         to sign message
-        SignKey key = getDataSource().getPrivateKeyForSignature(identifier);
+        SignKey key = delegate.getPrivateKeyForSignature(identifier);
         assert key != null : "failed to get sign key for user: " + identifier;
         return key.sign(data);
     }
@@ -141,9 +149,11 @@ public class User extends Entity {
      * @return plain text
      */
     public byte[] decrypt(byte[] ciphertext) {
+        DataSource delegate = getDataSource();
+        assert delegate != null : "user delegate not set yet";
         // NOTICE: if you provide a public key in visa for encryption,
         //         here you should return the private key paired with visa.key
-        List<DecryptKey> keys = getDataSource().getPrivateKeysForDecryption(identifier);
+        List<DecryptKey> keys = delegate.getPrivateKeysForDecryption(identifier);
         assert keys != null && keys.size() > 0 : "failed to get decrypt keys for user: " + identifier;
         byte[] plaintext;
         for (DecryptKey key : keys) {
@@ -167,12 +177,11 @@ public class User extends Entity {
     //  Interfaces for Visa
     //
     public Visa sign(Visa doc) {
+        assert doc.getIdentifier().equals(identifier) : "visa ID not match: " + identifier + ", " + doc.getIdentifier();
+        DataSource delegate = getDataSource();
+        assert delegate != null : "user delegate not set yet";
         // NOTICE: only sign visa with the private key paired with your meta.key
-        if (!identifier.equals(doc.getIdentifier())) {
-            // visa ID not match
-            return null;
-        }
-        SignKey key = getDataSource().getPrivateKeyForVisaSignature(identifier);
+        SignKey key = delegate.getPrivateKeyForVisaSignature(identifier);
         assert key != null : "failed to get sign key for visa: " + identifier;
         doc.sign(key);
         return doc;
