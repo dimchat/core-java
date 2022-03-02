@@ -28,35 +28,44 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
 
 import java.util.Map;
 
-import chat.dim.dkd.BaseCommand;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.ContentType;
 
 /**
- *  History command: {
- *      type : 0x89,
+ *  Command message: {
+ *      type : 0x88,
  *      sn   : 123,
  *
  *      command : "...", // command name
- *      time    : 0,     // command timestamp
  *      extra   : info   // command parameters
  *  }
  */
-public class HistoryCommand extends BaseCommand {
+public class BaseCommand extends BaseContent implements Command {
 
-    //-------- history command names begin --------
-    // account
-    public static final String REGISTER = "register";
-    public static final String SUICIDE  = "suicide";
-    //-------- history command names end --------
-
-    public HistoryCommand(Map<String, Object> dictionary) {
+    public BaseCommand(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
-    public HistoryCommand(String command) {
-        super(ContentType.HISTORY, command);
+    public BaseCommand(ContentType type, String command) {
+        super(type);
+        put("command", command);
+    }
+
+    public BaseCommand(String command) {
+        this(ContentType.COMMAND, command);
+    }
+
+    /**
+     *  Get command name
+     *
+     * @return command name string
+     */
+    @Override
+    public String getCommand() {
+        return Command.getCommand(getMap());
     }
 }

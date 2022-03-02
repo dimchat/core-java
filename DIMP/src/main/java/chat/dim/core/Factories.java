@@ -120,9 +120,4 @@ public class Factories {
         Command.register(GroupCommand.QUERY, QueryCommand::new);
         Command.register(GroupCommand.RESET, ResetCommand::new);
     }
-
-    public static void registerCoreFactories() {
-        registerContentFactories();
-        registerCommandFactories();
-    }
 }

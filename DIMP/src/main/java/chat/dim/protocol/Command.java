@@ -33,7 +33,6 @@ package chat.dim.protocol;
 import java.util.Map;
 
 import chat.dim.core.Factories;
-import chat.dim.dkd.BaseContent;
 
 /**
  *  Command message: {
@@ -44,50 +43,35 @@ import chat.dim.dkd.BaseContent;
  *      extra   : info   // command parameters
  *  }
  */
-public class Command extends BaseContent {
+public interface Command extends Content {
 
     //-------- command names begin --------
-    public static final String META      = "meta";
-    public static final String DOCUMENT  = "document";
+    String META      = "meta";
+    String DOCUMENT  = "document";
 
-    public static final String RECEIPT   = "receipt";
-    public static final String HANDSHAKE = "handshake";
-    public static final String LOGIN     = "login";
+    String RECEIPT   = "receipt";
+    String HANDSHAKE = "handshake";
+    String LOGIN     = "login";
     //-------- command names end --------
-
-    public Command(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    Command(ContentType type, String command) {
-        super(type);
-        put("command", command);
-    }
-
-    public Command(String command) {
-        this(ContentType.COMMAND, command);
-    }
 
     /**
      *  Get command name
      *
      * @return command name string
      */
-    public String getCommand() {
-        return getCommand(getMap());
-    }
+    String getCommand();
 
-    public static String getCommand(Map<String, Object> cmd) {
+    static String getCommand(Map<String, Object> cmd) {
         return (String) cmd.get("command");
     }
 
     //
     //  Factory method
     //
-    public static Factory getFactory(String command) {
+    static Factory getFactory(String command) {
         return Factories.commandFactories.get(command);
     }
-    public static void register(String command, Factory factory) {
+    static void register(String command, Factory factory) {
         Factories.commandFactories.put(command, factory);
     }
 
@@ -95,7 +79,7 @@ public class Command extends BaseContent {
      *  Command Factory
      *  ~~~~~~~~~~~~~~~
      */
-    public interface Factory {
+    interface Factory {
 
         /**
          *  Parse map object to command

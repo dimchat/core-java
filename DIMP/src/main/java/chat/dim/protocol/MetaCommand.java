@@ -32,6 +32,8 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.dkd.BaseCommand;
+
 /**
  *  Command message: {
  *      type : 0x88,
@@ -42,7 +44,7 @@ import java.util.Map;
  *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }
  */
-public class MetaCommand extends Command {
+public class MetaCommand extends BaseCommand {
 
     private ID identifier;
     private Meta meta;

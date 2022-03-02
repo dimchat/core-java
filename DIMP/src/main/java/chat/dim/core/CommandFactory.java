@@ -32,6 +32,7 @@ package chat.dim.core;
 
 import java.util.Map;
 
+import chat.dim.dkd.BaseCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 
@@ -56,6 +57,6 @@ public class CommandFactory implements Content.Factory, Command.Factory {
 
     @Override
     public Command parseCommand(Map<String, Object> cmd) {
-        return new Command(cmd);
+        return new BaseCommand(cmd);
     }
 }
