@@ -35,6 +35,9 @@ import java.util.List;
 
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;

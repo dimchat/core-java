@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim;
+package chat.dim.mkm;
 
 import java.security.InvalidParameterException;
 import java.util.List;

@@ -18,7 +18,7 @@ plugins {
 
 group 'chat.dim'
 //version '1.0-SNAPSHOT'
-version '0.9.9'
+version '0.9.10'
 
 def mod = 'DIMP'
 def desc = 'New Protocol designed for decentralized instant messaging.'
@@ -35,7 +35,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'chat.dim', name: 'DaoKeDao', version: '0.9.6'
+    compile group: 'chat.dim', name: 'DaoKeDao', version: '0.9.7'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
