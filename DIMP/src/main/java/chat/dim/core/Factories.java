@@ -66,35 +66,35 @@ public class Factories {
     public static void registerContentFactories() {
 
         // Top-Secret
-        Content.register(ContentType.FORWARD, ForwardContent::new);
+        Content.setFactory(ContentType.FORWARD, ForwardContent::new);
         // Text
-        Content.register(ContentType.TEXT, TextContent::new);
+        Content.setFactory(ContentType.TEXT, TextContent::new);
 
         // File
-        Content.register(ContentType.FILE, FileContent::new);
+        Content.setFactory(ContentType.FILE, FileContent::new);
         // Image
-        Content.register(ContentType.IMAGE, ImageContent::new);
+        Content.setFactory(ContentType.IMAGE, ImageContent::new);
         // Audio
-        Content.register(ContentType.AUDIO, AudioContent::new);
+        Content.setFactory(ContentType.AUDIO, AudioContent::new);
         // Video
-        Content.register(ContentType.VIDEO, VideoContent::new);
+        Content.setFactory(ContentType.VIDEO, VideoContent::new);
 
         // Web Page
-        Content.register(ContentType.PAGE, PageContent::new);
+        Content.setFactory(ContentType.PAGE, PageContent::new);
 
         // Money
-        Content.register(ContentType.MONEY, MoneyContent::new);
-        Content.register(ContentType.TRANSFER, TransferContent::new);
+        Content.setFactory(ContentType.MONEY, MoneyContent::new);
+        Content.setFactory(ContentType.TRANSFER, TransferContent::new);
         // ...
 
         // Command
-        Content.register(ContentType.COMMAND, new CommandFactory());
+        Content.setFactory(ContentType.COMMAND, new CommandFactory());
 
         // History Command
-        Content.register(ContentType.HISTORY, new HistoryCommandFactory());
+        Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());
 
         // unknown content type
-        Content.register(0, BaseContent::new);
+        Content.setFactory(0, BaseContent::new);
     }
 
     /**
@@ -103,21 +103,21 @@ public class Factories {
     public static void registerCommandFactories() {
 
         // Meta Command
-        Command.register(Command.META, MetaCommand::new);
+        Command.setFactory(Command.META, MetaCommand::new);
 
         // Document Command
-        Command.register(Command.DOCUMENT, DocumentCommand::new);
-        Command.register("profile", DocumentCommand::new);
-        Command.register("visa", DocumentCommand::new);
-        Command.register("bulletin", DocumentCommand::new);
+        Command.setFactory(Command.DOCUMENT, DocumentCommand::new);
+        Command.setFactory("profile", DocumentCommand::new);
+        Command.setFactory("visa", DocumentCommand::new);
+        Command.setFactory("bulletin", DocumentCommand::new);
 
         // Group Commands
-        Command.register("group", new GroupCommandFactory());
-        Command.register(GroupCommand.INVITE, InviteCommand::new);
-        Command.register(GroupCommand.EXPEL, ExpelCommand::new);
-        Command.register(GroupCommand.JOIN, JoinCommand::new);
-        Command.register(GroupCommand.QUIT, QuitCommand::new);
-        Command.register(GroupCommand.QUERY, QueryCommand::new);
-        Command.register(GroupCommand.RESET, ResetCommand::new);
+        Command.setFactory("group", new GroupCommandFactory());
+        Command.setFactory(GroupCommand.INVITE, InviteCommand::new);
+        Command.setFactory(GroupCommand.EXPEL, ExpelCommand::new);
+        Command.setFactory(GroupCommand.JOIN, JoinCommand::new);
+        Command.setFactory(GroupCommand.QUIT, QuitCommand::new);
+        Command.setFactory(GroupCommand.QUERY, QueryCommand::new);
+        Command.setFactory(GroupCommand.RESET, ResetCommand::new);
     }
 }

@@ -71,7 +71,7 @@ public interface Command extends Content {
     static Factory getFactory(String command) {
         return Factories.commandFactories.get(command);
     }
-    static void register(String command, Factory factory) {
+    static void setFactory(String command, Factory factory) {
         Factories.commandFactories.put(command, factory);
     }
 
