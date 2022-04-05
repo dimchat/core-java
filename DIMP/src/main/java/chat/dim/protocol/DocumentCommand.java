@@ -30,7 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,8 +40,8 @@ import java.util.Map;
  *      command   : "document", // command name
  *      ID        : "{ID}",     // entity ID
  *      meta      : {...},      // only for handshaking with new friend
- *      profile   : {...},      // when profile is empty, means query for ID
- *      signature : "..."       // old profile's signature for querying
+ *      document  : {...},      // when document is empty, means query for ID
+ *      signature : "..."       // old document's signature for querying
  *  }
  */
 public class DocumentCommand extends MetaCommand {
@@ -66,7 +65,7 @@ public class DocumentCommand extends MetaCommand {
         super(DOCUMENT, identifier, meta);
         // document
         if (doc != null) {
-            put("profile", doc.getMap());
+            put("document", doc.getMap());
         }
         this.doc = doc;
     }
@@ -107,36 +106,10 @@ public class DocumentCommand extends MetaCommand {
     /*
      * Document
      */
-    @SuppressWarnings("unchecked")
     public Document getDocument() {
         if (doc == null) {
-            Object data = get("profile");
-            if (data instanceof String) {
-                // compatible with v1.0
-                //    "ID"        : "{ID}",
-                //    "profile"   : "{JsON}",
-                //    "signature" : "{BASE64}"
-                Map<String, Object> map = new HashMap<>();
-                map.put("ID", getIdentifier().toString());
-                map.put("data", data);
-                map.put("signature", get("signature"));
-                data = map;
-            } else {
-                if (data == null) {
-                    data = get("document");
-                }
-                // (v1.1)
-                //    "ID"      : "{ID}",
-                //    "profile" : {
-                //        "ID"        : "{ID}",
-                //        "data"      : "{JsON}",
-                //        "signature" : "{BASE64}"
-                //    }
-                assert data == null || data instanceof Map: "entity document data error: " + data;
-            }
-            if (data != null) {
-                doc = Document.parse((Map<String, Object>) data);
-            }
+            Object info = get("document");
+            doc = Document.parse(info);
         }
         return doc;
     }

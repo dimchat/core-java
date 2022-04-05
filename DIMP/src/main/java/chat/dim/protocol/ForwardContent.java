@@ -58,15 +58,11 @@ public class ForwardContent extends BaseContent {
         put("forward", message.getMap());
     }
 
-    @SuppressWarnings("unchecked")
     public ReliableMessage getMessage() {
         if (forwardMessage == null) {
             Object info = get("forward");
-            if (info instanceof Map) {
-                forwardMessage = ReliableMessage.parse((Map<String, Object>) info);
-            } else {
-                throw new NullPointerException("forward message not found");
-            }
+            forwardMessage = ReliableMessage.parse(info);
+            assert forwardMessage != null : "forward message not found: " + getMap();
         }
         return forwardMessage;
     }

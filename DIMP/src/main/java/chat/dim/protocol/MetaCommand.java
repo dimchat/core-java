@@ -102,13 +102,10 @@ public class MetaCommand extends BaseCommand {
      *  Entity Meta
      *
      */
-    @SuppressWarnings("unchecked")
     public Meta getMeta() {
         if (meta == null) {
             Object info = get("meta");
-            if (info instanceof Map) {
-                meta = Meta.parse((Map<String, Object>) info);
-            }
+            meta = Meta.parse(info);
         }
         return meta;
     }

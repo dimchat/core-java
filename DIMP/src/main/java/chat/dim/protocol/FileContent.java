@@ -129,13 +129,10 @@ public class FileContent extends BaseContent {
         key = password;
     }
 
-    @SuppressWarnings("unchecked")
     public DecryptKey getPassword() {
         if (key == null) {
             Object password = get("password");
-            if (password instanceof Map) {
-                key = SymmetricKey.parse((Map<String, Object>) password);
-            }
+            key = SymmetricKey.parse(password);
         }
         return key;
     }

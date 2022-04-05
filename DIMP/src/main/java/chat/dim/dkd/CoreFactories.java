@@ -106,9 +106,6 @@ public class CoreFactories {
 
         // Document Command
         Command.setFactory(Command.DOCUMENT, DocumentCommand::new);
-        Command.setFactory("profile", DocumentCommand::new);
-        Command.setFactory("visa", DocumentCommand::new);
-        Command.setFactory("bulletin", DocumentCommand::new);
 
         // Group Commands
         Command.setFactory("group", new GroupCommandFactory());
