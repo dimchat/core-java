@@ -67,7 +67,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
-        return JSON.encode(content);
+        return UTF8.encode(JSON.encode(content));
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
             // broadcast message has no key
             return null;
         }
-        return JSON.encode(password);
+        return UTF8.encode(JSON.encode(password));
     }
 
     @Override
@@ -136,7 +136,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-        Object dict = JSON.decode(key);
+        Object dict = JSON.decode(UTF8.decode(key));
         // TODO: translate short keys
         //       'A' -> 'algorithm'
         //       'D' -> 'data'
@@ -164,7 +164,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     @Override
     public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
         assert sMsg.getData() != null : "message data empty";
-        Object dict = JSON.decode(data);
+        Object dict = JSON.decode(UTF8.decode(data));
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
