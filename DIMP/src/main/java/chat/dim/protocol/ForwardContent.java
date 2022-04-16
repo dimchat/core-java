@@ -55,14 +55,14 @@ public class ForwardContent extends BaseContent {
     public ForwardContent(ReliableMessage message) {
         super(ContentType.FORWARD);
         forwardMessage = message;
-        put("forward", message.getMap());
+        put("forward", message.toMap());
     }
 
     public ReliableMessage getMessage() {
         if (forwardMessage == null) {
             Object info = get("forward");
             forwardMessage = ReliableMessage.parse(info);
-            assert forwardMessage != null : "forward message not found: " + getMap();
+            assert forwardMessage != null : "forward message not found: " + toMap();
         }
         return forwardMessage;
     }

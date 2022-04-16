@@ -66,6 +66,6 @@ public class BaseCommand extends BaseContent implements Command {
      */
     @Override
     public String getCommand() {
-        return Command.getCommand(getMap());
+        return Command.getCommand(toMap());
     }
 }

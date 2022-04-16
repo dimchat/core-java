@@ -63,7 +63,7 @@ public class MetaCommand extends BaseCommand {
         this.identifier = identifier;
         // meta
         if (meta != null) {
-            put("meta", meta.getMap());
+            put("meta", meta.toMap());
         }
         this.meta = meta;
     }

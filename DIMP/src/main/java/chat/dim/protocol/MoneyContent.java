@@ -80,7 +80,7 @@ public class MoneyContent extends BaseContent {
     public double getAmount() {
         Object amount = get("amount");
         if (amount == null) {
-            throw new NullPointerException("amount of money not found: " + getMap());
+            throw new NullPointerException("amount of money not found: " + toMap());
         }
         return ((Number) amount).doubleValue();
     }

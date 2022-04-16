@@ -65,7 +65,7 @@ public class DocumentCommand extends MetaCommand {
         super(DOCUMENT, identifier, meta);
         // document
         if (doc != null) {
-            put("document", doc.getMap());
+            put("document", doc.toMap());
         }
         this.doc = doc;
     }
