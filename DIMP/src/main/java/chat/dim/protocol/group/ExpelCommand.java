@@ -30,23 +30,7 @@
  */
 package chat.dim.protocol.group;
 
-import java.util.List;
-import java.util.Map;
-
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.ID;
 
-public class ExpelCommand extends GroupCommand {
-
-    public ExpelCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public ExpelCommand(ID group, ID member) {
-        super(EXPEL, group, member);
-    }
-
-    public ExpelCommand(ID group, List<ID> members) {
-        super(EXPEL, group, members);
-    }
+public interface ExpelCommand extends GroupCommand {
 }

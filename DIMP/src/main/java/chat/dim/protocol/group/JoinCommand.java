@@ -30,18 +30,7 @@
  */
 package chat.dim.protocol.group;
 
-import java.util.Map;
-
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.ID;
 
-public class JoinCommand extends GroupCommand {
-
-    public JoinCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public JoinCommand(ID group) {
-        super(JOIN, group);
-    }
+public interface JoinCommand extends GroupCommand {
 }

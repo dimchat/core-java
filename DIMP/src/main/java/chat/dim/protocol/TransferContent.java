@@ -30,8 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
 /**
  *  Transfer money message: {
  *      type : 0x41,
@@ -41,13 +39,5 @@ import java.util.Map;
  *      amount   : 100.00
  *  }
  */
-public class TransferContent extends MoneyContent {
-
-    public TransferContent(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public TransferContent(String currency, double amount) {
-        super(ContentType.TRANSFER, currency, amount);
-    }
+public interface TransferContent extends MoneyContent {
 }

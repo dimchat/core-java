@@ -30,10 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
-import chat.dim.format.Base64;
-
 /**
  *  Image message: {
  *      type : 0x12,
@@ -45,36 +41,9 @@ import chat.dim.format.Base64;
  *      filename  : "..."
  *  }
  */
-public class ImageContent extends FileContent {
+public interface ImageContent extends FileContent {
 
-    private byte[] thumbnail = null;
+    void setThumbnail(byte[] imageData);
 
-    public ImageContent(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public ImageContent(String filename, byte[] data) {
-        super(ContentType.IMAGE, filename, data);
-    }
-
-    //-------- setter/getter --------
-
-    public void setThumbnail(byte[] imageData) {
-        thumbnail = imageData;
-        if (imageData == null) {
-            remove("thumbnail");
-        } else {
-            put("thumbnail", Base64.encode(imageData));
-        }
-    }
-
-    public byte[] getThumbnail() {
-        if (thumbnail == null) {
-            String base64 = (String) get("thumbnail");
-            if (base64 != null) {
-                thumbnail = Base64.decode(base64);
-            }
-        }
-        return thumbnail;
-    }
+    byte[] getThumbnail();
 }

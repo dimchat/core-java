@@ -30,10 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
-import chat.dim.dkd.BaseContent;
-
 /**
  *  Text message: {
  *      type : 0x01,
@@ -42,24 +38,9 @@ import chat.dim.dkd.BaseContent;
  *      text : "..."
  *  }
  */
-public class TextContent extends BaseContent {
+public interface TextContent extends Content {
 
-    public TextContent(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
+    void setText(String message);
 
-    public TextContent(String message) {
-        super(ContentType.TEXT);
-        setText(message);
-    }
-
-    //-------- setter/getter --------
-
-    public void setText(String message) {
-        put("text", message);
-    }
-
-    public String getText() {
-        return (String) get("text");
-    }
+    String getText();
 }

@@ -32,9 +32,9 @@ package chat.dim.core;
 
 import java.util.Map;
 
+import chat.dim.dkd.BaseGroupCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.GroupCommand;
 
 public class GroupCommandFactory extends HistoryCommandFactory {
 
@@ -51,6 +51,6 @@ public class GroupCommandFactory extends HistoryCommandFactory {
 
     @Override
     public Command parseCommand(Map<String, Object> cmd) {
-        return new GroupCommand(cmd);
+        return new BaseGroupCommand(cmd);
     }
 }

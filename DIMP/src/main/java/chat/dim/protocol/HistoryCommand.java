@@ -30,10 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
-import chat.dim.dkd.BaseCommand;
-
 /**
  *  History command: {
  *      type : 0x89,
@@ -44,19 +40,11 @@ import chat.dim.dkd.BaseCommand;
  *      extra   : info   // command parameters
  *  }
  */
-public class HistoryCommand extends BaseCommand {
+public interface HistoryCommand extends Command {
 
     //-------- history command names begin --------
     // account
-    public static final String REGISTER = "register";
-    public static final String SUICIDE  = "suicide";
+    String REGISTER = "register";
+    String SUICIDE  = "suicide";
     //-------- history command names end --------
-
-    public HistoryCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public HistoryCommand(String command) {
-        super(ContentType.HISTORY, command);
-    }
 }

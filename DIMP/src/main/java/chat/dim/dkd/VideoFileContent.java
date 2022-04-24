@@ -28,30 +28,55 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.format.Base64;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.VideoContent;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
+ *  Video message: {
+ *      type : 0x16,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      URL      : "http://", // upload to CDN
+ *      data     : "...",     // if (!URL) base64_encode(video)
+ *      snapshot : "...",     // base64_encode(smallImage)
+ *      filename : "..."
  *  }
  */
-public interface PageContent extends Content {
+public class VideoFileContent extends BaseFileContent implements VideoContent {
 
-    void setURL(String urlString);
-    String getURL();
+    private byte[] snapshot = null;
 
-    void setTitle(String text);
-    String getTitle();
+    public VideoFileContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setDesc(String text);
-    String getDesc();
+    public VideoFileContent(String filename, byte[] data) {
+        super(ContentType.VIDEO, filename, data);
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    @Override
+    public void setSnapshot(byte[] imageData) {
+        snapshot = imageData;
+        if (imageData == null) {
+            remove("snapshot");
+        } else {
+            put("snapshot", Base64.encode(imageData));
+        }
+    }
+
+    @Override
+    public byte[] getSnapshot() {
+        if (snapshot == null) {
+            String base64 = (String) get("snapshot");
+            if (base64 != null) {
+                snapshot = Base64.decode(base64);
+            }
+        }
+        return snapshot;
+    }
 }

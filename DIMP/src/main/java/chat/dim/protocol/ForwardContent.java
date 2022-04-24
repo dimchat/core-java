@@ -30,10 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
-import chat.dim.dkd.BaseContent;
-
 /**
  *  Top-Secret message: {
  *      type : 0xFF,
@@ -42,28 +38,7 @@ import chat.dim.dkd.BaseContent;
  *      forward : {...}  // reliable (secure + certified) message
  *  }
  */
-public class ForwardContent extends BaseContent {
+public interface ForwardContent extends Content {
 
-    private ReliableMessage forwardMessage;
-
-    public ForwardContent(Map<String, Object> dictionary) {
-        super(dictionary);
-        // lazy load
-        forwardMessage = null;
-    }
-
-    public ForwardContent(ReliableMessage message) {
-        super(ContentType.FORWARD);
-        forwardMessage = message;
-        put("forward", message.toMap());
-    }
-
-    public ReliableMessage getMessage() {
-        if (forwardMessage == null) {
-            Object info = get("forward");
-            forwardMessage = ReliableMessage.parse(info);
-            assert forwardMessage != null : "forward message not found: " + toMap();
-        }
-        return forwardMessage;
-    }
+    ReliableMessage getMessage();
 }

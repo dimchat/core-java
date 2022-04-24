@@ -28,7 +28,12 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.MoneyContent;
 
 /**
  *  Money message: {
@@ -39,10 +44,45 @@ package chat.dim.protocol;
  *      amount   : 100.00
  *  }
  */
-public interface MoneyContent extends Content {
+public class BaseMoneyContent extends BaseContent implements MoneyContent {
 
-    String getCurrency();
+    public BaseMoneyContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setAmount(double amount);
-    double getAmount();
+    protected BaseMoneyContent(ContentType type, String currency, double amount) {
+        this(type.value, currency, amount);
+    }
+    protected BaseMoneyContent(int type, String currency, double amount) {
+        super(type);
+        setCurrency(currency);
+        setAmount(amount);
+    }
+
+    public BaseMoneyContent(String currency, double amount) {
+        this(ContentType.MONEY, currency, amount);
+    }
+
+    private void setCurrency(String currency) {
+        put("currency", currency);
+    }
+
+    @Override
+    public String getCurrency() {
+        return (String) get("currency");
+    }
+
+    @Override
+    public void setAmount(double amount) {
+        put("amount", amount);
+    }
+
+    @Override
+    public double getAmount() {
+        Object amount = get("amount");
+        if (amount == null) {
+            throw new NullPointerException("amount of money not found: " + toMap());
+        }
+        return ((Number) amount).doubleValue();
+    }
 }

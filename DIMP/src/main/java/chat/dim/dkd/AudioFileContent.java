@@ -28,30 +28,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.protocol.AudioContent;
+import chat.dim.protocol.ContentType;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
+ *  Audio message: {
+ *      type : 0x14,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      URL      : "http://", // upload to CDN
+ *      data     : "...",     // if (!URL) base64_encode(audio)
+ *      text     : "...",     // Automatic Speech Recognition
+ *      filename : "..."
  *  }
  */
-public interface PageContent extends Content {
+public class AudioFileContent extends BaseFileContent implements AudioContent {
 
-    void setURL(String urlString);
-    String getURL();
+    public AudioFileContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setTitle(String text);
-    String getTitle();
+    public AudioFileContent(String filename, byte[] data) {
+        super(ContentType.AUDIO, filename, data);
+    }
 
-    void setDesc(String text);
-    String getDesc();
+    @Override
+    public void setText(String message) {
+        put("text", message);
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    @Override
+    public String getText() {
+        return (String) get("text");
+    }
 }

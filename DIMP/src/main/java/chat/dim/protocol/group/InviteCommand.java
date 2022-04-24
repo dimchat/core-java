@@ -30,23 +30,7 @@
  */
 package chat.dim.protocol.group;
 
-import java.util.List;
-import java.util.Map;
-
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.ID;
 
-public class InviteCommand extends GroupCommand {
-
-    public InviteCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public InviteCommand(ID group, ID member) {
-        super(INVITE, group, member);
-    }
-
-    public InviteCommand(ID group, List<ID> members) {
-        super(INVITE, group, members);
-    }
+public interface InviteCommand extends GroupCommand {
 }

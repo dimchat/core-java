@@ -30,12 +30,7 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
 import chat.dim.crypto.DecryptKey;
-import chat.dim.crypto.SymmetricKey;
-import chat.dim.dkd.BaseContent;
-import chat.dim.format.Base64;
 
 /**
  *  File message: {
@@ -47,93 +42,18 @@ import chat.dim.format.Base64;
  *      filename : "..."
  *  }
  */
-public class FileContent extends BaseContent {
+public interface FileContent extends Content {
 
-    private byte[] data; // file data (plaintext)
-    private DecryptKey key; // key to decrypt data
+    void setURL(String urlString);
+    String getURL();
 
-    public FileContent(Map<String, Object> dictionary) {
-        super(dictionary);
-        // lazy load
-        data = null;
-        key = null;
-    }
+    void setData(byte[] fileData);
+    byte[] getData();
 
-    protected FileContent(ContentType type, String filename, byte[] data) {
-        this(type.value, filename, data);
-    }
-    protected FileContent(int type, String filename, byte[] data) {
-        super(type);
-        setFilename(filename);
-        setData(data);
-        key = null;
-    }
-
-    public FileContent(String filename, byte[] data) {
-        this(ContentType.FILE, filename, data);
-    }
-
-    //-------- setters/getters --------
-
-    public void setURL(String urlString) {
-        if (urlString == null) {
-            remove("URL");
-        } else {
-            put("URL", urlString);
-        }
-    }
-
-    public String getURL() {
-        return (String) get("URL");
-    }
-
-    public void setData(byte[] fileData) {
-        if (fileData != null && fileData.length > 0) {
-            // file data
-            put("data", Base64.encode(fileData));
-        } else {
-            remove("data");
-        }
-        data = fileData;
-    }
-
-    public byte[] getData() {
-        if (data == null) {
-            String base64 = (String) get("data");
-            if (base64 != null) {
-                data = Base64.decode(base64);
-            }
-        }
-        return data;
-    }
-
-    public void setFilename(String name) {
-        if (name == null) {
-            remove("filename");
-        } else {
-            put("filename", name);
-        }
-    }
-
-    public String getFilename() {
-        return (String) get("filename");
-    }
+    void setFilename(String name);
+    String getFilename();
 
     // symmetric key to decrypt the encrypted data from URL
-    public void setPassword(DecryptKey password) {
-        if (password == null) {
-            remove("password");
-        } else {
-            put("password", password.toMap());
-        }
-        key = password;
-    }
-
-    public DecryptKey getPassword() {
-        if (key == null) {
-            Object password = get("password");
-            key = SymmetricKey.parse(password);
-        }
-        return key;
-    }
+    void setPassword(DecryptKey password);
+    DecryptKey getPassword();
 }

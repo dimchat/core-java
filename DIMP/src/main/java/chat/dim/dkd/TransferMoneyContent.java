@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,30 +28,29 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.TransferContent;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
+ *  Transfer money message: {
+ *      type : 0x41,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      currency : "RMB", // USD, USDT, ...
+ *      amount   : 100.00
  *  }
  */
-public interface PageContent extends Content {
+public class TransferMoneyContent extends BaseMoneyContent implements TransferContent {
 
-    void setURL(String urlString);
-    String getURL();
+    public TransferMoneyContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setTitle(String text);
-    String getTitle();
-
-    void setDesc(String text);
-    String getDesc();
-
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    public TransferMoneyContent(String currency, double amount) {
+        super(ContentType.TRANSFER, currency, amount);
+    }
 }

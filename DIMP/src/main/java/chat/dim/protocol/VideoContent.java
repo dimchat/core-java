@@ -30,10 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
-import chat.dim.format.Base64;
-
 /**
  *  Video message: {
  *      type : 0x16,
@@ -45,36 +41,8 @@ import chat.dim.format.Base64;
  *      filename : "..."
  *  }
  */
-public class VideoContent extends FileContent {
+public interface VideoContent extends FileContent {
 
-    private byte[] snapshot = null;
-
-    public VideoContent(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public VideoContent(String filename, byte[] data) {
-        super(ContentType.VIDEO, filename, data);
-    }
-
-    //-------- setter/getter --------
-
-    public void setSnapshot(byte[] imageData) {
-        snapshot = imageData;
-        if (imageData == null) {
-            remove("snapshot");
-        } else {
-            put("snapshot", Base64.encode(imageData));
-        }
-    }
-
-    public byte[] getSnapshot() {
-        if (snapshot == null) {
-            String base64 = (String) get("snapshot");
-            if (base64 != null) {
-                snapshot = Base64.decode(base64);
-            }
-        }
-        return snapshot;
-    }
+    void setSnapshot(byte[] imageData);
+    byte[] getSnapshot();
 }

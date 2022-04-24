@@ -28,30 +28,39 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.TextContent;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
+ *  Text message: {
+ *      type : 0x01,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      text : "..."
  *  }
  */
-public interface PageContent extends Content {
+public class BaseTextContent extends BaseContent implements TextContent {
 
-    void setURL(String urlString);
-    String getURL();
+    public BaseTextContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setTitle(String text);
-    String getTitle();
+    public BaseTextContent(String message) {
+        super(ContentType.TEXT);
+        setText(message);
+    }
 
-    void setDesc(String text);
-    String getDesc();
+    @Override
+    public void setText(String message) {
+        put("text", message);
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    @Override
+    public String getText() {
+        return (String) get("text");
+    }
 }

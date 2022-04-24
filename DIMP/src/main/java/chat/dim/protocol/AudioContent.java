@@ -30,8 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
-
 /**
  *  Audio message: {
  *      type : 0x14,
@@ -43,23 +41,8 @@ import java.util.Map;
  *      filename : "..."
  *  }
  */
-public class AudioContent extends FileContent {
+public interface AudioContent extends FileContent {
 
-    public AudioContent(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public AudioContent(String filename, byte[] data) {
-        super(ContentType.AUDIO, filename, data);
-    }
-
-    //-------- setter/getter --------
-
-    public void setText(String message) {
-        put("text", message);
-    }
-
-    public String getText() {
-        return (String) get("text");
-    }
+    void setText(String message);
+    String getText();
 }

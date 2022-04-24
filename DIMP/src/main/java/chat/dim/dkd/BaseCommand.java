@@ -59,11 +59,6 @@ public class BaseCommand extends BaseContent implements Command {
         this(ContentType.COMMAND, command);
     }
 
-    /**
-     *  Get command name
-     *
-     * @return command name string
-     */
     @Override
     public String getCommand() {
         return Command.getCommand(toMap());

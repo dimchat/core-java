@@ -32,13 +32,13 @@ package chat.dim.core;
 
 import java.util.Map;
 
+import chat.dim.dkd.BaseHistoryCommand;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.HistoryCommand;
 
 public class HistoryCommandFactory extends GeneralCommandFactory {
 
     @Override
     public Command parseCommand(Map<String, Object> cmd) {
-        return new HistoryCommand(cmd);
+        return new BaseHistoryCommand(cmd);
     }
 }

@@ -30,19 +30,7 @@
  */
 package chat.dim.protocol.group;
 
-import java.util.List;
-import java.util.Map;
-
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.ID;
 
-public class ResetCommand extends GroupCommand {
-
-    public ResetCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public ResetCommand(ID group, List<ID> members) {
-        super(RESET, group, members);
-    }
+public interface ResetCommand extends GroupCommand {
 }

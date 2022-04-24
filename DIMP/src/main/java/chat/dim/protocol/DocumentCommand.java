@@ -30,7 +30,7 @@
  */
 package chat.dim.protocol;
 
-import java.util.Map;
+import chat.dim.dkd.BaseDocumentCommand;
 
 /**
  *  Command message: {
@@ -44,95 +44,30 @@ import java.util.Map;
  *      signature : "..."       // old document's signature for querying
  *  }
  */
-public class DocumentCommand extends MetaCommand {
-
-    private Document doc;
-
-    public DocumentCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-        // lazy
-        doc = null;
-    }
-
-    /**
-     *  Send Meta and Document to new friend
-     *
-     * @param identifier - entity ID
-     * @param meta - entity Meta
-     * @param doc - entity Document
-     */
-    public DocumentCommand(ID identifier, Meta meta, Document doc) {
-        super(DOCUMENT, identifier, meta);
-        // document
-        if (doc != null) {
-            put("document", doc.toMap());
-        }
-        this.doc = doc;
-    }
-
-    /**
-     *  Response Entity Document
-     *
-     * @param identifier - entity ID
-     * @param doc - entity Document
-     */
-    public DocumentCommand(ID identifier, Document doc) {
-        this(identifier, null, doc);
-    }
-
-    /**
-     *  Query Entity Document
-     *
-     * @param identifier - entity ID
-     */
-    public DocumentCommand(ID identifier) {
-        this(identifier, null, null);
-    }
-
-    /**
-     *  Query Entity Document for updating with current signature
-     *
-     * @param identifier - entity ID
-     * @param signature - document signature
-     */
-    public DocumentCommand(ID identifier, String signature) {
-        this(identifier, null, null);
-        // signature
-        if (signature != null) {
-            put("signature", signature);
-        }
-    }
+public interface DocumentCommand extends MetaCommand {
 
     /*
      * Document
      */
-    public Document getDocument() {
-        if (doc == null) {
-            Object info = get("document");
-            doc = Document.parse(info);
-        }
-        return doc;
-    }
+    Document getDocument();
 
-    public String getSignature() {
-        return (String) get("signature");
-    }
+    String getSignature();
 
     //
     //  Factories
     //
 
-    public static DocumentCommand query(ID identifier) {
-        return new DocumentCommand(identifier);
+    static DocumentCommand query(ID identifier) {
+        return new BaseDocumentCommand(identifier);
     }
-    public static DocumentCommand query(ID identifier, String signature) {
-        return new DocumentCommand(identifier, signature);
+    static DocumentCommand query(ID identifier, String signature) {
+        return new BaseDocumentCommand(identifier, signature);
     }
 
-    public static DocumentCommand response(ID identifier, Document doc) {
-        return new DocumentCommand(identifier, doc);
+    static DocumentCommand response(ID identifier, Document doc) {
+        return new BaseDocumentCommand(identifier, doc);
     }
-    public static DocumentCommand response(ID identifier, Meta meta, Document doc) {
-        return new DocumentCommand(identifier, meta, doc);
+    static DocumentCommand response(ID identifier, Meta meta, Document doc) {
+        return new BaseDocumentCommand(identifier, meta, doc);
     }
 }

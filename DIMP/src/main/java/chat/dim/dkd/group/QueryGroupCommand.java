@@ -28,30 +28,27 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd.group;
+
+import java.util.Map;
+
+import chat.dim.dkd.BaseGroupCommand;
+import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.group.QueryCommand;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
- *      sn   : 123,
- *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
- *  }
+ *  NOTICE:
+ *      This command is just for querying group info,
+ *      should not be saved in group history
  */
-public interface PageContent extends Content {
+public class QueryGroupCommand extends BaseGroupCommand implements QueryCommand {
 
-    void setURL(String urlString);
-    String getURL();
+    public QueryGroupCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setTitle(String text);
-    String getTitle();
-
-    void setDesc(String text);
-    String getDesc();
-
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    public QueryGroupCommand(ID group) {
+        super(GroupCommand.QUERY, group);
+    }
 }

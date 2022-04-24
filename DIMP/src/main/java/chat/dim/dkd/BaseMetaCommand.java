@@ -28,9 +28,13 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
 
-import chat.dim.dkd.BaseMetaCommand;
+import java.util.Map;
+
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
+import chat.dim.protocol.MetaCommand;
 
 /**
  *  Command message: {
@@ -42,29 +46,63 @@ import chat.dim.dkd.BaseMetaCommand;
  *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }
  */
-public interface MetaCommand extends Command {
+public class BaseMetaCommand extends BaseCommand implements MetaCommand {
 
-    /*
-     *  Entity ID
-     *
-     */
-    ID getIdentifier();
+    private ID identifier;
+    private Meta meta;
 
-    /*
-     *  Entity Meta
-     *
-     */
-    Meta getMeta();
-
-    //
-    //  Factories
-    //
-
-    static MetaCommand query(ID identifier) {
-        return new BaseMetaCommand(identifier);
+    public BaseMetaCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+        identifier = null;
+        meta = null;
     }
 
-    static MetaCommand response(ID identifier, Meta meta) {
-        return new BaseMetaCommand(identifier, meta);
+    public BaseMetaCommand(String command, ID identifier, Meta meta) {
+        super(command);
+        // ID
+        assert identifier != null : "ID cannot be empty for meta command";
+        put("ID", identifier.toString());
+        this.identifier = identifier;
+        // meta
+        if (meta != null) {
+            put("meta", meta.toMap());
+        }
+        this.meta = meta;
+    }
+
+    /**
+     *  Response Meta
+     *
+     * @param identifier - entity ID
+     * @param meta - entity Meta
+     */
+    public BaseMetaCommand(ID identifier, Meta meta) {
+        this(META, identifier, meta);
+    }
+
+    /**
+     *  Query Meta
+     *
+     * @param identifier - entity ID
+     */
+    public BaseMetaCommand(ID identifier) {
+        this(identifier, null);
+    }
+
+    @Override
+    public ID getIdentifier() {
+        if (identifier == null) {
+            identifier = ID.parse(get("ID"));
+        }
+        return identifier;
+    }
+
+    @Override
+    public Meta getMeta() {
+        if (meta == null) {
+            Object info = get("meta");
+            meta = Meta.parse(info);
+        }
+        return meta;
     }
 }

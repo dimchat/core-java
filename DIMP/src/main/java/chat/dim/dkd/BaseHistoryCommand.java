@@ -28,30 +28,30 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.HistoryCommand;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
+ *  History command: {
+ *      type : 0x89,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      command : "...", // command name
+ *      time    : 0,     // command timestamp
+ *      extra   : info   // command parameters
  *  }
  */
-public interface PageContent extends Content {
+public class BaseHistoryCommand extends BaseCommand implements HistoryCommand {
 
-    void setURL(String urlString);
-    String getURL();
+    public BaseHistoryCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setTitle(String text);
-    String getTitle();
-
-    void setDesc(String text);
-    String getDesc();
-
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    public BaseHistoryCommand(String command) {
+        super(ContentType.HISTORY, command);
+    }
 }

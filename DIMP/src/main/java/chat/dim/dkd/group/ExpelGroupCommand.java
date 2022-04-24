@@ -28,30 +28,27 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd.group;
 
-/**
- *  Web Page message: {
- *      type : 0x20,
- *      sn   : 123,
- *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
- *  }
- */
-public interface PageContent extends Content {
+import java.util.List;
+import java.util.Map;
 
-    void setURL(String urlString);
-    String getURL();
+import chat.dim.dkd.BaseGroupCommand;
+import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.group.ExpelCommand;
 
-    void setTitle(String text);
-    String getTitle();
+public class ExpelGroupCommand extends BaseGroupCommand implements ExpelCommand {
 
-    void setDesc(String text);
-    String getDesc();
+    public ExpelGroupCommand(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    public ExpelGroupCommand(ID group, ID member) {
+        super(GroupCommand.EXPEL, group, member);
+    }
+
+    public ExpelGroupCommand(ID group, List<ID> members) {
+        super(GroupCommand.EXPEL, group, members);
+    }
 }

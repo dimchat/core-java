@@ -30,18 +30,7 @@
  */
 package chat.dim.protocol.group;
 
-import java.util.Map;
-
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.ID;
 
-public class QuitCommand extends GroupCommand {
-
-    public QuitCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
-
-    public QuitCommand(ID group) {
-        super(QUIT, group);
-    }
+public interface QuitCommand extends GroupCommand {
 }

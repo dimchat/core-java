@@ -28,7 +28,13 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.format.Base64;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.PageContent;
 
 /**
  *  Web Page message: {
@@ -41,17 +47,70 @@ package chat.dim.protocol;
  *      desc  : "..."
  *  }
  */
-public interface PageContent extends Content {
+public class WebPageContent extends BaseContent implements PageContent {
 
-    void setURL(String urlString);
-    String getURL();
+    private byte[] icon = null;
 
-    void setTitle(String text);
-    String getTitle();
+    public WebPageContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setDesc(String text);
-    String getDesc();
+    public WebPageContent(String url, String title, String desc, byte[] icon) {
+        super(ContentType.PAGE);
+        setURL(url);
+        setTitle(title);
+        setDesc(desc);
+        setIcon(icon);
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    @Override
+    public void setURL(String urlString) {
+        put("URL", urlString);
+    }
+
+    @Override
+    public String getURL() {
+        return (String) get("URL");
+    }
+
+    @Override
+    public void setTitle(String text) {
+        put("title", text);
+    }
+
+    @Override
+    public String getTitle() {
+        return (String) get("title");
+    }
+
+    @Override
+    public void setDesc(String text) {
+        put("desc", text);
+    }
+
+    @Override
+    public String getDesc() {
+        return (String) get("desc");
+    }
+
+    @Override
+    public void setIcon(byte[] imageData) {
+        icon = imageData;
+        if (imageData == null) {
+            remove("icon");
+        } else {
+            put("icon", Base64.encode(imageData));
+        }
+    }
+
+    @Override
+    public byte[] getIcon() {
+        if (icon == null) {
+            String base64 = (String) get("icon");
+            if (base64 != null) {
+                icon = Base64.decode(base64);
+            }
+        }
+        return icon;
+    }
 }

@@ -28,30 +28,55 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.format.Base64;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.ImageContent;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
+ *  Image message: {
+ *      type : 0x12,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      URL       : "http://", // upload to CDN
+ *      data      : "...",     // if (!URL) base64_encode(image)
+ *      thumbnail : "...",     // base64_encode(smallImage)
+ *      filename  : "..."
  *  }
  */
-public interface PageContent extends Content {
+public class ImageFileContent extends BaseFileContent implements ImageContent {
 
-    void setURL(String urlString);
-    String getURL();
+    private byte[] thumbnail = null;
 
-    void setTitle(String text);
-    String getTitle();
+    public ImageFileContent(Map<String, Object> dictionary) {
+        super(dictionary);
+    }
 
-    void setDesc(String text);
-    String getDesc();
+    public ImageFileContent(String filename, byte[] data) {
+        super(ContentType.IMAGE, filename, data);
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    @Override
+    public void setThumbnail(byte[] imageData) {
+        thumbnail = imageData;
+        if (imageData == null) {
+            remove("thumbnail");
+        } else {
+            put("thumbnail", Base64.encode(imageData));
+        }
+    }
+
+    @Override
+    public byte[] getThumbnail() {
+        if (thumbnail == null) {
+            String base64 = (String) get("thumbnail");
+            if (base64 != null) {
+                thumbnail = Base64.decode(base64);
+            }
+        }
+        return thumbnail;
+    }
 }

@@ -28,30 +28,45 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd;
+
+import java.util.Map;
+
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.ForwardContent;
+import chat.dim.protocol.ReliableMessage;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
- *      sn   : 123,
+ *  Top-Secret message: {
+ *      type : 0xFF,
+ *      sn   : 456,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      forward : {...}  // reliable (secure + certified) message
  *  }
  */
-public interface PageContent extends Content {
+public class SecretContent extends BaseContent implements ForwardContent {
 
-    void setURL(String urlString);
-    String getURL();
+    private ReliableMessage forwardMessage;
 
-    void setTitle(String text);
-    String getTitle();
+    public SecretContent(Map<String, Object> dictionary) {
+        super(dictionary);
+        // lazy load
+        forwardMessage = null;
+    }
 
-    void setDesc(String text);
-    String getDesc();
+    public SecretContent(ReliableMessage message) {
+        super(ContentType.FORWARD);
+        forwardMessage = message;
+        put("forward", message.toMap());
+    }
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    @Override
+    public ReliableMessage getMessage() {
+        if (forwardMessage == null) {
+            Object info = get("forward");
+            forwardMessage = ReliableMessage.parse(info);
+            assert forwardMessage != null : "forward message not found: " + toMap();
+        }
+        return forwardMessage;
+    }
 }
