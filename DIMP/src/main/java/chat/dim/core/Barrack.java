@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim;
+package chat.dim.core;
 
 import java.util.ArrayList;
 import java.util.List;

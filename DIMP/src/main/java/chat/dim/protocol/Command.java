@@ -32,8 +32,6 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.core.CommandFactories;
-
 /**
  *  Command message: {
  *      type : 0x88,

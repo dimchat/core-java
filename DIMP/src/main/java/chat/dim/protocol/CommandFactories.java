@@ -28,11 +28,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.protocol;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.core.GeneralCommandFactory;
+import chat.dim.core.GroupCommandFactory;
+import chat.dim.core.HistoryCommandFactory;
 import chat.dim.dkd.AudioFileContent;
 import chat.dim.dkd.BaseContent;
 import chat.dim.dkd.BaseDocumentCommand;
@@ -51,19 +54,20 @@ import chat.dim.dkd.group.JoinGroupCommand;
 import chat.dim.dkd.group.QueryGroupCommand;
 import chat.dim.dkd.group.QuitGroupCommand;
 import chat.dim.dkd.group.ResetGroupCommand;
-import chat.dim.protocol.Command;
-import chat.dim.protocol.Content;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.GroupCommand;
 
-public class CommandFactories {
+final class CommandFactories {
 
-    public static final Map<String, Command.Factory> commandFactories = new HashMap<>();
+    static final Map<String, Command.Factory> commandFactories = new HashMap<>();
+
+    static {
+        registerContentFactories();
+        registerCommandFactories();
+    }
 
     /**
      *  Register core content factories
      */
-    public static void registerContentFactories() {
+    private static void registerContentFactories() {
 
         // Top-Secret
         Content.setFactory(ContentType.FORWARD, SecretContent::new);
@@ -100,7 +104,7 @@ public class CommandFactories {
     /**
      *  Register core command factories
      */
-    public static void registerCommandFactories() {
+    private static void registerCommandFactories() {
 
         // Meta Command
         Command.setFactory(Command.META, BaseMetaCommand::new);

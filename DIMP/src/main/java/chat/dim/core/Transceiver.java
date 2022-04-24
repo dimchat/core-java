@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim;
+package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
