@@ -31,6 +31,10 @@
 package chat.dim.protocol;
 
 import chat.dim.crypto.DecryptKey;
+import chat.dim.dkd.AudioFileContent;
+import chat.dim.dkd.BaseFileContent;
+import chat.dim.dkd.ImageFileContent;
+import chat.dim.dkd.VideoFileContent;
 
 /**
  *  File message: {
@@ -56,4 +60,24 @@ public interface FileContent extends Content {
     // symmetric key to decrypt the encrypted data from URL
     void setPassword(DecryptKey password);
     DecryptKey getPassword();
+
+    //
+    //  Factories
+    //
+
+    static FileContent file(String filename, byte[] data) {
+        return new BaseFileContent(filename, data);
+    }
+
+    static ImageContent image(String filename, byte[] data) {
+        return new ImageFileContent(filename, data);
+    }
+
+    static AudioContent audio(String filename, byte[] data) {
+        return new AudioFileContent(filename, data);
+    }
+
+    static VideoContent video(String filename, byte[] data) {
+        return new VideoFileContent(filename, data);
+    }
 }

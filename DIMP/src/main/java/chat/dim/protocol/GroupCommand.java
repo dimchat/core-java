@@ -32,6 +32,19 @@ package chat.dim.protocol;
 
 import java.util.List;
 
+import chat.dim.dkd.group.ExpelGroupCommand;
+import chat.dim.dkd.group.InviteGroupCommand;
+import chat.dim.dkd.group.JoinGroupCommand;
+import chat.dim.dkd.group.QueryGroupCommand;
+import chat.dim.dkd.group.QuitGroupCommand;
+import chat.dim.dkd.group.ResetGroupCommand;
+import chat.dim.protocol.group.ExpelCommand;
+import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.JoinCommand;
+import chat.dim.protocol.group.QueryCommand;
+import chat.dim.protocol.group.QuitCommand;
+import chat.dim.protocol.group.ResetCommand;
+
 public interface GroupCommand extends HistoryCommand {
 
     //-------- group command names begin --------
@@ -64,4 +77,38 @@ public interface GroupCommand extends HistoryCommand {
      */
     List<ID> getMembers();
     void setMembers(List<ID> members);
+
+    //
+    //  Factories
+    //
+
+    static InviteCommand invite(ID group, ID member) {
+        return new InviteGroupCommand(group, member);
+    }
+    static InviteCommand invite(ID group, List<ID> members) {
+        return new InviteGroupCommand(group, members);
+    }
+
+    static ExpelCommand expel(ID group, ID member) {
+        return new ExpelGroupCommand(group, member);
+    }
+    static ExpelCommand expel(ID group, List<ID> members) {
+        return new ExpelGroupCommand(group, members);
+    }
+
+    static JoinCommand join(ID group) {
+        return new JoinGroupCommand(group);
+    }
+
+    static QuitCommand quit(ID group) {
+        return new QuitGroupCommand(group);
+    }
+
+    static QueryCommand query(ID group) {
+        return new QueryGroupCommand(group);
+    }
+
+    static ResetCommand reset(ID group, List<ID> members) {
+        return new ResetGroupCommand(group, members);
+    }
 }
