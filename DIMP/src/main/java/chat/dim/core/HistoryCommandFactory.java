@@ -28,29 +28,17 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.core;
 
 import java.util.Map;
 
 import chat.dim.protocol.Command;
-import chat.dim.protocol.Content;
-import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.HistoryCommand;
 
-public class GroupCommandFactory extends HistoryCommandFactory {
-
-    @Override
-    public Content parseContent(Map<String, Object> content) {
-        String command = Command.getCommand(content);
-        // get factory by command name
-        Command.Factory factory = Command.getFactory(command);
-        if (factory == null) {
-            factory = this;
-        }
-        return factory.parseCommand(content);
-    }
+public class HistoryCommandFactory extends GeneralCommandFactory {
 
     @Override
     public Command parseCommand(Map<String, Object> cmd) {
-        return new GroupCommand(cmd);
+        return new HistoryCommand(cmd);
     }
 }

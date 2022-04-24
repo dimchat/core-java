@@ -28,11 +28,12 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.core;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.dkd.BaseContent;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -55,7 +56,7 @@ import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 
-public class CoreFactories {
+public class CommandFactories {
 
     public static final Map<String, Command.Factory> commandFactories = new HashMap<>();
 
@@ -87,7 +88,7 @@ public class CoreFactories {
         // ...
 
         // Command
-        Content.setFactory(ContentType.COMMAND, new CommandFactory());
+        Content.setFactory(ContentType.COMMAND, new GeneralCommandFactory());
 
         // History Command
         Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());

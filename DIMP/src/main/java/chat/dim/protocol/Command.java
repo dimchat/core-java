@@ -32,7 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.dkd.CoreFactories;
+import chat.dim.core.CommandFactories;
 
 /**
  *  Command message: {
@@ -69,10 +69,10 @@ public interface Command extends Content {
     //  Factory method
     //
     static Factory getFactory(String command) {
-        return CoreFactories.commandFactories.get(command);
+        return CommandFactories.commandFactories.get(command);
     }
     static void setFactory(String command, Factory factory) {
-        CoreFactories.commandFactories.put(command, factory);
+        CommandFactories.commandFactories.put(command, factory);
     }
 
     /**
