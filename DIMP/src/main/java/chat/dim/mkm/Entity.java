@@ -30,8 +30,6 @@
  */
 package chat.dim.mkm;
 
-import java.lang.ref.WeakReference;
-
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -47,75 +45,34 @@ import chat.dim.protocol.Meta;
  *      meta       - meta for generate ID
  *      document   - entity document
  */
-public class Entity {
+public interface Entity {
 
-    public final ID identifier;
-
-    private WeakReference<DataSource> dataSourceRef = null;
-
-    public Entity(ID identifier) {
-        super();
-        this.identifier = identifier;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (super.equals(other)) {
-            // same object
-            return true;
-        } else if (other instanceof Entity) {
-            // check with identifier
-            Entity entity = (Entity) other;
-            return identifier.equals(entity.identifier);
-        } else {
-            // null or unknown object
-            return false;
-        }
-    }
-
-    @Override
-    public String toString() {
-        String clazzName = getClass().getSimpleName();
-        return "<" + clazzName + "|" + getType() + " " + identifier + ">";
-    }
+    /**
+     *  Get entity ID
+     *
+     * @return ID
+     */
+    ID getIdentifier();
 
     /**
      *  Get ID.type
      *
      * @return network type
      */
-    public byte getType() {
-        return identifier.getType();
-    }
+    byte getType();
 
-    public DataSource getDataSource() {
-        if (dataSourceRef == null) {
-            return null;
-        }
-        return dataSourceRef.get();
-    }
+    void setDataSource(DataSource dataSource);
+    DataSource getDataSource();
 
-    public void setDataSource(DataSource dataSource) {
-        dataSourceRef = new WeakReference<>(dataSource);
-    }
+    Meta getMeta();
 
-    public Meta getMeta() {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "entity delegate not set yet";
-        return delegate.getMeta(identifier);
-    }
-
-    public Document getDocument(String type) {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "entity delegate not set yet";
-        return delegate.getDocument(identifier, type);
-    }
+    Document getDocument(String type);
 
     /**
      *  Entity Data Source
      *  ~~~~~~~~~~~~~~~~~~
      */
-    public interface DataSource {
+    interface DataSource {
 
         /**
          *  Get meta for entity ID
@@ -139,7 +96,7 @@ public class Entity {
      *  Entity Delegate
      *  ~~~~~~~~~~~~~~~
      */
-    public interface Delegate {
+    interface Delegate {
 
         /**
          *  Create user with ID

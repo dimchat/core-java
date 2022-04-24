@@ -33,65 +33,27 @@ package chat.dim.mkm;
 import java.util.List;
 
 import chat.dim.protocol.Bulletin;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 
-public class Group extends Entity {
+public interface Group extends Entity {
 
-    // once the group founder is set, it will never change
-    private ID founder = null;
+    Bulletin getBulletin();
 
-    public Group(ID identifier) {
-        super(identifier);
-    }
+    ID getFounder();
 
-    @Override
-    public DataSource getDataSource() {
-        return (DataSource) super.getDataSource();
-    }
-
-    public Bulletin getBulletin() {
-        Document doc = getDocument(Document.BULLETIN);
-        if (doc instanceof Bulletin) {
-            return (Bulletin) doc;
-        }
-        return null;
-    }
-
-    public ID getFounder() {
-        if (founder == null) {
-            DataSource delegate = getDataSource();
-            assert delegate != null : "group delegate not set yet";
-            founder = delegate.getFounder(identifier);
-        }
-        return founder;
-    }
-
-    public ID getOwner() {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "group delegate not set yet";
-        return delegate.getOwner(identifier);
-    }
+    ID getOwner();
 
     // NOTICE: the owner must be a member
     //         (usually the first one)
-    public List<ID> getMembers() {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "group delegate not set yet";
-        return delegate.getMembers(identifier);
-    }
+    List<ID> getMembers();
 
-    public List<ID> getAssistants() {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "group delegate not set yet";
-        return delegate.getAssistants(identifier);
-    }
+    List<ID> getAssistants();
 
     /**
      *  Group Data Source
      *  ~~~~~~~~~~~~~~~~~
      */
-    public interface DataSource extends Entity.DataSource {
+    interface DataSource extends Entity.DataSource {
 
         /**
          *  Get group founder

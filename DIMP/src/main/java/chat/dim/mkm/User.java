@@ -30,14 +30,12 @@
  */
 package chat.dim.mkm;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.crypto.VerifyKey;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 
@@ -54,35 +52,16 @@ import chat.dim.protocol.Visa;
  *      3. sign(data)    - calculate signature of (encrypted content) data
  *      4. decrypt(data) - decrypt (symmetric key) data
  */
-public class User extends Entity {
+public interface User extends Entity {
 
-    public User(ID identifier) {
-        super(identifier);
-    }
-
-    @Override
-    public DataSource getDataSource() {
-        return (DataSource) super.getDataSource();
-    }
-
-    public Visa getVisa() {
-        Document doc = getDocument(Document.VISA);
-        if (doc instanceof Visa) {
-            return (Visa) doc;
-        }
-        return null;
-    }
+    Visa getVisa();
 
     /**
      *  Get all contacts of the user
      *
      * @return contact list
      */
-    public List<ID> getContacts() {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        return delegate.getContacts(identifier);
-    }
+    List<ID> getContacts();
 
     /**
      *  Verify data and signature with user's public keys
@@ -91,20 +70,7 @@ public class User extends Entity {
      * @param signature - message signature
      * @return true on correct
      */
-    public boolean verify(byte[] data, byte[] signature) {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        // NOTICE: I suggest using the private key paired with meta.key to sign message
-        //         so here should return the meta.key
-        List<VerifyKey> keys = delegate.getPublicKeysForVerification(identifier);
-        for (VerifyKey key : keys) {
-            if (key.verify(data, signature)) {
-                // matched!
-                return true;
-            }
-        }
-        return false;
-    }
+    boolean verify(byte[] data, byte[] signature);
 
     /**
      *  Encrypt data, try visa.key first, if not found, use meta.key
@@ -112,15 +78,7 @@ public class User extends Entity {
      * @param plaintext - message data
      * @return encrypted data
      */
-    public byte[] encrypt(byte[] plaintext) {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        // NOTICE: meta.key will never changed, so use visa.key to encrypt message
-        //         is a better way
-        EncryptKey key = delegate.getPublicKeyForEncryption(identifier);
-        assert key != null : "failed to get encrypt key for user: " + identifier;
-        return key.encrypt(plaintext);
-    }
+    byte[] encrypt(byte[] plaintext);
 
     //
     //  Interfaces for Local User
@@ -132,15 +90,7 @@ public class User extends Entity {
      * @param data - message data
      * @return signature
      */
-    public byte[] sign(byte[] data) {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        // NOTICE: I suggest use the private key which paired to visa.key
-        //         to sign message
-        SignKey key = delegate.getPrivateKeyForSignature(identifier);
-        assert key != null : "failed to get sign key for user: " + identifier;
-        return key.sign(data);
-    }
+    byte[] sign(byte[] data);
 
     /**
      *  Decrypt data with user's private key(s)
@@ -148,56 +98,14 @@ public class User extends Entity {
      * @param ciphertext - encrypted data
      * @return plain text
      */
-    public byte[] decrypt(byte[] ciphertext) {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        // NOTICE: if you provide a public key in visa for encryption,
-        //         here you should return the private key paired with visa.key
-        List<DecryptKey> keys = delegate.getPrivateKeysForDecryption(identifier);
-        assert keys != null && keys.size() > 0 : "failed to get decrypt keys for user: " + identifier;
-        byte[] plaintext;
-        for (DecryptKey key : keys) {
-            // try decrypting it with each private key
-            try {
-                plaintext = key.decrypt(ciphertext);
-                if (plaintext != null) {
-                    // OK!
-                    return plaintext;
-                }
-            } catch (InvalidParameterException e) {
-                // this key not match, try next one
-                //e.printStackTrace();
-            }
-        }
-        // decryption failed
-        return null;
-    }
+    byte[] decrypt(byte[] ciphertext);
 
     //
     //  Interfaces for Visa
     //
-    public Visa sign(Visa doc) {
-        assert doc.getIdentifier().equals(identifier) : "visa ID not match: " + identifier + ", " + doc.getIdentifier();
-        DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        // NOTICE: only sign visa with the private key paired with your meta.key
-        SignKey key = delegate.getPrivateKeyForVisaSignature(identifier);
-        assert key != null : "failed to get sign key for visa: " + identifier;
-        doc.sign(key);
-        return doc;
-    }
+    Visa sign(Visa doc);
 
-    public boolean verify(Visa doc) {
-        // NOTICE: only verify visa with meta.key
-        if (!identifier.equals(doc.getIdentifier())) {
-            // visa ID not match
-            return false;
-        }
-        // if meta not exists, user won't be created
-        VerifyKey key = getMeta().getKey();
-        assert key != null : "failed to get verify key for visa: " + identifier;
-        return doc.verify(key);
-    }
+    boolean verify(Visa doc);
 
     /**
      *  User Data Source
@@ -221,7 +129,7 @@ public class User extends Entity {
      *  6. public key for visa verification
      *     meta.key only
      */
-    public interface DataSource extends Entity.DataSource {
+    interface DataSource extends Entity.DataSource {
 
         /**
          *  Get contacts list
