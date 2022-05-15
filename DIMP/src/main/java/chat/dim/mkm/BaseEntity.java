@@ -55,7 +55,7 @@ public class BaseEntity implements Entity {
         } else if (other instanceof Entity) {
             // check with identifier
             Entity entity = (Entity) other;
-            return identifier.equals(entity.getIdentifier());
+            return entity.getIdentifier().equals(identifier);
         } else {
             // null or unknown object
             return false;
