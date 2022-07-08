@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,19 +33,14 @@ package chat.dim.protocol;
 import java.util.List;
 
 /**
- *  Top-Secret message: {
- *      type : 0xFF,
- *      sn   : 456,
+ *  Content Array message: {
+ *      type : 0xCA,
+ *      sn   : 123,
  *
- *      forward : {...}  // reliable (secure + certified) message
- *      secrets : [...]  // reliable (secure + certified) messages
+ *      contents : [...]  // content array
  *  }
  */
-public interface ForwardContent extends Content {
+public interface ArrayContent extends Content {
 
-    // forward message
-    ReliableMessage getForward();
-
-    // secret messages
-    List<ReliableMessage> getSecrets();
+    List<Content> getContents();
 }

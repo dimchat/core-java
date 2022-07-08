@@ -39,6 +39,7 @@ import chat.dim.dkd.BaseMetaCommand;
 import chat.dim.dkd.BaseMoneyContent;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.dkd.ImageFileContent;
+import chat.dim.dkd.ListContent;
 import chat.dim.dkd.SecretContent;
 import chat.dim.dkd.TransferMoneyContent;
 import chat.dim.dkd.VideoFileContent;
@@ -228,8 +229,6 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
      */
     public static void registerContentFactories() {
 
-        // Top-Secret
-        Content.setFactory(ContentType.FORWARD, SecretContent::new);
         // Text
         Content.setFactory(ContentType.TEXT, BaseTextContent::new);
 
@@ -255,6 +254,12 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
 
         // History Command
         Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());
+
+        // Top-Secret
+        Content.setFactory(ContentType.ARRAY, ListContent::new);
+
+        // Top-Secret
+        Content.setFactory(ContentType.FORWARD, SecretContent::new);
 
         // unknown content type
         Content.setFactory(0, BaseContent::new);

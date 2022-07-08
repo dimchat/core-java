@@ -30,6 +30,8 @@
  */
 package chat.dim.dkd;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.protocol.ContentType;
@@ -42,31 +44,80 @@ import chat.dim.protocol.ReliableMessage;
  *      sn   : 456,
  *
  *      forward : {...}  // reliable (secure + certified) message
+ *      secrets : [...]  // reliable (secure + certified) messages
  *  }
  */
 public class SecretContent extends BaseContent implements ForwardContent {
 
-    private ReliableMessage forwardMessage;
+    private ReliableMessage forward;
+    private List<ReliableMessage> secrets;
 
     public SecretContent(Map<String, Object> dictionary) {
         super(dictionary);
         // lazy load
-        forwardMessage = null;
+        forward = null;
+        secrets = null;
     }
 
-    public SecretContent(ReliableMessage message) {
+    public SecretContent(ReliableMessage msg) {
         super(ContentType.FORWARD);
-        forwardMessage = message;
-        put("forward", message.toMap());
+        forward = msg;
+        secrets = null;
+        put("forward", msg.toMap());
+    }
+    public SecretContent(List<ReliableMessage> messages) {
+        super(ContentType.FORWARD);
+        forward = null;
+        secrets = messages;
+        put("secrets", revert(messages));
     }
 
     @Override
-    public ReliableMessage getMessage() {
-        if (forwardMessage == null) {
+    public ReliableMessage getForward() {
+        if (forward == null) {
             Object info = get("forward");
-            forwardMessage = ReliableMessage.parse(info);
-            assert forwardMessage != null : "forward message not found: " + toMap();
+            forward = ReliableMessage.parse(info);
         }
-        return forwardMessage;
+        return forward;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ReliableMessage> getSecrets() {
+        if (secrets == null) {
+            Object info = get("secrets");
+            ReliableMessage msg;
+            if (info != null) {
+                // get from 'secrets'
+                secrets = convert((List<Object>) info);
+            } else {
+                // get from 'forward'
+                secrets = new ArrayList<>();
+                msg = getForward();
+                if (msg != null) {
+                    secrets.add(msg);
+                }
+            }
+        }
+        return secrets;
+    }
+
+    static List<ReliableMessage> convert(List<Object> messages) {
+        List<ReliableMessage> array = new ArrayList<>();
+        ReliableMessage msg;
+        for (Object item : messages) {
+            msg = ReliableMessage.parse(item);
+            if (msg != null) {
+                array.add(msg);
+            }
+        }
+        return array;
+    }
+    static List<Object> revert(List<ReliableMessage> messages) {
+        List<Object> array = new ArrayList<>();
+        for (ReliableMessage msg : messages) {
+            array.add(msg.toMap());
+        }
+        return array;
     }
 }
