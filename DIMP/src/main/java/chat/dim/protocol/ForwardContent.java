@@ -32,6 +32,8 @@ package chat.dim.protocol;
 
 import java.util.List;
 
+import chat.dim.dkd.SecretContent;
+
 /**
  *  Top-Secret message: {
  *      type : 0xFF,
@@ -48,4 +50,16 @@ public interface ForwardContent extends Content {
 
     // secret messages
     List<ReliableMessage> getSecrets();
+
+    //
+    //  Factories
+    //
+
+    static ForwardContent forward(ReliableMessage message) {
+        return new SecretContent(message);
+    }
+
+    static ForwardContent forward(List<ReliableMessage> messages) {
+        return new SecretContent(messages);
+    }
 }

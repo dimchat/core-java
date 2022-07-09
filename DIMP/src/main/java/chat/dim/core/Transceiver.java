@@ -255,7 +255,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         // History Command
         Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());
 
-        // Top-Secret
+        // Content Array
         Content.setFactory(ContentType.ARRAY, ListContent::new);
 
         // Top-Secret
