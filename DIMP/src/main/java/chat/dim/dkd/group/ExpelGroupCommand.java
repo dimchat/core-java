@@ -40,8 +40,8 @@ import chat.dim.protocol.group.ExpelCommand;
 
 public class ExpelGroupCommand extends BaseGroupCommand implements ExpelCommand {
 
-    public ExpelGroupCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public ExpelGroupCommand(Map<String, Object> command) {
+        super(command);
     }
 
     public ExpelGroupCommand(ID group, ID member) {

@@ -51,8 +51,8 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     private byte[] icon = null;
 
-    public WebPageContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public WebPageContent(Map<String, Object> content) {
+        super(content);
     }
 
     public WebPageContent(String url, String title, String desc, byte[] icon) {

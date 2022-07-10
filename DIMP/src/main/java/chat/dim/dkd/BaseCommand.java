@@ -40,27 +40,29 @@ import chat.dim.protocol.ContentType;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "...", // command name
+ *      cmd     : "...", // command name
  *      extra   : info   // command parameters
  *  }
  */
 public class BaseCommand extends BaseContent implements Command {
 
-    public BaseCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public BaseCommand(Map<String, Object> command) {
+        super(command);
     }
 
-    public BaseCommand(ContentType type, String command) {
+    public BaseCommand(ContentType type, String cmd) {
         super(type);
-        put("command", command);
+        // TODO: modify after all server/clients support 'cmd'
+        //put("cmd", cmd);
+        put("command", cmd);
     }
 
-    public BaseCommand(String command) {
-        this(ContentType.COMMAND, command);
+    public BaseCommand(String cmd) {
+        this(ContentType.COMMAND, cmd);
     }
 
     @Override
-    public String getCommand() {
-        return Command.getCommand(toMap());
+    public String getCmd() {
+        return Command.getCmd(toMap());
     }
 }

@@ -45,8 +45,8 @@ import chat.dim.protocol.TextContent;
  */
 public class BaseTextContent extends BaseContent implements TextContent {
 
-    public BaseTextContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public BaseTextContent(Map<String, Object> content) {
+        super(content);
     }
 
     public BaseTextContent(String message) {

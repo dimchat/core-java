@@ -37,7 +37,7 @@ import java.util.Map;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "...", // command name
+ *      cmd     : "...", // command name
  *      extra   : info   // command parameters
  *  }
  */
@@ -47,9 +47,7 @@ public interface Command extends Content {
     String META      = "meta";
     String DOCUMENT  = "document";
 
-    String RECEIPT   = "receipt";
     String HANDSHAKE = "handshake";
-    String LOGIN     = "login";
     //-------- command names end --------
 
     /**
@@ -57,20 +55,25 @@ public interface Command extends Content {
      *
      * @return command name string
      */
-    String getCommand();
+    String getCmd();
 
-    static String getCommand(Map<String, Object> cmd) {
-        return (String) cmd.get("command");
+    static String getCmd(Map<String, Object> command) {
+        // TODO: modify after all server/clients support 'cmd'
+        Object cmd = command.get("cmd");
+        if (cmd == null) {
+            cmd = command.get("command");
+        }
+        return (String) cmd;
     }
 
     //
     //  Factory method
     //
-    static Factory getFactory(String command) {
-        return CommandFactories.commandFactories.get(command);
+    static Factory getFactory(String cmd) {
+        return CommandFactories.commandFactories.get(cmd);
     }
-    static void setFactory(String command, Factory factory) {
-        CommandFactories.commandFactories.put(command, factory);
+    static void setFactory(String cmd, Factory factory) {
+        CommandFactories.commandFactories.put(cmd, factory);
     }
 
     /**
@@ -82,9 +85,9 @@ public interface Command extends Content {
         /**
          *  Parse map object to command
          *
-         * @param cmd - command info
+         * @param command - command info
          * @return Command
          */
-        Command parseCommand(Map<String, Object> cmd);
+        Command parseCommand(Map<String, Object> command);
     }
 }

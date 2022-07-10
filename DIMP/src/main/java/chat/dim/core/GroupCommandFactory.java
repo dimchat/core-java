@@ -40,9 +40,9 @@ public class GroupCommandFactory extends HistoryCommandFactory {
 
     @Override
     public Content parseContent(Map<String, Object> content) {
-        String command = Command.getCommand(content);
+        String cmd = Command.getCmd(content);
         // get factory by command name
-        Command.Factory factory = Command.getFactory(command);
+        Command.Factory factory = Command.getFactory(cmd);
         if (factory == null) {
             factory = this;
         }
@@ -50,7 +50,7 @@ public class GroupCommandFactory extends HistoryCommandFactory {
     }
 
     @Override
-    public Command parseCommand(Map<String, Object> cmd) {
-        return new BaseGroupCommand(cmd);
+    public Command parseCommand(Map<String, Object> command) {
+        return new BaseGroupCommand(command);
     }
 }

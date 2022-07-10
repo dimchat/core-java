@@ -35,7 +35,7 @@ package chat.dim.protocol;
  *      type : 0x89,
  *      sn   : 123,
  *
- *      command : "...", // command name
+ *      cmd     : "...", // command name
  *      time    : 0,     // command timestamp
  *      extra   : info   // command parameters
  *  }

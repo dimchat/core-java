@@ -41,8 +41,8 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
     private ID member = null;
     private List<ID> members = null;
 
-    public BaseGroupCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public BaseGroupCommand(Map<String, Object> command) {
+        super(command);
     }
 
     /*
@@ -50,12 +50,12 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      command : "join",      // or quit
+     *      cmd     : "join",      // or quit
      *      group   : "{GROUP_ID}",
      *  }
      */
-    public BaseGroupCommand(String command, ID group) {
-        super(command);
+    public BaseGroupCommand(String cmd, ID group) {
+        super(cmd);
         setGroup(group);
     }
 
@@ -64,13 +64,13 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      command : "invite",      // or expel
+     *      cmd     : "invite",      // or expel
      *      group   : "{GROUP_ID}",
      *      member  : "{MEMBER_ID}",
      *  }
      */
-    public BaseGroupCommand(String command, ID group, ID member) {
-        super(command);
+    public BaseGroupCommand(String cmd, ID group, ID member) {
+        super(cmd);
         setGroup(group);
         setMember(member);
     }
@@ -80,13 +80,13 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      command : "invite",      // or expel
+     *      cmd     : "invite",      // or expel
      *      group   : "{GROUP_ID}",
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    public BaseGroupCommand(String command, ID groupID, List<ID> memberList) {
-        super(command);
+    public BaseGroupCommand(String cmd, ID groupID, List<ID> memberList) {
+        super(cmd);
         setGroup(groupID);
         setMembers(memberList);
     }

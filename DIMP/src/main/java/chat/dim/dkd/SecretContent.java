@@ -52,8 +52,8 @@ public class SecretContent extends BaseContent implements ForwardContent {
     private ReliableMessage forward;
     private List<ReliableMessage> secrets;
 
-    public SecretContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public SecretContent(Map<String, Object> content) {
+        super(content);
         // lazy load
         forward = null;
         secrets = null;

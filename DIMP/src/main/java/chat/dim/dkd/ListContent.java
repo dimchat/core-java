@@ -50,8 +50,8 @@ public class ListContent extends BaseContent implements ArrayContent {
 
     private List<Content> list;
 
-    public ListContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public ListContent(Map<String, Object> content) {
+        super(content);
         // lazy load
         list = null;
     }

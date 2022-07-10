@@ -37,7 +37,7 @@ import chat.dim.dkd.BaseMetaCommand;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "meta", // command name
+ *      cmd     : "meta", // command name
  *      ID      : "{ID}", // contact's ID
  *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }

@@ -42,7 +42,7 @@ import chat.dim.protocol.Meta;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command   : "document", // command name
+ *      cmd       : "document", // command name
  *      ID        : "{ID}",     // entity ID
  *      meta      : {...},      // only for handshaking with new friend
  *      document  : {...},      // when document is empty, means query for ID
@@ -53,8 +53,8 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
 
     private Document doc;
 
-    public BaseDocumentCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public BaseDocumentCommand(Map<String, Object> command) {
+        super(command);
         // lazy
         doc = null;
     }

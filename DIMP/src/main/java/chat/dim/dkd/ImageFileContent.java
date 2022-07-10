@@ -51,8 +51,8 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
 
     private byte[] thumbnail = null;
 
-    public ImageFileContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public ImageFileContent(Map<String, Object> content) {
+        super(content);
     }
 
     public ImageFileContent(String filename, byte[] data) {

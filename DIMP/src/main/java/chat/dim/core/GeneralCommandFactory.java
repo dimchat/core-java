@@ -44,9 +44,9 @@ public class GeneralCommandFactory implements Content.Factory, Command.Factory {
 
     @Override
     public Content parseContent(Map<String, Object> content) {
-        String command = Command.getCommand(content);
+        String cmd = Command.getCmd(content);
         // get factory by command name
-        Command.Factory factory = Command.getFactory(command);
+        Command.Factory factory = Command.getFactory(cmd);
         if (factory == null) {
             // check for group command
             if (content.get("group") != null) {
@@ -60,7 +60,7 @@ public class GeneralCommandFactory implements Content.Factory, Command.Factory {
     }
 
     @Override
-    public Command parseCommand(Map<String, Object> cmd) {
-        return new BaseCommand(cmd);
+    public Command parseCommand(Map<String, Object> command) {
+        return new BaseCommand(command);
     }
 }

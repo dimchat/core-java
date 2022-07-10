@@ -51,8 +51,8 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
 
     private byte[] snapshot = null;
 
-    public VideoFileContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public VideoFileContent(Map<String, Object> content) {
+        super(content);
     }
 
     public VideoFileContent(String filename, byte[] data) {

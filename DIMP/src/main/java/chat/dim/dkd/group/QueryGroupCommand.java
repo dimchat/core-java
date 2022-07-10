@@ -44,8 +44,8 @@ import chat.dim.protocol.group.QueryCommand;
  */
 public class QueryGroupCommand extends BaseGroupCommand implements QueryCommand {
 
-    public QueryGroupCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public QueryGroupCommand(Map<String, Object> command) {
+        super(command);
     }
 
     public QueryGroupCommand(ID group) {

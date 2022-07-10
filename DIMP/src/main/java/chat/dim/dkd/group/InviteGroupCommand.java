@@ -40,8 +40,8 @@ import chat.dim.protocol.group.InviteCommand;
 
 public class InviteGroupCommand extends BaseGroupCommand implements InviteCommand {
 
-    public InviteGroupCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public InviteGroupCommand(Map<String, Object> command) {
+        super(command);
     }
 
     public InviteGroupCommand(ID group, ID member) {

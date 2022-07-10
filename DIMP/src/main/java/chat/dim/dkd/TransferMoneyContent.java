@@ -46,8 +46,8 @@ import chat.dim.protocol.TransferContent;
  */
 public class TransferMoneyContent extends BaseMoneyContent implements TransferContent {
 
-    public TransferMoneyContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public TransferMoneyContent(Map<String, Object> content) {
+        super(content);
     }
 
     public TransferMoneyContent(String currency, double amount) {

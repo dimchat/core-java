@@ -48,8 +48,8 @@ import chat.dim.protocol.ContentType;
  */
 public class AudioFileContent extends BaseFileContent implements AudioContent {
 
-    public AudioFileContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public AudioFileContent(Map<String, Object> content) {
+        super(content);
     }
 
     public AudioFileContent(String filename, byte[] data) {

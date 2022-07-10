@@ -46,8 +46,8 @@ import chat.dim.protocol.MoneyContent;
  */
 public class BaseMoneyContent extends BaseContent implements MoneyContent {
 
-    public BaseMoneyContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public BaseMoneyContent(Map<String, Object> content) {
+        super(content);
     }
 
     protected BaseMoneyContent(ContentType type, String currency, double amount) {

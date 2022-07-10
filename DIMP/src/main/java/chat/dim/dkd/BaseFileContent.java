@@ -53,8 +53,8 @@ public class BaseFileContent extends BaseContent implements FileContent {
     private byte[] data; // file data (plaintext)
     private DecryptKey key; // key to decrypt data
 
-    public BaseFileContent(Map<String, Object> dictionary) {
-        super(dictionary);
+    public BaseFileContent(Map<String, Object> content) {
+        super(content);
         // lazy load
         data = null;
         key = null;
