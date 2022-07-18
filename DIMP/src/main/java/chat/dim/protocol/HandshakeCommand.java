@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,62 +28,45 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.protocol;
 
-import java.util.Map;
-
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.ID;
-import chat.dim.protocol.TransferContent;
+import chat.dim.dkd.BaseHandshakeCommand;
 
 /**
- *  Transfer money message: {
- *      type : 0x41,
+ *  Command message: {
+ *      type : 0x88,
  *      sn   : 123,
  *
- *      currency : "RMB",    // USD, USDT, ...
- *      amount   : 100.00,
- *      remitter : "{FROM}", // sender ID
- *      remittee : "{TO}"    // receiver ID
+ *      cmd     : "handshake",    // command name
+ *      message : "Hello world!",
+ *      session : "{SESSION_KEY}" // session key
  *  }
  */
-public class TransferMoneyContent extends BaseMoneyContent implements TransferContent {
+public interface HandshakeCommand extends Command {
 
-    public TransferMoneyContent(Map<String, Object> content) {
-        super(content);
+    String getMessage();
+
+    String getSessionKey();
+
+    HandshakeState getState();
+
+    //
+    //  Factories
+    //
+
+    static HandshakeCommand start() {
+        return new BaseHandshakeCommand("Hello world!", null);
     }
 
-    public TransferMoneyContent(String currency, double amount) {
-        super(ContentType.TRANSFER, currency, amount);
+    static HandshakeCommand restart(String sessionKey) {
+        return new BaseHandshakeCommand("Hello world!", sessionKey);
     }
 
-    @Override
-    public void setRemitter(ID sender) {
-        if (sender == null) {
-            remove("remitter");
-        } else {
-            put("remitter", sender.toString());
-        }
+    static HandshakeCommand again(String sessionKey) {
+        return new BaseHandshakeCommand("DIM?", sessionKey);
     }
 
-    @Override
-    public ID getRemitter() {
-        Object sender = get("remitter");
-        return ID.parse(sender);
-    }
-
-    @Override
-    public void setRemittee(ID receiver) {
-        if (receiver == null) {
-            remove("remittee");
-        } else {
-            put("remittee", receiver.toString());
-        }
-    }
-
-    @Override
-    public ID getRemittee() {
-        Object receiver = get("remittee");
-        return ID.parse(receiver);
+    static HandshakeCommand success(String sessionKey) {
+        return new BaseHandshakeCommand("DIM!", sessionKey);
     }
 }

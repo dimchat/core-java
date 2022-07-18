@@ -31,10 +31,12 @@
 package chat.dim.core;
 
 import chat.dim.crypto.SymmetricKey;
+//import chat.dim.dkd.AppCustomizedContent;
 import chat.dim.dkd.AudioFileContent;
 import chat.dim.dkd.BaseContent;
 import chat.dim.dkd.BaseDocumentCommand;
 import chat.dim.dkd.BaseFileContent;
+import chat.dim.dkd.BaseHandshakeCommand;
 import chat.dim.dkd.BaseMetaCommand;
 import chat.dim.dkd.BaseMoneyContent;
 import chat.dim.dkd.BaseTextContent;
@@ -258,6 +260,12 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         // Content Array
         Content.setFactory(ContentType.ARRAY, ListContent::new);
 
+        /*/
+        // Application Customized
+        Content.setFactory(ContentType.CUSTOMIZED, AppCustomizedContent::new);
+        Content.setFactory(ContentType.APPLICATION, AppCustomizedContent::new);
+        /*/
+
         // Top-Secret
         Content.setFactory(ContentType.FORWARD, SecretContent::new);
 
@@ -269,6 +277,9 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
      *  Register core command factories
      */
     public static void registerCommandFactories() {
+
+        // Handshake Command
+        Command.setFactory(Command.HANDSHAKE, BaseHandshakeCommand::new);
 
         // Meta Command
         Command.setFactory(Command.META, BaseMetaCommand::new);

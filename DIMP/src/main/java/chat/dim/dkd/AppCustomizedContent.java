@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,57 +33,56 @@ package chat.dim.dkd;
 import java.util.Map;
 
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.ID;
-import chat.dim.protocol.TransferContent;
+import chat.dim.protocol.CustomizedContent;
 
 /**
- *  Transfer money message: {
- *      type : 0x41,
+ *  Application Customized message: {
+ *      type : 0xCC,
  *      sn   : 123,
  *
- *      currency : "RMB",    // USD, USDT, ...
- *      amount   : 100.00,
- *      remitter : "{FROM}", // sender ID
- *      remittee : "{TO}"    // receiver ID
+ *      app   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      mod   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+ *      act   : "{ACTION}",  // action name (3.g.: "throw")
+ *      extra : info         // action parameters
  *  }
  */
-public class TransferMoneyContent extends BaseMoneyContent implements TransferContent {
+public class AppCustomizedContent extends BaseContent implements CustomizedContent {
 
-    public TransferMoneyContent(Map<String, Object> content) {
+    public AppCustomizedContent(Map<String, Object> content) {
         super(content);
     }
 
-    public TransferMoneyContent(String currency, double amount) {
-        super(ContentType.TRANSFER, currency, amount);
+    protected AppCustomizedContent(ContentType type, String app, String mod) {
+        this(type.value, app, mod);
     }
-
-    @Override
-    public void setRemitter(ID sender) {
-        if (sender == null) {
-            remove("remitter");
-        } else {
-            put("remitter", sender.toString());
+    protected AppCustomizedContent(int type, String app, String mod) {
+        super(type);
+        if (app != null) {
+            put("app", app);
+        }
+        if (mod != null) {
+            put("mod", mod);
         }
     }
 
+    public AppCustomizedContent(String app, String mod) {
+        this(ContentType.CUSTOMIZED, app, mod);
+    }
+
+    //-------- getters --------
+
     @Override
-    public ID getRemitter() {
-        Object sender = get("remitter");
-        return ID.parse(sender);
+    public String getApplication() {
+        return (String) get("app");
     }
 
     @Override
-    public void setRemittee(ID receiver) {
-        if (receiver == null) {
-            remove("remittee");
-        } else {
-            put("remittee", receiver.toString());
-        }
+    public String getModule() {
+        return (String) get("mod");
     }
 
     @Override
-    public ID getRemittee() {
-        Object receiver = get("remittee");
-        return ID.parse(receiver);
+    public String getAction() {
+        return (String) get("act");
     }
 }

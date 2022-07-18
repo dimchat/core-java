@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,23 +31,12 @@
 package chat.dim.protocol;
 
 /**
- *  Transfer money message: {
- *      type : 0x41,
- *      sn   : 123,
- *
- *      currency : "RMB",    // USD, USDT, ...
- *      amount   : 100.00,
- *      remitter : "{FROM}", // sender ID
- *      remittee : "{TO}"    // receiver ID
- *  }
+ *  Handshake State
+ *  ~~~~~~~~~~~~~~~
  */
-public interface TransferContent extends MoneyContent {
-
-    // sender
-    void setRemitter(ID sender);
-    ID getRemitter();
-
-    // receiver
-    void setRemittee(ID receiver);
-    ID getRemittee();
+public enum HandshakeState {
+    START,    // C -> S, without session key(or session expired)
+    AGAIN,    // S -> C, with new session key
+    RESTART,  // C -> S, with new session key
+    SUCCESS,  // S -> C, handshake accepted
 }
