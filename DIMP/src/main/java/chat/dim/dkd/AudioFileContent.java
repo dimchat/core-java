@@ -52,8 +52,11 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
         super(content);
     }
 
-    public AudioFileContent(String filename, byte[] data) {
-        super(ContentType.AUDIO, filename, data);
+    public AudioFileContent(String filename, String encoded) {
+        super(ContentType.AUDIO, filename, encoded);
+    }
+    public AudioFileContent(String filename, byte[] binary) {
+        super(ContentType.AUDIO, filename, binary);
     }
 
     @Override

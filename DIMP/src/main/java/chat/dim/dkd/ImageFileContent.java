@@ -55,8 +55,11 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
         super(content);
     }
 
-    public ImageFileContent(String filename, byte[] data) {
-        super(ContentType.IMAGE, filename, data);
+    public ImageFileContent(String filename, String encoded) {
+        super(ContentType.IMAGE, filename, encoded);
+    }
+    public ImageFileContent(String filename, byte[] binary) {
+        super(ContentType.IMAGE, filename, binary);
     }
 
     @Override

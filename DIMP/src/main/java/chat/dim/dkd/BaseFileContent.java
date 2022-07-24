@@ -60,18 +60,42 @@ public class BaseFileContent extends BaseContent implements FileContent {
         key = null;
     }
 
-    protected BaseFileContent(ContentType type, String filename, byte[] data) {
-        this(type.value, filename, data);
-    }
-    protected BaseFileContent(int type, String filename, byte[] data) {
+    protected BaseFileContent(int type, String filename, String encoded) {
         super(type);
-        setFilename(filename);
-        setData(data);
+        if (filename != null) {
+            put("filename", filename);
+        }
+        if (encoded != null) {
+            put("data", encoded);
+        }
+        // lazy load
+        data = null;
+        key = null;
+    }
+    protected BaseFileContent(int type, String filename, byte[] binary) {
+        super(type);
+        if (filename != null) {
+            put("filename", filename);
+        }
+        if (binary != null) {
+            put("data", Base64.encode(binary));
+        }
+        data = binary;
         key = null;
     }
 
-    public BaseFileContent(String filename, byte[] data) {
-        this(ContentType.FILE, filename, data);
+    protected BaseFileContent(ContentType type, String filename, String encoded) {
+        this(type.value, filename, encoded);
+    }
+    protected BaseFileContent(ContentType type, String filename, byte[] binary) {
+        this(type.value, filename, binary);
+    }
+
+    public BaseFileContent(String filename, String encoded) {
+        this(ContentType.FILE, filename, encoded);
+    }
+    public BaseFileContent(String filename, byte[] binary) {
+        this(ContentType.FILE, filename, binary);
     }
 
     @Override

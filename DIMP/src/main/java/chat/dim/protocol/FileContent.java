@@ -65,19 +65,31 @@ public interface FileContent extends Content {
     //  Factories
     //
 
-    static FileContent file(String filename, byte[] data) {
-        return new BaseFileContent(filename, data);
+    static FileContent file(String filename, String encoded) {
+        return new BaseFileContent(filename, encoded);
+    }
+    static FileContent file(String filename, byte[] binary) {
+        return new BaseFileContent(filename, binary);
     }
 
-    static ImageContent image(String filename, byte[] data) {
-        return new ImageFileContent(filename, data);
+    static ImageContent image(String filename, String encoded) {
+        return new ImageFileContent(filename, encoded);
+    }
+    static ImageContent image(String filename, byte[] binary) {
+        return new ImageFileContent(filename, binary);
     }
 
-    static AudioContent audio(String filename, byte[] data) {
-        return new AudioFileContent(filename, data);
+    static AudioContent audio(String filename, String encoded) {
+        return new AudioFileContent(filename, encoded);
+    }
+    static AudioContent audio(String filename, byte[] binary) {
+        return new AudioFileContent(filename, binary);
     }
 
-    static VideoContent video(String filename, byte[] data) {
-        return new VideoFileContent(filename, data);
+    static VideoContent video(String filename, String encoded) {
+        return new VideoFileContent(filename, encoded);
+    }
+    static VideoContent video(String filename, byte[] binary) {
+        return new VideoFileContent(filename, binary);
     }
 }
