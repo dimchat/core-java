@@ -30,6 +30,8 @@
  */
 package chat.dim.protocol;
 
+import chat.dim.dkd.AppCustomizedContent;
+
 /**
  *  Application Customized message: {
  *      type : 0xCC,
@@ -51,4 +53,12 @@ public interface CustomizedContent extends Content {
 
     // get Action name
     String getAction();
+
+    //
+    //  Factory
+    //
+
+    static CustomizedContent create(String app, String mod, String act) {
+        return new AppCustomizedContent(app, mod, act);
+    }
 }

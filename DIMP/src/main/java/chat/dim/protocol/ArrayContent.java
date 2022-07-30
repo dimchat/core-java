@@ -32,6 +32,8 @@ package chat.dim.protocol;
 
 import java.util.List;
 
+import chat.dim.dkd.ListContent;
+
 /**
  *  Content Array message: {
  *      type : 0xCA,
@@ -43,4 +45,12 @@ import java.util.List;
 public interface ArrayContent extends Content {
 
     List<Content> getContents();
+
+    //
+    //  Factory
+    //
+
+    static ArrayContent create(List<Content> contents) {
+        return new ListContent(contents);
+    }
 }

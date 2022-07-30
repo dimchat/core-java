@@ -36,7 +36,6 @@ import chat.dim.dkd.AudioFileContent;
 import chat.dim.dkd.BaseContent;
 import chat.dim.dkd.BaseDocumentCommand;
 import chat.dim.dkd.BaseFileContent;
-import chat.dim.dkd.BaseHandshakeCommand;
 import chat.dim.dkd.BaseMetaCommand;
 import chat.dim.dkd.BaseMoneyContent;
 import chat.dim.dkd.BaseTextContent;
@@ -277,9 +276,6 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
      *  Register core command factories
      */
     public static void registerCommandFactories() {
-
-        // Handshake Command
-        Command.setFactory(Command.HANDSHAKE, BaseHandshakeCommand::new);
 
         // Meta Command
         Command.setFactory(Command.META, BaseMetaCommand::new);

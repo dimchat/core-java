@@ -46,8 +46,6 @@ public interface Command extends Content {
     //-------- command names begin --------
     String META      = "meta";
     String DOCUMENT  = "document";
-
-    String HANDSHAKE = "handshake";
     //-------- command names end --------
 
     /**

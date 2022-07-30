@@ -55,11 +55,11 @@ public interface ForwardContent extends Content {
     //  Factories
     //
 
-    static ForwardContent forward(ReliableMessage message) {
+    static ForwardContent create(ReliableMessage message) {
         return new SecretContent(message);
     }
 
-    static ForwardContent forward(List<ReliableMessage> messages) {
+    static ForwardContent create(List<ReliableMessage> messages) {
         return new SecretContent(messages);
     }
 }

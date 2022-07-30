@@ -30,6 +30,8 @@
  */
 package chat.dim.protocol;
 
+import chat.dim.dkd.BaseTextContent;
+
 /**
  *  Text message: {
  *      type : 0x01,
@@ -43,4 +45,12 @@ public interface TextContent extends Content {
     void setText(String message);
 
     String getText();
+
+    //
+    //  Factory
+    //
+
+    static TextContent create(String text) {
+        return new BaseTextContent(text);
+    }
 }
