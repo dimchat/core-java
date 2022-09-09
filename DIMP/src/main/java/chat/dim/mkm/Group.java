@@ -83,7 +83,7 @@ public interface Group extends Entity {
          *  Get assistants for this group
          *
          * @param group - group ID
-         * @return robot ID list
+         * @return bot ID list
          */
         List<ID> getAssistants(ID group);
     }

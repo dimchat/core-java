@@ -52,10 +52,10 @@ public class AppCustomizedContent extends BaseContent implements CustomizedConte
         super(content);
     }
 
-    protected AppCustomizedContent(ContentType type, String app, String mod, String act) {
+    public AppCustomizedContent(ContentType type, String app, String mod, String act) {
         this(type.value, app, mod, act);
     }
-    protected AppCustomizedContent(int type, String app, String mod, String act) {
+    public AppCustomizedContent(int type, String app, String mod, String act) {
         super(type);
         if (app != null) {
             put("app", app);

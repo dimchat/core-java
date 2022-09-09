@@ -191,6 +191,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
+        //       'W' -> 'time'
         //       'G' -> 'group'
         return Content.parse(dict);
     }
