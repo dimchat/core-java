@@ -40,9 +40,9 @@ import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Document;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.Visa;
 
 /**
@@ -212,7 +212,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
             return getBroadcastOwner(group);
         }
         // check group type
-        if (NetworkType.POLYLOGUE.equals(group.getType())) {
+        if (EntityType.GROUP.equals(group.getType())) {
             // Polylogue's owner is its founder
             return getFounder(group);
         }
