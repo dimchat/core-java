@@ -74,7 +74,7 @@ public class BaseEntity implements Entity {
     }
 
     @Override
-    public byte getType() {
+    public int getType() {
         return identifier.getType();
     }
 

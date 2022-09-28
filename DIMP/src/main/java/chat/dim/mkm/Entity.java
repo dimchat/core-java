@@ -59,7 +59,7 @@ public interface Entity {
      *
      * @return network type
      */
-    byte getType();
+    int getType();
 
     void setDataSource(DataSource dataSource);
     DataSource getDataSource();
