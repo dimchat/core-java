@@ -32,6 +32,8 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.type.Wrapper;
+
 /**
  *  Command message: {
  *      type : 0x88,
@@ -56,17 +58,31 @@ public interface Command extends Content {
     String getCmd();
 
     static String getCmd(Map<String, Object> command) {
-        // TODO: modify after all server/clients support 'cmd'
-        Object cmd = command.get("cmd");
-        if (cmd == null) {
-            cmd = command.get("command");
-        }
-        return (String) cmd;
+        return (String) command.get("cmd");
     }
 
     //
     //  Factory method
     //
+    static Command parse(Object command) {
+        if (command == null) {
+            return null;
+        } else if (command instanceof Command) {
+            return (Command) command;
+        }
+        Map<String, Object> info = Wrapper.getMap(command);
+        assert info != null : "command error: " + command;
+        // get factory by content type
+        String name = Command.getCmd(info);
+        Factory factory = getFactory(name);
+        if (factory == null) {
+            int type = Content.getType(info);
+            factory = (Factory) Content.getFactory(type);
+            assert factory != null : "cannot parse command: " + command;
+        }
+        return factory.parseCommand(info);
+    }
+
     static Factory getFactory(String cmd) {
         return CommandFactories.commandFactories.get(cmd);
     }

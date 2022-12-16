@@ -53,19 +53,18 @@ public class BaseEntity implements Entity {
             // same object
             return true;
         } else if (other instanceof Entity) {
-            // check with identifier
+            // check with ID
             Entity entity = (Entity) other;
-            return entity.getIdentifier().equals(identifier);
-        } else {
-            // null or unknown object
-            return false;
+            other = entity.getIdentifier();
         }
+        return identifier.equals(other);
     }
 
     @Override
     public String toString() {
-        String clazzName = getClass().getSimpleName();
-        return "<" + clazzName + "|" + getType() + " " + identifier + ">";
+        String clazz = getClass().getSimpleName();
+        int network = identifier.getAddress().getType();
+        return "<" + clazz + " id=\"" + identifier + "\" network=" + network + " />";
     }
 
     @Override

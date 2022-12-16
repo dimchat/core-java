@@ -52,9 +52,7 @@ public class BaseCommand extends BaseContent implements Command {
 
     public BaseCommand(ContentType type, String cmd) {
         super(type);
-        // TODO: modify after all server/clients support 'cmd'
-        //put("cmd", cmd);
-        put("command", cmd);
+        put("cmd", cmd);
     }
 
     public BaseCommand(String cmd) {

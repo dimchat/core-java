@@ -57,7 +57,7 @@ public interface Processor {
      * @param rMsg - message to be processed
      * @return response messages
      */
-    List<ReliableMessage> processMessage(ReliableMessage rMsg);
+    List<ReliableMessage> processReliableMessage(ReliableMessage rMsg);
 
     /**
      *  Process encrypted message
@@ -66,7 +66,7 @@ public interface Processor {
      * @param rMsg - message received
      * @return response messages
      */
-    List<SecureMessage> processMessage(SecureMessage sMsg, ReliableMessage rMsg);
+    List<SecureMessage> processSecureMessage(SecureMessage sMsg, ReliableMessage rMsg);
 
     /**
      *  Process plain message
@@ -75,7 +75,7 @@ public interface Processor {
      * @param rMsg - message received
      * @return response messages
      */
-    List<InstantMessage> processMessage(InstantMessage iMsg, ReliableMessage rMsg);
+    List<InstantMessage> processInstantMessage(InstantMessage iMsg, ReliableMessage rMsg);
 
     /**
      *  Process message content
