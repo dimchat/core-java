@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
+import chat.dim.dkd.FactoryManager;
 import chat.dim.type.Wrapper;
 
 /**
@@ -76,8 +77,9 @@ public interface Command extends Content {
         String name = Command.getCmd(info);
         Factory factory = getFactory(name);
         if (factory == null) {
-            int type = Content.getType(info);
-            factory = (Factory) Content.getFactory(type);
+            FactoryManager man = FactoryManager.getInstance();
+            int type = man.generalFactory.getContentType(info);
+            factory = (Factory) man.generalFactory.contentFactories.get(type);
             assert factory != null : "cannot parse command: " + command;
         }
         return factory.parseCommand(info);

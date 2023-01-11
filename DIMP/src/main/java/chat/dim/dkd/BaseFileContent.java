@@ -109,7 +109,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public String getURL() {
-        return (String) get("URL");
+        return getString("URL");
     }
 
     @Override
@@ -126,7 +126,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
     @Override
     public byte[] getData() {
         if (data == null) {
-            String base64 = (String) get("data");
+            String base64 = getString("data");
             if (base64 != null) {
                 data = Base64.decode(base64);
             }
@@ -145,7 +145,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public String getFilename() {
-        return (String) get("filename");
+        return getString("filename");
     }
 
     @Override

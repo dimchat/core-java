@@ -62,13 +62,12 @@ public class ListContent extends BaseContent implements ArrayContent {
         put("contents", revert(contents));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Content> getContents() {
         if (list == null) {
             Object info = get("contents");
             if (info != null) {
-                list = convert((List<Object>) info);
+                list = convert((List<?>) info);
             } else {
                 list = new ArrayList<>();
             }
@@ -76,7 +75,7 @@ public class ListContent extends BaseContent implements ArrayContent {
         return list;
     }
 
-    static List<Content> convert(List<Object> contents) {
+    static List<Content> convert(List<?> contents) {
         List<Content> array = new ArrayList<>();
         Content res;
         for (Object item : contents) {
@@ -87,8 +86,8 @@ public class ListContent extends BaseContent implements ArrayContent {
         }
         return array;
     }
-    static List<Object> revert(List<Content> contents) {
-        List<Object> array = new ArrayList<>();
+    static List<Map<String, Object>> revert(List<Content> contents) {
+        List<Map<String, Object>> array = new ArrayList<>();
         for (Content item : contents) {
             array.add(item.toMap());
         }

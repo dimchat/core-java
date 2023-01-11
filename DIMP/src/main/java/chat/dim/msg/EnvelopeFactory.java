@@ -1,13 +1,13 @@
 /* license: https://mit-license.org
  *
- *  DIMP : Decentralized Instant Messaging Protocol
+ *  Dao-Ke-Dao: Universal Message Module
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,44 +28,32 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.msg;
 
+import java.util.Date;
 import java.util.Map;
 
-import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.ContentType;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ID;
 
-/**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
- *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
- *  }
- */
-public class AudioFileContent extends BaseFileContent implements AudioContent {
+public class EnvelopeFactory implements Envelope.Factory {
 
-    public AudioFileContent(Map<String, Object> content) {
-        super(content);
-    }
-
-    public AudioFileContent(String filename, String encoded) {
-        super(ContentType.AUDIO, filename, encoded);
-    }
-    public AudioFileContent(String filename, byte[] binary) {
-        super(ContentType.AUDIO, filename, binary);
+    //
+    //  Envelope.Factory
+    //
+    @Override
+    public Envelope createEnvelope(ID from, ID to, Date when) {
+        return new MessageEnvelope(from, to, when);
     }
 
     @Override
-    public void setText(String message) {
-        put("text", message);
-    }
-
-    @Override
-    public String getText() {
-        return getString("text");
+    public Envelope parseEnvelope(Map<String, Object> env) {
+        // check 'sender'
+        Object sender = env.get("sender");
+        if (sender == null) {
+            // env.sender should not empty
+            return null;
+        }
+        return new MessageEnvelope(env);
     }
 }

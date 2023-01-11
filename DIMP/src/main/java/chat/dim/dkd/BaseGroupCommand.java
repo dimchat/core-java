@@ -110,7 +110,6 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
         this.member = member;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<ID> getMembers() {
         if (members == null) {
@@ -119,7 +118,7 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
                 // TODO: get from 'member'?
                 return null;
             } else {
-                members = ID.convert((List<String>) array);
+                members = ID.convert((List<?>) array);
             }
         }
         return members;

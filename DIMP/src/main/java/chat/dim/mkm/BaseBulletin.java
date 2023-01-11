@@ -1,13 +1,13 @@
 /* license: https://mit-license.org
  *
- *  DIMP : Decentralized Instant Messaging Protocol
+ *  Ming-Ke-Ming : Decentralized User Identity Authentication
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2020 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2020 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,44 +28,54 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.mkm;
 
+import java.util.List;
 import java.util.Map;
 
-import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.ContentType;
+import chat.dim.protocol.Bulletin;
+import chat.dim.protocol.ID;
 
-/**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
- *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
- *  }
- */
-public class AudioFileContent extends BaseFileContent implements AudioContent {
+public class BaseBulletin extends BaseDocument implements Bulletin {
 
-    public AudioFileContent(Map<String, Object> content) {
-        super(content);
+    private List<ID> assistants = null;
+
+    public BaseBulletin(Map<String, Object> dictionary) {
+        super(dictionary);
     }
 
-    public AudioFileContent(String filename, String encoded) {
-        super(ContentType.AUDIO, filename, encoded);
+    public BaseBulletin(ID identifier, String data, String signature) {
+        super(identifier, data, signature);
     }
-    public AudioFileContent(String filename, byte[] binary) {
-        super(ContentType.AUDIO, filename, binary);
+
+    public BaseBulletin(ID identifier) {
+        super(identifier, BULLETIN);
+    }
+
+    /**
+     *  Group bots for split and distribute group messages
+     *
+     * @return bot ID list
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ID> getAssistants() {
+        if (assistants == null) {
+            Object value = getProperty("assistants");
+            if (value instanceof List) {
+                assistants = ID.convert((List<String>) value);
+            }
+        }
+        return assistants;
     }
 
     @Override
-    public void setText(String message) {
-        put("text", message);
-    }
-
-    @Override
-    public String getText() {
-        return getString("text");
+    public void setAssistants(List<ID> bots) {
+        if (bots == null) {
+            setProperty("assistants", null);
+        } else {
+            setProperty("assistants", ID.revert(bots));
+        }
+        assistants = bots;
     }
 }

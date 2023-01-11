@@ -1,13 +1,8 @@
 /* license: https://mit-license.org
- *
- *  DIMP : Decentralized Instant Messaging Protocol
- *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,44 +23,34 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.crypto;
 
 import java.util.Map;
 
-import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.ContentType;
+import chat.dim.type.Dictionary;
 
-/**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
- *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
- *  }
- */
-public class AudioFileContent extends BaseFileContent implements AudioContent {
+abstract class BasePrivateKey extends Dictionary implements PrivateKey {
 
-    public AudioFileContent(Map<String, Object> content) {
-        super(content);
-    }
-
-    public AudioFileContent(String filename, String encoded) {
-        super(ContentType.AUDIO, filename, encoded);
-    }
-    public AudioFileContent(String filename, byte[] binary) {
-        super(ContentType.AUDIO, filename, binary);
+    BasePrivateKey(Map<String, Object> dictionary) {
+        super(dictionary);
     }
 
     @Override
-    public void setText(String message) {
-        put("text", message);
+    public boolean equals(Object other) {
+        if (super.equals(other)) {
+            return true;
+        } else if (other instanceof SignKey) {
+            PublicKey verifyKey = getPublicKey();
+            assert verifyKey != null : "failed to get public key: " + this;
+            return verifyKey.match((SignKey) other);
+        } else {
+            return false;
+        }
     }
 
     @Override
-    public String getText() {
-        return getString("text");
+    public String getAlgorithm() {
+        FactoryManager man = FactoryManager.getInstance();
+        return man.generalFactory.getAlgorithm(toMap());
     }
 }

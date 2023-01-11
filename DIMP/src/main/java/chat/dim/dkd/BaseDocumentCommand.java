@@ -119,6 +119,6 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
 
     @Override
     public String getSignature() {
-        return (String) get("signature");
+        return getString("signature");
     }
 }

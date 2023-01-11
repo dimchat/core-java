@@ -75,7 +75,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     @Override
     public byte[] getSnapshot() {
         if (snapshot == null) {
-            String base64 = (String) get("snapshot");
+            String base64 = getString("snapshot");
             if (base64 != null) {
                 snapshot = Base64.decode(base64);
             }

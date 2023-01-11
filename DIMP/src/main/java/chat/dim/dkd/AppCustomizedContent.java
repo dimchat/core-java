@@ -76,16 +76,16 @@ public class AppCustomizedContent extends BaseContent implements CustomizedConte
 
     @Override
     public String getApplication() {
-        return (String) get("app");
+        return getString("app");
     }
 
     @Override
     public String getModule() {
-        return (String) get("mod");
+        return getString("mod");
     }
 
     @Override
     public String getAction() {
-        return (String) get("act");
+        return getString("act");
     }
 }

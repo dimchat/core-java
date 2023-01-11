@@ -70,7 +70,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getURL() {
-        return (String) get("URL");
+        return getString("URL");
     }
 
     @Override
@@ -80,7 +80,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getTitle() {
-        return (String) get("title");
+        return getString("title");
     }
 
     @Override
@@ -90,7 +90,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getDesc() {
-        return (String) get("desc");
+        return getString("desc");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class WebPageContent extends BaseContent implements PageContent {
     @Override
     public byte[] getIcon() {
         if (icon == null) {
-            String base64 = (String) get("icon");
+            String base64 = getString("icon");
             if (base64 != null) {
                 icon = Base64.decode(base64);
             }

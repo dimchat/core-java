@@ -81,7 +81,6 @@ public class SecretContent extends BaseContent implements ForwardContent {
         return forward;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<ReliableMessage> getSecrets() {
         if (secrets == null) {
@@ -89,7 +88,7 @@ public class SecretContent extends BaseContent implements ForwardContent {
             ReliableMessage msg;
             if (info != null) {
                 // get from 'secrets'
-                secrets = convert((List<Object>) info);
+                secrets = convert((List<?>) info);
             } else {
                 // get from 'forward'
                 secrets = new ArrayList<>();
@@ -102,7 +101,7 @@ public class SecretContent extends BaseContent implements ForwardContent {
         return secrets;
     }
 
-    static List<ReliableMessage> convert(List<Object> messages) {
+    static List<ReliableMessage> convert(List<?> messages) {
         List<ReliableMessage> array = new ArrayList<>();
         ReliableMessage msg;
         for (Object item : messages) {
@@ -113,8 +112,8 @@ public class SecretContent extends BaseContent implements ForwardContent {
         }
         return array;
     }
-    static List<Object> revert(List<ReliableMessage> messages) {
-        List<Object> array = new ArrayList<>();
+    static List<Map<String, Object>> revert(List<ReliableMessage> messages) {
+        List<Map<String, Object>> array = new ArrayList<>();
         for (ReliableMessage msg : messages) {
             array.add(msg.toMap());
         }

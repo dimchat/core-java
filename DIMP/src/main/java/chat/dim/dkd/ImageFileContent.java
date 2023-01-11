@@ -75,7 +75,7 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     @Override
     public byte[] getThumbnail() {
         if (thumbnail == null) {
-            String base64 = (String) get("thumbnail");
+            String base64 = getString("thumbnail");
             if (base64 != null) {
                 thumbnail = Base64.decode(base64);
             }

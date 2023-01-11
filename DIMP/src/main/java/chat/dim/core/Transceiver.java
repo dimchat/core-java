@@ -56,9 +56,12 @@ import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
+import chat.dim.msg.EnvelopeFactory;
+import chat.dim.msg.MessageFactory;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -224,6 +227,21 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         User user = barrack.getUser(sender);
         assert user != null : "failed to verify signature for sender: " + sender;
         return user.verify(data, signature);
+    }
+
+    /**
+     *  Register core message factories
+     */
+    public static void registerMessageFactories() {
+        // Envelope factory
+        EnvelopeFactory env = new EnvelopeFactory();
+        Envelope.setFactory(env);
+
+        // Message factories
+        MessageFactory msg = new MessageFactory();
+        InstantMessage.setFactory(msg);
+        SecureMessage.setFactory(msg);
+        ReliableMessage.setFactory(msg);
     }
 
     /**
