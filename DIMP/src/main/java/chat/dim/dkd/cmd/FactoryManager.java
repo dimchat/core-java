@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,41 +28,49 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.dkd.cmd;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.dkd.cmd.BaseCommand;
-import chat.dim.dkd.cmd.FactoryManager;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.Content;
+import chat.dim.type.Wrapper;
 
-/**
- *  General Command Factory
- *  ~~~~~~~~~~~~~~~~~~~~~~~
- */
-public class GeneralCommandFactory implements Content.Factory, Command.Factory {
+public enum FactoryManager {
 
-    @Override
-    public Content parseContent(Map<String, Object> content) {
-        FactoryManager man = FactoryManager.getInstance();
-        String cmd = man.generalFactory.getCmd(content);
-        // get factory by command name
-        Command.Factory factory = man.generalFactory.commandFactories.get(cmd);
-        if (factory == null) {
-            // check for group command
-            if (content.get("group") != null) {
-                factory = man.generalFactory.commandFactories.get("group");
-            }
-            if (factory == null) {
-                factory = this;
-            }
-        }
-        return factory.parseCommand(content);
+    INSTANCE;
+
+    public static FactoryManager getInstance() {
+        return INSTANCE;
     }
 
-    @Override
-    public Command parseCommand(Map<String, Object> command) {
-        return new BaseCommand(command);
+    public GeneralFactory generalFactory = new GeneralFactory();
+
+    public static class GeneralFactory extends chat.dim.dkd.FactoryManager.GeneralFactory {
+
+        public final Map<String, Command.Factory> commandFactories = new HashMap<>();
+
+        public String getCmd(Map<String, Object> command) {
+            return (String) command.get("cmd");
+        }
+
+        public Command parseCommand(Object command) {
+            if (command == null) {
+                return null;
+            } else if (command instanceof Command) {
+                return (Command) command;
+            }
+            Map<String, Object> info = Wrapper.getMap(command);
+            assert info != null : "command error: " + command;
+            // get factory by content type
+            String name = getCmd(info);
+            Command.Factory factory = commandFactories.get(name);
+            if (factory == null) {
+                int type = getContentType(info);
+                factory = (Command.Factory) contentFactories.get(type);
+                assert factory != null : "cannot parse command: " + command;
+            }
+            return factory.parseCommand(info);
+        }
     }
 }

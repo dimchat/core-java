@@ -32,7 +32,7 @@ package chat.dim.core;
 
 import java.util.Map;
 
-import chat.dim.dkd.BaseHistoryCommand;
+import chat.dim.dkd.cmd.BaseHistoryCommand;
 import chat.dim.protocol.Command;
 
 public class HistoryCommandFactory extends GeneralCommandFactory {

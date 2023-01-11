@@ -32,7 +32,8 @@ package chat.dim.core;
 
 import java.util.Map;
 
-import chat.dim.dkd.BaseGroupCommand;
+import chat.dim.dkd.cmd.BaseGroupCommand;
+import chat.dim.dkd.cmd.FactoryManager;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 
@@ -40,9 +41,10 @@ public class GroupCommandFactory extends HistoryCommandFactory {
 
     @Override
     public Content parseContent(Map<String, Object> content) {
-        String cmd = Command.getCmd(content);
+        FactoryManager man = FactoryManager.getInstance();
+        String cmd = man.generalFactory.getCmd(content);
         // get factory by command name
-        Command.Factory factory = Command.getFactory(cmd);
+        Command.Factory factory = man.generalFactory.commandFactories.get(cmd);
         if (factory == null) {
             factory = this;
         }

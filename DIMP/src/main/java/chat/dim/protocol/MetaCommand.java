@@ -30,7 +30,7 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.dkd.BaseMetaCommand;
+import chat.dim.dkd.cmd.BaseMetaCommand;
 
 /**
  *  Command message: {

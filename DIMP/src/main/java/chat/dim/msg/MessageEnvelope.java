@@ -141,12 +141,7 @@ public class MessageEnvelope extends Dictionary implements Envelope {
      */
     @Override
     public int getType() {
-        Object type = get("type");
-        if (type == null) {
-            return 0;
-        } else {
-            return (int) type;
-        }
+        return getInt("type");
     }
 
     @Override

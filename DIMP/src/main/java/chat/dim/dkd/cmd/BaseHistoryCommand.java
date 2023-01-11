@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,30 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd.cmd;
 
-import java.util.HashMap;
 import java.util.Map;
 
-final class CommandFactories {
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.HistoryCommand;
 
-    static final Map<String, Command.Factory> commandFactories = new HashMap<>();
+/**
+ *  History command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      cmd     : "...", // command name
+ *      time    : 0,     // command timestamp
+ *      extra   : info   // command parameters
+ *  }
+ */
+public class BaseHistoryCommand extends BaseCommand implements HistoryCommand {
+
+    public BaseHistoryCommand(Map<String, Object> command) {
+        super(command);
+    }
+
+    public BaseHistoryCommand(String cmd) {
+        super(ContentType.HISTORY, cmd);
+    }
 }

@@ -32,8 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.dkd.FactoryManager;
-import chat.dim.type.Wrapper;
+import chat.dim.dkd.cmd.FactoryManager;
 
 /**
  *  Command message: {
@@ -58,38 +57,16 @@ public interface Command extends Content {
      */
     String getCmd();
 
-    static String getCmd(Map<String, Object> command) {
-        return (String) command.get("cmd");
-    }
-
     //
     //  Factory method
     //
     static Command parse(Object command) {
-        if (command == null) {
-            return null;
-        } else if (command instanceof Command) {
-            return (Command) command;
-        }
-        Map<String, Object> info = Wrapper.getMap(command);
-        assert info != null : "command error: " + command;
-        // get factory by content type
-        String name = Command.getCmd(info);
-        Factory factory = getFactory(name);
-        if (factory == null) {
-            FactoryManager man = FactoryManager.getInstance();
-            int type = man.generalFactory.getContentType(info);
-            factory = (Factory) man.generalFactory.contentFactories.get(type);
-            assert factory != null : "cannot parse command: " + command;
-        }
-        return factory.parseCommand(info);
-    }
-
-    static Factory getFactory(String cmd) {
-        return CommandFactories.commandFactories.get(cmd);
+        FactoryManager man = FactoryManager.getInstance();
+        return man.generalFactory.parseCommand(command);
     }
     static void setFactory(String cmd, Factory factory) {
-        CommandFactories.commandFactories.put(cmd, factory);
+        FactoryManager man = FactoryManager.getInstance();
+        man.generalFactory.commandFactories.put(cmd, factory);
     }
 
     /**
