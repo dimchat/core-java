@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim;
 
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;

@@ -28,41 +28,15 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim;
 
 import chat.dim.crypto.SymmetricKey;
-//import chat.dim.dkd.AppCustomizedContent;
-import chat.dim.dkd.AudioFileContent;
-import chat.dim.dkd.BaseContent;
-import chat.dim.dkd.BaseFileContent;
-import chat.dim.dkd.BaseMoneyContent;
-import chat.dim.dkd.BaseTextContent;
-import chat.dim.dkd.ImageFileContent;
-import chat.dim.dkd.ListContent;
-import chat.dim.dkd.SecretContent;
-import chat.dim.dkd.TransferMoneyContent;
-import chat.dim.dkd.VideoFileContent;
-import chat.dim.dkd.WebPageContent;
-import chat.dim.dkd.cmd.BaseDocumentCommand;
-import chat.dim.dkd.cmd.BaseMetaCommand;
-import chat.dim.dkd.group.ExpelGroupCommand;
-import chat.dim.dkd.group.InviteGroupCommand;
-import chat.dim.dkd.group.JoinGroupCommand;
-import chat.dim.dkd.group.QueryGroupCommand;
-import chat.dim.dkd.group.QuitGroupCommand;
-import chat.dim.dkd.group.ResetGroupCommand;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
-import chat.dim.msg.EnvelopeFactory;
-import chat.dim.msg.MessageFactory;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.Envelope;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Message;
@@ -227,88 +201,5 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         User user = barrack.getUser(sender);
         assert user != null : "failed to verify signature for sender: " + sender;
         return user.verify(data, signature);
-    }
-
-    /**
-     *  Register core message factories
-     */
-    public static void registerMessageFactories() {
-        // Envelope factory
-        EnvelopeFactory env = new EnvelopeFactory();
-        Envelope.setFactory(env);
-
-        // Message factories
-        MessageFactory msg = new MessageFactory();
-        InstantMessage.setFactory(msg);
-        SecureMessage.setFactory(msg);
-        ReliableMessage.setFactory(msg);
-    }
-
-    /**
-     *  Register core content factories
-     */
-    public static void registerContentFactories() {
-
-        // Text
-        Content.setFactory(ContentType.TEXT, BaseTextContent::new);
-
-        // File
-        Content.setFactory(ContentType.FILE, BaseFileContent::new);
-        // Image
-        Content.setFactory(ContentType.IMAGE, ImageFileContent::new);
-        // Audio
-        Content.setFactory(ContentType.AUDIO, AudioFileContent::new);
-        // Video
-        Content.setFactory(ContentType.VIDEO, VideoFileContent::new);
-
-        // Web Page
-        Content.setFactory(ContentType.PAGE, WebPageContent::new);
-
-        // Money
-        Content.setFactory(ContentType.MONEY, BaseMoneyContent::new);
-        Content.setFactory(ContentType.TRANSFER, TransferMoneyContent::new);
-        // ...
-
-        // Command
-        Content.setFactory(ContentType.COMMAND, new GeneralCommandFactory());
-
-        // History Command
-        Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());
-
-        // Content Array
-        Content.setFactory(ContentType.ARRAY, ListContent::new);
-
-        /*/
-        // Application Customized
-        Content.setFactory(ContentType.CUSTOMIZED, AppCustomizedContent::new);
-        Content.setFactory(ContentType.APPLICATION, AppCustomizedContent::new);
-        /*/
-
-        // Top-Secret
-        Content.setFactory(ContentType.FORWARD, SecretContent::new);
-
-        // unknown content type
-        Content.setFactory(0, BaseContent::new);
-    }
-
-    /**
-     *  Register core command factories
-     */
-    public static void registerCommandFactories() {
-
-        // Meta Command
-        Command.setFactory(Command.META, BaseMetaCommand::new);
-
-        // Document Command
-        Command.setFactory(Command.DOCUMENT, BaseDocumentCommand::new);
-
-        // Group Commands
-        Command.setFactory("group", new GroupCommandFactory());
-        Command.setFactory(GroupCommand.INVITE, InviteGroupCommand::new);
-        Command.setFactory(GroupCommand.EXPEL, ExpelGroupCommand::new);
-        Command.setFactory(GroupCommand.JOIN, JoinGroupCommand::new);
-        Command.setFactory(GroupCommand.QUIT, QuitGroupCommand::new);
-        Command.setFactory(GroupCommand.QUERY, QueryGroupCommand::new);
-        Command.setFactory(GroupCommand.RESET, ResetGroupCommand::new);
     }
 }
