@@ -261,7 +261,7 @@ public class BaseDocument extends Dictionary implements Document {
             return getSignature();
         }
         // 1. update sign time
-        setProperty("time", System.currentTimeMillis() / 1000.0);
+        setProperty("time", System.currentTimeMillis() / 1000.0d);
         // 2. encode & sign
         String data = JSONMap.encode(getProperties());
         if (data == null || data.length() == 0) {
@@ -291,7 +291,9 @@ public class BaseDocument extends Dictionary implements Document {
         if (timestamp == null) {
             return null;
         }
-        return new Date(((Number) timestamp).longValue() * 1000);
+        double seconds = ((Number) timestamp).doubleValue();
+        long millis = (long) (seconds * 1000);
+        return new Date(millis);
     }
 
     @Override

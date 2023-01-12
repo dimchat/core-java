@@ -98,11 +98,7 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
      */
     @Override
     public void setMeta(Meta info) {
-        if (info == null) {
-            remove("meta");
-        } else {
-            put("meta", info.toMap());
-        }
+        setMap("meta", info);
         meta = info;
     }
 
@@ -124,11 +120,7 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
      */
     @Override
     public void setVisa(Visa doc) {
-        if (doc == null) {
-            remove("visa");
-        } else {
-            put("visa", doc.toMap());
-        }
+        setMap("visa", doc);
         visa = doc;
     }
 

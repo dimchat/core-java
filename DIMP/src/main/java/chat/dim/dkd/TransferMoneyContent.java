@@ -59,31 +59,21 @@ public class TransferMoneyContent extends BaseMoneyContent implements TransferCo
 
     @Override
     public void setRemitter(ID sender) {
-        if (sender == null) {
-            remove("remitter");
-        } else {
-            put("remitter", sender.toString());
-        }
+        setString("remitter", sender);
     }
 
     @Override
     public ID getRemitter() {
-        Object sender = get("remitter");
-        return ID.parse(sender);
+        return ID.parse(get("remitter"));
     }
 
     @Override
     public void setRemittee(ID receiver) {
-        if (receiver == null) {
-            remove("remittee");
-        } else {
-            put("remittee", receiver.toString());
-        }
+        setString("remittee", receiver);
     }
 
     @Override
     public ID getRemittee() {
-        Object receiver = get("remittee");
-        return ID.parse(receiver);
+        return ID.parse(get("remittee"));
     }
 }

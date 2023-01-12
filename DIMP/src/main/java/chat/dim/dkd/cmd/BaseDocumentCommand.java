@@ -69,9 +69,7 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     public BaseDocumentCommand(ID identifier, Meta meta, Document doc) {
         super(DOCUMENT, identifier, meta);
         // document
-        if (doc != null) {
-            put("document", doc.toMap());
-        }
+        setMap("document", doc);
         this.doc = doc;
     }
 

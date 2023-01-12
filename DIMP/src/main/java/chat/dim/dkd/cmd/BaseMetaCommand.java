@@ -64,9 +64,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
         put("ID", identifier.toString());
         this.identifier = identifier;
         // meta
-        if (meta != null) {
-            put("meta", meta.toMap());
-        }
+        setMap("meta", meta);
         this.meta = meta;
     }
 

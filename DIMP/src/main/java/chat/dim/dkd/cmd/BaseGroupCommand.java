@@ -101,11 +101,7 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
 
     @Override
     public void setMember(ID member) {
-        if (member == null) {
-            remove("member");
-        } else {
-            put("member", member.toString());
-        }
+        setString("member", member);
         // TODO: remove 'members'?
         this.member = member;
     }

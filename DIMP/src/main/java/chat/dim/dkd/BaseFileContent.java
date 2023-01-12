@@ -150,11 +150,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public void setPassword(DecryptKey password) {
-        if (password == null) {
-            remove("password");
-        } else {
-            put("password", password.toMap());
-        }
+        setMap("password", password);
         key = password;
     }
 

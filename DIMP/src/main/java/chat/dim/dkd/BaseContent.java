@@ -87,7 +87,7 @@ public class BaseContent extends Dictionary implements Content {
         time = now;
         put("type", type);
         put("sn", sn);
-        put("time", now.getTime() / 1000.0);
+        setTime("time", now);
     }
 
     @Override
@@ -110,11 +110,7 @@ public class BaseContent extends Dictionary implements Content {
     @Override
     public Date getTime() {
         if (time == null) {
-            Object seconds = get("time");
-            if (seconds != null) {
-                double millis = ((Number) seconds).doubleValue() * 1000.0;
-                time = new Date((long) millis);
-            }
+            time = getTime("time");
         }
         return time;
     }
@@ -128,10 +124,6 @@ public class BaseContent extends Dictionary implements Content {
 
     @Override
     public void setGroup(ID group) {
-        if (group == null) {
-            remove("group");
-        } else {
-            put("group", group.toString());
-        }
+        setString("group", group);
     }
 }
