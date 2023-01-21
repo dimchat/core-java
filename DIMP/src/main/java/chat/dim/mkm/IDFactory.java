@@ -99,40 +99,40 @@ public class IDFactory implements ID.Factory {
         return string;
     }
 
-    private ID parse(final String string) {
+    protected ID parse(final String identifier) {
         String name;
         Address address;
         String terminal;
         // split ID string
-        String[] pair = string.split("/");
+        String[] pair = identifier.split("/");
         // terminal
         if (pair.length == 1) {
             // no terminal
             terminal = null;
         } else {
             // got terminal
-            assert pair.length == 2 : "ID error: " + string;
-            assert pair[1].length() > 0 : "ID.terminal error: " + string;
+            assert pair.length == 2 : "ID error: " + identifier;
+            assert pair[1].length() > 0 : "ID.terminal error: " + identifier;
             terminal = pair[1];
         }
         // name @ address
-        assert pair[0].length() > 0 : "ID error: " + string;
+        assert pair[0].length() > 0 : "ID error: " + identifier;
         pair = pair[0].split("@");
-        assert pair[0].length() > 0 : "ID error: " + string;
+        assert pair[0].length() > 0 : "ID error: " + identifier;
         if (pair.length == 1) {
             // got address without name
             name = null;
             address = Address.parse(pair[0]);
         } else {
             // got name & address
-            assert pair.length == 2 : "ID error: " + string;
-            assert pair[1].length() > 0 : "ID.address error: " + string;
+            assert pair.length == 2 : "ID error: " + identifier;
+            assert pair[1].length() > 0 : "ID.address error: " + identifier;
             name = pair[0];
             address = Address.parse(pair[1]);
         }
         if (address == null) {
             return null;
         }
-        return newID(string, name, address, terminal);
+        return newID(identifier, name, address, terminal);
     }
 }

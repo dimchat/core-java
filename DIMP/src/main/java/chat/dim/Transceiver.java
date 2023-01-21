@@ -51,6 +51,7 @@ import chat.dim.protocol.SecureMessage;
  */
 public abstract class Transceiver implements InstantMessage.Delegate, ReliableMessage.Delegate {
 
+    // barrack
     protected abstract Entity.Delegate getEntityDelegate();
 
     protected static boolean isBroadcast(Message msg) {
@@ -99,10 +100,11 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
-        // NOTICE: make sure the receiver's public key exists
-        User user = barrack.getUser(receiver);
-        assert user != null : "failed to encrypt for receiver: " + receiver;
-        return user.encrypt(data);
+        // TODO: make sure the receiver's public key exists
+        User contact = barrack.getUser(receiver);
+        assert contact != null : "failed to encrypt for receiver: " + receiver;
+        // encrypt with receiver's public key
+        return contact.encrypt(data);
     }
 
     @Override
@@ -198,8 +200,8 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
-        User user = barrack.getUser(sender);
-        assert user != null : "failed to verify signature for sender: " + sender;
-        return user.verify(data, signature);
+        User contact = barrack.getUser(sender);
+        assert contact != null : "failed to verify signature for sender: " + sender;
+        return contact.verify(data, signature);
     }
 }

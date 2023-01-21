@@ -64,9 +64,14 @@ public interface Command extends Content {
         FactoryManager man = FactoryManager.getInstance();
         return man.generalFactory.parseCommand(command);
     }
+
+    static Factory getFactory(String cmd) {
+        FactoryManager man = FactoryManager.getInstance();
+        return man.generalFactory.getCommandFactory(cmd);
+    }
     static void setFactory(String cmd, Factory factory) {
         FactoryManager man = FactoryManager.getInstance();
-        man.generalFactory.commandFactories.put(cmd, factory);
+        man.generalFactory.setCommandFactory(cmd, factory);
     }
 
     /**

@@ -45,13 +45,6 @@ public abstract class AddressFactory implements Address.Factory {
 
     private final Map<String, Address> addresses = new HashMap<>();
 
-    protected AddressFactory() {
-        super();
-        // cache broadcast addresses
-        addresses.put(Address.ANYWHERE.toString(), Address.ANYWHERE);
-        addresses.put(Address.EVERYWHERE.toString(), Address.EVERYWHERE);
-    }
-
     /**
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
      * this will remove 50% of cached objects

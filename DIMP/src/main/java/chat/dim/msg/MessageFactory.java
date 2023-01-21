@@ -42,6 +42,34 @@ import chat.dim.protocol.SecureMessage;
 
 public class MessageFactory implements InstantMessage.Factory, SecureMessage.Factory, ReliableMessage.Factory {
 
+    private int sn;
+
+    public MessageFactory() {
+        super();
+        Random random = new Random();
+        sn = random.nextInt();
+        if (sn < 0) {
+            sn = -sn;
+        } else if (sn == 0) {
+            // ZERO? do it again!
+            sn = 9527 + 9394;
+        }
+    }
+
+    /**
+     *  next sn
+     *
+     * @return 1 ~ 2^31-1
+     */
+    private synchronized int next() {
+        if (sn < 0x7fffffff) {
+            sn += 1;
+        } else {
+            sn = 1;
+        }
+        return sn;
+    }
+
     //
     //  InstantMessage.Factory
     //
@@ -50,15 +78,7 @@ public class MessageFactory implements InstantMessage.Factory, SecureMessage.Fac
         // because we must make sure all messages in a same chat box won't have
         // same serial numbers, so we can't use time-related numbers, therefore
         // the best choice is a totally random number, maybe.
-        Random random = new Random();
-        int sn = random.nextInt();
-        if (sn > 0) {
-            return sn;
-        } else if (sn < 0) {
-            return -sn;
-        }
-        // ZERO? do it again!
-        return 9527 + 9394; // generateSerialNumber(msgType, time);
+        return next();
     }
 
     @Override

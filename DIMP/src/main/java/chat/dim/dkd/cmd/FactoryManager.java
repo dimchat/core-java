@@ -48,7 +48,19 @@ public enum FactoryManager {
 
     public static class GeneralFactory extends chat.dim.dkd.FactoryManager.GeneralFactory {
 
-        public final Map<String, Command.Factory> commandFactories = new HashMap<>();
+        private final Map<String, Command.Factory> commandFactories = new HashMap<>();
+
+        //
+        //  Command
+        //
+
+        public void setCommandFactory(String cmd, Command.Factory factory) {
+            commandFactories.put(cmd, factory);
+        }
+
+        public Command.Factory getCommandFactory(String cmd) {
+            return commandFactories.get(cmd);
+        }
 
         public String getCmd(Map<String, Object> command) {
             return (String) command.get("cmd");
@@ -62,12 +74,13 @@ public enum FactoryManager {
             }
             Map<String, Object> info = Wrapper.getMap(command);
             assert info != null : "command error: " + command;
-            // get factory by content type
+            // get factory by command name
             String name = getCmd(info);
-            Command.Factory factory = commandFactories.get(name);
+            Command.Factory factory = getCommandFactory(name);
             if (factory == null) {
+                // unknown command name, get base command factory
                 int type = getContentType(info);
-                factory = (Command.Factory) contentFactories.get(type);
+                factory = (Command.Factory) getContentFactory(type);
                 assert factory != null : "cannot parse command: " + command;
             }
             return factory.parseCommand(info);
