@@ -39,8 +39,8 @@ import chat.dim.protocol.group.QuitCommand;
 
 public class QuitGroupCommand extends BaseGroupCommand implements QuitCommand {
 
-    public QuitGroupCommand(Map<String, Object> command) {
-        super(command);
+    public QuitGroupCommand(Map<String, Object> content) {
+        super(content);
     }
 
     public QuitGroupCommand(ID group) {

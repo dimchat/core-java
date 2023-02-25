@@ -41,19 +41,19 @@ import chat.dim.protocol.ContentType;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      cmd     : "...", // command name
+ *      command : "...", // command name
  *      extra   : info   // command parameters
  *  }
  */
 public class BaseCommand extends BaseContent implements Command {
 
-    public BaseCommand(Map<String, Object> command) {
-        super(command);
+    public BaseCommand(Map<String, Object> content) {
+        super(content);
     }
 
     public BaseCommand(ContentType type, String cmd) {
         super(type);
-        put("cmd", cmd);
+        put("command", cmd);
     }
 
     public BaseCommand(String cmd) {
@@ -62,6 +62,6 @@ public class BaseCommand extends BaseContent implements Command {
 
     @Override
     public String getCmd() {
-        return getString("cmd");
+        return getString("command");
     }
 }

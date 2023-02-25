@@ -41,8 +41,8 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
     private ID member = null;
     private List<ID> members = null;
 
-    public BaseGroupCommand(Map<String, Object> command) {
-        super(command);
+    public BaseGroupCommand(Map<String, Object> content) {
+        super(content);
     }
 
     /*
@@ -50,7 +50,7 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      cmd     : "join",      // or quit
+     *      command : "join",      // or quit
      *      group   : "{GROUP_ID}",
      *  }
      */
@@ -64,7 +64,7 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      cmd     : "invite",      // or expel
+     *      command : "invite",      // or expel
      *      group   : "{GROUP_ID}",
      *      member  : "{MEMBER_ID}",
      *  }
@@ -80,7 +80,7 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      cmd     : "invite",      // or expel
+     *      command : "invite",      // or expel
      *      group   : "{GROUP_ID}",
      *      members : ["{MEMBER_ID}", ],
      *  }

@@ -40,15 +40,15 @@ import chat.dim.protocol.HistoryCommand;
  *      type : 0x89,
  *      sn   : 123,
  *
- *      cmd     : "...", // command name
+ *      command : "...", // command name
  *      time    : 0,     // command timestamp
  *      extra   : info   // command parameters
  *  }
  */
 public class BaseHistoryCommand extends BaseCommand implements HistoryCommand {
 
-    public BaseHistoryCommand(Map<String, Object> command) {
-        super(command);
+    public BaseHistoryCommand(Map<String, Object> content) {
+        super(content);
     }
 
     public BaseHistoryCommand(String cmd) {

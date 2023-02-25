@@ -39,8 +39,8 @@ import chat.dim.protocol.group.JoinCommand;
 
 public class JoinGroupCommand extends BaseGroupCommand implements JoinCommand {
 
-    public JoinGroupCommand(Map<String, Object> command) {
-        super(command);
+    public JoinGroupCommand(Map<String, Object> content) {
+        super(content);
     }
 
     public JoinGroupCommand(ID group) {

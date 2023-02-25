@@ -62,18 +62,18 @@ public enum FactoryManager {
             return commandFactories.get(cmd);
         }
 
-        public String getCmd(Map<String, Object> command) {
-            return (String) command.get("cmd");
+        public String getCmd(Map<String, Object> content) {
+            return (String) content.get("command");
         }
 
-        public Command parseCommand(Object command) {
-            if (command == null) {
+        public Command parseCommand(Object content) {
+            if (content == null) {
                 return null;
-            } else if (command instanceof Command) {
-                return (Command) command;
+            } else if (content instanceof Command) {
+                return (Command) content;
             }
-            Map<String, Object> info = Wrapper.getMap(command);
-            assert info != null : "command error: " + command;
+            Map<String, Object> info = Wrapper.getMap(content);
+            assert info != null : "command error: " + content;
             // get factory by command name
             String name = getCmd(info);
             Command.Factory factory = getCommandFactory(name);
@@ -81,7 +81,7 @@ public enum FactoryManager {
                 // unknown command name, get base command factory
                 int type = getContentType(info);
                 factory = (Command.Factory) getContentFactory(type);
-                assert factory != null : "cannot parse command: " + command;
+                assert factory != null : "cannot parse command: " + content;
             }
             return factory.parseCommand(info);
         }

@@ -39,7 +39,7 @@ import chat.dim.dkd.cmd.FactoryManager;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      cmd     : "...", // command name
+ *      command : "...", // command name
  *      extra   : info   // command parameters
  *  }
  */
@@ -60,9 +60,9 @@ public interface Command extends Content {
     //
     //  Factory method
     //
-    static Command parse(Object command) {
+    static Command parse(Object content) {
         FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.parseCommand(command);
+        return man.generalFactory.parseCommand(content);
     }
 
     static Factory getFactory(String cmd) {
@@ -83,9 +83,9 @@ public interface Command extends Content {
         /**
          *  Parse map object to command
          *
-         * @param command - command info
+         * @param content - command content
          * @return Command
          */
-        Command parseCommand(Map<String, Object> command);
+        Command parseCommand(Map<String, Object> content);
     }
 }
