@@ -85,14 +85,13 @@ public class SecretContent extends BaseContent implements ForwardContent {
     public List<ReliableMessage> getSecrets() {
         if (secrets == null) {
             Object info = get("secrets");
-            ReliableMessage msg;
             if (info != null) {
                 // get from 'secrets'
                 secrets = convert((List<?>) info);
             } else {
                 // get from 'forward'
                 secrets = new ArrayList<>();
-                msg = getForward();
+                ReliableMessage msg = getForward();
                 if (msg != null) {
                     secrets.add(msg);
                 }

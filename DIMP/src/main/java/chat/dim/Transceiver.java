@@ -30,6 +30,8 @@
  */
 package chat.dim;
 
+import java.util.Arrays;
+
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
@@ -138,7 +140,10 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-        Object dict = JSON.decode(UTF8.decode(key));
+        assert key != null : "reused key? get it from local cache: " + sender + " -> " + receiver;
+        String json = UTF8.decode(key);
+        assert json != null : "key data error: " + Arrays.toString(key);
+        Object dict = JSON.decode(json);
         // TODO: translate short keys
         //       'A' -> 'algorithm'
         //       'D' -> 'data'
@@ -165,8 +170,10 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
 
     @Override
     public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
-        assert sMsg.getData() != null : "message data empty";
-        Object dict = JSON.decode(UTF8.decode(data));
+        //assert sMsg.getData() != null : "message data empty";
+        String json = UTF8.decode(data);
+        assert json != null : "content data error: " + Arrays.toString(data);
+        Object dict = JSON.decode(json);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'

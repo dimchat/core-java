@@ -263,11 +263,13 @@ public class BaseDocument extends Dictionary implements Document {
         // 1. update sign time
         setProperty("time", System.currentTimeMillis() / 1000.0d);
         // 2. encode & sign
-        String data = JSONMap.encode(getProperties());
-        if (data == null || data.length() == 0) {
-            // properties error
+        Map<String, Object> dict = getProperties();
+        if (dict == null) {
+            // properties empty
             return null;
         }
+        String data = JSONMap.encode(dict);
+        assert data != null && data.length() > 0 : "properties error: " + dict;
         byte[] signature = privateKey.sign(UTF8.encode(data));
         if (signature == null || signature.length == 0) {
             // signature error

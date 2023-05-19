@@ -37,6 +37,9 @@ import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 
+/**
+ *  General ID factory
+ */
 public class IDFactory implements ID.Factory {
 
     private final Map<String, ID> identifiers = new HashMap<>();

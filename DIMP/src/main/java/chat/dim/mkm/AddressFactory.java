@@ -57,6 +57,9 @@ public abstract class AddressFactory implements Address.Factory {
         return finger >> 1;
     }
 
+    /**
+     *  Thanos can kill half lives of a world with a snap of the finger
+     */
     public static <K, V> int thanos(Map<K, V> planet, int finger) {
         Iterator<Map.Entry<K, V>> people = planet.entrySet().iterator();
         while (people.hasNext()) {

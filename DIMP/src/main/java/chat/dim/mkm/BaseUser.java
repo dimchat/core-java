@@ -144,8 +144,7 @@ public class BaseUser extends BaseEntity implements User {
         // NOTICE: only sign visa with the private key paired with your meta.key
         SignKey key = delegate.getPrivateKeyForVisaSignature(identifier);
         assert key != null : "failed to get sign key for visa: " + identifier;
-        doc.sign(key);
-        return doc;
+        return doc.sign(key) == null ? null : doc;
     }
 
     @Override

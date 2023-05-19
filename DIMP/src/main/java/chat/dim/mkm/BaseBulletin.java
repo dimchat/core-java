@@ -30,6 +30,7 @@
  */
 package chat.dim.mkm;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,9 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
             Object value = getProperty("assistants");
             if (value instanceof List) {
                 assistants = ID.convert((List<String>) value);
+            } else {
+                // placeholder
+                assistants = new ArrayList<>();
             }
         }
         return assistants;

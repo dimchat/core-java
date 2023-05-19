@@ -147,7 +147,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
         key = delegate.encryptKey(key, getReceiver(), this);
         if (key == null) {
             // public key for encryption not found
-            // TODO: suspend this message for waiting receiver's meta
+            // TODO: suspend this message for waiting receiver's visa
             return null;
         }
         // 2.3. encode encrypted key data
@@ -194,8 +194,8 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
             // 2.2. encrypt symmetric key data
             data = delegate.encryptKey(key, member, this);
             if (data == null) {
-                // public key for encryption not found
-                // TODO: suspend this message for waiting receiver's meta
+                // public key for member not found
+                // TODO: suspend this message for waiting member's visa
                 continue;
             }
             // 2.3. encode encrypted key data
@@ -205,9 +205,12 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
             keys.put(member.toString(), base64);
             ++count;
         }
-        if (count > 0) {
-            map.put("keys", keys);
+        if (count == 0) {
+            // public key for member(s) not found
+            // TODO: suspend this message for waiting member's visa
+            return null;
         }
+        map.put("keys", keys);
 
         // 3. pack message
         return SecureMessage.parse(map);

@@ -46,7 +46,7 @@ public enum FactoryManager {
 
     public GeneralFactory generalFactory = new GeneralFactory();
 
-    public static class GeneralFactory extends chat.dim.dkd.FactoryManager.GeneralFactory {
+    public static class GeneralFactory {
 
         private final Map<String, Command.Factory> commandFactories = new HashMap<>();
 
@@ -79,8 +79,9 @@ public enum FactoryManager {
             Command.Factory factory = getCommandFactory(name);
             if (factory == null) {
                 // unknown command name, get base command factory
-                int type = getContentType(info);
-                factory = (Command.Factory) getContentFactory(type);
+                chat.dim.dkd.FactoryManager man = chat.dim.dkd.FactoryManager.getInstance();
+                int type = man.generalFactory.getContentType(info);
+                factory = (Command.Factory) man.generalFactory.getContentFactory(type);
                 assert factory != null : "cannot parse command: " + content;
             }
             return factory.parseCommand(info);
