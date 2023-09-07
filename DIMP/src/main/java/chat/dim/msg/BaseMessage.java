@@ -30,7 +30,6 @@
  */
 package chat.dim.msg;
 
-import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.Map;
 
@@ -79,32 +78,15 @@ public abstract class BaseMessage extends Dictionary implements Message {
 
     private Envelope envelope;
 
-    private WeakReference<Delegate> delegateRef;
-
     protected BaseMessage(Map<String, Object> msg) {
         super(msg);
         // lazy load
         envelope = null;
-        delegateRef = null;
     }
 
     protected BaseMessage(Envelope env) {
         super(env.toMap());
         envelope = env;
-        delegateRef = null;
-    }
-
-    @Override
-    public Delegate getDelegate() {
-        if (delegateRef == null) {
-            return null;
-        }
-        return delegateRef.get();
-    }
-
-    @Override
-    public void setDelegate(Delegate delegate) {
-        delegateRef = new WeakReference<>(delegate);
     }
 
     @Override
@@ -128,8 +110,8 @@ public abstract class BaseMessage extends Dictionary implements Message {
     }
 
     @Override
-    public Date getTime() {
-        return getEnvelope().getTime();
+    public Date getDateTime() {
+        return getEnvelope().getDateTime();
     }
 
     @Override
@@ -141,4 +123,13 @@ public abstract class BaseMessage extends Dictionary implements Message {
     public int getType() {
         return getEnvelope().getType();
     }
+
+    public static boolean isBroadcast(Message msg) {
+        ID receiver = msg.getGroup();
+        if (receiver == null) {
+            receiver = msg.getReceiver();
+        }
+        return receiver.isBroadcast();
+    }
+
 }

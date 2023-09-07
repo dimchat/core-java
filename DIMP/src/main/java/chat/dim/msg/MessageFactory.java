@@ -89,9 +89,7 @@ public class MessageFactory implements InstantMessage.Factory, SecureMessage.Fac
     @Override
     public InstantMessage parseInstantMessage(Map<String, Object> msg) {
         // check 'sender', 'content'
-        Object sender = msg.get("sender");
-        Object content = msg.get("content");
-        if (sender == null || content == null) {
+        if (msg.get("sender") == null || msg.get("content") == null) {
             // msg.sender should not be empty
             // msg.content should not be empty
             return null;
@@ -105,16 +103,13 @@ public class MessageFactory implements InstantMessage.Factory, SecureMessage.Fac
     @Override
     public SecureMessage parseSecureMessage(Map<String, Object> msg) {
         // check 'sender', 'data'
-        Object sender = msg.get("sender");
-        Object data = msg.get("data");
-        if (sender == null || data == null) {
+        if (msg.get("sender") == null || msg.get("data") == null) {
             // msg.sender should not be empty
             // msg.data should not be empty
             return null;
         }
         // check 'signature'
-        Object signature = msg.get("signature");
-        if (signature != null) {
+        if (msg.get("signature") != null) {
             return new NetworkMessage(msg);
         }
         return new EncryptedMessage(msg);
@@ -126,10 +121,7 @@ public class MessageFactory implements InstantMessage.Factory, SecureMessage.Fac
     @Override
     public ReliableMessage parseReliableMessage(Map<String, Object> msg) {
         // check 'sender', 'data', 'signature'
-        Object sender = msg.get("sender");
-        Object data = msg.get("data");
-        Object signature = msg.get("signature");
-        if (sender == null || data == null || signature == null) {
+        if (msg.get("sender") == null || msg.get("data") == null || msg.get("signature") == null) {
             // msg.sender should not be empty
             // msg.data should not be empty
             // msg.signature should not be empty

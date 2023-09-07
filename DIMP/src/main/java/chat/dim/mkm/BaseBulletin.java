@@ -53,18 +53,22 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
         super(identifier, BULLETIN);
     }
 
+    @Override
+    public ID getFounder() {
+        return ID.parse(getProperty("founder"));
+    }
+
     /**
      *  Group bots for split and distribute group messages
      *
      * @return bot ID list
      */
-    @SuppressWarnings("unchecked")
     @Override
     public List<ID> getAssistants() {
         if (assistants == null) {
             Object value = getProperty("assistants");
             if (value instanceof List) {
-                assistants = ID.convert((List<String>) value);
+                assistants = ID.convert((List<?>) value);
             } else {
                 // placeholder
                 assistants = new ArrayList<>();

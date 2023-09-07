@@ -32,10 +32,10 @@ package chat.dim.msg;
 
 import java.util.Map;
 
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.Visa;
 
 /**
@@ -61,7 +61,7 @@ import chat.dim.protocol.Visa;
  */
 public class NetworkMessage extends EncryptedMessage implements ReliableMessage {
 
-    private byte[] signature;
+    private TransportableData signature;
 
     private Meta meta;
     private Visa visa;
@@ -75,18 +75,14 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
     }
 
     @Override
-    public ReliableMessage.Delegate getDelegate() {
-        return (ReliableMessage.Delegate) super.getDelegate();
-    }
-
-    @Override
     public byte[] getSignature() {
-        if (signature == null) {
+        TransportableData ted = signature;
+        if (ted == null) {
             Object base64 = get("signature");
             assert base64 != null : "signature cannot be empty";
-            signature = getDelegate().decodeSignature(base64, this);
+            signature = ted = TransportableData.parse(base64);
         }
-        return signature;
+        return ted == null ? null : ted.getData();
     }
 
     /**
@@ -136,44 +132,4 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
         return visa;
     }
 
-    /*
-     *  Verify the Reliable Message to Secure Message
-     *
-     *    +----------+      +----------+
-     *    | sender   |      | sender   |
-     *    | receiver |      | receiver |
-     *    | time     |  ->  | time     |
-     *    |          |      |          |
-     *    | data     |      | data     |  1. verify(data, signature, sender.PK)
-     *    | key/keys |      | key/keys |
-     *    | signature|      +----------+
-     *    +----------+
-     */
-
-    /**
-     *  Verify 'data' and 'signature' field with sender's public key
-     *
-     * @return SecureMessage object
-     */
-    @Override
-    public SecureMessage verify() {
-        byte[] data = getData();
-        if (data == null) {
-            throw new NullPointerException("failed to decode content data: " + this);
-        }
-        byte[] signature = getSignature();
-        if (signature == null) {
-            throw new NullPointerException("failed to decode message signature: " + this);
-        }
-        // 1. verify data signature with sender's public key
-        if (getDelegate().verifyDataSignature(data, signature, getSender(), this)) {
-            // 2. pack message
-            Map<String, Object> map = copyMap(false);
-            map.remove("signature");
-            return SecureMessage.parse(map);
-        } else {
-            //throw new RuntimeException("message signature not match: " + this);
-            return null;
-        }
-    }
 }

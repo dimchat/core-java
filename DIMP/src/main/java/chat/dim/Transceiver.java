@@ -33,15 +33,17 @@ package chat.dim;
 import java.util.Arrays;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.format.Base64;
+import chat.dim.dkd.InstantMessageDelegate;
+import chat.dim.dkd.ReliableMessageDelegate;
+import chat.dim.dkd.SecureMessageDelegate;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
+import chat.dim.msg.BaseMessage;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.Message;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
@@ -51,18 +53,10 @@ import chat.dim.protocol.SecureMessage;
  *
  *  Converting message format between PlainMessage and NetworkMessage
  */
-public abstract class Transceiver implements InstantMessage.Delegate, ReliableMessage.Delegate {
+public abstract class Transceiver implements InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate {
 
     // barrack
     protected abstract Entity.Delegate getEntityDelegate();
-
-    protected static boolean isBroadcast(Message msg) {
-        ID receiver = msg.getGroup();
-        if (receiver == null) {
-            receiver = msg.getReceiver();
-        }
-        return receiver.isBroadcast();
-    }
 
     //-------- InstantMessageDelegate
 
@@ -75,22 +69,12 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
 
     @Override
     public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage iMsg) {
-        return password.encrypt(data);
-    }
-
-    @Override
-    public Object encodeData(byte[] data, InstantMessage iMsg) {
-        if (isBroadcast(iMsg)) {
-            // broadcast message content will not be encrypted (just encoded to JsON),
-            // so no need to encode to Base64 here
-            return UTF8.decode(data);
-        }
-        return Base64.encode(data);
+        return password.encrypt(data, iMsg);
     }
 
     @Override
     public byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
-        if (isBroadcast(iMsg)) {
+        if (BaseMessage.isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
         }
@@ -99,7 +83,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
 
     @Override
     public byte[] encryptKey(byte[] data, ID receiver, InstantMessage iMsg) {
-        assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
+        assert !BaseMessage.isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
         // TODO: make sure the receiver's public key exists
@@ -109,24 +93,12 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         return contact.encrypt(data);
     }
 
-    @Override
-    public Object encodeKey(byte[] key, InstantMessage iMsg) {
-        assert !isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
-        return Base64.encode(key);
-    }
-
     //-------- SecureMessageDelegate
-
-    @Override
-    public byte[] decodeKey(Object key, SecureMessage sMsg) {
-        assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-        return Base64.decode((String) key);
-    }
 
     @Override
     public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
-        assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+        assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
         // decrypt key data with the receiver/group member's private key
@@ -139,7 +111,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     @Override
     public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
-        assert !isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+        assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         assert key != null : "reused key? get it from local cache: " + sender + " -> " + receiver;
         String json = UTF8.decode(key);
         assert json != null : "key data error: " + Arrays.toString(key);
@@ -154,18 +126,8 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
     }
 
     @Override
-    public byte[] decodeData(Object data, SecureMessage sMsg) {
-        if (isBroadcast(sMsg)) {
-            // broadcast message content will not be encrypted (just encoded to JsON),
-            // so return the string data directly
-            return UTF8.encode((String) data);
-        }
-        return Base64.decode((String) data);
-    }
-
-    @Override
     public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
-        return password.decrypt(data);
+        return password.decrypt(data, sMsg);
     }
 
     @Override
@@ -191,17 +153,7 @@ public abstract class Transceiver implements InstantMessage.Delegate, ReliableMe
         return user.sign(data);
     }
 
-    @Override
-    public Object encodeSignature(byte[] signature, SecureMessage sMsg) {
-        return Base64.encode(signature);
-    }
-
     //-------- ReliableMessageDelegate
-
-    @Override
-    public byte[] decodeSignature(Object signature, ReliableMessage rMsg) {
-        return Base64.decode((String) signature);
-    }
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {

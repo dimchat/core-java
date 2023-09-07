@@ -122,7 +122,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     }
 
     @Override
-    public VerifyKey getKey() {
+    public VerifyKey getPublicKey() {
         if (key == null) {
             Object info = get("key");
             assert info instanceof Map : "meta key not found: " + toMap();

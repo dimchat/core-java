@@ -92,7 +92,7 @@ public class BaseUser extends BaseEntity implements User {
         //         is a better way
         EncryptKey key = delegate.getPublicKeyForEncryption(identifier);
         assert key != null : "failed to get encrypt key for user: " + identifier;
-        return key.encrypt(plaintext);
+        return key.encrypt(plaintext, null);
     }
 
     //
@@ -122,7 +122,7 @@ public class BaseUser extends BaseEntity implements User {
         for (DecryptKey key : keys) {
             // try decrypting it with each private key
             try {
-                plaintext = key.decrypt(ciphertext);
+                plaintext = key.decrypt(ciphertext, null);
                 if (plaintext != null) {
                     // OK!
                     return plaintext;
@@ -155,7 +155,7 @@ public class BaseUser extends BaseEntity implements User {
             return false;
         }
         // if meta not exists, user won't be created
-        VerifyKey key = getMeta().getKey();
+        VerifyKey key = getMeta().getPublicKey();
         assert key != null : "failed to get verify key for visa: " + identifier;
         return doc.verify(key);
     }

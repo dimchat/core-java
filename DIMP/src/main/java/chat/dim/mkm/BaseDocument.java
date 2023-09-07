@@ -41,6 +41,7 @@ import chat.dim.format.JSONMap;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
+import chat.dim.type.Converter;
 import chat.dim.type.Dictionary;
 
 public class BaseDocument extends Dictionary implements Document {
@@ -288,14 +289,12 @@ public class BaseDocument extends Dictionary implements Document {
     //---- properties getter/setter
 
     @Override
-    public Date getTime() {
+    public Date getDateTime() {
         Object timestamp = getProperty("time");
         if (timestamp == null) {
             return null;
         }
-        double seconds = ((Number) timestamp).doubleValue();
-        long millis = (long) (seconds * 1000);
-        return new Date(millis);
+        return Converter.getDateTime(timestamp);
     }
 
     @Override

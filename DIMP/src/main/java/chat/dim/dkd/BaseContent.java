@@ -88,7 +88,7 @@ public class BaseContent extends Dictionary implements Content {
         time = now;
         put("type", type);
         put("sn", sn);
-        setTime("time", now);
+        setDateTime("time", now);
     }
 
     @Override
@@ -109,9 +109,9 @@ public class BaseContent extends Dictionary implements Content {
     }
 
     @Override
-    public Date getTime() {
+    public Date getDateTime() {
         if (time == null) {
-            time = getTime("time");
+            time = getDateTime("time");
         }
         return time;
     }

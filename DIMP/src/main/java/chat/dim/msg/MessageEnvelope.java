@@ -74,9 +74,9 @@ public class MessageEnvelope extends Dictionary implements Envelope {
         sender   = from;
         receiver = to;
         time     = when;
-        put("sender", from.toString());
-        put("receiver", to.toString());
-        setTime("time", when);
+        setString("sender", from);
+        setString("receiver", to);
+        setDateTime("time", when);
     }
 
     @Override
@@ -99,9 +99,9 @@ public class MessageEnvelope extends Dictionary implements Envelope {
     }
 
     @Override
-    public Date getTime() {
+    public Date getDateTime() {
         if (time == null) {
-            time = getTime("time");
+            time = getDateTime("time");
         }
         return time;
     }

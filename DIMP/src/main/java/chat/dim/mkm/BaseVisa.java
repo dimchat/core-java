@@ -34,6 +34,7 @@ import java.util.Map;
 
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PublicKey;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 
@@ -59,7 +60,7 @@ public class BaseVisa extends BaseDocument implements Visa {
      *      RSA
      */
     @Override
-    public EncryptKey getKey() {
+    public EncryptKey getPublicKey() {
         if (key == null) {
             Object info = getProperty("key");
             assert info != null : "visa key nt found: " + toMap();
@@ -73,18 +74,19 @@ public class BaseVisa extends BaseDocument implements Visa {
     }
 
     @Override
-    public void setKey(EncryptKey publicKey) {
+    public void setPublicKey(EncryptKey publicKey) {
         setProperty("key", publicKey.toMap());
         key = publicKey;
     }
 
     @Override
-    public String getAvatar() {
-        return (String) getProperty("avatar");
+    public PortableNetworkFile getAvatar() {
+        Object pnf = getProperty("avatar");
+        return PortableNetworkFile.parse(pnf);
     }
 
     @Override
-    public void setAvatar(String url) {
-        setProperty("avatar", url);
+    public void setAvatar(PortableNetworkFile url) {
+        setProperty("avatar", url.toObject());
     }
 }
