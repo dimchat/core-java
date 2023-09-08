@@ -30,7 +30,6 @@
  */
 package chat.dim.mkm;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import chat.dim.crypto.DecryptKey;
@@ -75,12 +74,15 @@ public class BaseUser extends BaseEntity implements User {
         // NOTICE: I suggest using the private key paired with meta.key to sign message
         //         so here should return the meta.key
         List<VerifyKey> keys = delegate.getPublicKeysForVerification(identifier);
+        assert keys.size() > 0 : "failed to get verify keys: " + identifier;
         for (VerifyKey key : keys) {
             if (key.verify(data, signature)) {
                 // matched!
                 return true;
             }
         }
+        // signature not match
+        // TODO: check whether visa is expired, query new document for this contact
         return false;
     }
 
@@ -117,22 +119,18 @@ public class BaseUser extends BaseEntity implements User {
         // NOTICE: if you provide a public key in visa for encryption,
         //         here you should return the private key paired with visa.key
         List<DecryptKey> keys = delegate.getPrivateKeysForDecryption(identifier);
-        assert keys != null && keys.size() > 0 : "failed to get decrypt keys for user: " + identifier;
+        assert keys.size() > 0 : "failed to get decrypt keys for user: " + identifier;
         byte[] plaintext;
         for (DecryptKey key : keys) {
             // try decrypting it with each private key
-            try {
-                plaintext = key.decrypt(ciphertext, null);
-                if (plaintext != null) {
-                    // OK!
-                    return plaintext;
-                }
-            } catch (InvalidParameterException e) {
-                // this key not match, try next one
-                //e.printStackTrace();
+            plaintext = key.decrypt(ciphertext, null);
+            if (plaintext != null) {
+                // OK!
+                return plaintext;
             }
         }
         // decryption failed
+        // TODO: check whether my visa key is changed, push new visa to this contact
         return null;
     }
 
@@ -144,17 +142,21 @@ public class BaseUser extends BaseEntity implements User {
         // NOTICE: only sign visa with the private key paired with your meta.key
         SignKey key = delegate.getPrivateKeyForVisaSignature(identifier);
         assert key != null : "failed to get sign key for visa: " + identifier;
-        return doc.sign(key) == null ? null : doc;
+        if (doc.sign(key) == null) {
+            assert false : "failed to sign visa: " + identifier + ", " + doc;
+            return null;
+        }
+        return doc;
     }
 
     @Override
     public boolean verify(Visa doc) {
         // NOTICE: only verify visa with meta.key
+        //         (if meta not exists, user won't be created)
         if (!identifier.equals(doc.getIdentifier())) {
             // visa ID not match
             return false;
         }
-        // if meta not exists, user won't be created
         VerifyKey key = getMeta().getPublicKey();
         assert key != null : "failed to get verify key for visa: " + identifier;
         return doc.verify(key);

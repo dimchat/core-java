@@ -35,8 +35,20 @@ import java.util.List;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.ID;
 
+/**
+ *  Group for organizing users
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ *  roles:
+ *      founder
+ *      owner
+ *      members
+ *      administrators - Optional
+ *      assistants     - group bots
+ */
 public interface Group extends Entity {
 
+    // group document
     Bulletin getBulletin();
 
     ID getFounder();
@@ -52,11 +64,14 @@ public interface Group extends Entity {
     /**
      *  Group Data Source
      *  ~~~~~~~~~~~~~~~~~
+     *
+     *      1. founder has the same public key with the group's meta.key
+     *      2. owner and members should be set complying with the consensus algorithm
      */
     interface DataSource extends Entity.DataSource {
 
         /**
-         *  Get group founder
+         *  Get founder of the group
          *
          * @param group - group ID
          * @return fonder ID
@@ -64,7 +79,7 @@ public interface Group extends Entity {
         ID getFounder(ID group);
 
         /**
-         *  Get group owner
+         *  Get current owner of the group
          *
          * @param group - group ID
          * @return owner ID
@@ -72,7 +87,7 @@ public interface Group extends Entity {
         ID getOwner(ID group);
 
         /**
-         *  Get group members list
+         *  Get all members in the group
          *
          * @param group - group ID
          * @return members list (ID)

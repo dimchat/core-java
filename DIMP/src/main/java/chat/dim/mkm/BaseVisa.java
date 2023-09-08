@@ -41,6 +41,7 @@ import chat.dim.protocol.Visa;
 public class BaseVisa extends BaseDocument implements Visa {
 
     private EncryptKey key = null;
+    private PortableNetworkFile avatar = null;
 
     public BaseVisa(Map<String, Object> dictionary) {
         super(dictionary);
@@ -63,30 +64,35 @@ public class BaseVisa extends BaseDocument implements Visa {
     public EncryptKey getPublicKey() {
         if (key == null) {
             Object info = getProperty("key");
-            assert info != null : "visa key nt found: " + toMap();
+            //assert info != null : "visa key nt found: " + toMap();
             PublicKey pKey = PublicKey.parse(info);
             if (pKey instanceof EncryptKey) {
                 key = (EncryptKey) pKey;
+            } else {
+                assert info == null : "visa key error: " + info;
             }
-            assert key != null : "visa key error: " + info;
         }
         return key;
     }
 
     @Override
     public void setPublicKey(EncryptKey publicKey) {
-        setProperty("key", publicKey.toMap());
+        setProperty("key", publicKey == null ? null : publicKey.toMap());
         key = publicKey;
     }
 
     @Override
     public PortableNetworkFile getAvatar() {
-        Object pnf = getProperty("avatar");
-        return PortableNetworkFile.parse(pnf);
+        if (avatar == null) {
+            Object pnf = getProperty("avatar");
+            avatar = PortableNetworkFile.parse(pnf);
+        }
+        return avatar;
     }
 
     @Override
     public void setAvatar(PortableNetworkFile url) {
-        setProperty("avatar", url.toObject());
+        setProperty("avatar", url == null ? null : url.toObject());
+        avatar = url;
     }
 }

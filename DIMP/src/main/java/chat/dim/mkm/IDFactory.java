@@ -107,31 +107,32 @@ public class IDFactory implements ID.Factory {
         Address address;
         String terminal;
         // split ID string
-        String[] pair = identifier.split("/");
+        String[] pair = identifier.split("/", 2);
+        assert pair[0].length() > 0 : "ID error: " + identifier;
         // terminal
         if (pair.length == 1) {
             // no terminal
             terminal = null;
         } else {
             // got terminal
-            assert pair.length == 2 : "ID error: " + identifier;
-            assert pair[1].length() > 0 : "ID.terminal error: " + identifier;
+            //assert pair.length == 2 : "ID error: " + identifier;
             terminal = pair[1];
+            assert terminal.length() > 0 : "ID.terminal error: " + identifier;
         }
         // name @ address
-        assert pair[0].length() > 0 : "ID error: " + identifier;
         pair = pair[0].split("@");
         assert pair[0].length() > 0 : "ID error: " + identifier;
         if (pair.length == 1) {
             // got address without name
             name = null;
             address = Address.parse(pair[0]);
-        } else {
+        } else if (pair.length == 2) {
             // got name & address
-            assert pair.length == 2 : "ID error: " + identifier;
-            assert pair[1].length() > 0 : "ID.address error: " + identifier;
             name = pair[0];
             address = Address.parse(pair[1]);
+        } else {
+            assert false : "ID error: " + identifier;
+            return null;
         }
         if (address == null) {
             return null;

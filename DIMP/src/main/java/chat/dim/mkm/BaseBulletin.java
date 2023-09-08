@@ -65,25 +65,28 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
      */
     @Override
     public List<ID> getAssistants() {
-        if (assistants == null) {
+        List<ID> bots = assistants;
+        if (bots == null) {
             Object value = getProperty("assistants");
             if (value instanceof List) {
-                assistants = ID.convert((List<?>) value);
+                assistants = bots = ID.convert((List<?>) value);
             } else {
-                // placeholder
-                assistants = new ArrayList<>();
+                // get from 'assistant'
+                bots = new ArrayList<>();
+                ID single = ID.parse(get("assistant"));
+                if (single != null) {
+                    bots.add(single);
+                }
+                assistants = bots;
             }
         }
-        return assistants;
+        return bots;
     }
 
     @Override
     public void setAssistants(List<ID> bots) {
-        if (bots == null) {
-            setProperty("assistants", null);
-        } else {
-            setProperty("assistants", ID.revert(bots));
-        }
+        setProperty("assistants", bots == null ? null : ID.revert(bots));
+        setProperty("assistant", null);
         assistants = bots;
     }
 }

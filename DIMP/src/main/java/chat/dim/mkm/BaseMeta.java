@@ -34,7 +34,7 @@ import java.util.Map;
 
 import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
-import chat.dim.format.Base64;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.type.Dictionary;
@@ -53,6 +53,9 @@ import chat.dim.type.Dictionary;
  *
  *      algorithm:
  *          fingerprint = sign(seed, SK);
+ *
+ *  abstract method:
+ *      - Address generateAddress(int network);
  */
 public abstract class BaseMeta extends Dictionary implements Meta {
 
@@ -63,7 +66,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      *      0x02 - btc_address
      *      0x03 - username@btc_address
      */
-    private int type = 0;
+    private int type = -1;
 
     /**
      *  Public key (used for signature)
@@ -85,7 +88,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      *      Build: fingerprint = sign(seed, privateKey)
      *      Check: verify(seed, fingerprint, publicKey)
      */
-    private byte[] fingerprint = null;
+    private TransportableData fingerprint = null;
 
     protected BaseMeta(Map<String, Object> dictionary) {
         super(dictionary);
@@ -108,15 +111,18 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         }
 
         if (fingerprint != null) {
-            put("fingerprint", Base64.encode(fingerprint));
-            this.fingerprint = fingerprint;
+            TransportableData ted = TransportableData.create(fingerprint);
+            put("fingerprint", ted.toObject());
+            this.fingerprint = ted;
         }
     }
 
     @Override
     public int getType() {
-        if (type == 0) {
-            type = getInt("type");
+        if (type < 0) {
+            FactoryManager man = FactoryManager.getInstance();
+            type = man.generalFactory.getMetaType(toMap());
+            // type = getInt("type");
         }
         return type;
     }
@@ -127,6 +133,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
             Object info = get("key");
             assert info instanceof Map : "meta key not found: " + toMap();
             key = PublicKey.parse(info);
+            assert key != null : "meta key error: " + info;
         }
         return key;
     }
@@ -142,12 +149,13 @@ public abstract class BaseMeta extends Dictionary implements Meta {
 
     @Override
     public byte[] getFingerprint() {
-        if (fingerprint == null && MetaType.hasSeed(getType())) {
+        TransportableData ted = fingerprint;
+        if (ted == null && MetaType.hasSeed(getType())) {
             String base64 = getString("fingerprint");
             assert base64 != null : "meta.fingerprint should not be empty: " + toMap();
-            fingerprint = Base64.decode(base64);
-            assert fingerprint != null : "meta.fingerprint error: " + toMap();
+            fingerprint = ted = TransportableData.parse(base64);
+            assert ted != null : "meta.fingerprint error: " + base64;
         }
-        return fingerprint;
+        return ted == null ? null : ted.getData();
     }
 }

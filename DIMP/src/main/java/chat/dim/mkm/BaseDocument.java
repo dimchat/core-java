@@ -38,6 +38,7 @@ import chat.dim.crypto.SignKey;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSONMap;
+import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -48,8 +49,8 @@ public class BaseDocument extends Dictionary implements Document {
 
     private ID identifier;
 
-    private String json;  // JsON.encode(properties)
-    private byte[] sig;   // LocalUser(identifier).sign(data)
+    private String json;            // JsON.encode(properties)
+    private TransportableData sig;  // LocalUser(identifier).sign(data)
 
     private Map<String, Object> properties;
     private int status;        // 1 for valid, -1 for invalid
@@ -116,12 +117,12 @@ public class BaseDocument extends Dictionary implements Document {
         json = null;
         sig = null;
 
-        if (type != null && type.length() > 0) {
-            properties = new HashMap<>();
-            properties.put("type", type);
-        } else {
-            properties = null;
+        Map<String, Object> info = new HashMap<>();
+        if (type != null && type.length() > 0 && !type.equals("*")) {
+            info.put("type", type);
         }
+        info.put("created_time", System.currentTimeMillis() / 1000.0d);
+        properties = info;
 
         status = 0;
     }
@@ -135,7 +136,9 @@ public class BaseDocument extends Dictionary implements Document {
     public String getType() {
         String type = (String) getProperty("type");
         if (type == null) {
-            type = getString("type");
+            FactoryManager man = FactoryManager.getInstance();
+            type = man.generalFactory.getDocumentType(toMap());
+            // type = getString("type");
         }
         return type;
     }
@@ -166,17 +169,15 @@ public class BaseDocument extends Dictionary implements Document {
      * @return signature data
      */
     private byte[] getSignature() {
-        if (sig == null) {
+        TransportableData ted = sig;
+        if (ted == null) {
             String base64 = getString("signature");
-            if (base64 != null) {
-                sig = Base64.decode(base64);
-            }
+            sig = ted = TransportableData.parse(base64);
         }
-        return sig;
+        return ted == null ? null : ted.getData();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Map<String, Object> getProperties() {
         if (status < 0) {
             // invalid
@@ -188,7 +189,7 @@ public class BaseDocument extends Dictionary implements Document {
                 // create new properties
                 properties = new HashMap<>();
             } else {
-                Map<String, Object> info = (Map<String, Object>) JSONMap.decode(data);
+                Map<String, Object> info = JSONMap.decode(data);
                 assert info != null : "document data error: " + toMap();
                 properties = info;
             }
@@ -258,32 +259,37 @@ public class BaseDocument extends Dictionary implements Document {
     public byte[] sign(SignKey privateKey) {
         if (status > 0) {
             // already signed/verified
-            assert json != null : "document data error";
-            return getSignature();
+            assert json != null : "document data error" + toMap();
+            byte[] signature = getSignature();
+            assert signature != null : "document signature error: " + toMap();
+            return signature;
         }
         // 1. update sign time
         setProperty("time", System.currentTimeMillis() / 1000.0d);
         // 2. encode & sign
-        Map<?, ?> dict = getProperties();
+        Map<String, Object> dict = getProperties();
         if (dict == null) {
-            // properties empty
+            // invalid
             return null;
         }
         String data = JSONMap.encode(dict);
-        assert data != null && data.length() > 0 : "properties error: " + dict;
+        if (data == null/* || data.length() == 0*/) {
+            assert false : "should not happen: " + dict;
+            return null;
+        }
         byte[] signature = privateKey.sign(UTF8.encode(data));
-        if (signature == null || signature.length == 0) {
-            // signature error
+        if (signature == null/* || signature.length == 0*/) {
+            assert false : "should not happen";
             return null;
         }
         // 3. update 'data' & 'signature' fields
         put("data", data);
         put("signature", Base64.encode(signature));
         json = data;
-        sig = signature;
+        sig = TransportableData.create(signature);
         // 4. update status
         status = 1;
-        return sig;
+        return signature;
     }
 
     //---- properties getter/setter

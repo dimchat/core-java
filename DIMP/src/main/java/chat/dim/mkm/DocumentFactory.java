@@ -35,6 +35,10 @@ import java.util.Map;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 
+/**
+ *  Base Document Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~
+ */
 public final class DocumentFactory implements Document.Factory {
 
     private final String version;
@@ -98,6 +102,7 @@ public final class DocumentFactory implements Document.Factory {
     public Document parseDocument(Map<String, Object> doc) {
         ID identifier = ID.parse(doc.get("ID"));
         if (identifier == null) {
+            // assert false : "document ID not found : " + doc;
             return null;
         }
         FactoryManager man = FactoryManager.getInstance();
