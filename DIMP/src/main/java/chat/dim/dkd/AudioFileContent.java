@@ -40,10 +40,15 @@ import chat.dim.protocol.ContentType;
  *      type : 0x14,
  *      sn   : 123,
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "voice.mp4",
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      text     : "..."         // Automatic Speech Recognition
  *  }
  */
 public class AudioFileContent extends BaseFileContent implements AudioContent {
@@ -52,16 +57,17 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
         super(content);
     }
 
-    public AudioFileContent(String filename, String encoded) {
-        super(ContentType.AUDIO, filename, encoded);
-    }
     public AudioFileContent(String filename, byte[] binary) {
         super(ContentType.AUDIO, filename, binary);
     }
 
     @Override
     public void setText(String message) {
-        put("text", message);
+        if (message == null) {
+            remove("text");
+        } else {
+            put("text", message);
+        }
     }
 
     @Override

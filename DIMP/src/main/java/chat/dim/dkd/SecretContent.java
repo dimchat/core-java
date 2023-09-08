@@ -69,7 +69,7 @@ public class SecretContent extends BaseContent implements ForwardContent {
         super(ContentType.FORWARD);
         forward = null;
         secrets = messages;
-        put("secrets", revert(messages));
+        put("secrets", ForwardContent.revert(messages));
     }
 
     @Override
@@ -85,9 +85,9 @@ public class SecretContent extends BaseContent implements ForwardContent {
     public List<ReliableMessage> getSecrets() {
         if (secrets == null) {
             Object info = get("secrets");
-            if (info != null) {
+            if (info instanceof List) {
                 // get from 'secrets'
-                secrets = convert((List<?>) info);
+                secrets = ForwardContent.convert((List<?>) info);
             } else {
                 // get from 'forward'
                 secrets = new ArrayList<>();
@@ -100,22 +100,4 @@ public class SecretContent extends BaseContent implements ForwardContent {
         return secrets;
     }
 
-    static List<ReliableMessage> convert(List<?> messages) {
-        List<ReliableMessage> array = new ArrayList<>();
-        ReliableMessage msg;
-        for (Object item : messages) {
-            msg = ReliableMessage.parse(item);
-            if (msg != null) {
-                array.add(msg);
-            }
-        }
-        return array;
-    }
-    static List<Map<String, Object>> revert(List<ReliableMessage> messages) {
-        List<Map<String, Object>> array = new ArrayList<>();
-        for (ReliableMessage msg : messages) {
-            array.add(msg.toMap());
-        }
-        return array;
-    }
 }

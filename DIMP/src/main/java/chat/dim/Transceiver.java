@@ -33,14 +33,14 @@ package chat.dim;
 import java.util.Arrays;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.dkd.InstantMessageDelegate;
-import chat.dim.dkd.ReliableMessageDelegate;
-import chat.dim.dkd.SecureMessageDelegate;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
 import chat.dim.msg.BaseMessage;
+import chat.dim.msg.InstantMessageDelegate;
+import chat.dim.msg.ReliableMessageDelegate;
+import chat.dim.msg.SecureMessageDelegate;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;

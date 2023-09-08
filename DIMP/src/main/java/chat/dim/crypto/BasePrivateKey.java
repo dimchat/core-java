@@ -31,7 +31,7 @@ import chat.dim.type.Dictionary;
 
 abstract class BasePrivateKey extends Dictionary implements PrivateKey {
 
-    BasePrivateKey(Map<String, Object> dictionary) {
+    protected BasePrivateKey(Map<String, Object> dictionary) {
         super(dictionary);
     }
 

@@ -33,15 +33,14 @@ package chat.dim.msg;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import chat.dim.dkd.ReliableMessageDelegate;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
-public class NetworkMessageHandler {
+public class NetworkMessagePacker {
 
     private final WeakReference<ReliableMessageDelegate> delegateRef;
 
-    public NetworkMessageHandler(ReliableMessageDelegate delegate) {
+    public NetworkMessagePacker(ReliableMessageDelegate delegate) {
         super();
         delegateRef = new WeakReference<>(delegate);
     }
@@ -81,7 +80,7 @@ public class NetworkMessageHandler {
         // 1. verify data signature with sender's public key
         if (getDelegate().verifyDataSignature(data, signature, rMsg.getSender(), rMsg)) {
             // 2. pack message
-            Map<String, Object> map = rMsg.copyMap(false);
+            Map<?, ?> map = rMsg.copyMap(false);
             map.remove("signature");
             return SecureMessage.parse(map);
         } else {

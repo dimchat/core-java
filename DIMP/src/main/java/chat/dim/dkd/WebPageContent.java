@@ -30,9 +30,10 @@
  */
 package chat.dim.dkd;
 
+import java.net.URI;
 import java.util.Map;
 
-import chat.dim.format.Base64;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.PageContent;
 
@@ -49,13 +50,13 @@ import chat.dim.protocol.PageContent;
  */
 public class WebPageContent extends BaseContent implements PageContent {
 
-    private byte[] icon = null;
+    private TransportableData icon = null;
 
     public WebPageContent(Map<String, Object> content) {
         super(content);
     }
 
-    public WebPageContent(String url, String title, String desc, byte[] icon) {
+    public WebPageContent(URI url, String title, String desc, byte[] icon) {
         super(ContentType.PAGE);
         setURL(url);
         setTitle(title);
@@ -64,13 +65,21 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public void setURL(String urlString) {
-        put("URL", urlString);
+    public void setURL(URI url) {
+        if (url == null) {
+            remove("URL");
+        } else {
+            put("URL", url.toString());
+        }
     }
 
     @Override
-    public String getURL() {
-        return getString("URL");
+    public URI getURL() {
+        String url = getString("URL");
+        if (url == null) {
+            return null;
+        }
+        return URI.create(url);
     }
 
     @Override
@@ -95,22 +104,23 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public void setIcon(byte[] imageData) {
-        icon = imageData;
-        if (imageData == null) {
-            remove("icon");
+        if (imageData != null && imageData.length > 0) {
+            TransportableData ted = TransportableData.create(imageData);
+            put("icon", ted.toObject());
+            icon = ted;
         } else {
-            put("icon", Base64.encode(imageData));
+            remove("icon");
+            icon = null;
         }
     }
 
     @Override
     public byte[] getIcon() {
-        if (icon == null) {
+        TransportableData ted = icon;
+        if (ted == null) {
             String base64 = getString("icon");
-            if (base64 != null) {
-                icon = Base64.decode(base64);
-            }
+            icon = ted = TransportableData.parse(base64);
         }
-        return icon;
+        return ted == null ? null : ted.getData();
     }
 }

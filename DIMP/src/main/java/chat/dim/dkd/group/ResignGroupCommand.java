@@ -1,8 +1,13 @@
 /* license: https://mit-license.org
+ *
+ *  DIMP : Decentralized Instant Messaging Protocol
+ *
+ *                                Written in 2023 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 Albert Moky
+ * Copyright (c) 2023 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,38 +28,22 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.crypto;
+package chat.dim.dkd.group;
 
 import java.util.Map;
 
-import chat.dim.type.Dictionary;
+import chat.dim.dkd.cmd.BaseGroupCommand;
+import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.group.ResignCommand;
 
-abstract class BaseSymmetricKey extends Dictionary implements SymmetricKey {
+public class ResignGroupCommand extends BaseGroupCommand implements ResignCommand {
 
-    protected BaseSymmetricKey(Map<String, Object> dictionary) {
-        super(dictionary);
+    public ResignGroupCommand(Map<String, Object> content) {
+        super(content);
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (super.equals(other)) {
-            return true;
-        } else if (other instanceof SymmetricKey) {
-            return match((EncryptKey) other);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public String getAlgorithm() {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap());
-    }
-
-    @Override
-    public boolean match(EncryptKey pKey) {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.matches(pKey, this);
+    public ResignGroupCommand(ID group) {
+        super(GroupCommand.RESIGN, group);
     }
 }

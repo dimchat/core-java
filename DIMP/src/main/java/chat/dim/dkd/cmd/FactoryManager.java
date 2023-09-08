@@ -30,12 +30,10 @@
  */
 package chat.dim.dkd.cmd;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import chat.dim.protocol.Command;
-import chat.dim.type.Wrapper;
-
+/**
+ *  Command FactoryManager
+ *  ~~~~~~~~~~~~~~~~~~~~~~
+ */
 public enum FactoryManager {
 
     INSTANCE;
@@ -45,46 +43,4 @@ public enum FactoryManager {
     }
 
     public GeneralFactory generalFactory = new GeneralFactory();
-
-    public static class GeneralFactory {
-
-        private final Map<String, Command.Factory> commandFactories = new HashMap<>();
-
-        //
-        //  Command
-        //
-
-        public void setCommandFactory(String cmd, Command.Factory factory) {
-            commandFactories.put(cmd, factory);
-        }
-
-        public Command.Factory getCommandFactory(String cmd) {
-            return commandFactories.get(cmd);
-        }
-
-        public String getCmd(Map<String, Object> content) {
-            return (String) content.get("command");
-        }
-
-        public Command parseCommand(Object content) {
-            if (content == null) {
-                return null;
-            } else if (content instanceof Command) {
-                return (Command) content;
-            }
-            Map<String, Object> info = Wrapper.getMap(content);
-            assert info != null : "command error: " + content;
-            // get factory by command name
-            String name = getCmd(info);
-            Command.Factory factory = getCommandFactory(name);
-            if (factory == null) {
-                // unknown command name, get base command factory
-                chat.dim.dkd.FactoryManager man = chat.dim.dkd.FactoryManager.getInstance();
-                int type = man.generalFactory.getContentType(info);
-                factory = (Command.Factory) man.generalFactory.getContentFactory(type);
-                assert factory != null : "cannot parse command: " + content;
-            }
-            return factory.parseCommand(info);
-        }
-    }
 }

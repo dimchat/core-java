@@ -30,6 +30,8 @@
  */
 package chat.dim.protocol;
 
+import chat.dim.dkd.TransferMoneyContent;
+
 /**
  *  Transfer money message: {
  *      type : 0x41,
@@ -50,4 +52,12 @@ public interface TransferContent extends MoneyContent {
     // receiver
     void setRemittee(ID receiver);
     ID getRemittee();
+
+    //
+    //  Factory
+    //
+
+    static TransferContent create(String currency, double amount) {
+        return new TransferMoneyContent(currency, amount);
+    }
 }

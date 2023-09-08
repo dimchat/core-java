@@ -30,6 +30,10 @@
  */
 package chat.dim.protocol;
 
+import java.net.URI;
+
+import chat.dim.dkd.WebPageContent;
+
 /**
  *  Web Page message: {
  *      type : 0x20,
@@ -43,8 +47,8 @@ package chat.dim.protocol;
  */
 public interface PageContent extends Content {
 
-    void setURL(String urlString);
-    String getURL();
+    void setURL(URI url);
+    URI getURL();
 
     void setTitle(String text);
     String getTitle();
@@ -54,4 +58,12 @@ public interface PageContent extends Content {
 
     void setIcon(byte[] imageData);
     byte[] getIcon();
+
+    //
+    //  Factory
+    //
+
+    static PageContent create(URI url, String title, String desc, byte[] icon) {
+        return new WebPageContent(url, title, desc, icon);
+    }
 }

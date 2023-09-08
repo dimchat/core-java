@@ -30,6 +30,7 @@
  */
 package chat.dim.dkd.cmd;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +38,6 @@ import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 
 public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand {
-
-    private ID member = null;
-    private List<ID> members = null;
 
     public BaseGroupCommand(Map<String, Object> content) {
         super(content);
@@ -93,31 +91,28 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
 
     @Override
     public ID getMember() {
-        if (member == null) {
-            member = ID.parse(get("member"));
-        }
-        return member;
+        return ID.parse(get("member"));
     }
 
     @Override
     public void setMember(ID member) {
         setString("member", member);
-        // TODO: remove 'members'?
-        this.member = member;
+        remove("members");
     }
 
     @Override
     public List<ID> getMembers() {
-        if (members == null) {
-            Object array = get("members");
-            if (array == null) {
-                // TODO: get from 'member'?
-                return null;
-            } else {
-                members = ID.convert((List<?>) array);
-            }
+        Object members = get("members");
+        if (members instanceof List) {
+            return ID.convert((List<?>) members);
         }
-        return members;
+        // get from 'member'
+        List<ID> array = new ArrayList<>();
+        ID single = getMember();
+        if (single != null) {
+            array.add(single);
+        }
+        return array;
     }
 
     @Override
@@ -127,7 +122,6 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
         } else {
             put("members", ID.revert(members));
         }
-        // TODO: remove 'member'?
-        this.members = members;
+        remove("member");
     }
 }

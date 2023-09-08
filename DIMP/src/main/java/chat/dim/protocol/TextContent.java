@@ -42,8 +42,6 @@ import chat.dim.dkd.BaseTextContent;
  */
 public interface TextContent extends Content {
 
-    void setText(String message);
-
     String getText();
 
     //

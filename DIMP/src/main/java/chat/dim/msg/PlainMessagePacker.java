@@ -37,18 +37,17 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.dkd.InstantMessageDelegate;
 import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.SecureMessage;
 
-public class PlainMessageHandler {
+public class PlainMessagePacker {
 
     private final WeakReference<InstantMessageDelegate> delegateRef;
 
-    public PlainMessageHandler(InstantMessageDelegate delegate) {
+    public PlainMessagePacker(InstantMessageDelegate delegate) {
         super();
         delegateRef = new WeakReference<>(delegate);
     }
@@ -180,6 +179,8 @@ public class PlainMessageHandler {
             // so no need to encode to Base64 here
             encoded = UTF8.decode(data);
         } else {
+            // message content had been encrypted by a symmetric key,
+            // so the data should be encoded here (with algorithm 'base64' as default).
             encoded = TransportableData.encode(data);
         }
         assert encoded != null : "failed to encode content data: " + Arrays.toString(data);

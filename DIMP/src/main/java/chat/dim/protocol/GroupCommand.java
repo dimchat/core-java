@@ -33,17 +33,23 @@ package chat.dim.protocol;
 import java.util.List;
 
 import chat.dim.dkd.group.ExpelGroupCommand;
+import chat.dim.dkd.group.FireGroupCommand;
+import chat.dim.dkd.group.HireGroupCommand;
 import chat.dim.dkd.group.InviteGroupCommand;
 import chat.dim.dkd.group.JoinGroupCommand;
 import chat.dim.dkd.group.QueryGroupCommand;
 import chat.dim.dkd.group.QuitGroupCommand;
 import chat.dim.dkd.group.ResetGroupCommand;
+import chat.dim.dkd.group.ResignGroupCommand;
 import chat.dim.protocol.group.ExpelCommand;
+import chat.dim.protocol.group.FireCommand;
+import chat.dim.protocol.group.HireCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.JoinCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
+import chat.dim.protocol.group.ResignCommand;
 
 public interface GroupCommand extends HistoryCommand {
 
@@ -110,5 +116,19 @@ public interface GroupCommand extends HistoryCommand {
 
     static ResetCommand reset(ID group, List<ID> members) {
         return new ResetGroupCommand(group, members);
+    }
+
+    //  Administrators, Assistants
+
+    static HireCommand hire(ID group, List<ID> administrators, List<ID> assistants) {
+        return new HireGroupCommand(group, administrators, assistants);
+    }
+
+    static FireCommand fire(ID group, List<ID> administrators, List<ID> assistants) {
+        return new FireGroupCommand(group, administrators, assistants);
+    }
+
+    static ResignCommand resign(ID group) {
+        return new ResignGroupCommand(group);
     }
 }

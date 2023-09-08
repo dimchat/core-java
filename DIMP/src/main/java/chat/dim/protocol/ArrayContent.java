@@ -30,7 +30,9 @@
  */
 package chat.dim.protocol;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.dkd.ListContent;
 
@@ -52,5 +54,25 @@ public interface ArrayContent extends Content {
 
     static ArrayContent create(List<Content> contents) {
         return new ListContent(contents);
+    }
+
+    static List<Content> convert(List<?> contents) {
+        List<Content> array = new ArrayList<>();
+        Content msg;
+        for (Object item : contents) {
+            msg = Content.parse(item);
+            if (msg != null) {
+                array.add(msg);
+            }
+        }
+        return array;
+    }
+
+    static List<Map<String, Object>> revert(List<Content> contents) {
+        List<Map<String, Object>> array = new ArrayList<>();
+        for (Content item : contents) {
+            array.add(item.toMap());
+        }
+        return array;
     }
 }

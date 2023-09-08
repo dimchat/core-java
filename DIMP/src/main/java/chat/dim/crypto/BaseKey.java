@@ -31,7 +31,7 @@ import chat.dim.type.Dictionary;
 
 abstract class BaseKey extends Dictionary implements CryptographyKey {
 
-    BaseKey(Map<String, Object> dictionary) {
+    protected BaseKey(Map<String, Object> dictionary) {
         super(dictionary);
     }
 

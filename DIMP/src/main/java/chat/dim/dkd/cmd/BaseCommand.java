@@ -56,6 +56,11 @@ public class BaseCommand extends BaseContent implements Command {
         put("command", cmd);
     }
 
+    public BaseCommand(int type, String cmd) {
+        super(type);
+        put("command", cmd);
+    }
+
     public BaseCommand(String cmd) {
         this(ContentType.COMMAND, cmd);
     }

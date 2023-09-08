@@ -30,7 +30,9 @@
  */
 package chat.dim.protocol;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.dkd.SecretContent;
 
@@ -61,5 +63,25 @@ public interface ForwardContent extends Content {
 
     static ForwardContent create(List<ReliableMessage> messages) {
         return new SecretContent(messages);
+    }
+
+    static List<ReliableMessage> convert(List<?> messages) {
+        List<ReliableMessage> array = new ArrayList<>();
+        ReliableMessage msg;
+        for (Object item : messages) {
+            msg = ReliableMessage.parse(item);
+            if (msg != null) {
+                array.add(msg);
+            }
+        }
+        return array;
+    }
+
+    static List<Map<String, Object>> revert(List<ReliableMessage> messages) {
+        List<Map<String, Object>> array = new ArrayList<>();
+        for (ReliableMessage msg : messages) {
+            array.add(msg.toMap());
+        }
+        return array;
     }
 }

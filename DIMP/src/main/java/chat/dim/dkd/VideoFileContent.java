@@ -32,7 +32,7 @@ package chat.dim.dkd;
 
 import java.util.Map;
 
-import chat.dim.format.Base64;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.VideoContent;
 
@@ -41,45 +41,48 @@ import chat.dim.protocol.VideoContent;
  *      type : 0x16,
  *      sn   : 123,
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(video)
- *      snapshot : "...",     // base64_encode(smallImage)
- *      filename : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "movie.mp4",
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      snapshot : "..."         // base64_encode(smallImage)
  *  }
  */
 public class VideoFileContent extends BaseFileContent implements VideoContent {
 
-    private byte[] snapshot = null;
+    private TransportableData snapshot = null;
 
     public VideoFileContent(Map<String, Object> content) {
         super(content);
     }
 
-    public VideoFileContent(String filename, String encoded) {
-        super(ContentType.VIDEO, filename, encoded);
-    }
     public VideoFileContent(String filename, byte[] binary) {
         super(ContentType.VIDEO, filename, binary);
     }
 
     @Override
     public void setSnapshot(byte[] imageData) {
-        snapshot = imageData;
-        if (imageData == null) {
-            remove("snapshot");
+        if (imageData != null && imageData.length > 0) {
+            TransportableData ted = TransportableData.create(imageData);
+            put("snapshot", ted.toObject());
+            snapshot = ted;
         } else {
-            put("snapshot", Base64.encode(imageData));
+            remove("snapshot");
+            snapshot = null;
         }
     }
 
     @Override
     public byte[] getSnapshot() {
-        if (snapshot == null) {
+        TransportableData ted = snapshot;
+        if (ted == null) {
             String base64 = getString("snapshot");
-            if (base64 != null) {
-                snapshot = Base64.decode(base64);
-            }
+            snapshot = ted = TransportableData.parse(base64);
         }
-        return snapshot;
+        return ted == null ? null : ted.getData();
     }
 }

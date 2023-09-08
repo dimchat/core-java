@@ -51,11 +51,6 @@ public class BaseTextContent extends BaseContent implements TextContent {
 
     public BaseTextContent(String message) {
         super(ContentType.TEXT);
-        setText(message);
-    }
-
-    @Override
-    public void setText(String message) {
         put("text", message);
     }
 

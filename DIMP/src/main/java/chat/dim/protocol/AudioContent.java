@@ -35,10 +35,15 @@ package chat.dim.protocol;
  *      type : 0x14,
  *      sn   : 123,
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "voice.mp4",
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      text     : "..."         // Automatic Speech Recognition
  *  }
  */
 public interface AudioContent extends FileContent {

@@ -50,10 +50,10 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
         super(content);
     }
 
-    protected BaseMoneyContent(ContentType type, String currency, double amount) {
+    public BaseMoneyContent(ContentType type, String currency, double amount) {
         this(type.value, currency, amount);
     }
-    protected BaseMoneyContent(int type, String currency, double amount) {
+    public BaseMoneyContent(int type, String currency, double amount) {
         super(type);
         setCurrency(currency);
         setAmount(amount);

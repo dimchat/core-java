@@ -46,8 +46,9 @@ import chat.dim.dkd.cmd.FactoryManager;
 public interface Command extends Content {
 
     //-------- command names begin --------
-    String META      = "meta";
-    String DOCUMENT  = "document";
+    String META     = "meta";
+    String DOCUMENT = "document";
+    String RECEIPT  = "receipt";
     //-------- command names end --------
 
     /**

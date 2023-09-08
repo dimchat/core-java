@@ -31,7 +31,7 @@ import chat.dim.type.Dictionary;
 
 abstract class BaseAsymmetricKey extends Dictionary implements AsymmetricKey {
 
-    BaseAsymmetricKey(Map<String, Object> dictionary) {
+    protected BaseAsymmetricKey(Map<String, Object> dictionary) {
         super(dictionary);
     }
 

@@ -32,7 +32,7 @@ package chat.dim.dkd;
 
 import java.util.Map;
 
-import chat.dim.format.Base64;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ImageContent;
 
@@ -41,45 +41,48 @@ import chat.dim.protocol.ImageContent;
  *      type : 0x12,
  *      sn   : 123,
  *
- *      URL       : "http://", // upload to CDN
- *      data      : "...",     // if (!URL) base64_encode(image)
- *      thumbnail : "...",     // base64_encode(smallImage)
- *      filename  : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "photo.png",
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      thumbnail : "..."        // base64_encode(smallImage)
  *  }
  */
 public class ImageFileContent extends BaseFileContent implements ImageContent {
 
-    private byte[] thumbnail = null;
+    private TransportableData thumbnail = null;
 
     public ImageFileContent(Map<String, Object> content) {
         super(content);
     }
 
-    public ImageFileContent(String filename, String encoded) {
-        super(ContentType.IMAGE, filename, encoded);
-    }
     public ImageFileContent(String filename, byte[] binary) {
         super(ContentType.IMAGE, filename, binary);
     }
 
     @Override
     public void setThumbnail(byte[] imageData) {
-        thumbnail = imageData;
-        if (imageData == null) {
-            remove("thumbnail");
+        if (imageData != null && imageData.length > 0) {
+            TransportableData ted = TransportableData.create(imageData);
+            put("thumbnail", ted.toObject());
+            thumbnail = ted;
         } else {
-            put("thumbnail", Base64.encode(imageData));
+            remove("thumbnail");
+            thumbnail = null;
         }
     }
 
     @Override
     public byte[] getThumbnail() {
-        if (thumbnail == null) {
+        TransportableData ted = thumbnail;
+        if (ted == null) {
             String base64 = getString("thumbnail");
-            if (base64 != null) {
-                thumbnail = Base64.decode(base64);
-            }
+            thumbnail = ted = TransportableData.parse(base64);
         }
-        return thumbnail;
+        return ted == null ? null : ted.getData();
     }
 }

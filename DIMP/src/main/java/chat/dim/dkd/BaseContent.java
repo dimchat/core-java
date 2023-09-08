@@ -71,8 +71,8 @@ public class BaseContent extends Dictionary implements Content {
     public BaseContent(Map<String, Object> content) {
         super(content);
         // lazy load
-        type = 0;
-        sn = 0;
+        type = -1;
+        sn = -1;
         time = null;
     }
 
@@ -93,17 +93,18 @@ public class BaseContent extends Dictionary implements Content {
 
     @Override
     public int getType() {
-        if (type == 0) {
+        if (type < 0) {
             type = getInt("type");
+            assert type >= 0 : "content type error: " + toMap();
         }
         return type;
     }
 
     @Override
     public long getSerialNumber() {
-        if (sn == 0) {
+        if (sn < 0) {
             sn = getLong("sn");
-            assert sn > 0 : "serial number not found: " + toMap();
+            assert sn > 0 : "serial number error: " + toMap();
         }
         return sn;
     }

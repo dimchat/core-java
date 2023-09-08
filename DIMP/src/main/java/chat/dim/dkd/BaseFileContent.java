@@ -30,11 +30,12 @@
  */
 package chat.dim.dkd;
 
+import java.net.URI;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.format.Base64;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
 
@@ -43,95 +44,89 @@ import chat.dim.protocol.FileContent;
  *      type : 0x10,
  *      sn   : 123,
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(fileContent)
- *      filename : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "photo.png"
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      }
  *  }
  */
 public class BaseFileContent extends BaseContent implements FileContent {
 
-    private byte[] data; // file data (plaintext)
-    private DecryptKey key; // key to decrypt data
+    private TransportableData attachment; // file content (not encrypted)
+    private DecryptKey password;          // key to decrypt data
 
     public BaseFileContent(Map<String, Object> content) {
         super(content);
         // lazy load
-        data = null;
-        key = null;
+        attachment = null;
+        password = null;
     }
 
-    protected BaseFileContent(int type, String filename, String encoded) {
-        super(type);
-        if (filename != null) {
-            put("filename", filename);
-        }
-        if (encoded != null) {
-            put("data", encoded);
-        }
-        // lazy load
-        data = null;
-        key = null;
-    }
-    protected BaseFileContent(int type, String filename, byte[] binary) {
+    public BaseFileContent(int type, String filename, byte[] binary) {
         super(type);
         if (filename != null) {
             put("filename", filename);
         }
         if (binary != null) {
-            put("data", Base64.encode(binary));
+            TransportableData ted = TransportableData.create(binary);
+            put("data", ted.toObject());
+            attachment = ted;
+        } else {
+            attachment = null;
         }
-        data = binary;
-        key = null;
+        password = null;
     }
 
-    protected BaseFileContent(ContentType type, String filename, String encoded) {
-        this(type.value, filename, encoded);
-    }
-    protected BaseFileContent(ContentType type, String filename, byte[] binary) {
+    public BaseFileContent(ContentType type, String filename, byte[] binary) {
         this(type.value, filename, binary);
     }
 
-    public BaseFileContent(String filename, String encoded) {
-        this(ContentType.FILE, filename, encoded);
-    }
     public BaseFileContent(String filename, byte[] binary) {
         this(ContentType.FILE, filename, binary);
     }
 
     @Override
-    public void setURL(String urlString) {
-        if (urlString == null) {
+    public void setURL(URI url) {
+        if (url == null) {
             remove("URL");
         } else {
-            put("URL", urlString);
+            put("URL", url.toString());
         }
     }
 
     @Override
-    public String getURL() {
-        return getString("URL");
+    public URI getURL() {
+        String url = getString("URL");
+        if (url == null) {
+            return null;
+        }
+        return URI.create(url);
     }
 
     @Override
-    public void setData(byte[] fileData) {
-        if (fileData != null && fileData.length > 0) {
-            // file data
-            put("data", Base64.encode(fileData));
+    public void setData(byte[] binary) {
+        if (binary != null && binary.length > 0) {
+            TransportableData ted = TransportableData.create(binary);
+            put("data", ted.toObject());
+            attachment = ted;
         } else {
             remove("data");
+            attachment = null;
         }
-        data = fileData;
     }
 
     @Override
     public byte[] getData() {
-        if (data == null) {
+        TransportableData ted = attachment;
+        if (ted == null) {
             String base64 = getString("data");
-            if (base64 != null) {
-                data = Base64.decode(base64);
-            }
+            attachment = ted = TransportableData.parse(base64);
         }
-        return data;
+        return ted == null ? null : ted.getData();
     }
 
     @Override
@@ -149,17 +144,17 @@ public class BaseFileContent extends BaseContent implements FileContent {
     }
 
     @Override
-    public void setPassword(DecryptKey password) {
-        setMap("password", password);
-        key = password;
+    public void setPassword(DecryptKey key) {
+        setMap("key", key);
+        password = key;
     }
 
     @Override
     public DecryptKey getPassword() {
-        if (key == null) {
-            Object password = get("password");
-            key = SymmetricKey.parse(password);
+        if (password == null) {
+            Object info = get("key");
+            password = SymmetricKey.parse(info);
         }
-        return key;
+        return password;
     }
 }

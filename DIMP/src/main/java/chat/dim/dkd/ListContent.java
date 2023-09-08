@@ -59,15 +59,15 @@ public class ListContent extends BaseContent implements ArrayContent {
     public ListContent(List<Content> contents) {
         super(ContentType.ARRAY);
         list = contents;
-        put("contents", revert(contents));
+        put("contents", ArrayContent.revert(contents));
     }
 
     @Override
     public List<Content> getContents() {
         if (list == null) {
             Object info = get("contents");
-            if (info != null) {
-                list = convert((List<?>) info);
+            if (info instanceof List) {
+                list = ArrayContent.convert((List<?>) info);
             } else {
                 list = new ArrayList<>();
             }
@@ -75,22 +75,4 @@ public class ListContent extends BaseContent implements ArrayContent {
         return list;
     }
 
-    static List<Content> convert(List<?> contents) {
-        List<Content> array = new ArrayList<>();
-        Content res;
-        for (Object item : contents) {
-            res = Content.parse(item);
-            if (res != null) {
-                array.add(res);
-            }
-        }
-        return array;
-    }
-    static List<Map<String, Object>> revert(List<Content> contents) {
-        List<Map<String, Object>> array = new ArrayList<>();
-        for (Content item : contents) {
-            array.add(item.toMap());
-        }
-        return array;
-    }
 }

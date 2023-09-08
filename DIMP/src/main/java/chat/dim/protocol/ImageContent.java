@@ -35,10 +35,15 @@ package chat.dim.protocol;
  *      type : 0x12,
  *      sn   : 123,
  *
- *      URL       : "http://", // upload to CDN
- *      data      : "...",     // if (!URL) base64_encode(image)
- *      thumbnail : "...",     // base64_encode(smallImage)
- *      filename  : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "photo.png",
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      thumbnail : "..."        // base64_encode(smallImage)
  *  }
  */
 public interface ImageContent extends FileContent {

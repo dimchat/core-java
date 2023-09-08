@@ -30,6 +30,8 @@
  */
 package chat.dim.protocol;
 
+import java.net.URI;
+
 import chat.dim.crypto.DecryptKey;
 import chat.dim.dkd.AudioFileContent;
 import chat.dim.dkd.BaseFileContent;
@@ -41,54 +43,54 @@ import chat.dim.dkd.VideoFileContent;
  *      type : 0x10,
  *      sn   : 123,
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(fileContent)
- *      filename : "..."
+ *      URL      : "http://...", // download from CDN
+ *      data     : "...",        // base64_encode(fileContent)
+ *      filename : "photo.png"
+ *      key      : {             // symmetric key to decrypt file content
+ *          algorithm : "AES",   // "DES", ...
+ *          data      : "{BASE64_ENCODE}",
+ *          ...
+ *      }
  *  }
  */
 public interface FileContent extends Content {
 
-    void setURL(String urlString);
-    String getURL();
+    void setURL(URI url);
+    URI getURL();
 
-    void setData(byte[] fileData);
+    void setData(byte[] binary);
     byte[] getData();
 
     void setFilename(String name);
     String getFilename();
 
     // symmetric key to decrypt the encrypted data from URL
-    void setPassword(DecryptKey password);
+    void setPassword(DecryptKey key);
     DecryptKey getPassword();
 
     //
     //  Factories
     //
 
-    static FileContent file(String filename, String encoded) {
-        return new BaseFileContent(filename, encoded);
+    static FileContent create(ContentType type, String filename, byte[] binary) {
+        return new BaseFileContent(type, filename, binary);
     }
+    static FileContent create(int type, String filename, byte[] binary) {
+        return new BaseFileContent(type, filename, binary);
+    }
+
     static FileContent file(String filename, byte[] binary) {
         return new BaseFileContent(filename, binary);
     }
 
-    static ImageContent image(String filename, String encoded) {
-        return new ImageFileContent(filename, encoded);
-    }
     static ImageContent image(String filename, byte[] binary) {
         return new ImageFileContent(filename, binary);
     }
 
-    static AudioContent audio(String filename, String encoded) {
-        return new AudioFileContent(filename, encoded);
-    }
     static AudioContent audio(String filename, byte[] binary) {
         return new AudioFileContent(filename, binary);
     }
 
-    static VideoContent video(String filename, String encoded) {
-        return new VideoFileContent(filename, encoded);
-    }
     static VideoContent video(String filename, byte[] binary) {
         return new VideoFileContent(filename, binary);
     }

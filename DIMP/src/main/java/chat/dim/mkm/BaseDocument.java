@@ -198,7 +198,7 @@ public class BaseDocument extends Dictionary implements Document {
 
     @Override
     public Object getProperty(String name) {
-        Map<String, Object> dict = getProperties();
+        Map<?, ?> dict = getProperties();
         if (dict == null) {
             return null;
         }
@@ -264,7 +264,7 @@ public class BaseDocument extends Dictionary implements Document {
         // 1. update sign time
         setProperty("time", System.currentTimeMillis() / 1000.0d);
         // 2. encode & sign
-        Map<String, Object> dict = getProperties();
+        Map<?, ?> dict = getProperties();
         if (dict == null) {
             // properties empty
             return null;

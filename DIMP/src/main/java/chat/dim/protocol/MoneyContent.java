@@ -30,6 +30,8 @@
  */
 package chat.dim.protocol;
 
+import chat.dim.dkd.BaseMoneyContent;
+
 /**
  *  Money message: {
  *      type : 0x40,
@@ -45,4 +47,20 @@ public interface MoneyContent extends Content {
 
     void setAmount(double amount);
     double getAmount();
+
+    //
+    //  Factories
+    //
+
+    static MoneyContent create(ContentType type, String currency, double amount) {
+        return new BaseMoneyContent(type, currency, amount);
+    }
+
+    static MoneyContent create(int type, String currency, double amount) {
+        return new BaseMoneyContent(type, currency, amount);
+    }
+
+    static MoneyContent create(String currency, double amount) {
+        return new BaseMoneyContent(currency, amount);
+    }
 }

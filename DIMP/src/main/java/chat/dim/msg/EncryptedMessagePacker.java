@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.dkd.SecureMessageDelegate;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
@@ -47,11 +46,11 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.type.Copier;
 
-public class EncryptedMessageHandler {
+public class EncryptedMessagePacker {
 
     private final WeakReference<SecureMessageDelegate> delegateRef;
 
-    public EncryptedMessageHandler(SecureMessageDelegate delegate) {
+    public EncryptedMessagePacker(SecureMessageDelegate delegate) {
         super();
         delegateRef = new WeakReference<>(delegate);
     }
@@ -190,7 +189,7 @@ public class EncryptedMessageHandler {
     public List<SecureMessage> split(SecureMessage sMsg, List<ID> members) {
         Map<String, Object> msg = sMsg.copyMap(false);
         // check 'keys'
-        Map<String, Object> keys = sMsg.getEncryptedKeys();
+        Map<?, ?> keys = sMsg.getEncryptedKeys();
         if (keys == null) {
             keys = new HashMap<>();
         } else {
@@ -236,7 +235,7 @@ public class EncryptedMessageHandler {
     public SecureMessage trim(SecureMessage sMsg, ID member) {
         Map<String, Object> msg = sMsg.copyMap(false);
         // check 'keys'
-        Map<String, Object> keys = sMsg.getEncryptedKeys();
+        Map<?, ?> keys = sMsg.getEncryptedKeys();
         if (keys != null) {
             // move key data from 'keys' to 'key'
             Object base64 = keys.get(member.toString());
