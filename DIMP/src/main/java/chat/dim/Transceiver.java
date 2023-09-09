@@ -96,7 +96,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     //-------- SecureMessageDelegate
 
     @Override
-    public byte[] decryptKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
+    public byte[] decryptKey(byte[] key, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         Entity.Delegate barrack = getEntityDelegate();
@@ -109,10 +109,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     }
 
     @Override
-    public SymmetricKey deserializeKey(byte[] key, ID sender, ID receiver, SecureMessage sMsg) {
+    public SymmetricKey deserializeKey(byte[] key, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-        assert key != null : "reused key? get it from local cache: " + sender + " -> " + receiver;
+        assert key != null : "reused key? get it from local cache: " + sMsg.getSender() + " -> " + receiver;
         String json = UTF8.decode(key);
         assert json != null : "key data error: " + Arrays.toString(key);
         Object dict = JSON.decode(json);
@@ -145,9 +145,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     }
 
     @Override
-    public byte[] signData(byte[] data, ID sender, SecureMessage sMsg) {
+    public byte[] signData(byte[] data, SecureMessage sMsg) {
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
+        ID sender = sMsg.getSender();
         User user = barrack.getUser(sender);
         assert user != null : "failed to sign with sender: " + sender;
         return user.sign(data);
@@ -156,9 +157,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     //-------- ReliableMessageDelegate
 
     @Override
-    public boolean verifyDataSignature(byte[] data, byte[] signature, ID sender, ReliableMessage rMsg) {
+    public boolean verifyDataSignature(byte[] data, byte[] signature, ReliableMessage rMsg) {
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
+        ID sender = rMsg.getSender();
         User contact = barrack.getUser(sender);
         assert contact != null : "failed to verify signature for sender: " + sender;
         return contact.verify(data, signature);

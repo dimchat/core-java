@@ -58,8 +58,8 @@ public class GeneralFactory {
         return commandFactories.get(cmd);
     }
 
-    public String getCmd(Map<?, ?> content) {
-        return Converter.getString(content.get("command"), null);
+    public String getCmd(Map<?, ?> content, String defaultValue) {
+        return Converter.getString(content.get("command"), defaultValue);
     }
 
     public Command parseCommand(Object content) {
@@ -74,8 +74,8 @@ public class GeneralFactory {
             return null;
         }
         // get factory by command name
-        String name = getCmd(info);
-        Command.Factory factory = name == null || name.length() == 0 ? null : getCommandFactory(name);
+        String name = getCmd(info, "*");
+        Command.Factory factory = getCommandFactory(name);
         if (factory == null) {
             // unknown command name, get base command factory
             factory = getDefaultFactory(info);
@@ -89,7 +89,7 @@ public class GeneralFactory {
 
     private static Command.Factory getDefaultFactory(Map<?, ?> info) {
         chat.dim.msg.FactoryManager man = chat.dim.msg.FactoryManager.getInstance();
-        int type = man.generalFactory.getContentType(info);
+        int type = man.generalFactory.getContentType(info, 0);
         Content.Factory factory = man.generalFactory.getContentFactory(type);
         if (factory instanceof Command.Factory) {
             return (Command.Factory) factory;

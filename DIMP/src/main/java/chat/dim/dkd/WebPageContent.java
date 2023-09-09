@@ -50,10 +50,14 @@ import chat.dim.protocol.PageContent;
  */
 public class WebPageContent extends BaseContent implements PageContent {
 
-    private TransportableData icon = null;
+    private  URI url;
+    private TransportableData icon;
 
     public WebPageContent(Map<String, Object> content) {
         super(content);
+        // lazy load
+        url = null;
+        icon = null;
     }
 
     public WebPageContent(URI url, String title, String desc, byte[] icon) {
@@ -65,22 +69,27 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public void setURL(URI url) {
-        if (url == null) {
-            remove("URL");
-        } else {
-            put("URL", url.toString());
-        }
+    public void setURL(URI location) {
+        assert location != null : "URL cannot be empty";
+        put("URL", location.toString());
+        url = location;
     }
 
     @Override
     public URI getURL() {
-        String url = getString("URL", null);
-        return url == null ? null : URI.create(url);
+        if (url == null) {
+            String string = getString("URL", null);
+            if (string != null) {
+                url = URI.create(string);
+            }
+            assert url != null : "URL cannot be empty: " + toMap();
+        }
+        return url;
     }
 
     @Override
     public void setTitle(String text) {
+        assert text != null : "Web title cannot be empty";
         put("title", text);
     }
 
@@ -115,7 +124,7 @@ public class WebPageContent extends BaseContent implements PageContent {
     public byte[] getIcon() {
         TransportableData ted = icon;
         if (ted == null) {
-            String base64 = getString("icon", null);
+            Object base64 = get("icon");
             icon = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();

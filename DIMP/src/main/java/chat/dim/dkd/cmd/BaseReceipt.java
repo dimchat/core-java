@@ -33,7 +33,6 @@ package chat.dim.dkd.cmd;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.type.Converter;
@@ -64,12 +63,8 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
         envelope = null;
     }
 
-    public BaseReceipt(ContentType type, String text, Envelope env, long sn, String sig) {
-        this(type.value, text, env, sn, sig);
-    }
-
-    public BaseReceipt(int type, String text, Envelope env, long sn, String sig) {
-        super(type, RECEIPT);
+    public BaseReceipt(String text, Envelope env, long sn, String sig) {
+        super(RECEIPT);
         // text message
         if (text != null) {
             put("text", text);

@@ -121,7 +121,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     public int getType() {
         if (type < 0) {
             FactoryManager man = FactoryManager.getInstance();
-            type = man.generalFactory.getMetaType(toMap());
+            type = man.generalFactory.getMetaType(toMap(), 0);
             // type = getInt("type");
         }
         return type;

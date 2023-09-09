@@ -32,7 +32,6 @@ package chat.dim.dkd.file;
 
 import java.util.Map;
 
-import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.AudioContent;
 
@@ -58,8 +57,8 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
         super(content);
     }
 
-    public AudioFileContent(String filename, TransportableData data) {
-        super(ContentType.AUDIO, filename, data);
+    public AudioFileContent(byte[] data, String filename) {
+        super(ContentType.AUDIO, data, filename);
     }
 
     @Override

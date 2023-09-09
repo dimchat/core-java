@@ -60,8 +60,8 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
         super(content);
     }
 
-    public VideoFileContent(String filename, TransportableData data) {
-        super(ContentType.VIDEO, filename, data);
+    public VideoFileContent(byte[] data, String filename) {
+        super(ContentType.VIDEO, data, filename);
     }
 
     @Override

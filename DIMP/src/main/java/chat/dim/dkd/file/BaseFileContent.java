@@ -47,7 +47,7 @@ import chat.dim.protocol.FileContent;
  *
  *      URL      : "http://...", // download from CDN
  *      data     : "...",        // base64_encode(fileContent)
- *      filename : "photo.png"
+ *      filename : "photo.png",
  *      key      : {             // symmetric key to decrypt file content
  *          algorithm : "AES",   // "DES", ...
  *          data      : "{BASE64_ENCODE}",
@@ -57,34 +57,51 @@ import chat.dim.protocol.FileContent;
  */
 public class BaseFileContent extends BaseContent implements FileContent {
 
+    private URI remoteURL;                // download from CDN
+    private DecryptKey password;          // key to decrypt data downloaded from CDN
     private TransportableData attachment; // file content (not encrypted)
-    private DecryptKey password;          // key to decrypt data
 
     public BaseFileContent(Map<String, Object> content) {
         super(content);
         // lazy load
+        remoteURL = null;
+        password = null;
         attachment = null;
-        password = null;
     }
 
-    public BaseFileContent(int type, String filename, TransportableData data) {
+    //
+    //  Create file content with remote URL & decrypt key
+    //
+
+    public BaseFileContent(int type, URI url, DecryptKey key) {
         super(type);
-        if (filename != null) {
-            put("filename", filename);
-        }
-        if (data != null) {
-            put("data", data.toObject());
-        }
-        attachment = data;
+        setURL(url);
+        setPassword(key);
+        attachment = null;
+    }
+    public BaseFileContent(ContentType type, URI url, DecryptKey key) {
+        this(type.value, url, key);
+    }
+    public BaseFileContent(URI url, DecryptKey key) {
+        this(ContentType.FILE, url, key);
+    }
+
+    //
+    //  Create file content with file data & filename
+    //
+
+    public BaseFileContent(int type, byte[] data, String filename) {
+        super(type);
+        remoteURL = null;
         password = null;
+        setData(data);
+        setFilename(filename);
     }
-
-    public BaseFileContent(ContentType type, String filename, TransportableData data) {
-        this(type.value, filename, data);
+    public BaseFileContent(ContentType type, byte[] data, String filename) {
+        this(type.value, data, filename);
     }
-
-    public BaseFileContent(String filename, TransportableData data) {
-        this(ContentType.FILE, filename, data);
+    public BaseFileContent(byte[] data, String filename) {
+        this(ContentType.FILE, data, filename);
     }
 
     @Override
@@ -94,24 +111,32 @@ public class BaseFileContent extends BaseContent implements FileContent {
         } else {
             put("URL", url.toString());
         }
+        remoteURL = url;
     }
 
     @Override
     public URI getURL() {
-        String url = getString("URL", null);
-        return url == null ? null : URI.create(url);
+        URI url = remoteURL;
+        if (url == null) {
+            String remote = getString("URL", null);
+            if (remote != null) {
+                remoteURL = url = URI.create(remote);
+            }
+        }
+        return url;
     }
 
     @Override
-    public void setData(byte[] binary) {
-        if (binary != null && binary.length > 0) {
-            TransportableData ted = TransportableData.create(binary);
-            put("data", ted.toObject());
-            attachment = ted;
-        } else {
+    public void setData(byte[] data) {
+        TransportableData ted;
+        if (data == null/* || data.length == 0*/) {
+            ted = null;
             remove("data");
-            attachment = null;
+        } else {
+            ted = TransportableData.create(data);
+            put("data", ted.toObject());
         }
+        attachment = ted;
     }
 
     @Override

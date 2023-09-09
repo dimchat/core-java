@@ -49,7 +49,7 @@ import chat.dim.protocol.file.VideoContent;
  *
  *      URL      : "http://...", // download from CDN
  *      data     : "...",        // base64_encode(fileContent)
- *      filename : "photo.png"
+ *      filename : "photo.png",
  *      key      : {             // symmetric key to decrypt file content
  *          algorithm : "AES",   // "DES", ...
  *          data      : "{BASE64_ENCODE}",
@@ -76,32 +76,26 @@ public interface FileContent extends Content {
     //  Factories
     //
 
-    static FileContent create(ContentType type, String filename, byte[] binary) {
-        TransportableData data = TransportableData.create(binary);
-        return new BaseFileContent(type, filename, data);
+    static FileContent create(ContentType type, byte[] data, String filename) {
+        return new BaseFileContent(type, data, filename);
     }
-    static FileContent create(int type, String filename, byte[] binary) {
-        TransportableData data = TransportableData.create(binary);
-        return new BaseFileContent(type, filename, data);
+    static FileContent create(int type, byte[] data, String filename) {
+        return new BaseFileContent(type, data, filename);
     }
 
-    static FileContent file(String filename, byte[] binary) {
-        TransportableData data = TransportableData.create(binary);
-        return new BaseFileContent(filename, data);
+    static FileContent file(byte[] data, String filename) {
+        return new BaseFileContent(data, filename);
     }
 
-    static ImageContent image(String filename, byte[] binary) {
-        TransportableData data = TransportableData.create(binary);
-        return new ImageFileContent(filename, data);
+    static ImageContent image(byte[] data, String filename) {
+        return new ImageFileContent(data, filename);
     }
 
-    static AudioContent audio(String filename, byte[] binary) {
-        TransportableData data = TransportableData.create(binary);
-        return new AudioFileContent(filename, data);
+    static AudioContent audio(byte[] data, String filename) {
+        return new AudioFileContent(data, filename);
     }
 
-    static VideoContent video(String filename, byte[] binary) {
-        TransportableData data = TransportableData.create(binary);
-        return new VideoFileContent(filename, data);
+    static VideoContent video(byte[] data, String filename) {
+        return new VideoFileContent(data, filename);
     }
 }

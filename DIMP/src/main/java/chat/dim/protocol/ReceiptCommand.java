@@ -75,7 +75,7 @@ public interface ReceiptCommand extends Command {
 
     static ReceiptCommand create(String text, Envelope env) {
         // create base receipt command with text & original envelope
-        return new BaseReceiptCommand(text, env);
+        return new BaseReceiptCommand(text, env, 0, null);
     }
 
     static ReceiptCommand create(String text, ReliableMessage rMsg) {
@@ -92,7 +92,7 @@ public interface ReceiptCommand extends Command {
             envelope = Envelope.parse(info);
         }
         // create base receipt command with text & original envelope
-        return new BaseReceiptCommand(text, envelope);
+        return new BaseReceiptCommand(text, envelope, 0, null);
     }
 
 }

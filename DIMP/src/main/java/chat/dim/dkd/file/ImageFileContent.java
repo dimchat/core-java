@@ -60,8 +60,8 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
         super(content);
     }
 
-    public ImageFileContent(String filename, TransportableData data) {
-        super(ContentType.IMAGE, filename, data);
+    public ImageFileContent(byte[] data, String filename) {
+        super(ContentType.IMAGE, data, filename);
     }
 
     @Override

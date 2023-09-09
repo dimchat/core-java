@@ -78,7 +78,7 @@ public class NetworkMessagePacker {
             throw new NullPointerException("failed to decode message signature: " + rMsg);
         }
         // 1. verify data signature with sender's public key
-        if (getDelegate().verifyDataSignature(data, signature, rMsg.getSender(), rMsg)) {
+        if (getDelegate().verifyDataSignature(data, signature, rMsg)) {
             // 2. pack message
             Map<?, ?> map = rMsg.copyMap(false);
             map.remove("signature");

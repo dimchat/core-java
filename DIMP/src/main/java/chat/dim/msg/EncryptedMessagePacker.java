@@ -78,7 +78,6 @@ public class EncryptedMessagePacker {
      * @return InstantMessage object
      */
     public InstantMessage decrypt(SecureMessage sMsg) {
-        ID sender = sMsg.getSender();
         ID receiver;
         ID group = sMsg.getGroup();
         if (group == null) {
@@ -96,17 +95,17 @@ public class EncryptedMessagePacker {
         byte[] key = sMsg.getEncryptedKey();
         // 1.2. decrypt key data
         if (key != null) {
-            key = delegate.decryptKey(key, sender, receiver, sMsg);
+            key = delegate.decryptKey(key, receiver, sMsg);
             if (key == null) {
                 throw new NullPointerException("failed to decrypt key in msg: " + sMsg);
             }
         }
         // 1.3. deserialize key
         //      if key is empty, means it should be reused, get it from key cache
-        SymmetricKey password = delegate.deserializeKey(key, sender, receiver, sMsg);
+        SymmetricKey password = delegate.deserializeKey(key, receiver, sMsg);
         if (password == null) {
             throw new NullPointerException("failed to get msg key: "
-                    + sender + " -> " + receiver + ", " + Arrays.toString(key));
+                    + sMsg.getSender() + " -> " + receiver + ", " + Arrays.toString(key));
         }
 
         // 2. decrypt 'message.data' to 'message.content'
@@ -163,7 +162,7 @@ public class EncryptedMessagePacker {
     public ReliableMessage sign(SecureMessage sMsg) {
         SecureMessageDelegate delegate = getDelegate();
         // 1. sign with sender's private key
-        byte[] signature = delegate.signData(sMsg.getData(), sMsg.getSender(), sMsg);
+        byte[] signature = delegate.signData(sMsg.getData(), sMsg);
         assert signature != null : "failed to sign message: " + sMsg;
         // 2. encode signature
         Object base64 = TransportableData.encode(signature);

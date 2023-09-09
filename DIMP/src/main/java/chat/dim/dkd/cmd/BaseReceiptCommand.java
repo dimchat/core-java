@@ -32,7 +32,6 @@ package chat.dim.dkd.cmd;
 
 import java.util.Map;
 
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -60,23 +59,13 @@ public class BaseReceiptCommand extends BaseReceipt {
         super(content);
     }
 
-    public BaseReceiptCommand(int type, String text, Envelope env, long sn, String sig) {
-        super(type, text, env, sn, sig);
-    }
-    public BaseReceiptCommand(ContentType type, String text, Envelope env, long sn, String sig) {
-        super(type, text, env, sn, sig);
-    }
     public BaseReceiptCommand(String text, Envelope env, long sn, String sig) {
-        super(ContentType.COMMAND, text, env, sn, sig);
-    }
-    public BaseReceiptCommand(String text, Envelope env) {
-        super(ContentType.COMMAND, text, env, 0, null);
+        super(text, env, sn, sig);
     }
 
     @Override
     public boolean matchMessage(InstantMessage iMsg) {
-        Map<?, ?> origin = getOrigin();
-        if (origin == null) {
+        if (getOrigin() == null) {
             // receipt without original message info
             return false;
         }
