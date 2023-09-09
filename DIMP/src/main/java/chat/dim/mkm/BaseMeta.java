@@ -141,8 +141,8 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     @Override
     public String getSeed() {
         if (seed == null && MetaType.hasSeed(getType())) {
-            seed = getString("seed");
-            assert seed != null && seed.length() > 0 : "meta.seed should not be empty: " + toMap();
+            seed = getString("seed", null);
+            assert seed.length() > 0 : "meta.seed should not be empty: " + toMap();
         }
         return seed;
     }
@@ -151,8 +151,8 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     public byte[] getFingerprint() {
         TransportableData ted = fingerprint;
         if (ted == null && MetaType.hasSeed(getType())) {
-            String base64 = getString("fingerprint");
-            assert base64 != null : "meta.fingerprint should not be empty: " + toMap();
+            String base64 = getString("fingerprint", null);
+            assert base64.length() > 0 : "meta.fingerprint should not be empty: " + toMap();
             fingerprint = ted = TransportableData.parse(base64);
             assert ted != null : "meta.fingerprint error: " + base64;
         }

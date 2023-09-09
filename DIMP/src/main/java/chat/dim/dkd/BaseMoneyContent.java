@@ -69,7 +69,7 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
 
     @Override
     public String getCurrency() {
-        return getString("currency");
+        return getString("currency", "");
     }
 
     @Override
@@ -79,6 +79,6 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
 
     @Override
     public double getAmount() {
-        return getDouble("amount");
+        return getDouble("amount", 0);
     }
 }

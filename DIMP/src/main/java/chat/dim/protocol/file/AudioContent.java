@@ -28,12 +28,9 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.protocol.file;
 
-import java.util.Map;
-
-import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.ContentType;
+import chat.dim.protocol.FileContent;
 
 /**
  *  Audio message: {
@@ -51,27 +48,8 @@ import chat.dim.protocol.ContentType;
  *      text     : "..."         // Automatic Speech Recognition
  *  }
  */
-public class AudioFileContent extends BaseFileContent implements AudioContent {
+public interface AudioContent extends FileContent {
 
-    public AudioFileContent(Map<String, Object> content) {
-        super(content);
-    }
-
-    public AudioFileContent(String filename, byte[] binary) {
-        super(ContentType.AUDIO, filename, binary);
-    }
-
-    @Override
-    public void setText(String message) {
-        if (message == null) {
-            remove("text");
-        } else {
-            put("text", message);
-        }
-    }
-
-    @Override
-    public String getText() {
-        return getString("text");
-    }
+    void setText(String message);
+    String getText();
 }

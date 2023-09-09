@@ -28,13 +28,13 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.dkd.file;
 
 import java.util.Map;
 
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.VideoContent;
+import chat.dim.protocol.file.VideoContent;
 
 /**
  *  Video message: {
@@ -60,8 +60,8 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
         super(content);
     }
 
-    public VideoFileContent(String filename, byte[] binary) {
-        super(ContentType.VIDEO, filename, binary);
+    public VideoFileContent(String filename, TransportableData data) {
+        super(ContentType.VIDEO, filename, data);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     public byte[] getSnapshot() {
         TransportableData ted = snapshot;
         if (ted == null) {
-            String base64 = getString("snapshot");
+            String base64 = getString("snapshot", null);
             snapshot = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();

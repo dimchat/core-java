@@ -75,11 +75,8 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public URI getURL() {
-        String url = getString("URL");
-        if (url == null) {
-            return null;
-        }
-        return URI.create(url);
+        String url = getString("URL", null);
+        return url == null ? null : URI.create(url);
     }
 
     @Override
@@ -89,7 +86,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getTitle() {
-        return getString("title");
+        return getString("title", null);
     }
 
     @Override
@@ -99,7 +96,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getDesc() {
-        return getString("desc");
+        return getString("desc", null);
     }
 
     @Override
@@ -118,7 +115,7 @@ public class WebPageContent extends BaseContent implements PageContent {
     public byte[] getIcon() {
         TransportableData ted = icon;
         if (ted == null) {
-            String base64 = getString("icon");
+            String base64 = getString("icon", null);
             icon = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();

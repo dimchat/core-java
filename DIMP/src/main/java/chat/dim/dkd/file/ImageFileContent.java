@@ -28,7 +28,13 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd.file;
+
+import java.util.Map;
+
+import chat.dim.format.TransportableData;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.file.ImageContent;
 
 /**
  *  Image message: {
@@ -46,9 +52,37 @@ package chat.dim.protocol;
  *      thumbnail : "..."        // base64_encode(smallImage)
  *  }
  */
-public interface ImageContent extends FileContent {
+public class ImageFileContent extends BaseFileContent implements ImageContent {
 
-    void setThumbnail(byte[] imageData);
+    private TransportableData thumbnail = null;
 
-    byte[] getThumbnail();
+    public ImageFileContent(Map<String, Object> content) {
+        super(content);
+    }
+
+    public ImageFileContent(String filename, TransportableData data) {
+        super(ContentType.IMAGE, filename, data);
+    }
+
+    @Override
+    public void setThumbnail(byte[] imageData) {
+        if (imageData != null && imageData.length > 0) {
+            TransportableData ted = TransportableData.create(imageData);
+            put("thumbnail", ted.toObject());
+            thumbnail = ted;
+        } else {
+            remove("thumbnail");
+            thumbnail = null;
+        }
+    }
+
+    @Override
+    public byte[] getThumbnail() {
+        TransportableData ted = thumbnail;
+        if (ted == null) {
+            String base64 = getString("thumbnail", null);
+            thumbnail = ted = TransportableData.parse(base64);
+        }
+        return ted == null ? null : ted.getData();
+    }
 }

@@ -72,8 +72,8 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
     public byte[] getData() {
         TransportableData ted = data;
         if (ted == null) {
-            String text = getString("data");
-            assert text != null : "content data cannot be empty";
+            String text = getString("data", null);
+            assert text.length() > 0 : "content data cannot be empty: " + toMap();
             if (isBroadcast(this)) {
                 // broadcast message content will not be encrypted (just encoded to JsON),
                 // so return the string data directly

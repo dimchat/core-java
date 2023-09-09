@@ -110,8 +110,8 @@ public abstract class BaseMessage extends Dictionary implements Message {
     }
 
     @Override
-    public Date getDateTime() {
-        return getEnvelope().getDateTime();
+    public Date getTime() {
+        return getEnvelope().getTime();
     }
 
     @Override

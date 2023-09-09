@@ -38,7 +38,7 @@ abstract class BasePublicKey extends Dictionary implements PublicKey {
     @Override
     public String getAlgorithm() {
         FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap());
+        return man.generalFactory.getAlgorithm(toMap(), null);
     }
 
     @Override

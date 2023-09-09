@@ -56,6 +56,6 @@ public class BaseTextContent extends BaseContent implements TextContent {
 
     @Override
     public String getText() {
-        return getString("text");
+        return getString("text", "");
     }
 }

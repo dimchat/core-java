@@ -69,7 +69,9 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     public BaseDocumentCommand(ID identifier, Meta meta, Document doc) {
         super(DOCUMENT, identifier, meta);
         // document
-        setMap("document", doc);
+        if (doc != null) {
+            put("document", doc.toMap());
+        }
         this.doc = doc;
     }
 
@@ -117,6 +119,6 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
 
     @Override
     public String getSignature() {
-        return getString("signature");
+        return getString("signature", null);
     }
 }

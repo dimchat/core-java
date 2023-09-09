@@ -137,7 +137,7 @@ public class BaseDocument extends Dictionary implements Document {
         String type = (String) getProperty("type");
         if (type == null) {
             FactoryManager man = FactoryManager.getInstance();
-            type = man.generalFactory.getDocumentType(toMap());
+            type = man.generalFactory.getDocumentType(toMap(), null);
             // type = getString("type");
         }
         return type;
@@ -158,7 +158,7 @@ public class BaseDocument extends Dictionary implements Document {
      */
     private String getData() {
         if (json == null) {
-            json = getString("data");
+            json = getString("data", null);
         }
         return json;
     }
@@ -171,7 +171,7 @@ public class BaseDocument extends Dictionary implements Document {
     private byte[] getSignature() {
         TransportableData ted = sig;
         if (ted == null) {
-            String base64 = getString("signature");
+            String base64 = getString("signature", null);
             sig = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();
@@ -295,17 +295,13 @@ public class BaseDocument extends Dictionary implements Document {
     //---- properties getter/setter
 
     @Override
-    public Date getDateTime() {
-        Object timestamp = getProperty("time");
-        if (timestamp == null) {
-            return null;
-        }
-        return Converter.getDateTime(timestamp);
+    public Date getTime() {
+        return Converter.getDateTime(getProperty("time"), null);
     }
 
     @Override
     public String getName() {
-        return (String) getProperty("name");
+        return Converter.getString(getProperty("name"), null);
     }
 
     @Override

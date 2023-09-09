@@ -64,7 +64,9 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
         put("ID", identifier.toString());
         this.identifier = identifier;
         // meta
-        setMap("meta", meta);
+        if (meta != null) {
+            put("meta", meta.toMap());
+        }
         this.meta = meta;
     }
 
@@ -84,7 +86,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
      * @param identifier - entity ID
      */
     public BaseMetaCommand(ID identifier) {
-        this(identifier, null);
+        this(META, identifier, null);
     }
 
     @Override

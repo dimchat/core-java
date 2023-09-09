@@ -74,7 +74,7 @@ public class BaseReceiptCommand extends BaseReceipt {
     }
 
     @Override
-    public boolean match(InstantMessage iMsg) {
+    public boolean matchMessage(InstantMessage iMsg) {
         Map<?, ?> origin = getOrigin();
         if (origin == null) {
             // receipt without original message info
@@ -84,7 +84,7 @@ public class BaseReceiptCommand extends BaseReceipt {
         String sig1 = getOriginalSignature();
         if (sig1 != null) {
             // if contains signature, check it
-            String sig2 = iMsg.getString("signature");
+            String sig2 = iMsg.getString("signature", null);
             if (sig2 != null) {
                 return checkSignatures(sig1, sig2);
             }

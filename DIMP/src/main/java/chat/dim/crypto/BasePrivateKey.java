@@ -51,6 +51,6 @@ abstract class BasePrivateKey extends Dictionary implements PrivateKey {
     @Override
     public String getAlgorithm() {
         FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap());
+        return man.generalFactory.getAlgorithm(toMap(), null);
     }
 }

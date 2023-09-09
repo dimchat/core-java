@@ -68,12 +68,12 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
     }
 
     @Override
-    public Date getDateTime() {
-        Date time = getContent().getDateTime();
+    public Date getTime() {
+        Date time = getContent().getTime();
         if (time != null) {
             return time;
         }
-        return super.getDateTime();
+        return super.getTime();
     }
 
     @Override

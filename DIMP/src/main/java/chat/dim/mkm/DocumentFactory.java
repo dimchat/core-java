@@ -106,7 +106,7 @@ public final class DocumentFactory implements Document.Factory {
             return null;
         }
         FactoryManager man = FactoryManager.getInstance();
-        String type = man.generalFactory.getDocumentType(doc);
+        String type = man.generalFactory.getDocumentType(doc, null);
         if (type == null) {
             type = getType("*", identifier);
         }

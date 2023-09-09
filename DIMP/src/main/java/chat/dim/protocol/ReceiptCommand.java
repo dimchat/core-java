@@ -56,13 +56,13 @@ public interface ReceiptCommand extends Command {
     String getText();
 
     // protected
-    Map<?, ?> getOrigin();
+    Map<String, Object> getOrigin();
 
     Envelope getOriginalEnvelope();
     long getOriginalSerialNumber();
     String getOriginalSignature();
 
-    boolean match(InstantMessage iMsg);
+    boolean matchMessage(InstantMessage iMsg);
 
     //
     //  Factories

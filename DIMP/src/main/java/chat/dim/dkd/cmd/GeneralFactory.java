@@ -59,7 +59,7 @@ public class GeneralFactory {
     }
 
     public String getCmd(Map<?, ?> content) {
-        return Converter.getString(content.get("command"));
+        return Converter.getString(content.get("command"), null);
     }
 
     public Command parseCommand(Object content) {
@@ -75,7 +75,7 @@ public class GeneralFactory {
         }
         // get factory by command name
         String name = getCmd(info);
-        Command.Factory factory = name == null ? null : getCommandFactory(name);
+        Command.Factory factory = name == null || name.length() == 0 ? null : getCommandFactory(name);
         if (factory == null) {
             // unknown command name, get base command factory
             factory = getDefaultFactory(info);

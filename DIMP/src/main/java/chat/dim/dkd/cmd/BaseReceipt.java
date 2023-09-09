@@ -98,14 +98,15 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
 
     @Override
     public String getText() {
-        return getString("text");
+        return getString("text", "");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Map<?, ?> getOrigin() {
+    public Map<String, Object> getOrigin() {
         Object origin = get("origin");
         if (origin instanceof Map) {
-            return (Map<?, ?>) origin;
+            return (Map<String, Object>) origin;
         }
         assert origin == null : "origin error: " + origin;
         return null;
@@ -123,12 +124,12 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
     @Override
     public long getOriginalSerialNumber() {
         Map<?, ?> origin = getOrigin();
-        return origin == null ? 0 : Converter.getLong(origin.get("sn"));
+        return origin == null ? 0 : Converter.getLong(origin.get("sn"), 0);
     }
 
     @Override
     public String getOriginalSignature() {
         Map<?, ?> origin = getOrigin();
-        return origin == null ? null : Converter.getString(origin.get("signature"));
+        return origin == null ? null : Converter.getString(origin.get("signature"), null);
     }
 }

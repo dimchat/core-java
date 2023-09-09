@@ -33,10 +33,14 @@ package chat.dim.protocol;
 import java.net.URI;
 
 import chat.dim.crypto.DecryptKey;
-import chat.dim.dkd.AudioFileContent;
-import chat.dim.dkd.BaseFileContent;
-import chat.dim.dkd.ImageFileContent;
-import chat.dim.dkd.VideoFileContent;
+import chat.dim.dkd.file.AudioFileContent;
+import chat.dim.dkd.file.BaseFileContent;
+import chat.dim.dkd.file.ImageFileContent;
+import chat.dim.dkd.file.VideoFileContent;
+import chat.dim.format.TransportableData;
+import chat.dim.protocol.file.AudioContent;
+import chat.dim.protocol.file.ImageContent;
+import chat.dim.protocol.file.VideoContent;
 
 /**
  *  File message: {
@@ -73,25 +77,31 @@ public interface FileContent extends Content {
     //
 
     static FileContent create(ContentType type, String filename, byte[] binary) {
-        return new BaseFileContent(type, filename, binary);
+        TransportableData data = TransportableData.create(binary);
+        return new BaseFileContent(type, filename, data);
     }
     static FileContent create(int type, String filename, byte[] binary) {
-        return new BaseFileContent(type, filename, binary);
+        TransportableData data = TransportableData.create(binary);
+        return new BaseFileContent(type, filename, data);
     }
 
     static FileContent file(String filename, byte[] binary) {
-        return new BaseFileContent(filename, binary);
+        TransportableData data = TransportableData.create(binary);
+        return new BaseFileContent(filename, data);
     }
 
     static ImageContent image(String filename, byte[] binary) {
-        return new ImageFileContent(filename, binary);
+        TransportableData data = TransportableData.create(binary);
+        return new ImageFileContent(filename, data);
     }
 
     static AudioContent audio(String filename, byte[] binary) {
-        return new AudioFileContent(filename, binary);
+        TransportableData data = TransportableData.create(binary);
+        return new AudioFileContent(filename, data);
     }
 
     static VideoContent video(String filename, byte[] binary) {
-        return new VideoFileContent(filename, binary);
+        TransportableData data = TransportableData.create(binary);
+        return new VideoFileContent(filename, data);
     }
 }

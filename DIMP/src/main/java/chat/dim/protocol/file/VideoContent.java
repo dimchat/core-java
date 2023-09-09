@@ -28,7 +28,9 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.protocol.file;
+
+import chat.dim.protocol.FileContent;
 
 /**
  *  Video message: {

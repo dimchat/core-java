@@ -28,13 +28,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.dkd.file;
 
 import java.net.URI;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.dkd.BaseContent;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
@@ -66,27 +67,24 @@ public class BaseFileContent extends BaseContent implements FileContent {
         password = null;
     }
 
-    public BaseFileContent(int type, String filename, byte[] binary) {
+    public BaseFileContent(int type, String filename, TransportableData data) {
         super(type);
         if (filename != null) {
             put("filename", filename);
         }
-        if (binary != null) {
-            TransportableData ted = TransportableData.create(binary);
-            put("data", ted.toObject());
-            attachment = ted;
-        } else {
-            attachment = null;
+        if (data != null) {
+            put("data", data.toObject());
         }
+        attachment = data;
         password = null;
     }
 
-    public BaseFileContent(ContentType type, String filename, byte[] binary) {
-        this(type.value, filename, binary);
+    public BaseFileContent(ContentType type, String filename, TransportableData data) {
+        this(type.value, filename, data);
     }
 
-    public BaseFileContent(String filename, byte[] binary) {
-        this(ContentType.FILE, filename, binary);
+    public BaseFileContent(String filename, TransportableData data) {
+        this(ContentType.FILE, filename, data);
     }
 
     @Override
@@ -100,11 +98,8 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public URI getURL() {
-        String url = getString("URL");
-        if (url == null) {
-            return null;
-        }
-        return URI.create(url);
+        String url = getString("URL", null);
+        return url == null ? null : URI.create(url);
     }
 
     @Override
@@ -123,7 +118,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
     public byte[] getData() {
         TransportableData ted = attachment;
         if (ted == null) {
-            String base64 = getString("data");
+            String base64 = getString("data", null);
             attachment = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();
@@ -140,7 +135,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public String getFilename() {
-        return getString("filename");
+        return getString("filename", null);
     }
 
     @Override

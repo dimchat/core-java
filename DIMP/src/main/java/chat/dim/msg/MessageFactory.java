@@ -50,9 +50,6 @@ public class MessageFactory implements InstantMessage.Factory, SecureMessage.Fac
         sn = random.nextInt();
         if (sn < 0) {
             sn = -sn;
-        } else if (sn == 0) {
-            // ZERO? do it again!
-            sn = 9527 + 9394;
         }
     }
 

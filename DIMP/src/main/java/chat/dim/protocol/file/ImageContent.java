@@ -28,13 +28,9 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.protocol.file;
 
-import java.util.Map;
-
-import chat.dim.format.TransportableData;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.FileContent;
 
 /**
  *  Image message: {
@@ -52,37 +48,9 @@ import chat.dim.protocol.ImageContent;
  *      thumbnail : "..."        // base64_encode(smallImage)
  *  }
  */
-public class ImageFileContent extends BaseFileContent implements ImageContent {
+public interface ImageContent extends FileContent {
 
-    private TransportableData thumbnail = null;
+    void setThumbnail(byte[] imageData);
 
-    public ImageFileContent(Map<String, Object> content) {
-        super(content);
-    }
-
-    public ImageFileContent(String filename, byte[] binary) {
-        super(ContentType.IMAGE, filename, binary);
-    }
-
-    @Override
-    public void setThumbnail(byte[] imageData) {
-        if (imageData != null && imageData.length > 0) {
-            TransportableData ted = TransportableData.create(imageData);
-            put("thumbnail", ted.toObject());
-            thumbnail = ted;
-        } else {
-            remove("thumbnail");
-            thumbnail = null;
-        }
-    }
-
-    @Override
-    public byte[] getThumbnail() {
-        TransportableData ted = thumbnail;
-        if (ted == null) {
-            String base64 = getString("thumbnail");
-            thumbnail = ted = TransportableData.parse(base64);
-        }
-        return ted == null ? null : ted.getData();
-    }
+    byte[] getThumbnail();
 }
