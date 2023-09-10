@@ -37,20 +37,15 @@ abstract class BasePrivateKey extends Dictionary implements PrivateKey {
 
     @Override
     public boolean equals(Object other) {
-        if (super.equals(other)) {
-            return true;
-        } else if (other instanceof SignKey) {
-            PublicKey verifyKey = getPublicKey();
-            assert verifyKey != null : "failed to get public key: " + this;
-            return verifyKey.match((SignKey) other);
-        } else {
-            return false;
+        if (other instanceof PrivateKey) {
+            return BaseKey.privateKeyEquals((PrivateKey) other, this);
         }
+        return toMap() == other;
     }
 
     @Override
     public String getAlgorithm() {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap(), null);
+        return BaseKey.getKeyAlgorithm(toMap());
     }
+
 }

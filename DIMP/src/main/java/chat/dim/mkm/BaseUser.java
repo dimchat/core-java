@@ -54,7 +54,7 @@ public class BaseUser extends BaseEntity implements User {
     @Override
     public Visa getVisa() {
         Document doc = getDocument(Document.VISA);
-        if (doc instanceof Visa) {
+        if (doc instanceof Visa/* && doc.isValid()*/) {
             return (Visa) doc;
         }
         return null;
@@ -62,18 +62,18 @@ public class BaseUser extends BaseEntity implements User {
 
     @Override
     public List<ID> getContacts() {
-        User.DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
-        return delegate.getContacts(identifier);
+        User.DataSource barrack = getDataSource();
+        assert barrack != null : "user delegate not set yet";
+        return barrack.getContacts(identifier);
     }
 
     @Override
     public boolean verify(byte[] data, byte[] signature) {
-        User.DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
+        User.DataSource barrack = getDataSource();
+        assert barrack != null : "user delegate not set yet";
         // NOTICE: I suggest using the private key paired with meta.key to sign message
         //         so here should return the meta.key
-        List<VerifyKey> keys = delegate.getPublicKeysForVerification(identifier);
+        List<VerifyKey> keys = barrack.getPublicKeysForVerification(identifier);
         assert keys.size() > 0 : "failed to get verify keys: " + identifier;
         for (VerifyKey key : keys) {
             if (key.verify(data, signature)) {
@@ -88,13 +88,13 @@ public class BaseUser extends BaseEntity implements User {
 
     @Override
     public byte[] encrypt(byte[] plaintext) {
-        User.DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
+        User.DataSource barrack = getDataSource();
+        assert barrack != null : "user delegate not set yet";
         // NOTICE: meta.key will never changed, so use visa.key to encrypt message
         //         is a better way
-        EncryptKey key = delegate.getPublicKeyForEncryption(identifier);
-        assert key != null : "failed to get encrypt key for user: " + identifier;
-        return key.encrypt(plaintext, null);
+        EncryptKey pKey = barrack.getPublicKeyForEncryption(identifier);
+        assert pKey != null : "failed to get encrypt key for user: " + identifier;
+        return pKey.encrypt(plaintext, null);
     }
 
     //
@@ -103,22 +103,22 @@ public class BaseUser extends BaseEntity implements User {
 
     @Override
     public byte[] sign(byte[] data) {
-        User.DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
+        User.DataSource barrack = getDataSource();
+        assert barrack != null : "user delegate not set yet";
         // NOTICE: I suggest use the private key which paired to visa.key
         //         to sign message
-        SignKey key = delegate.getPrivateKeyForSignature(identifier);
-        assert key != null : "failed to get sign key for user: " + identifier;
-        return key.sign(data);
+        SignKey sKey = barrack.getPrivateKeyForSignature(identifier);
+        assert sKey != null : "failed to get sign key for user: " + identifier;
+        return sKey.sign(data);
     }
 
     @Override
     public byte[] decrypt(byte[] ciphertext) {
-        User.DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
+        User.DataSource barrack = getDataSource();
+        assert barrack != null : "user delegate not set yet";
         // NOTICE: if you provide a public key in visa for encryption,
         //         here you should return the private key paired with visa.key
-        List<DecryptKey> keys = delegate.getPrivateKeysForDecryption(identifier);
+        List<DecryptKey> keys = barrack.getPrivateKeysForDecryption(identifier);
         assert keys.size() > 0 : "failed to get decrypt keys for user: " + identifier;
         byte[] plaintext;
         for (DecryptKey key : keys) {
@@ -137,12 +137,12 @@ public class BaseUser extends BaseEntity implements User {
     @Override
     public Visa sign(Visa doc) {
         assert doc.getIdentifier().equals(identifier) : "visa ID not match: " + identifier + ", " + doc.getIdentifier();
-        User.DataSource delegate = getDataSource();
-        assert delegate != null : "user delegate not set yet";
+        User.DataSource barrack = getDataSource();
+        assert barrack != null : "user delegate not set yet";
         // NOTICE: only sign visa with the private key paired with your meta.key
-        SignKey key = delegate.getPrivateKeyForVisaSignature(identifier);
-        assert key != null : "failed to get sign key for visa: " + identifier;
-        if (doc.sign(key) == null) {
+        SignKey sKey = barrack.getPrivateKeyForVisaSignature(identifier);
+        assert sKey != null : "failed to get sign key for visa: " + identifier;
+        if (doc.sign(sKey) == null) {
             assert false : "failed to sign visa: " + identifier + ", " + doc;
             return null;
         }
@@ -157,8 +157,8 @@ public class BaseUser extends BaseEntity implements User {
             // visa ID not match
             return false;
         }
-        VerifyKey key = getMeta().getPublicKey();
-        assert key != null : "failed to get verify key for visa: " + identifier;
-        return doc.verify(key);
+        VerifyKey pKey = getMeta().getPublicKey();
+        assert pKey != null : "failed to get verify key for visa: " + identifier;
+        return doc.verify(pKey);
     }
 }

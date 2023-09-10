@@ -125,11 +125,11 @@ public abstract class BaseMessage extends Dictionary implements Message {
     }
 
     public static boolean isBroadcast(Message msg) {
-        ID receiver = msg.getGroup();
-        if (receiver == null) {
-            receiver = msg.getReceiver();
+        ID group = msg.getGroup();
+        if (group != null && group.isBroadcast()) {
+            return true;
         }
-        return receiver.isBroadcast();
+        return msg.getReceiver().isBroadcast();
     }
 
 }

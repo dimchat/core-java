@@ -89,15 +89,15 @@ public class BaseEntity implements Entity {
 
     @Override
     public Meta getMeta() {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "entity delegate not set yet";
-        return delegate.getMeta(identifier);
+        DataSource barrack = getDataSource();
+        assert barrack != null : "entity delegate not set yet";
+        return barrack.getMeta(identifier);
     }
 
     @Override
     public Document getDocument(String type) {
-        DataSource delegate = getDataSource();
-        assert delegate != null : "entity delegate not set yet";
-        return delegate.getDocument(identifier, type);
+        DataSource barrack = getDataSource();
+        assert barrack != null : "entity delegate not set yet";
+        return barrack.getDocument(identifier, type);
     }
 }

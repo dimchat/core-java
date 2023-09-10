@@ -64,7 +64,7 @@ public class BaseVisa extends BaseDocument implements Visa {
     public EncryptKey getPublicKey() {
         if (key == null) {
             Object info = getProperty("key");
-            //assert info != null : "visa key nt found: " + toMap();
+            // assert info != null : "visa key not found: " + toMap();
             PublicKey pKey = PublicKey.parse(info);
             if (pKey instanceof EncryptKey) {
                 key = (EncryptKey) pKey;

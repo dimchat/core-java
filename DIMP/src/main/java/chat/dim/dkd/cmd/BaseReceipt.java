@@ -66,18 +66,11 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
     public BaseReceipt(String text, Envelope env, long sn, String sig) {
         super(RECEIPT);
         // text message
-        if (text != null) {
-            put("text", text);
-        }
+        put("text", text);
         // original envelope
         envelope = env;
         // envelope of message responding to
-        Map<String, Object> origin;
-        if (env == null) {
-            origin = new HashMap<>();
-        } else {
-            origin = env.toMap();
-        }
+        Map<String, Object> origin = env == null ? new HashMap<>() : env.toMap();
         // sn of the message responding to
         if (sn > 0) {
             origin.put("sn", sn);

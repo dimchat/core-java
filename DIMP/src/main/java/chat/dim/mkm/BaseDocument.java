@@ -36,7 +36,6 @@ import java.util.Map;
 
 import chat.dim.crypto.SignKey;
 import chat.dim.crypto.VerifyKey;
-import chat.dim.format.Base64;
 import chat.dim.format.JSONMap;
 import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
@@ -171,7 +170,7 @@ public class BaseDocument extends Dictionary implements Document {
     private byte[] getSignature() {
         TransportableData ted = sig;
         if (ted == null) {
-            String base64 = getString("signature", null);
+            Object base64 = get("signature");
             sig = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();
@@ -189,9 +188,8 @@ public class BaseDocument extends Dictionary implements Document {
                 // create new properties
                 properties = new HashMap<>();
             } else {
-                Map<String, Object> info = JSONMap.decode(data);
-                assert info != null : "document data error: " + toMap();
-                properties = info;
+                properties = JSONMap.decode(data);
+                assert properties != null : "document data error: " + data;
             }
         }
         return properties;
@@ -200,10 +198,7 @@ public class BaseDocument extends Dictionary implements Document {
     @Override
     public Object getProperty(String name) {
         Map<?, ?> dict = getProperties();
-        if (dict == null) {
-            return null;
-        }
-        return dict.get(name);
+        return dict == null ? null : dict.get(name);
     }
 
     @Override
@@ -282,11 +277,12 @@ public class BaseDocument extends Dictionary implements Document {
             assert false : "should not happen";
             return null;
         }
+        TransportableData ted = TransportableData.create(signature);
         // 3. update 'data' & 'signature' fields
-        put("data", data);
-        put("signature", Base64.encode(signature));
+        put("data", data);                 // JSON string
+        put("signature", ted.toObject());  // BASE-64
         json = data;
-        sig = TransportableData.create(signature);
+        sig = ted;
         // 4. update status
         status = 1;
         return signature;

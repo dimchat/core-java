@@ -37,7 +37,7 @@ abstract class BaseAsymmetricKey extends Dictionary implements AsymmetricKey {
 
     @Override
     public String getAlgorithm() {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap(), null);
+        return BaseKey.getKeyAlgorithm(toMap());
     }
+
 }

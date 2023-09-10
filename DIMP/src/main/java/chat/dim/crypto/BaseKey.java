@@ -37,7 +37,44 @@ abstract class BaseKey extends Dictionary implements CryptographyKey {
 
     @Override
     public String getAlgorithm() {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap(), null);
+        return getKeyAlgorithm(toMap());
     }
+
+    //
+    //  Conveniences
+    //
+
+    public static String getKeyAlgorithm(Map<?, ?> key) {
+        FactoryManager man = FactoryManager.getInstance();
+        return man.generalFactory.getAlgorithm(key, null);
+    }
+
+    public static boolean matchEncryptKey(EncryptKey pKey, DecryptKey sKey) {
+        FactoryManager man = FactoryManager.getInstance();
+        return man.generalFactory.matches(pKey, sKey);
+    }
+
+    public static boolean matchSignKey(SignKey sKey, VerifyKey pKey) {
+        FactoryManager man = FactoryManager.getInstance();
+        return man.generalFactory.matches(sKey, pKey);
+    }
+
+    public static boolean symmetricKeyEquals(SymmetricKey a, SymmetricKey b) {
+        if (a == b) {
+            // same object
+            return true;
+        }
+        // compare by encryption
+        return matchEncryptKey(a, b);
+    }
+
+    public static boolean privateKeyEquals(PrivateKey a, PrivateKey b) {
+        if (a == b) {
+            // same object
+            return true;
+        }
+        // compare by signature
+        return matchSignKey(a, b.getPublicKey());
+    }
+
 }

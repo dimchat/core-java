@@ -136,6 +136,7 @@ public class IDFactory implements ID.Factory {
             return null;
         }
         if (address == null) {
+            assert false : "cannot get address from id: " + identifier;
             return null;
         }
         return newID(identifier, name, address, terminal);

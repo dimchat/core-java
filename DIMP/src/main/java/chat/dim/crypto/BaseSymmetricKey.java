@@ -37,24 +37,20 @@ abstract class BaseSymmetricKey extends Dictionary implements SymmetricKey {
 
     @Override
     public boolean equals(Object other) {
-        if (super.equals(other)) {
-            return true;
-        } else if (other instanceof SymmetricKey) {
-            return match((EncryptKey) other);
-        } else {
-            return false;
+        if (other instanceof SymmetricKey) {
+            return BaseKey.symmetricKeyEquals((SymmetricKey) other, this);
         }
+        return toMap() == other;
     }
 
     @Override
     public String getAlgorithm() {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap(), null);
+        return BaseKey.getKeyAlgorithm(toMap());
     }
 
     @Override
     public boolean match(EncryptKey pKey) {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.matches(pKey, this);
+        return BaseKey.matchEncryptKey(pKey, this);
     }
+
 }

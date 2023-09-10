@@ -73,7 +73,7 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
             } else {
                 // get from 'assistant'
                 bots = new ArrayList<>();
-                ID single = ID.parse(get("assistant"));
+                ID single = ID.parse(getProperty("assistant"));
                 if (single != null) {
                     bots.add(single);
                 }

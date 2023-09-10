@@ -37,13 +37,12 @@ abstract class BasePublicKey extends Dictionary implements PublicKey {
 
     @Override
     public String getAlgorithm() {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(toMap(), null);
+        return BaseKey.getKeyAlgorithm(toMap());
     }
 
     @Override
     public boolean match(SignKey sKey) {
-        FactoryManager man = FactoryManager.getInstance();
-        return man.generalFactory.matches(sKey, this);
+        return BaseKey.matchSignKey(sKey, this);
     }
+
 }

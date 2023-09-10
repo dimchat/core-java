@@ -69,6 +69,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
 
     @Override
     public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage iMsg) {
+        // store 'IV' in iMsg for AES decryption
         return password.encrypt(data, iMsg);
     }
 
@@ -87,6 +88,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
         // TODO: make sure the receiver's public key exists
+        assert receiver.isUser() : "receiver error: " + receiver;
         User contact = barrack.getUser(receiver);
         assert contact != null : "failed to encrypt for receiver: " + receiver;
         // encrypt with receiver's public key
@@ -102,9 +104,11 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
         // decrypt key data with the receiver/group member's private key
-        ID identifier = sMsg.getReceiver();
-        User user = barrack.getUser(identifier);
-        assert user != null : "failed to create local user: " + identifier;
+        if (receiver.isGroup()) {
+            receiver = sMsg.getReceiver();
+        }
+        User user = barrack.getUser(receiver);
+        assert user != null : "failed to create local user: " + receiver;
         return user.decrypt(key);
     }
 
@@ -112,7 +116,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     public SymmetricKey deserializeKey(byte[] key, ID receiver, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
-        assert key != null : "reused key? get it from local cache: " + sMsg.getSender() + " -> " + receiver;
+        if (key == null) {
+            assert false : "reused key? get it from local cache: " + sMsg.getSender() + " -> " + receiver;
+            return null;
+        }
         String json = UTF8.decode(key);
         assert json != null : "key data error: " + Arrays.toString(key);
         Object dict = JSON.decode(json);
@@ -127,6 +134,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
 
     @Override
     public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+        // check 'IV' in sMsg for AES decryption
         return password.decrypt(data, sMsg);
     }
 

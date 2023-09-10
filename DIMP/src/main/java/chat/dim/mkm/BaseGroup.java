@@ -53,7 +53,7 @@ public class BaseGroup extends BaseEntity implements Group {
     @Override
     public Bulletin getBulletin() {
         Document doc = getDocument(Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (doc instanceof Bulletin/* && doc.isValid()*/) {
             return (Bulletin) doc;
         }
         return null;
@@ -62,31 +62,31 @@ public class BaseGroup extends BaseEntity implements Group {
     @Override
     public ID getFounder() {
         if (founder == null) {
-            Group.DataSource delegate = getDataSource();
-            assert delegate != null : "group delegate not set yet";
-            founder = delegate.getFounder(identifier);
+            Group.DataSource barrack = getDataSource();
+            assert barrack != null : "group delegate not set yet";
+            founder = barrack.getFounder(identifier);
         }
         return founder;
     }
 
     @Override
     public ID getOwner() {
-        Group.DataSource delegate = getDataSource();
-        assert delegate != null : "group delegate not set yet";
-        return delegate.getOwner(identifier);
+        Group.DataSource barrack = getDataSource();
+        assert barrack != null : "group delegate not set yet";
+        return barrack.getOwner(identifier);
     }
 
     @Override
     public List<ID> getMembers() {
-        Group.DataSource delegate = getDataSource();
-        assert delegate != null : "group delegate not set yet";
-        return delegate.getMembers(identifier);
+        Group.DataSource barrack = getDataSource();
+        assert barrack != null : "group delegate not set yet";
+        return barrack.getMembers(identifier);
     }
 
     @Override
     public List<ID> getAssistants() {
-        Group.DataSource delegate = getDataSource();
-        assert delegate != null : "group delegate not set yet";
-        return delegate.getAssistants(identifier);
+        Group.DataSource barrack = getDataSource();
+        assert barrack != null : "group delegate not set yet";
+        return barrack.getAssistants(identifier);
     }
 }
