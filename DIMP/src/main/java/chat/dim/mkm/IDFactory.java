@@ -1,6 +1,6 @@
 /* license: https://mit-license.org
  *
- *  Ming-Ke-Ming : Decentralized User Identity Authentication
+ *  DIMP : Decentralized Instant Messaging Protocol
  *
  *                                Written in 2020 by Moky <albert.moky@gmail.com>
  *

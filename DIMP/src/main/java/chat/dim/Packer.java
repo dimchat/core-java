@@ -30,8 +30,6 @@
  */
 package chat.dim;
 
-import chat.dim.protocol.Content;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
@@ -41,14 +39,6 @@ import chat.dim.protocol.SecureMessage;
  *  ~~~~~~~~~~~~~~
  */
 public interface Packer {
-
-    /**
-     *  Get group ID which should be exposed to public network
-     *
-     * @param content - message content
-     * @return exposed group ID
-     */
-    ID getOvertGroup(Content content);
 
     //
     //  InstantMessage -> SecureMessage -> ReliableMessage -> Data

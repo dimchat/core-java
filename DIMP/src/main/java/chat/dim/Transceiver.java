@@ -90,7 +90,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         // TODO: make sure the receiver's public key exists
         assert receiver.isUser() : "receiver error: " + receiver;
         User contact = barrack.getUser(receiver);
-        assert contact != null : "failed to encrypt for receiver: " + receiver;
+        if (contact == null) {
+            assert false : "failed to encrypt key for contact: " + receiver;
+            return null;
+        }
         // encrypt with receiver's public key
         return contact.encrypt(data);
     }
@@ -103,25 +106,30 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
-        // decrypt key data with the receiver/group member's private key
-        if (receiver.isGroup()) {
-            receiver = sMsg.getReceiver();
-        }
+        // decrypt key data with private key of the receiver (group member)
+        assert receiver.isUser() : "receiver error: " + receiver;
         User user = barrack.getUser(receiver);
-        assert user != null : "failed to create local user: " + receiver;
+        if (user == null) {
+            assert false : "failed to decrypt key: " + sMsg.getSender() + " => " + receiver;
+            return null;
+        }
         return user.decrypt(key);
     }
 
     @Override
-    public SymmetricKey deserializeKey(byte[] key, ID receiver, SecureMessage sMsg) {
+    public SymmetricKey deserializeKey(byte[] key, SecureMessage sMsg) {
         // NOTICE: the receiver will be group ID in a group message here
         assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         if (key == null) {
-            assert false : "reused key? get it from local cache: " + sMsg.getSender() + " -> " + receiver;
+            assert false : "reused key? get it from local cache: "
+                    + sMsg.getSender() + " => " + sMsg.getReceiver() + ", " + sMsg.getGroup();
             return null;
         }
         String json = UTF8.decode(key);
-        assert json != null : "key data error: " + Arrays.toString(key);
+        if (json == null) {
+            assert false : "key data error: " + Arrays.toString(key);
+            return null;
+        }
         Object dict = JSON.decode(json);
         // TODO: translate short keys
         //       'A' -> 'algorithm'
@@ -142,7 +150,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
         //assert sMsg.getData() != null : "message data empty";
         String json = UTF8.decode(data);
-        assert json != null : "content data error: " + Arrays.toString(data);
+        if (json == null) {
+            assert false : "content data error: " + Arrays.toString(data);
+            return null;
+        }
         Object dict = JSON.decode(json);
         // TODO: translate short keys
         //       'T' -> 'type'
@@ -158,7 +169,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         assert barrack != null : "entity delegate not set yet";
         ID sender = sMsg.getSender();
         User user = barrack.getUser(sender);
-        assert user != null : "failed to sign with sender: " + sender;
+        if (user == null) {
+            assert false : "failed to sign for user: " + sender;
+            return null;
+        }
         return user.sign(data);
     }
 
@@ -170,7 +184,10 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         assert barrack != null : "entity delegate not set yet";
         ID sender = rMsg.getSender();
         User contact = barrack.getUser(sender);
-        assert contact != null : "failed to verify signature for sender: " + sender;
+        if (contact == null) {
+            assert false : "failed to verify signature for contact: " + sender;
+            return false;
+        }
         return contact.verify(data, signature);
     }
 }

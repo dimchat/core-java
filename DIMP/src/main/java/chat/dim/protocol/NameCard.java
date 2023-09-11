@@ -1,13 +1,13 @@
 /* license: https://mit-license.org
  *
- *  Dao-Ke-Dao: Universal Message Module
+ *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2022 by Moky <albert.moky@gmail.com>
+ *                                Written in 2023 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 Albert Moky
+ * Copyright (c) 2023 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,31 +28,43 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.msg;
+package chat.dim.protocol;
 
-import java.util.Date;
-import java.util.Map;
+import java.net.URI;
 
-import chat.dim.protocol.Envelope;
-import chat.dim.protocol.ID;
+import chat.dim.dkd.NameCardContent;
+import chat.dim.format.PortableNetworkFile;
 
-public class EnvelopeFactory implements Envelope.Factory {
+/**
+ *  Name Card: {
+ *      type : 0x33,
+ *      sn   : 123,
+ *
+ *      ID     : "{ID}",        // contact's ID
+ *      name   : "{nickname}",  // contact's name
+ *      avatar : "{URL}",       // avatar - PNF(URL)
+ *      ...
+ *  }
+ */
+public interface NameCard extends Content {
+
+    ID getIdentifier();
+
+    String getName();
+
+    PortableNetworkFile getAvatar();
 
     //
-    //  Envelope.Factory
+    //  Factories
     //
-    @Override
-    public Envelope createEnvelope(ID from, ID to, Date when) {
-        return new MessageEnvelope(from, to, when);
+
+    static NameCard create(ID identifier, String name, URI avatar) {
+        PortableNetworkFile pnf = PortableNetworkFile.create(avatar, null);
+        return new NameCardContent(identifier, name, pnf);
     }
 
-    @Override
-    public Envelope parseEnvelope(Map<String, Object> env) {
-        // check 'sender'
-        if (env.get("sender") == null) {
-            // env.sender should not empty
-            return null;
-        }
-        return new MessageEnvelope(env);
+    static NameCard create(ID identifier, String name, PortableNetworkFile avatar) {
+        return new NameCardContent(identifier, name, avatar);
     }
+
 }
