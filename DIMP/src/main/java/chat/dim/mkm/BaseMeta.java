@@ -35,6 +35,7 @@ import java.util.Map;
 import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.TransportableData;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.type.Dictionary;
@@ -90,8 +91,12 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      */
     private TransportableData fingerprint = null;
 
+    private int status;        // 1 for valid, -1 for invalid
+
     protected BaseMeta(Map<String, Object> dictionary) {
         super(dictionary);
+        // meta info from network, waiting to verify.
+        this.status = 0;
     }
 
     protected BaseMeta(int version, VerifyKey key, String seed, byte[] fingerprint) {
@@ -115,6 +120,10 @@ public abstract class BaseMeta extends Dictionary implements Meta {
             put("fingerprint", ted.toObject());
             this.fingerprint = ted;
         }
+
+        // generated meta, or loaded from local storage,
+        // no need to verify again.
+        this.status = 1;
     }
 
     @Override
@@ -158,4 +167,34 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         }
         return ted == null ? null : ted.getData();
     }
+
+    //
+    //  Validation
+    //
+
+    @Override
+    public boolean isValid() {
+        if (status == 0) {
+            // meta from network, try to verify
+            if (MetaHelper.check(this)) {
+                // correct
+                status = 1;
+            } else {
+                // error
+                status = -1;
+            }
+        }
+        return status > 0;
+    }
+
+    @Override
+    public boolean matchID(ID identifier) {
+        return MetaHelper.matches(identifier, this);
+    }
+
+    @Override
+    public boolean matchKey(VerifyKey pKey) {
+        return MetaHelper.matches(pKey, this);
+    }
+
 }

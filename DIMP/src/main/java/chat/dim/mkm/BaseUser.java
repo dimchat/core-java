@@ -74,7 +74,7 @@ public class BaseUser extends BaseEntity implements User {
         // NOTICE: I suggest using the private key paired with meta.key to sign message
         //         so here should return the meta.key
         List<VerifyKey> keys = barrack.getPublicKeysForVerification(identifier);
-        assert keys.size() > 0 : "failed to get verify keys: " + identifier;
+        assert !keys.isEmpty() : "failed to get verify keys: " + identifier;
         for (VerifyKey key : keys) {
             if (key.verify(data, signature)) {
                 // matched!
@@ -119,7 +119,7 @@ public class BaseUser extends BaseEntity implements User {
         // NOTICE: if you provide a public key in visa for encryption,
         //         here you should return the private key paired with visa.key
         List<DecryptKey> keys = barrack.getPrivateKeysForDecryption(identifier);
-        assert keys.size() > 0 : "failed to get decrypt keys for user: " + identifier;
+        assert !keys.isEmpty() : "failed to get decrypt keys for user: " + identifier;
         byte[] plaintext;
         for (DecryptKey key : keys) {
             // try decrypting it with each private key

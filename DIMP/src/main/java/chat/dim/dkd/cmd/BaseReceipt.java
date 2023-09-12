@@ -79,7 +79,7 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
         if (sig != null && sig.length() > 0) {
             origin.put("signature", sig);
         }
-        if (origin.size() > 0) {
+        if (!origin.isEmpty()) {
             put("origin", origin);
         }
     }

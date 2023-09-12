@@ -49,10 +49,12 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     public BaseVisa(ID identifier, String data, String signature) {
         super(identifier, data, signature);
+        put("type", VISA);
     }
 
     public BaseVisa(ID identifier) {
         super(identifier, VISA);
+        put("type", VISA);
     }
 
     /**

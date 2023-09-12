@@ -110,7 +110,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
             // try to verify it with meta.key
             keys.add(metaKey);
         }
-        assert keys.size() > 0 : "failed to get verify key for user: " + user;
+        assert !keys.isEmpty() : "failed to get verify key for user: " + user;
         return keys;
     }
 

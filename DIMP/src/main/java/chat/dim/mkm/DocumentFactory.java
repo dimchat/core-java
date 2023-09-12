@@ -72,7 +72,7 @@ public final class DocumentFactory implements Document.Factory {
             } else if (Document.BULLETIN.equals(type)) {
                 return new BaseBulletin(identifier);
             } else {
-                return new BaseDocument(identifier, "");
+                return new BaseDocument(identifier, type);
             }
         } else {
             // create document with data & signature from local storage
