@@ -90,11 +90,12 @@ public class SecretContent extends BaseContent implements ForwardContent {
                 secrets = ForwardContent.convert((List<?>) info);
             } else {
                 // get from 'forward'
-                secrets = new ArrayList<>();
+                List<ReliableMessage> messages = new ArrayList<>();
                 ReliableMessage msg = getForward();
                 if (msg != null) {
-                    secrets.add(msg);
+                    messages.add(msg);
                 }
+                secrets = messages;
             }
         }
         return secrets;

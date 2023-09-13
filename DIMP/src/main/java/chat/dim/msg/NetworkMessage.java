@@ -50,19 +50,20 @@ import chat.dim.protocol.Visa;
  *      receiver : "hulk@yyy",
  *      time     : 123,
  *      //-- content data and key/keys
- *      data     : "...",  // base64_encode(symmetric)
- *      key      : "...",  // base64_encode(asymmetric)
+ *      data     : "...",  // base64_encode( symmetric_encrypt(content))
+ *      key      : "...",  // base64_encode(asymmetric_encrypt(password))
  *      keys     : {
- *          "ID1": "key1", // base64_encode(asymmetric)
+ *          "ID1": "key1", // base64_encode(asymmetric_encrypt(password))
  *      },
  *      //-- signature
- *      signature: "..."   // base64_encode()
+ *      signature: "..."   // base64_encode(asymmetric_sign(data))
  *  }
  */
 public class NetworkMessage extends EncryptedMessage implements ReliableMessage {
 
     private TransportableData signature;
 
+    // user info for 'handshake' command
     private Meta meta;
     private Visa visa;
 
@@ -79,9 +80,9 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
         TransportableData ted = signature;
         if (ted == null) {
             Object base64 = get("signature");
-            assert base64 != null : "signature cannot be empty";
+            assert base64 != null : "message signature cannot be empty: " + toMap();
             signature = ted = TransportableData.parse(base64);
-            // assert ted != null : "signature cannot be empty";
+            // assert ted != null : "failed to decode message signature: " + base64;
         }
         return ted == null ? null : ted.getData();
     }
@@ -102,8 +103,7 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
     @Override
     public Meta getMeta() {
         if (meta == null) {
-            Object info = get("meta");
-            meta = Meta.parse(info);
+            meta = Meta.parse(get("meta"));
         }
         return meta;
     }
@@ -124,10 +124,11 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
     @Override
     public Visa getVisa() {
         if (visa == null) {
-            Object info = get("visa");
-            Document doc = Document.parse(info);
+            Document doc = Document.parse(get("visa"));
             if (doc instanceof Visa) {
                 visa = (Visa) doc;
+            } else {
+                assert doc == null : "visa document error: " + doc;
             }
         }
         return visa;

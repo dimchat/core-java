@@ -63,8 +63,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
 
     public PlainMessage(Envelope head, Content body) {
         super(head);
-        setMap("content", body);
-        content = body;
+        setContent(body);
     }
 
     @Override
@@ -92,6 +91,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
             Object info = get("content");
             assert info != null : "message content not found: " + toMap();
             content = Content.parse(info);
+            assert content != null : "message content error: " + info;
         }
         return content;
     }

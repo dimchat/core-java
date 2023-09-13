@@ -71,8 +71,6 @@ public class BaseUser extends BaseEntity implements User {
     public boolean verify(byte[] data, byte[] signature) {
         User.DataSource barrack = getDataSource();
         assert barrack != null : "user delegate not set yet";
-        // NOTICE: I suggest using the private key paired with meta.key to sign message
-        //         so here should return the meta.key
         List<VerifyKey> keys = barrack.getPublicKeysForVerification(identifier);
         assert !keys.isEmpty() : "failed to get verify keys: " + identifier;
         for (VerifyKey key : keys) {
@@ -105,8 +103,6 @@ public class BaseUser extends BaseEntity implements User {
     public byte[] sign(byte[] data) {
         User.DataSource barrack = getDataSource();
         assert barrack != null : "user delegate not set yet";
-        // NOTICE: I suggest use the private key which paired to visa.key
-        //         to sign message
         SignKey sKey = barrack.getPrivateKeyForSignature(identifier);
         assert sKey != null : "failed to get sign key for user: " + identifier;
         return sKey.sign(data);
@@ -136,7 +132,7 @@ public class BaseUser extends BaseEntity implements User {
 
     @Override
     public Visa sign(Visa doc) {
-        assert doc.getIdentifier().equals(identifier) : "visa ID not match: " + identifier + ", " + doc.getIdentifier();
+        assert identifier.equals(doc.getIdentifier()) : "visa ID not match: " + identifier + ", " + doc.getIdentifier();
         User.DataSource barrack = getDataSource();
         assert barrack != null : "user delegate not set yet";
         // NOTICE: only sign visa with the private key paired with your meta.key

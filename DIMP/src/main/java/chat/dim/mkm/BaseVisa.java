@@ -38,9 +38,19 @@ import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 
+/**
+ *  Base User Document
+ *  ~~~~~~~~~~~~~~~~~~
+ */
 public class BaseVisa extends BaseDocument implements Visa {
 
+    // Public Key for encryption
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~
+    // For safety considerations, the visa.key which used to encrypt message data
+    // should be different with meta.key
     private EncryptKey key = null;
+
+    // Avatar URL
     private PortableNetworkFile avatar = null;
 
     public BaseVisa(Map<String, Object> dictionary) {
@@ -86,8 +96,7 @@ public class BaseVisa extends BaseDocument implements Visa {
     @Override
     public PortableNetworkFile getAvatar() {
         if (avatar == null) {
-            Object pnf = getProperty("avatar");
-            avatar = PortableNetworkFile.parse(pnf);
+            avatar = PortableNetworkFile.parse(getProperty("avatar"));
         }
         return avatar;
     }

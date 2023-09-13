@@ -50,7 +50,9 @@ import chat.dim.protocol.PageContent;
  */
 public class WebPageContent extends BaseContent implements PageContent {
 
+    // web URL
     private  URI url;
+    // small image
     private TransportableData icon;
 
     public WebPageContent(Map<String, Object> content) {
@@ -110,13 +112,13 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public void setIcon(byte[] imageData) {
-        if (imageData != null && imageData.length > 0) {
+        if (imageData == null || imageData.length == 0) {
+            remove("icon");
+            icon = null;
+        } else {
             TransportableData ted = TransportableData.create(imageData);
             put("icon", ted.toObject());
             icon = ted;
-        } else {
-            remove("icon");
-            icon = null;
         }
     }
 

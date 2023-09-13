@@ -117,10 +117,12 @@ public class BaseDocument extends Dictionary implements Document {
         sig = null;
 
         Map<String, Object> info = new HashMap<>();
-        if (type != null && type.length() > 0 && !type.equals("*")) {
+        if (type == null || type.isEmpty() || type.equals("*")) {
+            info.put("created_time", System.currentTimeMillis() / 1000.0d);
+        } else {
+            info.put("created_time", System.currentTimeMillis() / 1000.0d);
             info.put("type", type);
         }
-        info.put("created_time", System.currentTimeMillis() / 1000.0d);
         properties = info;
 
         status = 0;
@@ -137,7 +139,7 @@ public class BaseDocument extends Dictionary implements Document {
         if (type == null) {
             FactoryManager man = FactoryManager.getInstance();
             type = man.generalFactory.getDocumentType(toMap(), null);
-            // type = getString("type");
+            // type = getString("type", null);
         }
         return type;
     }
@@ -252,10 +254,11 @@ public class BaseDocument extends Dictionary implements Document {
 
     @Override
     public byte[] sign(SignKey privateKey) {
+        byte[] signature;
         if (status > 0) {
             // already signed/verified
-            assert json != null : "document data error" + toMap();
-            byte[] signature = getSignature();
+            assert json != null : "document data error: " + toMap();
+            signature = getSignature();
             assert signature != null : "document signature error: " + toMap();
             return signature;
         }
@@ -264,15 +267,15 @@ public class BaseDocument extends Dictionary implements Document {
         // 2. encode & sign
         Map<String, Object> dict = getProperties();
         if (dict == null) {
-            // invalid
+            assert false : "document invalid: " + toMap();
             return null;
         }
         String data = JSONMap.encode(dict);
-        if (data == null/* || data.length() == 0*/) {
+        if (data == null/* || data.isEmpty()*/) {
             assert false : "should not happen: " + dict;
             return null;
         }
-        byte[] signature = privateKey.sign(UTF8.encode(data));
+        signature = privateKey.sign(UTF8.encode(data));
         if (signature == null/* || signature.length == 0*/) {
             assert false : "should not happen";
             return null;

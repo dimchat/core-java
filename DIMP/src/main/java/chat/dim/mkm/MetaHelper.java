@@ -62,6 +62,7 @@ public interface MetaHelper {
     }
 
     static boolean matches(ID identifier, Meta meta) {
+        assert meta.isValid() : "meta not valid: " + meta;
         // check ID.name
         String seed = meta.getSeed();
         String name = identifier.getName();
@@ -76,10 +77,12 @@ public interface MetaHelper {
         Address old = identifier.getAddress();
         //assert old != null : "ID error: " + identifier;
         Address gen = Address.generate(meta, old.getType());
+        assert gen != null : "failed to generate address: " + old;
         return old.equals(gen);
     }
 
     static  boolean matches(VerifyKey pKey, Meta meta) {
+        assert meta.isValid() : "meta not valid: " + meta;
         // check whether the public key equals to meta.key
         if (pKey.equals(meta.getPublicKey())) {
             return true;

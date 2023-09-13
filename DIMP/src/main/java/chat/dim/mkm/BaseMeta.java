@@ -131,7 +131,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         if (type < 0) {
             FactoryManager man = FactoryManager.getInstance();
             type = man.generalFactory.getMetaType(toMap(), 0);
-            // type = getInt("type");
+            // type = getInt("type", 0);
         }
         return type;
     }
@@ -140,7 +140,6 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     public VerifyKey getPublicKey() {
         if (key == null) {
             Object info = get("key");
-            assert info instanceof Map : "meta key not found: " + toMap();
             key = PublicKey.parse(info);
             assert key != null : "meta key error: " + info;
         }
@@ -188,12 +187,12 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     }
 
     @Override
-    public boolean matchID(ID identifier) {
+    public boolean matchIdentifier(ID identifier) {
         return MetaHelper.matches(identifier, this);
     }
 
     @Override
-    public boolean matchKey(VerifyKey pKey) {
+    public boolean matchPublicKey(VerifyKey pKey) {
         return MetaHelper.matches(pKey, this);
     }
 

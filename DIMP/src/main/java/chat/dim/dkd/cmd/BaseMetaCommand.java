@@ -53,6 +53,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
 
     public BaseMetaCommand(Map<String, Object> content) {
         super(content);
+        // lazy
         identifier = null;
         meta = null;
     }
@@ -100,8 +101,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
     @Override
     public Meta getMeta() {
         if (meta == null) {
-            Object info = get("meta");
-            meta = Meta.parse(info);
+            meta = Meta.parse(get("meta"));
         }
         return meta;
     }

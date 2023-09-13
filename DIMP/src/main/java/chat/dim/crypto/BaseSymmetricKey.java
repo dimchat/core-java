@@ -49,7 +49,7 @@ abstract class BaseSymmetricKey extends Dictionary implements SymmetricKey {
     }
 
     @Override
-    public boolean match(EncryptKey pKey) {
+    public boolean matchEncryptKey(EncryptKey pKey) {
         return BaseKey.matchEncryptKey(pKey, this);
     }
 

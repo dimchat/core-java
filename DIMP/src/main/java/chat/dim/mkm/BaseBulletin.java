@@ -37,8 +37,13 @@ import java.util.Map;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.ID;
 
+/**
+ *  Base Group Document
+ *  ~~~~~~~~~~~~~~~~~~~
+ */
 public class BaseBulletin extends BaseDocument implements Bulletin {
 
+    // Group bots for split and distribute group messages
     private List<ID> assistants = null;
 
     public BaseBulletin(Map<String, Object> dictionary) {
@@ -67,14 +72,13 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
      */
     @Override
     public List<ID> getAssistants() {
-        List<ID> bots = assistants;
-        if (bots == null) {
-            Object value = getProperty("assistants");
-            if (value instanceof List) {
-                assistants = bots = ID.convert((List<?>) value);
+        if (assistants == null) {
+            Object array = getProperty("assistants");
+            if (array instanceof List) {
+                assistants = ID.convert((List<?>) array);
             } else {
                 // get from 'assistant'
-                bots = new ArrayList<>();
+                List<ID> bots = new ArrayList<>();
                 ID single = ID.parse(getProperty("assistant"));
                 if (single != null) {
                     bots.add(single);
@@ -82,7 +86,7 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
                 assistants = bots;
             }
         }
-        return bots;
+        return assistants;
     }
 
     @Override

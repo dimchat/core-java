@@ -30,8 +30,10 @@
  */
 package chat.dim.dkd.file;
 
+import java.net.URI;
 import java.util.Map;
 
+import chat.dim.crypto.DecryptKey;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.VideoContent;
@@ -41,9 +43,12 @@ import chat.dim.protocol.file.VideoContent;
  *      type : 0x16,
  *      sn   : 123,
  *
- *      URL      : "http://...", // download from CDN
  *      data     : "...",        // base64_encode(fileContent)
  *      filename : "movie.mp4",
+ *
+ *      URL      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
  *      key      : {             // symmetric key to decrypt file content
  *          algorithm : "AES",   // "DES", ...
  *          data      : "{BASE64_ENCODE}",
@@ -54,25 +59,26 @@ import chat.dim.protocol.file.VideoContent;
  */
 public class VideoFileContent extends BaseFileContent implements VideoContent {
 
+    // small image
     private TransportableData snapshot = null;
 
     public VideoFileContent(Map<String, Object> content) {
         super(content);
     }
 
-    public VideoFileContent(byte[] data, String filename) {
-        super(ContentType.VIDEO, data, filename);
+    public VideoFileContent(byte[] data, String filename, URI url, DecryptKey key) {
+        super(ContentType.VIDEO, data, filename, url, key);
     }
 
     @Override
     public void setSnapshot(byte[] imageData) {
-        if (imageData != null && imageData.length > 0) {
+        if (imageData == null/* || imageData.length == 0*/) {
+            remove("snapshot");
+            snapshot = null;
+        } else {
             TransportableData ted = TransportableData.create(imageData);
             put("snapshot", ted.toObject());
             snapshot = ted;
-        } else {
-            remove("snapshot");
-            snapshot = null;
         }
     }
 
@@ -80,7 +86,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     public byte[] getSnapshot() {
         TransportableData ted = snapshot;
         if (ted == null) {
-            String base64 = getString("snapshot", null);
+            Object base64 = get("snapshot");
             snapshot = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();

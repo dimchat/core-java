@@ -36,16 +36,16 @@ import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 
 /**
- *  Base Document Factory
- *  ~~~~~~~~~~~~~~~~~~~~~
+ *  General Document Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~
  */
 public final class DocumentFactory implements Document.Factory {
 
-    private final String version;
+    private final String docType;
 
     public DocumentFactory(String type) {
         super();
-        version = type;
+        docType = type;
     }
 
     private static String getType(String type, ID identifier) {
@@ -64,8 +64,8 @@ public final class DocumentFactory implements Document.Factory {
 
     @Override
     public Document createDocument(ID identifier, String data, String signature) {
-        String type = getType(version, identifier);
-        if (data == null || signature == null || data.length() == 0 || signature.length() == 0) {
+        String type = getType(docType, identifier);
+        if (data == null || signature == null || data.isEmpty() || signature.isEmpty()) {
             // create empty document
             if (Document.VISA.equals(type)) {
                 return new BaseVisa(identifier);
@@ -88,7 +88,7 @@ public final class DocumentFactory implements Document.Factory {
 
     @Override
     public Document createDocument(ID identifier) {
-        String type = getType(version, identifier);
+        String type = getType(docType, identifier);
         if (Document.VISA.equals(type)) {
             return new BaseVisa(identifier);
         } else if (Document.BULLETIN.equals(type)) {

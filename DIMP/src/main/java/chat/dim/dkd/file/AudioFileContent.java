@@ -30,8 +30,10 @@
  */
 package chat.dim.dkd.file;
 
+import java.net.URI;
 import java.util.Map;
 
+import chat.dim.crypto.DecryptKey;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.AudioContent;
 
@@ -40,9 +42,12 @@ import chat.dim.protocol.file.AudioContent;
  *      type : 0x14,
  *      sn   : 123,
  *
- *      URL      : "http://...", // download from CDN
  *      data     : "...",        // base64_encode(fileContent)
  *      filename : "voice.mp4",
+ *
+ *      URL      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
  *      key      : {             // symmetric key to decrypt file content
  *          algorithm : "AES",   // "DES", ...
  *          data      : "{BASE64_ENCODE}",
@@ -57,8 +62,8 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
         super(content);
     }
 
-    public AudioFileContent(byte[] data, String filename) {
-        super(ContentType.AUDIO, data, filename);
+    public AudioFileContent(byte[] data, String filename, URI url, DecryptKey key) {
+        super(ContentType.AUDIO, data, filename, url, key);
     }
 
     @Override

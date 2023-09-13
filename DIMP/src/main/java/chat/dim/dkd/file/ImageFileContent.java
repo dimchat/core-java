@@ -30,8 +30,10 @@
  */
 package chat.dim.dkd.file;
 
+import java.net.URI;
 import java.util.Map;
 
+import chat.dim.crypto.DecryptKey;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.ImageContent;
@@ -41,9 +43,12 @@ import chat.dim.protocol.file.ImageContent;
  *      type : 0x12,
  *      sn   : 123,
  *
- *      URL      : "http://...", // download from CDN
  *      data     : "...",        // base64_encode(fileContent)
  *      filename : "photo.png",
+ *
+ *      URL      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
  *      key      : {             // symmetric key to decrypt file content
  *          algorithm : "AES",   // "DES", ...
  *          data      : "{BASE64_ENCODE}",
@@ -54,25 +59,26 @@ import chat.dim.protocol.file.ImageContent;
  */
 public class ImageFileContent extends BaseFileContent implements ImageContent {
 
+    // small image
     private TransportableData thumbnail = null;
 
     public ImageFileContent(Map<String, Object> content) {
         super(content);
     }
 
-    public ImageFileContent(byte[] data, String filename) {
-        super(ContentType.IMAGE, data, filename);
+    public ImageFileContent(byte[] data, String filename, URI url, DecryptKey key) {
+        super(ContentType.IMAGE, data, filename, url, key);
     }
 
     @Override
     public void setThumbnail(byte[] imageData) {
-        if (imageData != null && imageData.length > 0) {
+        if (imageData == null/* || imageData.length == 0*/) {
+            remove("thumbnail");
+            thumbnail = null;
+        } else {
             TransportableData ted = TransportableData.create(imageData);
             put("thumbnail", ted.toObject());
             thumbnail = ted;
-        } else {
-            remove("thumbnail");
-            thumbnail = null;
         }
     }
 
@@ -80,7 +86,7 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     public byte[] getThumbnail() {
         TransportableData ted = thumbnail;
         if (ted == null) {
-            String base64 = getString("thumbnail", null);
+            Object base64 = get("thumbnail");
             thumbnail = ted = TransportableData.parse(base64);
         }
         return ted == null ? null : ted.getData();

@@ -41,7 +41,7 @@ abstract class BasePublicKey extends Dictionary implements PublicKey {
     }
 
     @Override
-    public boolean match(SignKey sKey) {
+    public boolean matchSignKey(SignKey sKey) {
         return BaseKey.matchSignKey(sKey, this);
     }
 

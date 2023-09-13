@@ -69,6 +69,6 @@ public class BaseCommand extends BaseContent implements Command {
     public String getCmd() {
         FactoryManager man = FactoryManager.getInstance();
         return man.generalFactory.getCmd(toMap(), null);
-        // return getString("command");
+        // return getString("command", "");
     }
 }

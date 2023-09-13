@@ -56,14 +56,14 @@ import chat.dim.protocol.Visa;
  */
 public abstract class Barrack implements Entity.Delegate, User.DataSource, Group.DataSource {
 
-    private EncryptKey getVisaKey(ID user) {
+    protected EncryptKey getVisaKey(ID user) {
         Document doc = getDocument(user, Document.VISA);
         if (doc instanceof Visa/* && doc.isValid()*/) {
             return ((Visa) doc).getPublicKey();
         }
         return null;
     }
-    private VerifyKey getMetaKey(ID user) {
+    protected VerifyKey getMetaKey(ID user) {
         Meta meta = getMeta(user);
         if (meta == null) {
             //throw new NullPointerException("failed to get meta for ID: " + user);

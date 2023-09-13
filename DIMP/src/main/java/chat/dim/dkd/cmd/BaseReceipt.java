@@ -56,6 +56,9 @@ import chat.dim.type.Converter;
  */
 public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand {
 
+    /**
+     *  original message envelope
+     */
     private Envelope envelope;
 
     public BaseReceipt(Map<String, Object> content) {
@@ -70,7 +73,7 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
         // original envelope
         envelope = env;
         // envelope of message responding to
-        Map<String, Object> origin = env == null ? new HashMap<>() : env.toMap();
+        Map<String, Object> origin = env == null ? new HashMap<>() : env.copyMap(false);
         // sn of the message responding to
         if (sn > 0) {
             origin.put("sn", sn);

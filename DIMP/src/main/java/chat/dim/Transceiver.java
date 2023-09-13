@@ -64,7 +64,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
-        return UTF8.encode(JSON.encode(content));
+        return UTF8.encode(JSON.encode(content.toMap()));
     }
 
     @Override
@@ -79,7 +79,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
             // broadcast message has no key
             return null;
         }
-        return UTF8.encode(JSON.encode(password));
+        return UTF8.encode(JSON.encode(password.toMap()));
     }
 
     @Override
@@ -94,7 +94,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
             assert false : "failed to encrypt key for contact: " + receiver;
             return null;
         }
-        // encrypt with receiver's public key
+        // encrypt with public key of the receiver (or group member)
         return contact.encrypt(data);
     }
 
@@ -102,24 +102,24 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
 
     @Override
     public byte[] decryptKey(byte[] key, ID receiver, SecureMessage sMsg) {
-        // NOTICE: the receiver will be group ID in a group message here
+        // NOTICE: the receiver must be a member ID
+        //         if it's a group message
         assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
         Entity.Delegate barrack = getEntityDelegate();
         assert barrack != null : "entity delegate not set yet";
-        // decrypt key data with private key of the receiver (group member)
         assert receiver.isUser() : "receiver error: " + receiver;
         User user = barrack.getUser(receiver);
         if (user == null) {
             assert false : "failed to decrypt key: " + sMsg.getSender() + " => " + receiver;
             return null;
         }
+        // decrypt with private key of the receiver (or group member)
         return user.decrypt(key);
     }
 
     @Override
     public SymmetricKey deserializeKey(byte[] key, SecureMessage sMsg) {
-        // NOTICE: the receiver will be group ID in a group message here
-        assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+        assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg.toMap();
         if (key == null) {
             assert false : "reused key? get it from local cache: "
                     + sMsg.getSender() + " => " + sMsg.getReceiver() + ", " + sMsg.getGroup();

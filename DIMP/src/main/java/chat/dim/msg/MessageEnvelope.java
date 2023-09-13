@@ -65,6 +65,7 @@ public class MessageEnvelope extends Dictionary implements Envelope {
 
     public MessageEnvelope(ID from, ID to, Date when) {
         super();
+        assert from != null : "message sender should not be empty";
         if (to == null) {
             to = ID.ANYONE;
         }

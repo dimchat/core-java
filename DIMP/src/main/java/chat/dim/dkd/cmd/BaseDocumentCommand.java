@@ -111,8 +111,7 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     @Override
     public Document getDocument() {
         if (doc == null) {
-            Object info = get("document");
-            doc = Document.parse(info);
+            doc = Document.parse(get("document"));
         }
         return doc;
     }

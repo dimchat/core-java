@@ -47,42 +47,44 @@ import chat.dim.protocol.SecureMessage;
  *      receiver : "hulk@yyy",
  *      time     : 123,
  *      //-- content data and key/keys
- *      data     : "...",  // base64_encode(symmetric)
- *      key      : "...",  // base64_encode(asymmetric)
+ *      data     : "...",  // base64_encode( symmetric_encrypt(content))
+ *      key      : "...",  // base64_encode(asymmetric_encrypt(password))
  *      keys     : {
- *          "ID1": "key1", // base64_encode(asymmetric)
+ *          "ID1": "key1", // base64_encode(asymmetric_encrypt(password))
  *      }
  *  }
  */
 public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
-    private TransportableData data;
+    private TransportableData body;
     private TransportableData encryptedKey;
-    private Map<String, Object> keys;
+    private Map<String, Object> keys;  // String => String
 
     public EncryptedMessage(Map<String, Object> msg) {
         super(msg);
         // lazy load
-        data = null;
+        body = null;
         encryptedKey = null;
         keys = null;
     }
 
     @Override
     public byte[] getData() {
-        TransportableData ted = data;
+        TransportableData ted = body;
         if (ted == null) {
-            String text = getString("data", null);
-            assert text.length() > 0 : "content data cannot be empty: " + toMap();
-            if (isBroadcast(this)) {
-                // broadcast message content will not be encrypted (just encoded to JsON),
-                // so return the string data directly
-                byte[] plaintext = UTF8.encode(text);
-                data = ted = TransportableData.create(plaintext);
-            } else {
+            Object base64 = get("data");
+            assert base64 != null : "message data cannot be empty: " + toMap();
+            if (!isBroadcast(this)) {
                 // message content had been encrypted by a symmetric key,
                 // so the data should be encoded here (with algorithm 'base64' as default).
-                data = ted = TransportableData.parse(text);
+                body = ted = TransportableData.parse(base64);
+            } else if (base64 instanceof String) {
+                // broadcast message content will not be encrypted (just encoded to JsON),
+                // so return the string data directly
+                byte[] plaintext = UTF8.encode((String) base64);  // JsON
+                body = ted = TransportableData.create(plaintext);
+            } else {
+                assert false : "content data error: " + base64;
             }
         }
         return ted == null ? null : ted.getData();
