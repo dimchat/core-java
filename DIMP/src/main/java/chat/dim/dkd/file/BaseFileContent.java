@@ -138,7 +138,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public void setFilename(String name) {
-        if (name == null) {
+        if (name == null/* || name.isEmpty()*/) {
             remove("filename");
         } else {
             put("filename", name);

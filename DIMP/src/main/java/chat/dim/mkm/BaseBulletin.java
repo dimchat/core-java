@@ -51,13 +51,11 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
     }
 
     public BaseBulletin(ID identifier, String data, String signature) {
-        super(identifier, data, signature);
-        put("type", BULLETIN);
+        super(identifier, BULLETIN, data, signature);
     }
 
     public BaseBulletin(ID identifier) {
         super(identifier, BULLETIN);
-        put("type", BULLETIN);
     }
 
     @Override

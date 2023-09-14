@@ -91,7 +91,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         assert receiver.isUser() : "receiver error: " + receiver;
         User contact = barrack.getUser(receiver);
         if (contact == null) {
-            assert false : "failed to encrypt key for contact: " + receiver;
+            assert false : "failed to encrypt message key for contact: " + receiver;
             return null;
         }
         // encrypt with public key of the receiver (or group member)
@@ -110,7 +110,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         assert receiver.isUser() : "receiver error: " + receiver;
         User user = barrack.getUser(receiver);
         if (user == null) {
-            assert false : "failed to decrypt key: " + sMsg.getSender() + " => " + receiver;
+            assert false : "failed to decrypt key: " + sMsg.getSender() + " => " + receiver + ", " + sMsg.getGroup();
             return null;
         }
         // decrypt with private key of the receiver (or group member)
@@ -127,7 +127,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         }
         String json = UTF8.decode(key);
         if (json == null) {
-            assert false : "key data error: " + Arrays.toString(key);
+            assert false : "message key data error: " + Arrays.toString(key);
             return null;
         }
         Object dict = JSON.decode(json);
@@ -170,7 +170,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         ID sender = sMsg.getSender();
         User user = barrack.getUser(sender);
         if (user == null) {
-            assert false : "failed to sign for user: " + sender;
+            assert false : "failed to sign message data for user: " + sender;
             return null;
         }
         return user.sign(data);
@@ -185,7 +185,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         ID sender = rMsg.getSender();
         User contact = barrack.getUser(sender);
         if (contact == null) {
-            assert false : "failed to verify signature for contact: " + sender;
+            assert false : "failed to verify message signature for contact: " + sender;
             return false;
         }
         return contact.verify(data, signature);

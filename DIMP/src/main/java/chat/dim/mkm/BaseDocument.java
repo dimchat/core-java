@@ -76,25 +76,32 @@ public class BaseDocument extends Dictionary implements Document {
      *  Create entity document with data and signature loaded from local storage
      *
      * @param identifier - entity ID
-     * @param data - document data in JsON format
-     * @param signature - signature of document data in Base64 format
+     * @param type       - document type
+     * @param data       - document data in JsON format
+     * @param signature  - signature of document data in Base64 format
      */
-    public BaseDocument(ID identifier, String data, String signature) {
+    public BaseDocument(ID identifier, String type, String data, String signature) {
         super();
 
         // ID
         put("ID", identifier.toString());
         this.identifier = identifier;
 
-        // json data
+        // document type
+        assert !type.isEmpty() && !type.equals("*") : "document type error: " + type;
+        put("type", type);
+
+        // document data (JsON)
+        assert !data.isEmpty() : "document data should not be empty";
         put("data", data);
         this.json = data;
 
-        // signature
+        // document signature (Base64)
+        assert !signature.isEmpty() : "document signature should not be empty";
         put("signature", signature);
         this.sig = null;  // lazy
 
-        properties = null;
+        properties = null;  // lazy
 
         // all documents must be verified before saving into local storage
         status = 1;
@@ -113,16 +120,18 @@ public class BaseDocument extends Dictionary implements Document {
         put("ID", identifier.toString());
         this.identifier = identifier;
 
+        // document type
+        assert !type.isEmpty() && !type.equals("*") : "document type error: " + type;
+        put("type", type);
+
+        // document data & signature
         json = null;
         sig = null;
 
         Map<String, Object> info = new HashMap<>();
-        if (type == null || type.isEmpty() || type.equals("*")) {
-            info.put("created_time", System.currentTimeMillis() / 1000.0d);
-        } else {
-            info.put("created_time", System.currentTimeMillis() / 1000.0d);
-            info.put("type", type);
-        }
+        info.put("type", type);  // deprecated
+        info.put("created_time", System.currentTimeMillis() / 1000.0d);
+        // initialize properties with created time
         properties = info;
 
         status = 0;
@@ -135,7 +144,7 @@ public class BaseDocument extends Dictionary implements Document {
 
     @Override
     public String getType() {
-        String type = (String) getProperty("type");
+        String type = (String) getProperty("type");  // deprecated
         if (type == null) {
             FactoryManager man = FactoryManager.getInstance();
             type = man.generalFactory.getDocumentType(toMap(), null);

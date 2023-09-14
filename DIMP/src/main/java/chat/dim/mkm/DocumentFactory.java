@@ -81,7 +81,7 @@ public final class DocumentFactory implements Document.Factory {
             } else if (Document.BULLETIN.equals(type)) {
                 return new BaseBulletin(identifier, data, signature);
             } else {
-                return new BaseDocument(identifier, data, signature);
+                return new BaseDocument(identifier, type, data, signature);
             }
         }
     }
