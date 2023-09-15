@@ -1,13 +1,8 @@
 /* license: https://mit-license.org
- *
- *  DIMP : Decentralized Instant Messaging Protocol
- *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2023 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,21 +23,18 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd.file;
+package chat.dim.format;
 
 import java.net.URI;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
-import chat.dim.dkd.BaseContent;
-import chat.dim.format.BaseFileWrapper;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.FileContent;
+import chat.dim.crypto.SymmetricKey;
+import chat.dim.type.Dictionary;
+
 
 /**
- *  File message: {
- *      type : 0x10,
- *      sn   : 123,
+ *  File Content MixIn: {
  *
  *      data     : "...",        // base64_encode(fileContent)
  *      filename : "photo.png",
@@ -57,93 +49,103 @@ import chat.dim.protocol.FileContent;
  *      }
  *  }
  */
-public class BaseFileContent extends BaseContent implements FileContent {
+public class BaseFileWrapper extends Dictionary {
 
-    private final BaseFileWrapper wrapper;
+    // file content (not encrypted)
+    private TransportableData attachment;
 
-    public BaseFileContent(Map<String, Object> content) {
+    // download from CDN
+    private URI remoteURL;
+    // key to decrypt data downloaded from CDN
+    private DecryptKey password;
+
+    public BaseFileWrapper(Map<String, Object> content) {
         super(content);
-        wrapper = new BaseFileWrapper(toMap());
-    }
-
-    public BaseFileContent(int type, byte[] data, String filename, URI url, DecryptKey key) {
-        super(type);
-        wrapper = new BaseFileWrapper(toMap());
-        // file data
-        if (data != null) {
-            wrapper.setData(data);
-        }
-        // file name
-        if (filename != null) {
-            wrapper.setFilename(filename);
-        }
-        // download URL
-        if (url != null) {
-            wrapper.setURL(url);
-        }
-        // decrypt key
-        if (key != null) {
-            wrapper.setPassword(key);
-        }
-    }
-    public BaseFileContent(ContentType type, byte[] data, String filename, URI url, DecryptKey key) {
-        this(type.value, data, filename, url, key);
+        // lazy load
+        attachment = null;
+        remoteURL = null;
+        password = null;
     }
 
     /**
      *  file data
      */
 
-    @Override
     public byte[] getData() {
-        return wrapper.getData();
+        TransportableData ted = attachment;
+        if (ted == null) {
+            Object base64 = get("data");
+            attachment = ted = TransportableData.parse(base64);
+        }
+        return ted == null ? null : ted.getData();
     }
 
-    @Override
     public void setData(byte[] data) {
-        wrapper.setData(data);
+        TransportableData ted;
+        if (data == null/* || data.length == 0*/) {
+            ted = null;
+            remove("data");
+        } else {
+            ted = TransportableData.create(data);
+            put("data", ted.toObject());
+        }
+        attachment = ted;
     }
 
     /**
      *  file name
      */
 
-    @Override
     public String getFilename() {
-        return wrapper.getFilename();
+        return getString("filename", null);
     }
 
-    @Override
     public void setFilename(String name) {
-        wrapper.setFilename(name);
+        if (name == null/* || name.isEmpty()*/) {
+            remove("filename");
+        } else {
+            put("filename", name);
+        }
     }
 
     /**
      *  download URL
      */
 
-    @Override
     public URI getURL() {
-        return wrapper.getURL();
+        URI remote = remoteURL;
+        if (remote == null) {
+            String locator = getString("URL", null);
+            if (locator != null/* && locator.length() > 0*/) {
+                remoteURL = remote = URI.create(locator);
+            }
+        }
+        return remote;
     }
 
-    @Override
-    public void setURL(URI url) {
-        wrapper.setURL(url);
+    public void setURL(URI remote) {
+        if (remote == null) {
+            remove("URL");
+        } else {
+            put("URL", remote.toString());
+        }
+        remoteURL = remote;
     }
 
     /**
      *  decrypt key
      */
 
-    @Override
     public DecryptKey getPassword() {
-        return wrapper.getPassword();
+        if (password == null) {
+            password = SymmetricKey.parse(get("key"));
+        }
+        return password;
     }
 
-    @Override
     public void setPassword(DecryptKey key) {
-        wrapper.setPassword(key);
+        setMap("key", key);
+        password = key;
     }
 
 }
