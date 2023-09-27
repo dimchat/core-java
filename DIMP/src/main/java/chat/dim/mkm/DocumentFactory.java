@@ -87,18 +87,6 @@ public final class DocumentFactory implements Document.Factory {
     }
 
     @Override
-    public Document createDocument(ID identifier) {
-        String type = getType(docType, identifier);
-        if (Document.VISA.equals(type)) {
-            return new BaseVisa(identifier);
-        } else if (Document.BULLETIN.equals(type)) {
-            return new BaseBulletin(identifier);
-        } else {
-            return new BaseDocument(identifier, type);
-        }
-    }
-
-    @Override
     public Document parseDocument(Map<String, Object> doc) {
         ID identifier = ID.parse(doc.get("ID"));
         if (identifier == null) {

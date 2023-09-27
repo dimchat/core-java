@@ -59,6 +59,7 @@ public interface Group extends Entity {
     //         (usually the first one)
     List<ID> getMembers();
 
+    // group bots
     List<ID> getAssistants();
 
     /**

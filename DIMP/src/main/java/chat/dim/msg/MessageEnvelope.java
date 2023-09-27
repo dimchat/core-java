@@ -84,6 +84,7 @@ public class MessageEnvelope extends Dictionary implements Envelope {
     public ID getSender() {
         if (sender == null) {
             sender = ID.parse(get("sender"));
+            assert sender != null : "message sender not found: " + toMap();
         }
         return sender;
     }

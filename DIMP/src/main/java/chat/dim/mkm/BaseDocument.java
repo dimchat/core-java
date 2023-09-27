@@ -52,7 +52,7 @@ public class BaseDocument extends Dictionary implements Document {
     private TransportableData sig;  // LocalUser(identifier).sign(data)
 
     private Map<String, Object> properties;
-    private int status;        // 1 for valid, -1 for invalid
+    private int status;             // 1 for valid, -1 for invalid
 
     /**
      *  Create Entity Document
@@ -219,8 +219,9 @@ public class BaseDocument extends Dictionary implements Document {
         status = 0;
         // 2. update property value with name
         Map<String, Object> dict = getProperties();
-        assert dict != null : "failed to get properties: " + this;
-        if (value == null) {
+        if (dict == null) {
+            assert false : "failed to get properties: " + this;
+        } else if (value == null) {
             dict.remove(name);
         } else {
             dict.put(name, value);

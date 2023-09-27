@@ -33,7 +33,6 @@ package chat.dim.dkd.cmd;
 import java.util.Map;
 
 import chat.dim.protocol.Envelope;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 
 /**
@@ -65,56 +64,7 @@ public class BaseReceiptCommand extends BaseReceipt {
 
     @Override
     public boolean matchMessage(InstantMessage iMsg) {
-        if (getOrigin() == null) {
-            // receipt without original message info
-            return false;
-        }
-        // check signature
-        String sig1 = getOriginalSignature();
-        if (sig1 != null) {
-            // if contains signature, check it
-            String sig2 = iMsg.getString("signature", null);
-            if (sig2 != null) {
-                return checkSignatures(sig1, sig2);
-            }
-        }
-        // check envelope
-        Envelope env1 = getOriginalEnvelope();
-        if (env1 != null) {
-            // if contains envelope, check it
-            Envelope env2 = iMsg.getEnvelope();
-            if (!checkEnvelopes(env1, env2)) {
-                return false;
-            }
-        }
-        // check serial number
-        // (only the original message's receiver can know this number)
-        return getOriginalSerialNumber() == iMsg.getContent().getSerialNumber();
-    }
-
-    private static boolean checkSignatures(String sig1, String sig2) {
-        assert sig1 != null && sig2 != null : "signatures should not be empty: " + sig1 + ", " + sig2;
-        if (sig1.length() > 8) {
-            sig1 = sig1.substring(sig1.length() - 8);
-        }
-        if (sig2.length() > 8) {
-            sig2 = sig2.substring(sig1.length() - 8);
-        }
-        return sig1.equals(sig2);
-    }
-    private static boolean checkEnvelopes(Envelope env1, Envelope env2) {
-        if (!env1.getSender().equals(env2.getSender())) {
-            return false;
-        }
-        ID to1 = env1.getGroup();
-        if (to1 == null) {
-            to1 = env1.getReceiver();
-        }
-        ID to2 = env2.getGroup();
-        if (to2 == null) {
-            to2 = env2.getReceiver();
-        }
-        return to1.equals(to2);
+        return MixIn.matchMessage(iMsg, this);
     }
 
 }

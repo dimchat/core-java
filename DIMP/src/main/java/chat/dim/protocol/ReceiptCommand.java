@@ -69,30 +69,76 @@ public interface ReceiptCommand extends Command {
     //
 
     static ReceiptCommand create(String text, Envelope env, long sn, String sig) {
+        assert !env.containsKey("data") &&
+                !env.containsKey("key") &&
+                !env.containsKey("keys") &&
+                !env.containsKey("meta") &&
+                !env.containsKey("visa") : "impure envelope: " + env;
         // create base receipt command
         return new BaseReceiptCommand(text, env, sn, sig);
     }
 
     static ReceiptCommand create(String text, Envelope env) {
         // create base receipt command with text & original envelope
-        return new BaseReceiptCommand(text, env, 0, null);
+        return create(text, env, 0, null);
     }
 
-    static ReceiptCommand create(String text, ReliableMessage rMsg) {
-        Envelope envelope;
-        if (rMsg == null) {
-            envelope = null;
-        } else {
-            Map<?, ?> info = rMsg.copyMap(false);
-            info.remove("data");
-            info.remove("key");
-            info.remove("keys");
-            info.remove("meta");
-            info.remove("visa");
-            envelope = Envelope.parse(info);
+    // Receipt Helper
+    interface MixIn {
+
+        static boolean matchMessage(InstantMessage iMsg, ReceiptCommand receipt) {
+            if (receipt.getOrigin() == null) {
+                // receipt without original message info
+                return false;
+            }
+            // check signature
+            String sig1 = receipt.getOriginalSignature();
+            if (sig1 != null) {
+                // if contains signature, check it
+                String sig2 = iMsg.getString("signature", null);
+                if (sig2 != null) {
+                    return checkSignatures(sig1, sig2);
+                }
+            }
+            // check envelope
+            Envelope env1 = receipt.getOriginalEnvelope();
+            if (env1 != null) {
+                // if contains envelope, check it
+                Envelope env2 = iMsg.getEnvelope();
+                if (!checkEnvelopes(env1, env2)) {
+                    return false;
+                }
+            }
+            // check serial number
+            // (only the original message's receiver can know this number)
+            return receipt.getOriginalSerialNumber() == iMsg.getContent().getSerialNumber();
         }
-        // create base receipt command with text & original envelope
-        return new BaseReceiptCommand(text, envelope, 0, null);
-    }
 
+        static boolean checkSignatures(String sig1, String sig2) {
+            assert sig1 != null && sig2 != null : "signatures should not be empty: " + sig1 + ", " + sig2;
+            if (sig1.length() > 8) {
+                sig1 = sig1.substring(sig1.length() - 8);
+            }
+            if (sig2.length() > 8) {
+                sig2 = sig2.substring(sig1.length() - 8);
+            }
+            return sig1.equals(sig2);
+        }
+
+        static boolean checkEnvelopes(Envelope env1, Envelope env2) {
+            if (!env1.getSender().equals(env2.getSender())) {
+                return false;
+            }
+            ID to1 = env1.getGroup();
+            if (to1 == null) {
+                to1 = env1.getReceiver();
+            }
+            ID to2 = env2.getGroup();
+            if (to2 == null) {
+                to2 = env2.getReceiver();
+            }
+            return to1.equals(to2);
+        }
+
+    }
 }

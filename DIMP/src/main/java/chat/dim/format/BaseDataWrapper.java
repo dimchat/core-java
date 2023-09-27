@@ -57,7 +57,7 @@ public class BaseDataWrapper extends Dictionary {
     public String toString() {
         String encoded = getString("data", "");
         if (encoded.isEmpty()) {
-            return null;
+            return encoded;
         }
         String algorithm = getString("algorithm", "");
         if (algorithm.equals(TransportableData.DEFAULT)) {
@@ -72,12 +72,15 @@ public class BaseDataWrapper extends Dictionary {
         }
     }
 
+    /**
+     *  Encode with 'Content-Type'
+     */
     public String toString(String mimeType) {
         assert !mimeType.contains(" ") : "content-type error: " + mimeType;
         // get encoded data
         String encoded = getString("data", "");
         if (encoded.isEmpty()) {
-            return null;
+            return encoded;
         }
         String algorithm = getAlgorithm();
         // 2. "data:image/png;base64,{BASE64_ENCODE}"

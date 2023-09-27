@@ -63,6 +63,7 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
 
     public BaseReceipt(Map<String, Object> content) {
         super(content);
+        // lazy
         envelope = null;
     }
 
@@ -74,6 +75,11 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
         envelope = env;
         // envelope of message responding to
         Map<String, Object> origin = env == null ? new HashMap<>() : env.copyMap(false);
+        // assert !origin.containsKey("data") &&
+        //        !origin.containsKey("key") &&
+        //        !origin.containsKey("keys") &&
+        //        !origin.containsKey("meta") &&
+        //        !origin.containsKey("visa") : "impure envelope: " + origin;
         // sn of the message responding to
         if (sn > 0) {
             origin.put("sn", sn);

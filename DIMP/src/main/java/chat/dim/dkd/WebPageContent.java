@@ -97,7 +97,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getTitle() {
-        return getString("title", null);
+        return getString("title", "");
     }
 
     @Override
