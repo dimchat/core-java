@@ -37,6 +37,7 @@ import chat.dim.dkd.file.AudioFileContent;
 import chat.dim.dkd.file.BaseFileContent;
 import chat.dim.dkd.file.ImageFileContent;
 import chat.dim.dkd.file.VideoFileContent;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.file.AudioContent;
 import chat.dim.protocol.file.ImageContent;
 import chat.dim.protocol.file.VideoContent;
@@ -80,52 +81,46 @@ public interface FileContent extends Content {
     //  Factories
     //
 
-    static FileContent create(ContentType type, byte[] data, String filename, URI url, DecryptKey key) {
-        return new BaseFileContent(type, data, filename, url, key);
-    }
-    static FileContent create(int type, byte[] data, String filename, URI url, DecryptKey key) {
+    static FileContent create(int type, TransportableData data, String filename, URI url, DecryptKey key) {
         return new BaseFileContent(type, data, filename, url, key);
     }
 
-    static FileContent file(byte[] data, String filename, URI url, DecryptKey key) {
+    static FileContent file(TransportableData data, String filename, URI url, DecryptKey key) {
         return new BaseFileContent(ContentType.FILE, data, filename, url, key);
     }
 
-    static ImageContent image(byte[] data, String filename, URI url, DecryptKey key) {
+    static ImageContent image(TransportableData data, String filename, URI url, DecryptKey key) {
         return new ImageFileContent(data, filename, url, key);
     }
 
-    static AudioContent audio(byte[] data, String filename, URI url, DecryptKey key) {
+    static AudioContent audio(TransportableData data, String filename, URI url, DecryptKey key) {
         return new AudioFileContent(data, filename, url, key);
     }
 
-    static VideoContent video(byte[] data, String filename, URI url, DecryptKey key) {
+    static VideoContent video(TransportableData data, String filename, URI url, DecryptKey key) {
         return new VideoFileContent(data, filename, url, key);
     }
 
     // create file contents with data & filename
 
-    static FileContent create(ContentType type, byte[] data, String filename) {
-        return new BaseFileContent(type, data, filename, null, null);
-    }
-    static FileContent create(int type, byte[] data, String filename) {
-        return new BaseFileContent(type, data, filename, null, null);
-    }
-
     static FileContent file(byte[] data, String filename) {
-        return new BaseFileContent(ContentType.FILE, data, filename, null, null);
+        TransportableData ted = data == null ? null : TransportableData.create(data);
+        return file(ted, filename, null, null);
     }
 
     static ImageContent image(byte[] data, String filename) {
-        return new ImageFileContent(data, filename, null, null);
+        TransportableData ted = data == null ? null : TransportableData.create(data);
+        return image(ted, filename, null, null);
     }
 
     static AudioContent audio(byte[] data, String filename) {
-        return new AudioFileContent(data, filename, null, null);
+        TransportableData ted = data == null ? null : TransportableData.create(data);
+        return audio(ted, filename, null, null);
     }
 
     static VideoContent video(byte[] data, String filename) {
-        return new VideoFileContent(data, filename, null, null);
+        TransportableData ted = data == null ? null : TransportableData.create(data);
+        return video(ted, filename, null, null);
     }
 
 }

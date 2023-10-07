@@ -56,7 +56,7 @@ import chat.dim.protocol.SecureMessage;
  */
 public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
-    private TransportableData body;
+    private byte[] body;
     private TransportableData encryptedKey;
     private Map<String, Object> keys;  // String => String
 
@@ -70,24 +70,22 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
     @Override
     public byte[] getData() {
-        TransportableData ted = body;
-        if (ted == null) {
+        if (body == null) {
             Object base64 = get("data");
             assert base64 != null : "message data cannot be empty: " + toMap();
             if (!isBroadcast(this)) {
                 // message content had been encrypted by a symmetric key,
                 // so the data should be encoded here (with algorithm 'base64' as default).
-                body = ted = TransportableData.parse(base64);
+                body = TransportableData.decode(base64);
             } else if (base64 instanceof String) {
                 // broadcast message content will not be encrypted (just encoded to JsON),
                 // so return the string data directly
-                byte[] plaintext = UTF8.encode((String) base64);  // JsON
-                body = ted = TransportableData.create(plaintext);
+                body = UTF8.encode((String) base64);  // JsON
             } else {
                 assert false : "content data error: " + base64;
             }
         }
-        return ted == null ? null : ted.getData();
+        return body;
     }
 
     @Override

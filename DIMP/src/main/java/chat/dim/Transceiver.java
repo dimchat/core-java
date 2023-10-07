@@ -73,6 +73,20 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         return password.encrypt(data, iMsg);
     }
 
+    /*/
+    @Override
+    public Object encodeData(byte[] data, InstantMessage iMsg) {
+        if (BaseMessage.isBroadcast(iMsg)) {
+            // broadcast message content will not be encrypted (just encoded to JsON),
+            // so no need to encode to Base64 here
+            return UTF8.decode(data);
+        }
+        // message content had been encrypted by a symmetric key,
+        // so the data should be encoded here (with algorithm 'base64' as default).
+        return TransportableData.encode(data);
+    }
+    /*/
+
     @Override
     public byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
         if (BaseMessage.isBroadcast(iMsg)) {
@@ -98,7 +112,25 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         return contact.encrypt(data);
     }
 
+    /*/
+    @Override
+    public Object encodeKey(byte[] data, InstantMessage iMsg) {
+        assert !BaseMessage.isBroadcast(iMsg) : "broadcast message has no key: " + iMsg;
+        // message key had been encrypted by a public key,
+        // so the data should be encode here (with algorithm 'base64' as default).
+        return TransportableData.encode(data);
+    }
+    /*/
+
     //-------- SecureMessageDelegate
+
+    /*/
+    @Override
+    public byte[] decodeKey(Object key, SecureMessage sMsg) {
+        assert !BaseMessage.isBroadcast(sMsg) : "broadcast message has no key: " + sMsg;
+        return TransportableData.decode(key);
+    }
+    /*/
 
     @Override
     public byte[] decryptKey(byte[] key, ID receiver, SecureMessage sMsg) {
@@ -140,6 +172,25 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         return SymmetricKey.parse(dict);
     }
 
+    /*/
+    @Override
+    public byte[] decodeData(Object data, SecureMessage sMsg) {
+        if (BaseMessage.isBroadcast(sMsg)) {
+            // broadcast message content will not be encrypted (just encoded to JsON),
+            // so return the string data directly
+            if (data instanceof String) {
+                return UTF8.encode((String) data);
+            } else {
+                assert false : "content data error: " + data;
+                return null;
+            }
+        }
+        // message content had been encrypted by a symmetric key,
+        // so the data should be encoded here (with algorithm 'base64' as default).
+        return TransportableData.decode(data);
+    }
+    /*/
+
     @Override
     public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
         // check 'IV' in sMsg for AES decryption
@@ -176,7 +227,22 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
         return user.sign(data);
     }
 
+    /*/
+    @Override
+    public Object encodeSignature(byte[] signature, SecureMessage sMsg) {
+        return TransportableData.encode(signature);
+    }
+    /*/
+
     //-------- ReliableMessageDelegate
+
+
+    /*/
+    @Override
+    public byte[] decodeSignature(Object signature, ReliableMessage rMsg) {
+        return TransportableData.decode(signature);
+    }
+    /*/
 
     @Override
     public boolean verifyDataSignature(byte[] data, byte[] signature, ReliableMessage rMsg) {

@@ -66,7 +66,7 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
         super(content);
     }
 
-    public ImageFileContent(byte[] data, String filename, URI url, DecryptKey key) {
+    public ImageFileContent(TransportableData data, String filename, URI url, DecryptKey key) {
         super(ContentType.IMAGE, data, filename, url, key);
     }
 

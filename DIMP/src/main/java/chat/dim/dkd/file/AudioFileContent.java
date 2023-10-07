@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.AudioContent;
 
@@ -62,7 +63,7 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
         super(content);
     }
 
-    public AudioFileContent(byte[] data, String filename, URI url, DecryptKey key) {
+    public AudioFileContent(TransportableData data, String filename, URI url, DecryptKey key) {
         super(ContentType.AUDIO, data, filename, url, key);
     }
 

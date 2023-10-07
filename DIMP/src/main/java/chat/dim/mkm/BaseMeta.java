@@ -99,7 +99,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         this.status = 0;
     }
 
-    protected BaseMeta(int version, VerifyKey key, String seed, byte[] fingerprint) {
+    protected BaseMeta(int version, VerifyKey key, String seed, TransportableData fingerprint) {
         super();
 
         // meta type
@@ -116,9 +116,8 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         }
 
         if (fingerprint != null) {
-            TransportableData ted = TransportableData.create(fingerprint);
-            put("fingerprint", ted.toObject());
-            this.fingerprint = ted;
+            put("fingerprint", fingerprint.toObject());
+            this.fingerprint = fingerprint;
         }
 
         // generated meta, or loaded from local storage,

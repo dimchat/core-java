@@ -71,18 +71,26 @@ public class BaseFileWrapper extends Dictionary {
      *  file data
      */
 
-    public byte[] getData() {
+    public TransportableData getData() {
         TransportableData ted = attachment;
         if (ted == null) {
             Object base64 = get("data");
             attachment = ted = TransportableData.parse(base64);
         }
-        return ted == null ? null : ted.getData();
+        return ted;
     }
 
+    public void setData(TransportableData ted) {
+        if (ted == null) {
+            remove("data");
+        } else {
+            put("data", ted.toObject());
+        }
+        attachment = ted;
+    }
     public void setData(byte[] data) {
         TransportableData ted;
-        if (data == null/* || data.length == 0*/) {
+        if (data == null || data.length == 0) {
             ted = null;
             remove("data");
         } else {

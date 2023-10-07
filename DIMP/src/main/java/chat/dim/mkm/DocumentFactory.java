@@ -32,6 +32,7 @@ package chat.dim.mkm;
 
 import java.util.Map;
 
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 
@@ -49,21 +50,19 @@ public final class DocumentFactory implements Document.Factory {
     }
 
     private static String getType(String type, ID identifier) {
-        if (type.equals("*")) {
-            if (identifier.isGroup()) {
-                return Document.BULLETIN;
-            } else if (identifier.isUser()) {
-                return Document.VISA;
-            } else {
-                return Document.PROFILE;
-            }
-        } else {
+        if (!type.equals("*")) {
             return type;
+        } else if (identifier.isGroup()) {
+            return Document.BULLETIN;
+        } else if (identifier.isUser()) {
+            return Document.VISA;
+        } else {
+            return Document.PROFILE;
         }
     }
 
     @Override
-    public Document createDocument(ID identifier, String data, String signature) {
+    public Document createDocument(ID identifier, String data, TransportableData signature) {
         String type = getType(docType, identifier);
         if (data == null || signature == null || data.isEmpty() || signature.isEmpty()) {
             // create empty document

@@ -54,6 +54,15 @@ public class BaseDataWrapper extends Dictionary {
     }
 
     @Override
+    public boolean isEmpty() {
+        byte[] binary = getData();
+        if (binary == null || binary.length == 0) {
+            return true;
+        }
+        return super.isEmpty();
+    }
+
+    @Override
     public String toString() {
         String encoded = getString("data", "");
         if (encoded.isEmpty()) {

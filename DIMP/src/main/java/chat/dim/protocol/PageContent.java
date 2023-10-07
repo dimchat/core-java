@@ -33,6 +33,7 @@ package chat.dim.protocol;
 import java.net.URI;
 
 import chat.dim.dkd.WebPageContent;
+import chat.dim.format.TransportableData;
 
 /**
  *  Web Page message: {
@@ -60,10 +61,15 @@ public interface PageContent extends Content {
     byte[] getIcon();
 
     //
-    //  Factory
+    //  Factories
     //
 
     static PageContent create(URI url, String title, String desc, byte[] icon) {
+        TransportableData ted = icon == null ? null : TransportableData.create(icon);
+        return new WebPageContent(url, title, desc, ted);
+    }
+    static PageContent create(URI url, String title, String desc, TransportableData icon) {
         return new WebPageContent(url, title, desc, icon);
     }
+
 }

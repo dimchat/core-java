@@ -62,19 +62,12 @@ public class WebPageContent extends BaseContent implements PageContent {
         icon = null;
     }
 
-    public WebPageContent(URI url, String title, String desc, byte[] icon) {
+    public WebPageContent(URI url, String title, String desc, TransportableData icon) {
         super(ContentType.PAGE);
         setURL(url);
         setTitle(title);
         setDesc(desc);
         setIcon(icon);
-    }
-
-    @Override
-    public void setURL(URI location) {
-        assert location != null : "URL cannot be empty";
-        put("URL", location.toString());
-        url = location;
     }
 
     @Override
@@ -90,9 +83,10 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public void setTitle(String text) {
-        assert text != null : "Web title cannot be empty";
-        put("title", text);
+    public void setURL(URI location) {
+        assert location != null : "URL cannot be empty";
+        put("URL", location.toString());
+        url = location;
     }
 
     @Override
@@ -101,8 +95,9 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public void setDesc(String text) {
-        put("desc", text);
+    public void setTitle(String text) {
+        assert text != null : "Web title cannot be empty";
+        put("title", text);
     }
 
     @Override
@@ -111,15 +106,8 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public void setIcon(byte[] imageData) {
-        if (imageData == null || imageData.length == 0) {
-            remove("icon");
-            icon = null;
-        } else {
-            TransportableData ted = TransportableData.create(imageData);
-            put("icon", ted.toObject());
-            icon = ted;
-        }
+    public void setDesc(String text) {
+        put("desc", text);
     }
 
     @Override
@@ -131,4 +119,24 @@ public class WebPageContent extends BaseContent implements PageContent {
         }
         return ted == null ? null : ted.getData();
     }
+
+    @Override
+    public void setIcon(byte[] imageData) {
+        TransportableData ted;
+        if (imageData == null || imageData.length == 0) {
+            ted = null;
+        } else {
+            ted = TransportableData.create(imageData);
+        }
+        setIcon(ted);
+    }
+    private void setIcon(TransportableData ted) {
+        if (ted == null) {
+            remove("icon");
+        } else {
+            put("icon", ted.toObject());
+        }
+        icon = ted;
+    }
+
 }

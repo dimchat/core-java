@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.ID;
 
@@ -50,7 +51,7 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
         super(dictionary);
     }
 
-    public BaseBulletin(ID identifier, String data, String signature) {
+    public BaseBulletin(ID identifier, String data, TransportableData signature) {
         super(identifier, BULLETIN, data, signature);
     }
 

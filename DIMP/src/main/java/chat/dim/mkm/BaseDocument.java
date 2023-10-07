@@ -80,7 +80,7 @@ public class BaseDocument extends Dictionary implements Document {
      * @param data       - document data in JsON format
      * @param signature  - signature of document data in Base64 format
      */
-    public BaseDocument(ID identifier, String type, String data, String signature) {
+    public BaseDocument(ID identifier, String type, String data, TransportableData signature) {
         super();
 
         // ID
@@ -98,8 +98,8 @@ public class BaseDocument extends Dictionary implements Document {
 
         // document signature (Base64)
         assert !signature.isEmpty() : "document signature should not be empty";
-        put("signature", signature);
-        this.sig = null;  // lazy
+        put("signature", signature.toObject());
+        this.sig = signature;
 
         properties = null;  // lazy
 

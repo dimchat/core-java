@@ -66,7 +66,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
         super(content);
     }
 
-    public VideoFileContent(byte[] data, String filename, URI url, DecryptKey key) {
+    public VideoFileContent(TransportableData data, String filename, URI url, DecryptKey key) {
         super(ContentType.VIDEO, data, filename, url, key);
     }
 

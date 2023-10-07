@@ -108,7 +108,7 @@ public class IDFactory implements ID.Factory {
         Address address;
         String terminal;
         // split ID string
-        String[] pair = identifier.split("/", 2);
+        String[] pair = identifier.split("/");
         assert pair[0].length() > 0 : "ID error: " + identifier;
         // terminal
         if (pair.length == 1) {

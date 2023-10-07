@@ -36,6 +36,7 @@ import java.util.Map;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.dkd.BaseContent;
 import chat.dim.format.BaseFileWrapper;
+import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
 
@@ -66,7 +67,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
         wrapper = new BaseFileWrapper(toMap());
     }
 
-    public BaseFileContent(int type, byte[] data, String filename, URI url, DecryptKey key) {
+    public BaseFileContent(int type, TransportableData data, String filename, URI url, DecryptKey key) {
         super(type);
         wrapper = new BaseFileWrapper(toMap());
         // file data
@@ -86,7 +87,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
             wrapper.setPassword(key);
         }
     }
-    public BaseFileContent(ContentType type, byte[] data, String filename, URI url, DecryptKey key) {
+    public BaseFileContent(ContentType type, TransportableData data, String filename, URI url, DecryptKey key) {
         this(type.value, data, filename, url, key);
     }
 
@@ -96,7 +97,8 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public byte[] getData() {
-        return wrapper.getData();
+        TransportableData ted = wrapper.getData();
+        return ted == null ? null : ted.getData();
     }
 
     @Override
