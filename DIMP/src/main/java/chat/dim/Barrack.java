@@ -31,7 +31,10 @@
 package chat.dim;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
@@ -56,6 +59,69 @@ import chat.dim.protocol.Visa;
  */
 public abstract class Barrack implements Entity.Delegate, User.DataSource, Group.DataSource {
 
+    // memory caches
+    private final Map<ID, User>   userMap = new HashMap<>();
+    private final Map<ID, Group> groupMap = new HashMap<>();
+
+    protected void cache(User user) {
+        if (user.getDataSource() == null) {
+            user.setDataSource(this);
+        }
+        userMap.put(user.getIdentifier(), user);
+    }
+
+    protected void cache(Group group) {
+        if (group.getDataSource() == null) {
+            group.setDataSource(this);
+        }
+        groupMap.put(group.getIdentifier(), group);
+    }
+
+    /**
+     * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
+     * this will remove 50% of cached objects
+     *
+     * @return number of survivors
+     */
+    public int reduceMemory() {
+        int finger = 0;
+        finger = thanos(userMap, finger);
+        finger = thanos(groupMap, finger);
+        return finger >> 1;
+    }
+
+    /**
+     *  Thanos can kill half lives of a world with a snap of the finger
+     */
+    public static <K, V> int thanos(Map<K, V> planet, int finger) {
+        Iterator<Map.Entry<K, V>> people = planet.entrySet().iterator();
+        while (people.hasNext()) {
+            people.next();
+            if ((++finger & 1) == 1) {
+                // kill it
+                people.remove();
+            }
+            // let it go
+        }
+        return finger;
+    }
+
+    /**
+     *  Create user when visa.key exists
+     *
+     * @param identifier - user ID
+     * @return user, null on not ready
+     */
+    protected abstract User createUser(ID identifier);
+
+    /**
+     *  Create group when members exist
+     *
+     * @param identifier - group ID
+     * @return group, null on not ready
+     */
+    protected abstract Group createGroup(ID identifier);
+
     protected EncryptKey getVisaKey(ID user) {
         Document doc = getDocument(user, Document.VISA);
         if (doc instanceof Visa/* && doc.isValid()*/) {
@@ -70,6 +136,36 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
             return null;
         }
         return meta.getPublicKey();
+    }
+
+    //-------- Entity Delegate
+
+    @Override
+    public User getUser(ID identifier) {
+        // 1. get from user cache
+        User user = userMap.get(identifier);
+        if (user == null) {
+            // 2. create user and cache it
+            user = createUser(identifier);
+            if (user != null) {
+                cache(user);
+            }
+        }
+        return user;
+    }
+
+    @Override
+    public Group getGroup(ID identifier) {
+        // 1. get from group cache
+        Group group = groupMap.get(identifier);
+        if (group == null) {
+            // 2. create group and cache it
+            group = createGroup(identifier);
+            if (group != null) {
+                cache(group);
+            }
+        }
+        return group;
     }
 
     //-------- User DataSource
