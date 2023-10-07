@@ -32,6 +32,7 @@ package chat.dim.protocol;
 
 import java.util.List;
 
+import chat.dim.dkd.group.BaseGroupCommand;
 import chat.dim.dkd.group.ExpelGroupCommand;
 import chat.dim.dkd.group.FireGroupCommand;
 import chat.dim.dkd.group.HireGroupCommand;
@@ -87,6 +88,16 @@ public interface GroupCommand extends HistoryCommand {
     //
     //  Factories
     //
+
+    static GroupCommand create(String cmd, ID group) {
+        return new BaseGroupCommand(cmd, group);
+    }
+    static GroupCommand create(String cmd, ID group, ID member) {
+        return new BaseGroupCommand(cmd, group, member);
+    }
+    static GroupCommand create(String cmd, ID group, List<ID> members) {
+        return new BaseGroupCommand(cmd, group, members);
+    }
 
     static InviteCommand invite(ID group, ID member) {
         return new InviteGroupCommand(group, member);

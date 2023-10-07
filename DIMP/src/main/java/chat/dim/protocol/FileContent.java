@@ -82,6 +82,13 @@ public interface FileContent extends Content {
     //
 
     static FileContent create(int type, TransportableData data, String filename, URI url, DecryptKey key) {
+        if (ContentType.IMAGE.equals(type)) {
+            return new ImageFileContent(data, filename, url, key);
+        } else if (ContentType.AUDIO.equals(type)) {
+            return new AudioFileContent(data, filename, url, key);
+        } else if (ContentType.VIDEO.equals(type)) {
+            return new VideoFileContent(data, filename, url, key);
+        }
         return new BaseFileContent(type, data, filename, url, key);
     }
 
@@ -99,28 +106,6 @@ public interface FileContent extends Content {
 
     static VideoContent video(TransportableData data, String filename, URI url, DecryptKey key) {
         return new VideoFileContent(data, filename, url, key);
-    }
-
-    // create file contents with data & filename
-
-    static FileContent file(byte[] data, String filename) {
-        TransportableData ted = data == null ? null : TransportableData.create(data);
-        return file(ted, filename, null, null);
-    }
-
-    static ImageContent image(byte[] data, String filename) {
-        TransportableData ted = data == null ? null : TransportableData.create(data);
-        return image(ted, filename, null, null);
-    }
-
-    static AudioContent audio(byte[] data, String filename) {
-        TransportableData ted = data == null ? null : TransportableData.create(data);
-        return audio(ted, filename, null, null);
-    }
-
-    static VideoContent video(byte[] data, String filename) {
-        TransportableData ted = data == null ? null : TransportableData.create(data);
-        return video(ted, filename, null, null);
     }
 
 }

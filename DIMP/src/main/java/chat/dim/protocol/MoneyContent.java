@@ -52,10 +52,6 @@ public interface MoneyContent extends Content {
     //  Factories
     //
 
-    static MoneyContent create(ContentType type, String currency, double amount) {
-        return new BaseMoneyContent(type, currency, amount);
-    }
-
     static MoneyContent create(int type, String currency, double amount) {
         return new BaseMoneyContent(type, currency, amount);
     }

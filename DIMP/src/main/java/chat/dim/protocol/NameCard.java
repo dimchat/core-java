@@ -30,8 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.net.URI;
-
 import chat.dim.dkd.NameCardContent;
 import chat.dim.format.PortableNetworkFile;
 
@@ -55,13 +53,8 @@ public interface NameCard extends Content {
     PortableNetworkFile getAvatar();
 
     //
-    //  Factories
+    //  Factory
     //
-
-    static NameCard create(ID identifier, String name, URI avatar) {
-        PortableNetworkFile pnf = PortableNetworkFile.create(avatar, null);
-        return new NameCardContent(identifier, name, pnf);
-    }
 
     static NameCard create(ID identifier, String name, PortableNetworkFile avatar) {
         return new NameCardContent(identifier, name, avatar);

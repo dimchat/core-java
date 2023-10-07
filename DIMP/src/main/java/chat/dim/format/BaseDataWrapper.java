@@ -55,11 +55,11 @@ public class BaseDataWrapper extends Dictionary {
 
     @Override
     public boolean isEmpty() {
-        byte[] binary = getData();
-        if (binary == null || binary.length == 0) {
+        if (super.isEmpty()) {
             return true;
         }
-        return super.isEmpty();
+        byte[] binary = getData();
+        return binary == null || binary.length == 0;
     }
 
     @Override

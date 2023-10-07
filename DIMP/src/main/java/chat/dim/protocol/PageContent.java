@@ -61,13 +61,9 @@ public interface PageContent extends Content {
     byte[] getIcon();
 
     //
-    //  Factories
+    //  Factory
     //
 
-    static PageContent create(URI url, String title, String desc, byte[] icon) {
-        TransportableData ted = icon == null ? null : TransportableData.create(icon);
-        return new WebPageContent(url, title, desc, ted);
-    }
     static PageContent create(URI url, String title, String desc, TransportableData icon) {
         return new WebPageContent(url, title, desc, icon);
     }
