@@ -30,7 +30,6 @@
  */
 package chat.dim.dkd.cmd;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.protocol.Envelope;
@@ -59,36 +58,25 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
     /**
      *  original message envelope
      */
-    private Envelope envelope;
+    private Envelope envelope = null;
 
     public BaseReceipt(Map<String, Object> content) {
         super(content);
-        // lazy
-        envelope = null;
     }
 
-    public BaseReceipt(String text, Envelope env, long sn, String sig) {
+    public BaseReceipt(String text, Map<String, Object> origin) {
         super(RECEIPT);
         // text message
         put("text", text);
-        // original envelope
-        envelope = env;
-        // envelope of message responding to
-        Map<String, Object> origin = env == null ? new HashMap<>() : env.copyMap(false);
-        // assert !origin.containsKey("data") &&
-        //        !origin.containsKey("key") &&
-        //        !origin.containsKey("keys") &&
-        //        !origin.containsKey("meta") &&
-        //        !origin.containsKey("visa") : "impure envelope: " + origin;
-        // sn of the message responding to
-        if (sn > 0) {
-            origin.put("sn", sn);
-        }
-        // signature of the message responding to
-        if (sig != null && sig.length() > 0) {
-            origin.put("signature", sig);
-        }
-        if (!origin.isEmpty()) {
+        // original envelope of message responding to,
+        // includes 'sn' and 'signature'
+        if (origin != null) {
+            assert !(origin.isEmpty() ||
+                    origin.containsKey("data") ||
+                    origin.containsKey("key") ||
+                    origin.containsKey("keys") ||
+                    origin.containsKey("meta") ||
+                    origin.containsKey("visa")) : "impure envelope: " + origin;
             put("origin", origin);
         }
     }
@@ -121,12 +109,20 @@ public abstract class BaseReceipt extends BaseCommand implements ReceiptCommand 
     @Override
     public long getOriginalSerialNumber() {
         Map<?, ?> origin = getOrigin();
-        return origin == null ? 0 : Converter.getLong(origin.get("sn"), 0);
+        if (origin == null) {
+            // original info not found
+            return 0;
+        }
+        return Converter.getLong(origin.get("sn"), 0);
     }
 
     @Override
     public String getOriginalSignature() {
         Map<?, ?> origin = getOrigin();
-        return origin == null ? null : Converter.getString(origin.get("signature"), null);
+        if (origin == null) {
+            // original info not found
+            return null;
+        }
+        return Converter.getString(origin.get("signature"), null);
     }
 }

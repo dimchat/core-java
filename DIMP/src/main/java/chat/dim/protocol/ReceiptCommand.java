@@ -68,19 +68,40 @@ public interface ReceiptCommand extends Command {
     //  Factories
     //
 
-    static ReceiptCommand create(String text, Envelope env, long sn, String sig) {
-        assert !env.containsKey("data") &&
-                !env.containsKey("key") &&
-                !env.containsKey("keys") &&
-                !env.containsKey("meta") &&
-                !env.containsKey("visa") : "impure envelope: " + env;
-        // create base receipt command
-        return new BaseReceiptCommand(text, env, sn, sig);
+    /**
+     *  Create base receipt command with text & original message info
+     */
+    static ReceiptCommand create(String text, Envelope head, Content body) {
+        Map<String, Object> info;
+        if (head == null) {
+            info = null;
+        } else if (body == null) {
+            info = purify(head);
+        } else {
+            info = purify(head);
+            info.put("sn", body.getSerialNumber());
+        }
+        ReceiptCommand command = new BaseReceiptCommand(text, info);
+        if (body != null) {
+            // check group
+            ID group = body.getGroup();
+            if (group != null) {
+                command.setGroup(group);
+            }
+        }
+        return command;
     }
 
-    static ReceiptCommand create(String text, Envelope env) {
-        // create base receipt command with text & original envelope
-        return create(text, env, 0, null);
+    static Map<String, Object> purify(Envelope envelope) {
+        Map<String, Object> info = envelope.copyMap(false);
+        if (info.containsKey("data")) {
+            info.remove("data");
+            info.remove("key");
+            info.remove("keys");
+            info.remove("meta");
+            info.remove("visa");
+        }
+        return info;
     }
 
     // Receipt Helper

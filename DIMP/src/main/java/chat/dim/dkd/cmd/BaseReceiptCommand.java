@@ -32,7 +32,6 @@ package chat.dim.dkd.cmd;
 
 import java.util.Map;
 
-import chat.dim.protocol.Envelope;
 import chat.dim.protocol.InstantMessage;
 
 /**
@@ -58,8 +57,8 @@ public class BaseReceiptCommand extends BaseReceipt {
         super(content);
     }
 
-    public BaseReceiptCommand(String text, Envelope env, long sn, String sig) {
-        super(text, env, sn, sig);
+    public BaseReceiptCommand(String text, Map<String, Object> origin) {
+        super(text, origin);
     }
 
     @Override
