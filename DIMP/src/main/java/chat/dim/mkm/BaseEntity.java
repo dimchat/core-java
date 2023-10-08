@@ -40,7 +40,7 @@ public class BaseEntity implements Entity {
 
     protected final ID identifier;
 
-    private WeakReference<DataSource> dataSourceRef = null;
+    private WeakReference<DataSource> barrackRef = null;
 
     public BaseEntity(ID id) {
         super();
@@ -79,12 +79,12 @@ public class BaseEntity implements Entity {
 
     @Override
     public DataSource getDataSource() {
-        return dataSourceRef == null ? null : dataSourceRef.get();
+        return barrackRef == null ? null : barrackRef.get();
     }
 
     @Override
-    public void setDataSource(DataSource dataSource) {
-        dataSourceRef = new WeakReference<>(dataSource);
+    public void setDataSource(DataSource facebook) {
+        barrackRef = facebook == null ? null : new WeakReference<>(facebook);
     }
 
     @Override

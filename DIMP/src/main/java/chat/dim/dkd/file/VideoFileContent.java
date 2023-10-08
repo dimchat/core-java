@@ -71,15 +71,16 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     }
 
     @Override
-    public void setSnapshot(byte[] imageData) {
-        if (imageData == null/* || imageData.length == 0*/) {
+    public void setSnapshot(byte[] image) {
+        TransportableData ted;
+        if (image == null/* || image.length == 0*/) {
             remove("snapshot");
-            snapshot = null;
+            ted = null;
         } else {
-            TransportableData ted = TransportableData.create(imageData);
+            ted = TransportableData.create(image);
             put("snapshot", ted.toObject());
-            snapshot = ted;
         }
+        snapshot = ted;
     }
 
     @Override

@@ -37,6 +37,9 @@ import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.group.ExpelCommand;
 
+/**
+ *  Deprecated, use 'reset' instead
+ */
 public class ExpelGroupCommand extends BaseGroupCommand implements ExpelCommand {
 
     public ExpelGroupCommand(Map<String, Object> content) {

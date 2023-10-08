@@ -71,15 +71,16 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     }
 
     @Override
-    public void setThumbnail(byte[] imageData) {
-        if (imageData == null/* || imageData.length == 0*/) {
+    public void setThumbnail(byte[] image) {
+        TransportableData ted;
+        if (image == null/* || image.length == 0*/) {
             remove("thumbnail");
-            thumbnail = null;
+            ted = null;
         } else {
-            TransportableData ted = TransportableData.create(imageData);
+            ted = TransportableData.create(image);
             put("thumbnail", ted.toObject());
-            thumbnail = ted;
         }
+        thumbnail = ted;
     }
 
     @Override

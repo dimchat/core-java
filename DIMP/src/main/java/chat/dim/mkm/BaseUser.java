@@ -48,7 +48,12 @@ public class BaseUser extends BaseEntity implements User {
 
     @Override
     public User.DataSource getDataSource() {
-        return (User.DataSource) super.getDataSource();
+        Entity.DataSource facebook = super.getDataSource();
+        if (facebook instanceof User.DataSource) {
+            return (User.DataSource) facebook;
+        }
+        assert facebook == null : "user data source error: " + facebook;
+        return null;
     }
 
     @Override
@@ -57,6 +62,7 @@ public class BaseUser extends BaseEntity implements User {
         if (doc instanceof Visa/* && doc.isValid()*/) {
             return (Visa) doc;
         }
+        assert doc == null : "user document error: " + doc;
         return null;
     }
 

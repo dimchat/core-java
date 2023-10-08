@@ -57,15 +57,9 @@ public class AppCustomizedContent extends BaseContent implements CustomizedConte
     }
     public AppCustomizedContent(int type, String app, String mod, String act) {
         super(type);
-        if (app != null) {
-            put("app", app);
-        }
-        if (mod != null) {
-            put("mod", mod);
-        }
-        if (act != null) {
-            put("act", act);
-        }
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
     }
 
     public AppCustomizedContent(String app, String mod, String act) {

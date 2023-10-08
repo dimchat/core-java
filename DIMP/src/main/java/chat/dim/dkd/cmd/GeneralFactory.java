@@ -75,7 +75,8 @@ public class GeneralFactory {
         }
         // get factory by command name
         String name = getCmd(info, "");
-        Command.Factory factory = name.isEmpty() ? null : getCommandFactory(name);
+        assert !name.isEmpty() : "command name not found: " + content;
+        Command.Factory factory = getCommandFactory(name);
         if (factory == null) {
             // unknown command name, get base command factory
             factory = getDefaultFactory(info);

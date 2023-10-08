@@ -88,13 +88,14 @@ public class BaseFileWrapper extends Dictionary {
         }
         attachment = ted;
     }
-    public void setData(byte[] data) {
+    // set binary data
+    public void setData(byte[] binary) {
         TransportableData ted;
-        if (data == null || data.length == 0) {
-            ted = null;
+        if (binary == null/* || binary.length == 0*/) {
             remove("data");
+            ted = null;
         } else {
-            ted = TransportableData.create(data);
+            ted = TransportableData.create(binary);
             put("data", ted.toObject());
         }
         attachment = ted;

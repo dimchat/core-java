@@ -98,7 +98,7 @@ public class BaseContent extends Dictionary implements Content {
             FactoryManager man = FactoryManager.getInstance();
             type = man.generalFactory.getContentType(toMap(), 0);
             // type = getInt("type", 0);
-            assert type >= 0 : "content type error: " + toMap();
+            assert type > 0 : "content type error: " + toMap();
         }
         return type;
     }

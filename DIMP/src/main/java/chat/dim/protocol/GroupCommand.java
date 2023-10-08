@@ -60,7 +60,7 @@ public interface GroupCommand extends HistoryCommand {
     String ABDICATE = "abdicate";
     // member
     String INVITE   = "invite";
-    String EXPEL    = "expel";
+    String EXPEL    = "expel";  // Deprecated (use 'reset' instead)
     String JOIN     = "join";
     String QUIT     = "quit";
     String QUERY    = "query";
@@ -106,6 +106,7 @@ public interface GroupCommand extends HistoryCommand {
         return new InviteGroupCommand(group, members);
     }
 
+    // Deprecated (use 'reset' instead)
     static ExpelCommand expel(ID group, ID member) {
         return new ExpelGroupCommand(group, member);
     }

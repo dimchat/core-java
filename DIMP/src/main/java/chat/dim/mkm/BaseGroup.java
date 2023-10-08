@@ -47,7 +47,13 @@ public class BaseGroup extends BaseEntity implements Group {
 
     @Override
     public Group.DataSource getDataSource() {
-        return (Group.DataSource) super.getDataSource();
+        Entity.DataSource facebook = super.getDataSource();
+        if (facebook instanceof Group.DataSource) {
+            return (Group.DataSource) facebook;
+        } else {
+            assert facebook == null : "group data source error: " + facebook;
+            return null;
+        }
     }
 
     @Override
@@ -56,6 +62,7 @@ public class BaseGroup extends BaseEntity implements Group {
         if (doc instanceof Bulletin/* && doc.isValid()*/) {
             return (Bulletin) doc;
         }
+        assert doc == null : "group document error: " + doc;
         return null;
     }
 

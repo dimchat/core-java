@@ -71,18 +71,19 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
     @Override
     public byte[] getData() {
         if (body == null) {
-            Object base64 = get("data");
-            assert base64 != null : "message data cannot be empty: " + toMap();
-            if (!isBroadcast(this)) {
+            Object text = get("data");
+            if (text == null) {
+                assert false : "message data cannot be empty: " + toMap();
+            } else if (!isBroadcast(this)) {
                 // message content had been encrypted by a symmetric key,
                 // so the data should be encoded here (with algorithm 'base64' as default).
-                body = TransportableData.decode(base64);
-            } else if (base64 instanceof String) {
+                body = TransportableData.decode(text);
+            } else if (text instanceof String) {
                 // broadcast message content will not be encrypted (just encoded to JsON),
                 // so return the string data directly
-                body = UTF8.encode((String) base64);  // JsON
+                body = UTF8.encode((String) text);  // JsON
             } else {
-                assert false : "content data error: " + base64;
+                assert false : "content data error: " + text;
             }
         }
         return body;
