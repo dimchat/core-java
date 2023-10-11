@@ -33,7 +33,7 @@ package chat.dim.dkd;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.msg.FactoryManager;
+import chat.dim.msg.MessageFactoryManager;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
@@ -95,7 +95,7 @@ public class BaseContent extends Dictionary implements Content {
     @Override
     public int getType() {
         if (type < 0) {
-            FactoryManager man = FactoryManager.getInstance();
+            MessageFactoryManager man = MessageFactoryManager.getInstance();
             type = man.generalFactory.getContentType(toMap(), 0);
             // type = getInt("type", 0);
             assert type > 0 : "content type error: " + toMap();

@@ -63,7 +63,7 @@ public class BaseReceiptCommand extends BaseReceipt {
 
     @Override
     public boolean matchMessage(InstantMessage iMsg) {
-        return MixIn.matchMessage(iMsg, this);
+        return ReceiptHelper.matchMessage(iMsg, this);
     }
 
 }

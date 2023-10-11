@@ -33,6 +33,7 @@ package chat.dim.dkd.cmd;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.msg.MessageFactoryManager;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.type.Converter;
@@ -42,7 +43,7 @@ import chat.dim.type.Wrapper;
  *  Command GeneralFactory
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-public class GeneralFactory {
+public class CommandGeneralFactory {
 
     private final Map<String, Command.Factory> commandFactories = new HashMap<>();
 
@@ -89,7 +90,7 @@ public class GeneralFactory {
     }
 
     private static Command.Factory getDefaultFactory(Map<?, ?> info) {
-        chat.dim.msg.FactoryManager man = chat.dim.msg.FactoryManager.getInstance();
+        MessageFactoryManager man = chat.dim.msg.MessageFactoryManager.getInstance();
         int type = man.generalFactory.getContentType(info, 0);
         Content.Factory factory = man.generalFactory.getContentFactory(type);
         if (factory instanceof Command.Factory) {

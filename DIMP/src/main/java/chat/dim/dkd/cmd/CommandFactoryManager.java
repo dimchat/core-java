@@ -34,13 +34,13 @@ package chat.dim.dkd.cmd;
  *  Command FactoryManager
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-public enum FactoryManager {
+public enum CommandFactoryManager {
 
     INSTANCE;
 
-    public static FactoryManager getInstance() {
+    public static CommandFactoryManager getInstance() {
         return INSTANCE;
     }
 
-    public GeneralFactory generalFactory = new GeneralFactory();
+    public CommandGeneralFactory generalFactory = new CommandGeneralFactory();
 }

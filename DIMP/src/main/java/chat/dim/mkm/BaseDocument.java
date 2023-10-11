@@ -146,7 +146,7 @@ public class BaseDocument extends Dictionary implements Document {
     public String getType() {
         String type = (String) getProperty("type");  // deprecated
         if (type == null) {
-            FactoryManager man = FactoryManager.getInstance();
+            AccountFactoryManager man = AccountFactoryManager.getInstance();
             type = man.generalFactory.getDocumentType(toMap(), null);
             // type = getString("type", null);
         }

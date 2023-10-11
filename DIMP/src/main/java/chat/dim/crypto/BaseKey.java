@@ -45,17 +45,17 @@ abstract class BaseKey extends Dictionary implements CryptographyKey {
     //
 
     public static String getKeyAlgorithm(Map<?, ?> key) {
-        FactoryManager man = FactoryManager.getInstance();
+        CryptoKeyFactoryManager man = CryptoKeyFactoryManager.getInstance();
         return man.generalFactory.getAlgorithm(key, null);
     }
 
     public static boolean matchEncryptKey(EncryptKey pKey, DecryptKey sKey) {
-        FactoryManager man = FactoryManager.getInstance();
+        CryptoKeyFactoryManager man = CryptoKeyFactoryManager.getInstance();
         return man.generalFactory.matches(pKey, sKey);
     }
 
     public static boolean matchSignKey(SignKey sKey, VerifyKey pKey) {
-        FactoryManager man = FactoryManager.getInstance();
+        CryptoKeyFactoryManager man = CryptoKeyFactoryManager.getInstance();
         return man.generalFactory.matches(sKey, pKey);
     }
 

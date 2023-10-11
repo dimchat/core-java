@@ -192,19 +192,19 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
     @Override
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
         List<VerifyKey> keys = new ArrayList<>();
-        // 1. get key from visa
-        EncryptKey visaKey = getVisaKey(user);
-        if (visaKey instanceof VerifyKey) {
-            // the sender may use communication key to sign message.data,
-            // so try to verify it with visa.key here
-            keys.add((VerifyKey) visaKey);
-        }
-        // 2. get key from meta
+        // 1. get key from meta
         VerifyKey metaKey = getMetaKey(user);
         if (metaKey != null) {
             // the sender may use identity key to sign message.data,
             // try to verify it with meta.key
             keys.add(metaKey);
+        }
+        // 2. get key from visa
+        EncryptKey visaKey = getVisaKey(user);
+        if (visaKey instanceof VerifyKey) {
+            // the sender may use communication key to sign message.data,
+            // so try to verify it with visa.key here
+            keys.add((VerifyKey) visaKey);
         }
         assert !keys.isEmpty() : "failed to get verify key for user: " + user;
         return keys;

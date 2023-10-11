@@ -32,7 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.dkd.cmd.FactoryManager;
+import chat.dim.dkd.cmd.CommandFactoryManager;
 
 /**
  *  Command message: {
@@ -62,16 +62,16 @@ public interface Command extends Content {
     //  Factory method
     //
     static Command parse(Object content) {
-        FactoryManager man = FactoryManager.getInstance();
+        CommandFactoryManager man = CommandFactoryManager.getInstance();
         return man.generalFactory.parseCommand(content);
     }
 
     static Factory getFactory(String cmd) {
-        FactoryManager man = FactoryManager.getInstance();
+        CommandFactoryManager man = CommandFactoryManager.getInstance();
         return man.generalFactory.getCommandFactory(cmd);
     }
     static void setFactory(String cmd, Factory factory) {
-        FactoryManager man = FactoryManager.getInstance();
+        CommandFactoryManager man = CommandFactoryManager.getInstance();
         man.generalFactory.setCommandFactory(cmd, factory);
     }
 
