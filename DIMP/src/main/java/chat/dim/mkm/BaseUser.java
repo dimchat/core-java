@@ -58,12 +58,8 @@ public class BaseUser extends BaseEntity implements User {
 
     @Override
     public Visa getVisa() {
-        Document doc = getDocument(Document.VISA);
-        if (doc instanceof Visa/* && doc.isValid()*/) {
-            return (Visa) doc;
-        }
-        assert doc == null : "user document error: " + doc;
-        return null;
+        List<Document> documents = getDocuments();
+        return DocumentHelper.lastVisa(documents);
     }
 
     @Override
@@ -163,4 +159,5 @@ public class BaseUser extends BaseEntity implements User {
         assert pKey != null : "failed to get verify key for visa: " + identifier;
         return doc.verify(pKey);
     }
+
 }

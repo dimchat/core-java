@@ -38,6 +38,7 @@ import java.util.Map;
 
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.mkm.DocumentHelper;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
@@ -123,19 +124,28 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
     protected abstract Group createGroup(ID identifier);
 
     protected EncryptKey getVisaKey(ID user) {
-        Document doc = getDocument(user, Document.VISA);
-        if (doc instanceof Visa/* && doc.isValid()*/) {
-            return ((Visa) doc).getPublicKey();
+        Visa doc = getVisa(user);
+        if (doc != null/* && doc.isValid()*/) {
+            return doc.getPublicKey();
         }
         return null;
     }
     protected VerifyKey getMetaKey(ID user) {
         Meta meta = getMeta(user);
-        if (meta == null) {
-            //throw new NullPointerException("failed to get meta for ID: " + user);
-            return null;
+        if (meta != null/* && meta.isValid()*/) {
+            return meta.getPublicKey();
         }
-        return meta.getPublicKey();
+        //throw new NullPointerException("failed to get meta for ID: " + user);
+        return null;
+    }
+
+    public Visa getVisa(ID user) {
+        List<Document> documents = getDocuments(user);
+        return DocumentHelper.lastVisa(documents);
+    }
+    public Bulletin getBulletin(ID group) {
+        List<Document> documents = getDocuments(group);
+        return DocumentHelper.lastBulletin(documents);
     }
 
     //-------- Entity Delegate
@@ -220,9 +230,9 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
             return getBroadcastFounder(group);
         }
         // get from document
-        Document doc = getDocument(group, "*");
-        if (doc instanceof Bulletin/* && doc.isValid()*/) {
-            return ((Bulletin) doc).getFounder();
+        Bulletin doc = getBulletin(group);
+        if (doc != null/* && doc.isValid()*/) {
+            return doc.getFounder();
         }
         // TODO: load founder from database
         return null;
@@ -257,9 +267,9 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public List<ID> getAssistants(ID group) {
-        Document doc = getDocument(group, Document.BULLETIN);
-        if (doc instanceof Bulletin/* && doc.isValid()*/) {
-            return ((Bulletin) doc).getAssistants();
+        Bulletin doc = getBulletin(group);
+        if (doc != null/* && doc.isValid()*/) {
+            return doc.getAssistants();
         }
         // TODO: get group bots from SP configuration
         return null;

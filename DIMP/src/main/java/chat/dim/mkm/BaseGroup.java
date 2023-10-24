@@ -58,12 +58,8 @@ public class BaseGroup extends BaseEntity implements Group {
 
     @Override
     public Bulletin getBulletin() {
-        Document doc = getDocument(Document.BULLETIN);
-        if (doc instanceof Bulletin/* && doc.isValid()*/) {
-            return (Bulletin) doc;
-        }
-        assert doc == null : "group document error: " + doc;
-        return null;
+        List<Document> documents = getDocuments();
+        return DocumentHelper.lastBulletin(documents);
     }
 
     @Override
@@ -96,4 +92,5 @@ public class BaseGroup extends BaseEntity implements Group {
         assert barrack != null : "group delegate not set yet";
         return barrack.getAssistants(identifier);
     }
+
 }

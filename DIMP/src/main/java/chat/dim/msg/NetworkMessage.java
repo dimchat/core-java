@@ -33,10 +33,7 @@ package chat.dim.msg;
 import java.util.Map;
 
 import chat.dim.format.TransportableData;
-import chat.dim.protocol.Document;
-import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.Visa;
 
 /**
  *  Reliable Message signed by an asymmetric key
@@ -63,16 +60,10 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
 
     private TransportableData signature;
 
-    // user info for 'handshake' command
-    private Meta meta;
-    private Visa visa;
-
     public NetworkMessage(Map<String, Object> msg) {
         super(msg);
         // lazy load
         signature = null;
-        meta = null;
-        visa = null;
     }
 
     @Override
@@ -85,53 +76,6 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
             // assert ted != null : "failed to decode message signature: " + base64;
         }
         return ted == null ? null : ted.getData();
-    }
-
-    /**
-     *  Sender's Meta
-     *  ~~~~~~~~~~~~~
-     *  Extends for the first message package of 'Handshake' protocol.
-     *
-     * @param info - Meta object or dictionary
-     */
-    @Override
-    public void setMeta(Meta info) {
-        setMap("meta", info);
-        meta = info;
-    }
-
-    @Override
-    public Meta getMeta() {
-        if (meta == null) {
-            meta = Meta.parse(get("meta"));
-        }
-        return meta;
-    }
-
-    /**
-     *  Sender's Visa
-     *  ~~~~~~~~~~~~~
-     *  Extends for the first message package of 'Handshake' protocol.
-     *
-     * @param doc - visa document
-     */
-    @Override
-    public void setVisa(Visa doc) {
-        setMap("visa", doc);
-        visa = doc;
-    }
-
-    @Override
-    public Visa getVisa() {
-        if (visa == null) {
-            Document doc = Document.parse(get("visa"));
-            if (doc instanceof Visa) {
-                visa = (Visa) doc;
-            } else {
-                assert doc == null : "visa document error: " + doc;
-            }
-        }
-        return visa;
     }
 
 }

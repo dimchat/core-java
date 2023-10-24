@@ -30,6 +30,8 @@
  */
 package chat.dim.mkm;
 
+import java.util.List;
+
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -65,8 +67,7 @@ public interface Entity {
     DataSource getDataSource();
 
     Meta getMeta();
-
-    Document getDocument(String type);
+    List<Document> getDocuments();
 
     /**
      *  Entity Data Source
@@ -91,10 +92,9 @@ public interface Entity {
          *  Get document for entity ID
          *
          * @param identifier - entity ID
-         * @param type - document type
          * @return Document
          */
-        Document getDocument(ID identifier, String type);
+        List<Document> getDocuments(ID identifier);
     }
 
     /**

@@ -31,6 +31,7 @@
 package chat.dim.mkm;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -95,9 +96,10 @@ public class BaseEntity implements Entity {
     }
 
     @Override
-    public Document getDocument(String type) {
+    public List<Document> getDocuments() {
         DataSource barrack = getDataSource();
         assert barrack != null : "entity delegate not set yet";
-        return barrack.getDocument(identifier, type);
+        return barrack.getDocuments(identifier);
     }
+
 }
