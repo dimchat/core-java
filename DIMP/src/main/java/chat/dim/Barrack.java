@@ -38,6 +38,7 @@ import java.util.Map;
 
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.mkm.BroadcastHelper;
 import chat.dim.mkm.DocumentHelper;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
@@ -227,7 +228,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
         // check broadcast group
         if (group.isBroadcast()) {
             // founder of broadcast group
-            return getBroadcastFounder(group);
+            return BroadcastHelper.getBroadcastFounder(group);
         }
         // get from document
         Bulletin doc = getBulletin(group);
@@ -243,11 +244,11 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
         // check broadcast group
         if (group.isBroadcast()) {
             // owner of broadcast group
-            return getBroadcastOwner(group);
+            return BroadcastHelper.getBroadcastOwner(group);
         }
         // check group type
         if (EntityType.GROUP.equals(group.getType())) {
-            // Polylogue's owner is its founder
+            // Polylogue owner is its founder
             return getFounder(group);
         }
         // TODO: load owner from database
@@ -259,7 +260,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
         // check broadcast group
         if (group.isBroadcast()) {
             // members of broadcast group
-            return getBroadcastMembers(group);
+            return BroadcastHelper.getBroadcastMembers(group);
         }
         // TODO: load members from database
         return null;
@@ -273,61 +274,6 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
         }
         // TODO: get group bots from SP configuration
         return null;
-    }
-
-    //-------- Broadcast Group
-
-    private static String getGroupSeed(ID group) {
-        String name = group.getName();
-        if (name != null) {
-            int len = name.length();
-            if (len == 0 || name.equalsIgnoreCase("everyone")) {
-                name = null;
-            }
-        }
-        return name;
-    }
-
-    protected static ID getBroadcastFounder(ID group) {
-        String name = getGroupSeed(group);
-        if (name == null) {
-            // Consensus: the founder of group 'everyone@everywhere'
-            //            'Albert Moky'
-            return ID.FOUNDER;
-        } else {
-            // DISCUSS: who should be the founder of group 'xxx@everywhere'?
-            //          'anyone@anywhere', or 'xxx.founder@anywhere'
-            return ID.parse(name + ".founder@anywhere");
-        }
-    }
-    protected static ID getBroadcastOwner(ID group) {
-        String name = getGroupSeed(group);
-        if (name == null) {
-            // Consensus: the owner of group 'everyone@everywhere'
-            //            'anyone@anywhere'
-            return ID.ANYONE;
-        } else {
-            // DISCUSS: who should be the owner of group 'xxx@everywhere'?
-            //          'anyone@anywhere', or 'xxx.owner@anywhere'
-            return ID.parse(name + ".owner@anywhere");
-        }
-    }
-    protected static List<ID> getBroadcastMembers(ID group) {
-        List<ID> members = new ArrayList<>();
-        String name = getGroupSeed(group);
-        if (name == null) {
-            // Consensus: the member of group 'everyone@everywhere'
-            //            'anyone@anywhere'
-            members.add(ID.ANYONE);
-        } else {
-            // DISCUSS: who should be the member of group 'xxx@everywhere'?
-            //          'anyone@anywhere', or 'xxx.member@anywhere'
-            ID owner = ID.parse(name + ".owner@anywhere");
-            ID member = ID.parse(name + ".member@anywhere");
-            members.add(owner);
-            members.add(member);
-        }
-        return members;
     }
 
 }

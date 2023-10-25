@@ -40,13 +40,13 @@ import chat.dim.protocol.Visa;
 public interface DocumentHelper {
 
     /**
-     *  Check whether new time is before old time
+     *  Check whether this time is before old time
      */
-    static boolean isBefore(Date oldTime, Date newTime) {
-        if (oldTime == null || newTime == null) {
+    static boolean isBefore(Date oldTime, Date thisTime) {
+        if (oldTime == null || thisTime == null) {
             return false;
         }
-        return newTime.before(oldTime);
+        return thisTime.before(oldTime);
     }
 
     /**
@@ -76,12 +76,14 @@ public interface DocumentHelper {
                 docType = doc.getType();
                 matched = docType == null || docType.isEmpty() || docType.equals(type);
                 if (!matched) {
+                    // type not matched, ignore it
                     continue;
                 }
             }
             // 2. check time
             if (last != null) {
                 if (isExpired(doc, last)) {
+                    // skip old document
                     continue;
                 }
             }
@@ -104,11 +106,13 @@ public interface DocumentHelper {
             // 1. check type
             matched = doc instanceof Visa;
             if (!matched) {
+                // type not matched, ignore it
                 continue;
             }
             // 2. check time
             if (last != null) {
                 if (isExpired(doc, last)) {
+                    // skip old document
                     continue;
                 }
             }
@@ -131,11 +135,13 @@ public interface DocumentHelper {
             // 1. check type
             matched = doc instanceof Bulletin;
             if (!matched) {
+                // type not matched, ignore it
                 continue;
             }
             // 2. check time
             if (last != null) {
                 if (isExpired(doc, last)) {
+                    // skip old document
                     continue;
                 }
             }
