@@ -30,6 +30,7 @@
  */
 package chat.dim.dkd.group;
 
+import java.util.Date;
 import java.util.Map;
 
 import chat.dim.protocol.GroupCommand;
@@ -50,4 +51,17 @@ public class QueryGroupCommand extends BaseGroupCommand implements QueryCommand 
     public QueryGroupCommand(ID group) {
         super(GroupCommand.QUERY, group);
     }
+
+    public QueryGroupCommand(ID group, Date lastTime) {
+        super(GroupCommand.QUERY, group);
+        if (lastTime != null) {
+            setDateTime("last_time", lastTime);
+        }
+    }
+
+    @Override
+    public Date getLastTime() {
+        return getDateTime("last_time", null);
+    }
+
 }

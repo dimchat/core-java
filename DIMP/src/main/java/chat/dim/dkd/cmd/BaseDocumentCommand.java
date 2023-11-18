@@ -30,6 +30,7 @@
  */
 package chat.dim.dkd.cmd;
 
+import java.util.Date;
 import java.util.Map;
 
 import chat.dim.protocol.Document;
@@ -46,7 +47,7 @@ import chat.dim.protocol.Meta;
  *      ID        : "{ID}",     // entity ID
  *      meta      : {...},      // only for handshaking with new friend
  *      document  : {...},      // when document is empty, means query for ID
- *      signature : "..."       // old document's signature for querying
+ *      last_time : 12345       // old document time for querying
  *  }
  */
 public class BaseDocumentCommand extends BaseMetaCommand implements DocumentCommand {
@@ -98,13 +99,13 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
      *  Query Entity Document for updating with current signature
      *
      * @param identifier - entity ID
-     * @param signature - document signature
+     * @param last       - last document time
      */
-    public BaseDocumentCommand(ID identifier, String signature) {
+    public BaseDocumentCommand(ID identifier, Date last) {
         this(identifier, null, null);
         // signature
-        if (signature != null) {
-            put("signature", signature);
+        if (last != null) {
+            setDateTime("last_time", last);
         }
     }
 
@@ -117,7 +118,7 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     }
 
     @Override
-    public String getSignature() {
-        return getString("signature", null);
+    public Date getLastTime() {
+        return getDateTime("last_time", null);
     }
 }

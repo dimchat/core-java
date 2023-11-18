@@ -42,51 +42,45 @@ import chat.dim.protocol.PageContent;
  *      type : 0x20,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      title : "...",                // Web title
+ *      icon  : "...",                // base64_encode(icon)
+ *      desc  : "...",
+ *
+ *      URL   : "https://dim.chat/",  // Web URL
+ *
+ *      HTML      : "...",            // Web content
+ *      mime_type : "text/html",      // Content-Type
+ *      encoding  : "utf8",
+ *      base      : "about:blank"     // Base URL
+ *
  *  }
  */
 public class WebPageContent extends BaseContent implements PageContent {
 
-    // web URL
-    private  URI url;
     // small image
     private TransportableData icon;
+
+    // web URL
+    private  URI url;
 
     public WebPageContent(Map<String, Object> content) {
         super(content);
         // lazy load
-        url = null;
         icon = null;
+        url = null;
     }
 
-    public WebPageContent(URI url, String title, String desc, TransportableData icon) {
+    public WebPageContent(String title, TransportableData icon, String desc,
+                          URI url, String html) {
         super(ContentType.PAGE);
-        setURL(url);
+
         setTitle(title);
-        setDesc(desc);
         setIcon(icon);
-    }
 
-    @Override
-    public URI getURL() {
-        if (url == null) {
-            String string = getString("URL", null);
-            if (string != null) {
-                url = URI.create(string);
-            }
-            assert url != null : "URL cannot be empty: " + toMap();
-        }
-        return url;
-    }
+        setURL(url);
+        setHTML(html);
 
-    @Override
-    public void setURL(URI location) {
-        assert location != null : "URL cannot be empty";
-        put("URL", location.toString());
-        url = location;
+        setDesc(desc);
     }
 
     @Override
@@ -98,16 +92,6 @@ public class WebPageContent extends BaseContent implements PageContent {
     public void setTitle(String text) {
         assert text != null : "Web title cannot be empty";
         put("title", text);
-    }
-
-    @Override
-    public String getDesc() {
-        return getString("desc", null);
-    }
-
-    @Override
-    public void setDesc(String text) {
-        put("desc", text);
     }
 
     @Override
@@ -137,6 +121,48 @@ public class WebPageContent extends BaseContent implements PageContent {
             put("icon", ted.toObject());
         }
         icon = ted;
+    }
+
+    @Override
+    public String getDesc() {
+        return getString("desc", null);
+    }
+
+    @Override
+    public void setDesc(String text) {
+        put("desc", text);
+    }
+
+    @Override
+    public URI getURL() {
+        if (url == null) {
+            String string = getString("URL", null);
+            if (string != null) {
+                url = createURL(string);
+            }
+            assert url != null : "URL cannot be empty: " + toMap();
+        }
+        return url;
+    }
+    protected URI createURL(String string) {
+        return URI.create(string);
+    }
+
+    @Override
+    public void setURL(URI location) {
+        assert location != null : "URL cannot be empty";
+        put("URL", location.toString());
+        url = location;
+    }
+
+    @Override
+    public String getHTML() {
+        return getString("HTML", null);
+    }
+
+    @Override
+    public void setHTML(String html) {
+        put("HTML", html);
     }
 
 }

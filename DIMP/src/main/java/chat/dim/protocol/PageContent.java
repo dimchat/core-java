@@ -40,32 +40,43 @@ import chat.dim.format.TransportableData;
  *      type : 0x20,
  *      sn   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      title : "...",                // Web title
+ *      icon  : "...",                // base64_encode(icon)
+ *      desc  : "...",
+ *
+ *      URL   : "https://dim.chat/",  // Web URL
+ *
+ *      HTML      : "...",            // Web content
+ *      mime_type : "text/html",      // Content-Type
+ *      encoding  : "utf8",
+ *      base      : "about:blank"     // Base URL
+ *
  *  }
  */
 public interface PageContent extends Content {
 
-    void setURL(URI url);
-    URI getURL();
-
     void setTitle(String text);
     String getTitle();
+
+    void setIcon(byte[] imageData);
+    byte[] getIcon();
 
     void setDesc(String text);
     String getDesc();
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    void setURL(URI url);
+    URI getURL();
+
+    void setHTML(String html);
+    String getHTML();
 
     //
     //  Factory
     //
 
-    static PageContent create(URI url, String title, String desc, TransportableData icon) {
-        return new WebPageContent(url, title, desc, icon);
+    static PageContent create(String title, TransportableData icon, String desc,
+                              URI url, String html) {
+        return new WebPageContent(title, icon, desc, url, html);
     }
 
 }

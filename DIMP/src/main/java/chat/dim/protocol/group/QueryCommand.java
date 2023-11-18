@@ -30,12 +30,35 @@
  */
 package chat.dim.protocol.group;
 
+import java.util.Date;
+
 import chat.dim.protocol.GroupCommand;
 
-/**
+/*
  *  NOTICE:
  *      This command is just for querying group info,
  *      should not be saved in group history
  */
+
+/**
+ *  History command: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "query",
+ *      time    : 123.456,
+ *
+ *      group     : "{GROUP_ID}",
+ *      last_time : 0
+ *  }
+ */
 public interface QueryCommand extends GroupCommand {
+
+    /**
+     *  Last group history time for querying
+     *
+     * @return time of last group history from sender
+     */
+    Date getLastTime();
+
 }

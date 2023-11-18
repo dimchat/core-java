@@ -30,6 +30,7 @@
  */
 package chat.dim.protocol;
 
+import java.util.Date;
 import java.util.List;
 
 import chat.dim.dkd.group.BaseGroupCommand;
@@ -52,6 +53,18 @@ import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 import chat.dim.protocol.group.ResignCommand;
 
+/**
+ *  History command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "invite",  // "expel", "join", "quit", "query", "reset", ...
+ *      time    : 123.456,   // command timestamp
+ *
+ *      group   : "{GROUP_ID}",
+ *      // ...
+ *  }
+ */
 public interface GroupCommand extends HistoryCommand {
 
     //-------- group command names begin --------
@@ -124,6 +137,9 @@ public interface GroupCommand extends HistoryCommand {
 
     static QueryCommand query(ID group) {
         return new QueryGroupCommand(group);
+    }
+    static QueryCommand query(ID group, Date lastTime) {
+        return new QueryGroupCommand(group, lastTime);
     }
 
     static ResetCommand reset(ID group, List<ID> members) {

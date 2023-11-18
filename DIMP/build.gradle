@@ -7,7 +7,7 @@ plugins {
 
 group 'chat.dim'
 //version '1.0-SNAPSHOT'
-version '1.0.0'
+version '1.0.1'
 
 def mod = 'DIMP'
 def desc = 'New Protocol designed for decentralized instant messaging.'
