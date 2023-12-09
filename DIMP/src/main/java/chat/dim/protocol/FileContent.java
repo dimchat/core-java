@@ -68,11 +68,14 @@ public interface FileContent extends Content {
     void setFilename(String name);
     String getFilename();
 
+    /**
+     *  URL for download the file data from CDN
+     */
     void setURL(URI url);
     URI getURL();
 
     /**
-     *  Symmetric key to decrypt the encrypted data from URL
+     *  Symmetric key to decrypt the downloaded data from URL
      */
     void setPassword(DecryptKey key);
     DecryptKey getPassword();

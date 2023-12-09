@@ -125,7 +125,7 @@ public class BaseFileWrapper extends Dictionary {
         URI remote = remoteURL;
         if (remote == null) {
             String locator = getString("URL", null);
-            if (locator != null/* && locator.length() > 0*/) {
+            if (locator != null && locator.length() > 0) {
                 remoteURL = remote = URI.create(locator);
             }
         }

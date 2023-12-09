@@ -32,7 +32,9 @@ package chat.dim.dkd.cmd;
 
 import java.util.Map;
 
-import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ReceiptCommand;
+import chat.dim.type.Converter;
 
 /**
  *  Command message: {
@@ -51,19 +53,75 @@ import chat.dim.protocol.InstantMessage;
  *      }
  *  }
  */
-public class BaseReceiptCommand extends BaseReceipt {
+public class BaseReceiptCommand extends BaseCommand implements ReceiptCommand {
+
+    /**
+     *  original message envelope
+     */
+    private Envelope envelope = null;
 
     public BaseReceiptCommand(Map<String, Object> content) {
         super(content);
     }
 
     public BaseReceiptCommand(String text, Map<String, Object> origin) {
-        super(text, origin);
+        super(RECEIPT);
+        // text message
+        put("text", text);
+        // original envelope of message responding to,
+        // includes 'sn' and 'signature'
+        if (origin != null) {
+            assert !(origin.isEmpty() ||
+                    origin.containsKey("data") ||
+                    origin.containsKey("key") ||
+                    origin.containsKey("keys") ||
+                    origin.containsKey("meta") ||
+                    origin.containsKey("visa")) : "impure envelope: " + origin;
+            put("origin", origin);
+        }
     }
 
     @Override
-    public boolean matchMessage(InstantMessage iMsg) {
-        return ReceiptHelper.matchMessage(iMsg, this);
+    public String getText() {
+        return getString("text", "");
     }
 
+    @SuppressWarnings("unchecked")
+    protected Map<String, Object> getOrigin() {
+        Object origin = get("origin");
+        if (origin instanceof Map) {
+            return (Map<String, Object>) origin;
+        }
+        assert origin == null : "origin error: " + origin;
+        return null;
+    }
+
+    @Override
+    public Envelope getOriginalEnvelope() {
+        if (envelope == null) {
+            // origin: { sender: "...", receiver: "...", time: 0 }
+            envelope = Envelope.parse(getOrigin());
+        }
+        return envelope;
+    }
+
+    @Override
+    public long getOriginalSerialNumber() {
+        Map<?, ?> origin = getOrigin();
+        if (origin == null) {
+            // original info not found
+            return 0;
+        }
+        return Converter.getLong(origin.get("sn"), 0);
+    }
+
+    @Override
+    public String getOriginalSignature() {
+        Map<?, ?> origin = getOrigin();
+        if (origin == null) {
+            // original info not found
+            return null;
+        }
+        return Converter.getString(origin.get("signature"), null);
+    }
 }

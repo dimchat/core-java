@@ -141,10 +141,12 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
     }
 
     public Visa getVisa(ID user) {
+        // assert user.isUser() : "user ID error: " + user;
         List<Document> documents = getDocuments(user);
         return DocumentHelper.lastVisa(documents);
     }
     public Bulletin getBulletin(ID group) {
+        // assert group.isGroup() : "group ID error: " + group;
         List<Document> documents = getDocuments(group);
         return DocumentHelper.lastBulletin(documents);
     }
@@ -153,6 +155,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public User getUser(ID identifier) {
+        assert identifier.isUser() : "user ID error: " + identifier;
         // 1. get from user cache
         User user = userMap.get(identifier);
         if (user == null) {
@@ -167,6 +170,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public Group getGroup(ID identifier) {
+        assert identifier.isGroup() : "group ID error: " + identifier;
         // 1. get from group cache
         Group group = groupMap.get(identifier);
         if (group == null) {
@@ -183,6 +187,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
+        assert user.isUser() : "user ID error: " + user;
         // 1. get key from visa
         EncryptKey visaKey = getVisaKey(user);
         if (visaKey != null) {
@@ -202,6 +207,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
+        // assert user.isUser() : "user ID error: " + user;
         List<VerifyKey> keys = new ArrayList<>();
         // 1. get key from meta
         VerifyKey metaKey = getMetaKey(user);
@@ -225,6 +231,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public ID getFounder(ID group) {
+        assert group.isGroup() : "group ID error: " + group;
         // check broadcast group
         if (group.isBroadcast()) {
             // founder of broadcast group
@@ -241,6 +248,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public ID getOwner(ID group) {
+        assert group.isGroup() : "group ID error: " + group;
         // check broadcast group
         if (group.isBroadcast()) {
             // owner of broadcast group
@@ -257,6 +265,7 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public List<ID> getMembers(ID group) {
+        assert group.isGroup() : "group ID error: " + group;
         // check broadcast group
         if (group.isBroadcast()) {
             // members of broadcast group
@@ -268,6 +277,8 @@ public abstract class Barrack implements Entity.Delegate, User.DataSource, Group
 
     @Override
     public List<ID> getAssistants(ID group) {
+        assert group.isGroup() : "group ID error: " + group;
+        // get from document
         Bulletin doc = getBulletin(group);
         if (doc != null/* && doc.isValid()*/) {
             return doc.getAssistants();

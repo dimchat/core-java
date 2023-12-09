@@ -70,7 +70,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     @Override
     public byte[] encryptContent(byte[] data, SymmetricKey password, InstantMessage iMsg) {
         // store 'IV' in iMsg for AES decryption
-        return password.encrypt(data, iMsg);
+        return password.encrypt(data, iMsg.toMap());
     }
 
     /*/
@@ -194,7 +194,7 @@ public abstract class Transceiver implements InstantMessageDelegate, SecureMessa
     @Override
     public byte[] decryptContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
         // check 'IV' in sMsg for AES decryption
-        return password.decrypt(data, sMsg);
+        return password.decrypt(data, sMsg.toMap());
     }
 
     @Override

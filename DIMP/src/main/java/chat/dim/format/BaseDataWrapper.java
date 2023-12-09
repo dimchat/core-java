@@ -121,19 +121,20 @@ public class BaseDataWrapper extends Dictionary {
      */
 
     public byte[] getData() {
-        if (data == null) {
+        byte[] bin = data;
+        if (bin == null) {
             String encoded = getString("data", "");
             if (!encoded.isEmpty()) {
                 String algorithm = getAlgorithm();
                 switch (algorithm) {
                     case TransportableData.BASE_64:
-                        data = Base64.decode(encoded);
+                        data = bin = Base64.decode(encoded);
                         break;
                     case TransportableData.BASE_58:
-                        data = Base58.decode(encoded);
+                        data = bin = Base58.decode(encoded);
                         break;
                     case TransportableData.HEX:
-                        data = Hex.decode(encoded);
+                        data = bin = Hex.decode(encoded);
                         break;
                     default:
                         assert false : "data algorithm not support: " + algorithm;
@@ -141,7 +142,7 @@ public class BaseDataWrapper extends Dictionary {
                 }
             }
         }
-        return data;
+        return bin;
     }
 
     public void setData(byte[] binary) {

@@ -44,7 +44,7 @@ import chat.dim.format.TransportableData;
  *      icon  : "...",                // base64_encode(icon)
  *      desc  : "...",
  *
- *      URL   : "https://dim.chat/",  // Web URL
+ *      URL   : "https://github.com/moky/dimp",
  *
  *      HTML      : "...",            // Web content
  *      mime_type : "text/html",      // Content-Type

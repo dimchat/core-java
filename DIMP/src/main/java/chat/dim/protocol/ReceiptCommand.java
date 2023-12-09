@@ -55,14 +55,9 @@ public interface ReceiptCommand extends Command {
 
     String getText();
 
-    // protected
-    Map<String, Object> getOrigin();
-
     Envelope getOriginalEnvelope();
     long getOriginalSerialNumber();
     String getOriginalSignature();
-
-    boolean matchMessage(InstantMessage iMsg);
 
     //
     //  Factories

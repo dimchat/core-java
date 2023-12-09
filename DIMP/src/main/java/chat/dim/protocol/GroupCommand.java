@@ -58,11 +58,12 @@ import chat.dim.protocol.group.ResignCommand;
  *      type : 0x89,
  *      sn   : 123,
  *
- *      command : "invite",  // "expel", "join", "quit", "query", "reset", ...
+ *      command : "reset",   // "invite", "quit", "query", ...
  *      time    : 123.456,   // command timestamp
  *
  *      group   : "{GROUP_ID}",
- *      // ...
+ *      member  : "{MEMBER_ID}",
+ *      members : ["{MEMBER_ID}",]
  *  }
  */
 public interface GroupCommand extends HistoryCommand {
