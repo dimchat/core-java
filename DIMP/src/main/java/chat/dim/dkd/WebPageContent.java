@@ -33,7 +33,7 @@ package chat.dim.dkd;
 import java.net.URI;
 import java.util.Map;
 
-import chat.dim.format.TransportableData;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.PageContent;
 
@@ -43,8 +43,8 @@ import chat.dim.protocol.PageContent;
  *      sn   : 123,
  *
  *      title : "...",                // Web title
- *      icon  : "...",                // base64_encode(icon)
  *      desc  : "...",
+ *      icon  : "data:image/x-icon;base64,...",
  *
  *      URL   : "https://dim.chat/",  // Web URL
  *
@@ -58,7 +58,7 @@ import chat.dim.protocol.PageContent;
 public class WebPageContent extends BaseContent implements PageContent {
 
     // small image
-    private TransportableData icon;
+    private PortableNetworkFile icon;
 
     // web URL
     private  URI url;
@@ -70,7 +70,7 @@ public class WebPageContent extends BaseContent implements PageContent {
         url = null;
     }
 
-    public WebPageContent(String title, TransportableData icon, String desc,
+    public WebPageContent(String title, PortableNetworkFile icon, String desc,
                           URI url, String html) {
         super(ContentType.PAGE);
 
@@ -95,32 +95,23 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public byte[] getIcon() {
-        TransportableData ted = icon;
-        if (ted == null) {
+    public PortableNetworkFile getIcon() {
+        PortableNetworkFile img = icon;
+        if (img == null) {
             Object base64 = get("icon");
-            icon = ted = TransportableData.parse(base64);
+            img = icon = PortableNetworkFile.parse(base64);
         }
-        return ted == null ? null : ted.getData();
+        return img;
     }
 
     @Override
-    public void setIcon(byte[] imageData) {
-        TransportableData ted;
-        if (imageData == null || imageData.length == 0) {
-            ted = null;
-        } else {
-            ted = TransportableData.create(imageData);
-        }
-        setIcon(ted);
-    }
-    private void setIcon(TransportableData ted) {
-        if (ted == null) {
+    public void setIcon(PortableNetworkFile img) {
+        if (img == null) {
             remove("icon");
         } else {
-            put("icon", ted.toObject());
+            put("icon", img.toObject());
         }
-        icon = ted;
+        icon = img;
     }
 
     @Override

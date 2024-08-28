@@ -85,10 +85,11 @@ public class NameCardContent extends BaseContent implements NameCard {
 
     @Override
     public PortableNetworkFile getAvatar() {
-        if (image == null) {
+        PortableNetworkFile img = image;
+        if (img == null) {
             Object url = get("avatar");
-            image = PortableNetworkFile.parse(url);
+            img = image = PortableNetworkFile.parse(url);
         }
-        return image;
+        return img;
     }
 }

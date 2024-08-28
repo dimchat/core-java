@@ -33,7 +33,7 @@ package chat.dim.protocol;
 import java.net.URI;
 
 import chat.dim.dkd.WebPageContent;
-import chat.dim.format.TransportableData;
+import chat.dim.format.PortableNetworkFile;
 
 /**
  *  Web Page message: {
@@ -41,8 +41,8 @@ import chat.dim.format.TransportableData;
  *      sn   : 123,
  *
  *      title : "...",                // Web title
- *      icon  : "...",                // base64_encode(icon)
  *      desc  : "...",
+ *      icon  : "data:image/x-icon;base64,...",
  *
  *      URL   : "https://github.com/moky/dimp",
  *
@@ -58,8 +58,8 @@ public interface PageContent extends Content {
     void setTitle(String text);
     String getTitle();
 
-    void setIcon(byte[] imageData);
-    byte[] getIcon();
+    void setIcon(PortableNetworkFile img);
+    PortableNetworkFile getIcon();
 
     void setDesc(String text);
     String getDesc();
@@ -74,7 +74,7 @@ public interface PageContent extends Content {
     //  Factory
     //
 
-    static PageContent create(String title, TransportableData icon, String desc,
+    static PageContent create(String title, PortableNetworkFile icon, String desc,
                               URI url, String html) {
         return new WebPageContent(title, icon, desc, url, html);
     }

@@ -94,15 +94,18 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     @Override
     public PortableNetworkFile getAvatar() {
-        if (avatar == null) {
-            avatar = PortableNetworkFile.parse(getProperty("avatar"));
+        PortableNetworkFile img = avatar;
+        if (img == null) {
+            Object url = getProperty("avatar");
+            img = avatar = PortableNetworkFile.parse(url);
         }
-        return avatar;
+        return img;
     }
 
     @Override
-    public void setAvatar(PortableNetworkFile url) {
-        setProperty("avatar", url == null ? null : url.toObject());
-        avatar = url;
+    public void setAvatar(PortableNetworkFile img) {
+        setProperty("avatar", img == null ? null : img.toObject());
+        avatar = img;
     }
+
 }

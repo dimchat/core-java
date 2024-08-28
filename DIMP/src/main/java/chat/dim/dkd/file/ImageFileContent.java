@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.ImageContent;
@@ -54,13 +55,13 @@ import chat.dim.protocol.file.ImageContent;
  *          data      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      thumbnail : "..."        // base64_encode(smallImage)
+ *      thumbnail : "data:image/jpeg;base64,..."
  *  }
  */
 public class ImageFileContent extends BaseFileContent implements ImageContent {
 
     // small image
-    private TransportableData thumbnail = null;
+    private PortableNetworkFile thumbnail = null;
 
     public ImageFileContent(Map<String, Object> content) {
         super(content);
@@ -71,25 +72,23 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     }
 
     @Override
-    public void setThumbnail(byte[] image) {
-        TransportableData ted;
-        if (image == null/* || image.length == 0*/) {
+    public void setThumbnail(PortableNetworkFile img) {
+        if (img == null) {
             remove("thumbnail");
-            ted = null;
         } else {
-            ted = TransportableData.create(image);
-            put("thumbnail", ted.toObject());
+            put("thumbnail", img.toObject());
         }
-        thumbnail = ted;
+        thumbnail = img;
     }
 
     @Override
-    public byte[] getThumbnail() {
-        TransportableData ted = thumbnail;
-        if (ted == null) {
+    public PortableNetworkFile getThumbnail() {
+        PortableNetworkFile img = thumbnail;
+        if (img == null) {
             Object base64 = get("thumbnail");
-            thumbnail = ted = TransportableData.parse(base64);
+            img = thumbnail = PortableNetworkFile.parse(base64);
         }
-        return ted == null ? null : ted.getData();
+        return img;
     }
+
 }

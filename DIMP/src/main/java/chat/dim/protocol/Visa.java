@@ -65,7 +65,8 @@ public interface Visa extends Document {
     /**
      *  Set avatar URL
      *
-     * @param url - PNF(URL)
+     * @param img - image URL
      */
-    void setAvatar(PortableNetworkFile url);
+    void setAvatar(PortableNetworkFile img);
+
 }

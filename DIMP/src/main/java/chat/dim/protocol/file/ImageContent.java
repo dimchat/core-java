@@ -30,6 +30,7 @@
  */
 package chat.dim.protocol.file;
 
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.FileContent;
 
 /**
@@ -48,12 +49,13 @@ import chat.dim.protocol.FileContent;
  *          data      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      thumbnail : "..."        // base64_encode(smallImage)
+ *      thumbnail : "data:image/jpeg;base64,..."
  *  }
  */
 public interface ImageContent extends FileContent {
 
-    void setThumbnail(byte[] imageData);
+    void setThumbnail(PortableNetworkFile img);
 
-    byte[] getThumbnail();
+    PortableNetworkFile getThumbnail();
+
 }

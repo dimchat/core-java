@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.VideoContent;
@@ -54,13 +55,13 @@ import chat.dim.protocol.file.VideoContent;
  *          data      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      snapshot : "..."         // base64_encode(smallImage)
+ *      snapshot : "data:image/jpeg;base64,..."
  *  }
  */
 public class VideoFileContent extends BaseFileContent implements VideoContent {
 
     // small image
-    private TransportableData snapshot = null;
+    private PortableNetworkFile snapshot = null;
 
     public VideoFileContent(Map<String, Object> content) {
         super(content);
@@ -71,25 +72,23 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     }
 
     @Override
-    public void setSnapshot(byte[] image) {
-        TransportableData ted;
-        if (image == null/* || image.length == 0*/) {
+    public void setSnapshot(PortableNetworkFile img) {
+        if (img == null) {
             remove("snapshot");
-            ted = null;
         } else {
-            ted = TransportableData.create(image);
-            put("snapshot", ted.toObject());
+            put("snapshot", img.toObject());
         }
-        snapshot = ted;
+        snapshot = img;
     }
 
     @Override
-    public byte[] getSnapshot() {
-        TransportableData ted = snapshot;
-        if (ted == null) {
+    public PortableNetworkFile getSnapshot() {
+        PortableNetworkFile img = snapshot;
+        if (img == null) {
             Object base64 = get("snapshot");
-            snapshot = ted = TransportableData.parse(base64);
+            img = snapshot = PortableNetworkFile.parse(base64);
         }
-        return ted == null ? null : ted.getData();
+        return img;
     }
+
 }
