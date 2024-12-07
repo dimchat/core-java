@@ -40,8 +40,8 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 
 /**
- *  Base User Document
- *  ~~~~~~~~~~~~~~~~~~
+ *  Base Document for User
+ *  ~~~~~~~~~~~~~~~~~~~~~~
  */
 public class BaseVisa extends BaseDocument implements Visa {
 

@@ -62,6 +62,11 @@ public class BaseEntity implements Entity {
     }
 
     @Override
+    public int hashCode() {
+        return identifier.hashCode();
+    }
+
+    @Override
     public String toString() {
         String clazz = getClass().getSimpleName();
         int network = identifier.getAddress().getType();

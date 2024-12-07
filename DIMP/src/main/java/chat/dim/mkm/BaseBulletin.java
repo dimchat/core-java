@@ -39,8 +39,8 @@ import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.ID;
 
 /**
- *  Base Group Document
- *  ~~~~~~~~~~~~~~~~~~~
+ *  Base Document for Group
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 public class BaseBulletin extends BaseDocument implements Bulletin {
 

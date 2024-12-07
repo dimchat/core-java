@@ -96,7 +96,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
         return content;
     }
 
-    @Override
+    //@Override
     public void setContent(Content body) {
         setMap("content", body);
         content = body;

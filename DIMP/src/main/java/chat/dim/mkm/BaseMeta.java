@@ -37,7 +37,7 @@ import chat.dim.crypto.VerifyKey;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.MetaType;
+import chat.dim.type.Converter;
 import chat.dim.type.Dictionary;
 
 /**
@@ -63,11 +63,12 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     /**
      *  Meta algorithm version
      *
-     *      0x01 - username@address
-     *      0x02 - btc_address
-     *      0x03 - username@btc_address
+     *      1 = mkm : username@address (default)
+     *      2 = btc : btc_address
+     *      4 = eth : eth_address
+     *      ...
      */
-    private int type = -1;
+    private String type = null;
 
     /**
      *  Public key (used for signature)
@@ -99,12 +100,12 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         this.status = 0;
     }
 
-    protected BaseMeta(int version, VerifyKey key, String seed, TransportableData fingerprint) {
+    protected BaseMeta(String type, VerifyKey key, String seed, TransportableData fingerprint) {
         super();
 
         // meta type
-        put("type", version);
-        this.type = version;
+        put("type", type);
+        this.type = type;
 
         // public key
         put("key", key.toMap());
@@ -126,11 +127,12 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     }
 
     @Override
-    public int getType() {
-        if (type < 0) {
+    public String getType() {
+        if (type == null) {
             AccountFactoryManager man = AccountFactoryManager.getInstance();
-            type = man.generalFactory.getMetaType(toMap(), 0);
+            type = man.generalFactory.getMetaType(toMap(), "");
             // type = getInt("type", 0);
+            assert type != null : "meta.type not found: " + toMap();
         }
         return type;
     }
@@ -139,17 +141,27 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     public VerifyKey getPublicKey() {
         if (key == null) {
             Object info = get("key");
+            assert info != null : "meta.key should not be empty: " + toMap();
             key = PublicKey.parse(info);
-            assert key != null : "meta key error: " + info;
+            assert key != null : "meta.key error: " + info;
         }
         return key;
     }
 
+    /*/
+    protected boolean hasSeed() {
+        String algorithm = getType();
+        return "mkm".equals(algorithm) || "1".equals(algorithm);
+    }
+    /*/
+    protected abstract boolean hasSeed();
+
     @Override
     public String getSeed() {
-        if (seed == null && MetaType.hasSeed(getType())) {
-            seed = getString("seed", null);
-            assert seed.length() > 0 : "meta.seed should not be empty: " + toMap();
+        if (seed == null && hasSeed()) {
+            Object text = get("seed");
+            assert text != null : "meta.seed not found";
+            seed = Converter.getString(text, "");
         }
         return seed;
     }
@@ -157,11 +169,10 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     @Override
     public byte[] getFingerprint() {
         TransportableData ted = fingerprint;
-        if (ted == null && MetaType.hasSeed(getType())) {
+        if (ted == null && hasSeed()) {
             Object base64 = get("fingerprint");
-            assert base64 != null : "meta.fingerprint should not be empty: " + toMap();
+            assert base64 != null : "meta.fingerprint not found";
             fingerprint = ted = TransportableData.parse(base64);
-            assert ted != null : "meta.fingerprint error: " + base64;
         }
         return ted == null ? null : ted.getData();
     }

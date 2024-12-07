@@ -46,7 +46,7 @@ abstract class BaseKey extends Dictionary implements CryptographyKey {
 
     public static String getKeyAlgorithm(Map<?, ?> key) {
         CryptoKeyFactoryManager man = CryptoKeyFactoryManager.getInstance();
-        return man.generalFactory.getAlgorithm(key, null);
+        return man.generalFactory.getAlgorithm(key, "");
     }
 
     public static boolean matchEncryptKey(EncryptKey pKey, DecryptKey sKey) {

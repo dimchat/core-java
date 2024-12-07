@@ -35,7 +35,6 @@ import chat.dim.format.UTF8;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.MetaType;
 
 public interface MetaHelper {
 
@@ -47,18 +46,17 @@ public interface MetaHelper {
         }
         String seed = meta.getSeed();
         byte[] fingerprint = meta.getFingerprint();
-        boolean noSeed = seed == null || seed.isEmpty();
-        boolean noSig = fingerprint == null || fingerprint.length == 0;
-        // check meta version
-        if (!MetaType.hasSeed(meta.getType())) {
+        // check meta seed & signature
+        if (seed == null) {
             // this meta has no seed, so no signature too
-            return noSeed && noSig;
-        } else if (noSeed || noSig) {
-            // seed and fingerprint should not be empty
+            return fingerprint == null;
+        } else if (fingerprint == null) {
+            // fingerprint should not be empty here
             return false;
         }
         // verify fingerprint
-        return key.verify(UTF8.encode(seed), fingerprint);
+        byte[] data = UTF8.encode(seed);
+        return key.verify(data, fingerprint);
     }
 
     static boolean matches(ID identifier, Meta meta) {
@@ -88,9 +86,9 @@ public interface MetaHelper {
             return true;
         }
         // check with seed & fingerprint
-        if (MetaType.hasSeed(meta.getType())) {
+        String seed = meta.getSeed();
+        if (seed != null) {
             // check whether keys equal by verifying signature
-            String seed = meta.getSeed();
             byte[] fingerprint = meta.getFingerprint();
             return pKey.verify(UTF8.encode(seed), fingerprint);
         } else {
