@@ -81,11 +81,9 @@ public interface DocumentHelper {
                 }
             }
             // 2. check time
-            if (last != null) {
-                if (isExpired(doc, last)) {
-                    // skip old document
-                    continue;
-                }
+            if (last != null && isExpired(doc, last)) {
+                // skip old document
+                continue;
             }
             // got it
             last = doc;
@@ -110,11 +108,9 @@ public interface DocumentHelper {
                 continue;
             }
             // 2. check time
-            if (last != null) {
-                if (isExpired(doc, last)) {
-                    // skip old document
-                    continue;
-                }
+            if (last != null && isExpired(doc, last)) {
+                // skip old document
+                continue;
             }
             // got it
             last = (Visa) doc;
@@ -139,11 +135,9 @@ public interface DocumentHelper {
                 continue;
             }
             // 2. check time
-            if (last != null) {
-                if (isExpired(doc, last)) {
-                    // skip old document
-                    continue;
-                }
+            if (last != null && isExpired(doc, last)) {
+                // skip old document
+                continue;
             }
             // got it
             last = (Bulletin) doc;

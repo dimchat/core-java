@@ -47,10 +47,10 @@ public interface MetaHelper {
         String seed = meta.getSeed();
         byte[] fingerprint = meta.getFingerprint();
         // check meta seed & signature
-        if (seed == null) {
+        if (seed == null || seed.length() == 0) {
             // this meta has no seed, so no signature too
-            return fingerprint == null;
-        } else if (fingerprint == null) {
+            return fingerprint == null || fingerprint.length == 0;
+        } else if (fingerprint == null || fingerprint.length == 0) {
             // fingerprint should not be empty here
             return false;
         }
@@ -87,10 +87,11 @@ public interface MetaHelper {
         }
         // check with seed & fingerprint
         String seed = meta.getSeed();
-        if (seed != null) {
+        if (seed != null && seed.length() > 0) {
             // check whether keys equal by verifying signature
+            byte[] data = UTF8.encode(seed);
             byte[] fingerprint = meta.getFingerprint();
-            return pKey.verify(UTF8.encode(seed), fingerprint);
+            return pKey.verify(data, fingerprint);
         } else {
             // NOTICE: ID with BTC/ETH address has no username, so
             //         just compare the key.data to check matching

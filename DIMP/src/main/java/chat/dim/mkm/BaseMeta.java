@@ -37,7 +37,6 @@ import chat.dim.crypto.VerifyKey;
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.type.Converter;
 import chat.dim.type.Dictionary;
 
 /**
@@ -151,7 +150,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     /*/
     protected boolean hasSeed() {
         String algorithm = getType();
-        return "mkm".equals(algorithm) || "1".equals(algorithm);
+        return "MKM".equals(algorithm) || "1".equals(algorithm);
     }
     /*/
     protected abstract boolean hasSeed();
@@ -159,9 +158,8 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     @Override
     public String getSeed() {
         if (seed == null && hasSeed()) {
-            Object text = get("seed");
-            assert text != null : "meta.seed not found";
-            seed = Converter.getString(text, "");
+            seed = getString("seed", "");
+            assert seed != null : "meta.seed not found";
         }
         return seed;
     }
