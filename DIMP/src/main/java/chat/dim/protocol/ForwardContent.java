@@ -65,7 +65,7 @@ public interface ForwardContent extends Content {
         return new SecretContent(messages);
     }
 
-    static List<ReliableMessage> convert(List<?> messages) {
+    static List<ReliableMessage> convert(Iterable<?> messages) {
         List<ReliableMessage> array = new ArrayList<>();
         ReliableMessage msg;
         for (Object item : messages) {
@@ -77,7 +77,7 @@ public interface ForwardContent extends Content {
         return array;
     }
 
-    static List<Map<String, Object>> revert(List<ReliableMessage> messages) {
+    static List<Map<String, Object>> revert(Iterable<ReliableMessage> messages) {
         List<Map<String, Object>> array = new ArrayList<>();
         for (ReliableMessage msg : messages) {
             array.add(msg.toMap());

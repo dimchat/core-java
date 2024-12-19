@@ -45,18 +45,18 @@ public interface MoneyContent extends Content {
 
     String getCurrency();
 
-    void setAmount(double amount);
-    double getAmount();
+    void setAmount(Number amount);
+    Number getAmount();
 
     //
     //  Factories
     //
 
-    static MoneyContent create(int type, String currency, double amount) {
+    static MoneyContent create(int type, String currency, Number amount) {
         return new BaseMoneyContent(type, currency, amount);
     }
 
-    static MoneyContent create(String currency, double amount) {
+    static MoneyContent create(String currency, Number amount) {
         return new BaseMoneyContent(currency, amount);
     }
 }

@@ -57,7 +57,7 @@ public interface TransferContent extends MoneyContent {
     //  Factory
     //
 
-    static TransferContent create(String currency, double amount) {
+    static TransferContent create(String currency, Number amount) {
         return new TransferMoneyContent(currency, amount);
     }
 }

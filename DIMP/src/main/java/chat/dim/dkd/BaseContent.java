@@ -94,11 +94,11 @@ public class BaseContent extends Dictionary implements Content {
 
     @Override
     public int getType() {
-        if (type < 0) {
+        if (type == -1) {
             MessageFactoryManager man = MessageFactoryManager.getInstance();
             type = man.generalFactory.getContentType(toMap(), 0);
             // type = getInt("type", 0);
-            assert type > 0 : "content type error: " + toMap();
+            assert type >= 0 : "content type error: " + toMap();
         }
         return type;
     }

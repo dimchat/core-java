@@ -44,19 +44,33 @@ import chat.dim.protocol.ID;
  *  ~~~~~~~~~~~~~~
  *  Entity pool to manage User/Group instances
  */
-public abstract class Barrack implements Entity.Delegate {
+public class Barrack implements Entity.Delegate {
 
     // memory caches
     private final Map<ID, User>   userMap = new HashMap<>();
     private final Map<ID, Group> groupMap = new HashMap<>();
 
-    protected void cache(User user) {
+    protected void cacheUser(User user) {
         userMap.put(user.getIdentifier(), user);
     }
 
-    protected void cache(Group group) {
+    protected void cacheGroup(Group group) {
         groupMap.put(group.getIdentifier(), group);
     }
+
+    //-------- Entity Delegate
+
+    @Override
+    public User getUser(ID identifier) {
+        return userMap.get(identifier);
+    }
+
+    @Override
+    public Group getGroup(ID identifier) {
+        return groupMap.get(identifier);
+    }
+
+    //-------- Garbage Collection
 
     /**
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
@@ -85,42 +99,6 @@ public abstract class Barrack implements Entity.Delegate {
             // let it go
         }
         return finger;
-    }
-
-    public abstract Archivist getArchivist();
-
-    //-------- Entity Delegate
-
-    @Override
-    public User getUser(ID identifier) {
-        assert identifier.isUser() : "user ID error: " + identifier;
-        // 1. get from user cache
-        User user = userMap.get(identifier);
-        if (user == null) {
-            // 2. create user and cache it
-            Archivist archivist = getArchivist();
-            user = archivist.createUser(identifier);
-            if (user != null) {
-                cache(user);
-            }
-        }
-        return user;
-    }
-
-    @Override
-    public Group getGroup(ID identifier) {
-        assert identifier.isGroup() : "group ID error: " + identifier;
-        // 1. get from group cache
-        Group group = groupMap.get(identifier);
-        if (group == null) {
-            // 2. create group and cache it
-            Archivist archivist = getArchivist();
-            group = archivist.createGroup(identifier);
-            if (group != null) {
-                cache(group);
-            }
-        }
-        return group;
     }
 
 }

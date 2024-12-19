@@ -62,9 +62,9 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     /**
      *  Meta algorithm version
      *
-     *      1 = mkm : username@address (default)
-     *      2 = btc : btc_address
-     *      4 = eth : eth_address
+     *      1 = MKM : username@address (default)
+     *      2 = BTC : btc_address
+     *      4 = ETH : eth_address
      *      ...
      */
     private String type = null;

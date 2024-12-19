@@ -56,7 +56,7 @@ public interface ArrayContent extends Content {
         return new ListContent(contents);
     }
 
-    static List<Content> convert(List<?> contents) {
+    static List<Content> convert(Iterable<?> contents) {
         List<Content> array = new ArrayList<>();
         Content msg;
         for (Object item : contents) {
@@ -68,7 +68,7 @@ public interface ArrayContent extends Content {
         return array;
     }
 
-    static List<Map<String, Object>> revert(List<Content> contents) {
+    static List<Map<String, Object>> revert(Iterable<Content> contents) {
         List<Map<String, Object>> array = new ArrayList<>();
         for (Content item : contents) {
             array.add(item.toMap());

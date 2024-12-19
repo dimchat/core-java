@@ -34,6 +34,7 @@ import java.util.Map;
 
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MoneyContent;
+import chat.dim.type.Converter;
 
 /**
  *  Money message: {
@@ -50,16 +51,16 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
         super(content);
     }
 
-    public BaseMoneyContent(ContentType type, String currency, double amount) {
+    public BaseMoneyContent(ContentType type, String currency, Number amount) {
         this(type.value, currency, amount);
     }
-    public BaseMoneyContent(int type, String currency, double amount) {
+    public BaseMoneyContent(int type, String currency, Number amount) {
         super(type);
         setCurrency(currency);
         setAmount(amount);
     }
 
-    public BaseMoneyContent(String currency, double amount) {
+    public BaseMoneyContent(String currency, Number amount) {
         this(ContentType.MONEY, currency, amount);
     }
 
@@ -73,12 +74,17 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
     }
 
     @Override
-    public void setAmount(double amount) {
+    public void setAmount(Number amount) {
         put("amount", amount);
     }
 
     @Override
-    public double getAmount() {
-        return getDouble("amount", 0);
+    public Number getAmount() {
+        Object amount = get("amount");
+        if (amount instanceof Number) {
+            return (Number) amount;
+        }
+        return Converter.getDouble(amount, 0);
     }
+
 }
