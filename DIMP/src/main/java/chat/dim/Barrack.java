@@ -58,7 +58,9 @@ public class Barrack implements Entity.Delegate {
         groupMap.put(group.getIdentifier(), group);
     }
 
-    //-------- Entity Delegate
+    //
+    //  Entity Delegate
+    //
 
     @Override
     public User getUser(ID identifier) {
@@ -70,7 +72,9 @@ public class Barrack implements Entity.Delegate {
         return groupMap.get(identifier);
     }
 
-    //-------- Garbage Collection
+    //
+    //  Garbage Collection
+    //
 
     /**
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',

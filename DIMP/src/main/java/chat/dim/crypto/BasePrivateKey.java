@@ -29,7 +29,7 @@ import java.util.Map;
 
 import chat.dim.type.Dictionary;
 
-abstract class BasePrivateKey extends Dictionary implements PrivateKey {
+public abstract class BasePrivateKey extends Dictionary implements PrivateKey {
 
     protected BasePrivateKey(Map<String, Object> dictionary) {
         super(dictionary);

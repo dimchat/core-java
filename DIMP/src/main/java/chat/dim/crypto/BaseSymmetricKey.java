@@ -29,7 +29,7 @@ import java.util.Map;
 
 import chat.dim.type.Dictionary;
 
-abstract class BaseSymmetricKey extends Dictionary implements SymmetricKey {
+public abstract class BaseSymmetricKey extends Dictionary implements SymmetricKey {
 
     protected BaseSymmetricKey(Map<String, Object> dictionary) {
         super(dictionary);

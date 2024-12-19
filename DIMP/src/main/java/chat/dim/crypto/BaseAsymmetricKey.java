@@ -29,7 +29,7 @@ import java.util.Map;
 
 import chat.dim.type.Dictionary;
 
-abstract class BaseAsymmetricKey extends Dictionary implements AsymmetricKey {
+public abstract class BaseAsymmetricKey extends Dictionary implements AsymmetricKey {
 
     protected BaseAsymmetricKey(Map<String, Object> dictionary) {
         super(dictionary);

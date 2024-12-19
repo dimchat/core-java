@@ -29,7 +29,7 @@ import java.util.Map;
 
 import chat.dim.type.Dictionary;
 
-abstract class BaseKey extends Dictionary implements CryptographyKey {
+public abstract class BaseKey extends Dictionary implements CryptographyKey {
 
     protected BaseKey(Map<String, Object> dictionary) {
         super(dictionary);
