@@ -39,6 +39,7 @@ import chat.dim.crypto.VerifyKey;
 import chat.dim.format.JSONMap;
 import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
+import chat.dim.plugins.AccountSharedHolder;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.type.Converter;
@@ -128,10 +129,10 @@ public class BaseDocument extends Dictionary implements Document {
         json = null;
         sig = null;
 
+        // initialize properties with created time
         Map<String, Object> info = new HashMap<>();
         info.put("type", type);  // deprecated
         info.put("created_time", System.currentTimeMillis() / 1000.0d);
-        // initialize properties with created time
         properties = info;
 
         status = 0;
@@ -146,8 +147,7 @@ public class BaseDocument extends Dictionary implements Document {
     public String getType() {
         String type = (String) getProperty("type");  // deprecated
         if (type == null) {
-            AccountFactoryManager man = AccountFactoryManager.getInstance();
-            type = man.generalFactory.getDocumentType(toMap(), null);
+            type = AccountSharedHolder.helper.getDocumentType(toMap(), null);
             // type = getString("type", null);
         }
         return type;

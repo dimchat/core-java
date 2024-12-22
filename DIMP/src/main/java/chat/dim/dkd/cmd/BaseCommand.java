@@ -33,6 +33,7 @@ package chat.dim.dkd.cmd;
 import java.util.Map;
 
 import chat.dim.dkd.BaseContent;
+import chat.dim.plugins.CommandSharedHolder;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
 
@@ -51,24 +52,18 @@ public class BaseCommand extends BaseContent implements Command {
         super(content);
     }
 
-    public BaseCommand(ContentType type, String cmd) {
-        super(type);
-        put("command", cmd);
-    }
-
     public BaseCommand(int type, String cmd) {
         super(type);
         put("command", cmd);
     }
 
     public BaseCommand(String cmd) {
-        this(ContentType.COMMAND, cmd);
+        this(ContentType.COMMAND.value, cmd);
     }
 
     @Override
-    public String getCmd() {
-        CommandFactoryManager man = CommandFactoryManager.getInstance();
-        return man.generalFactory.getCmd(toMap(), "");
+    public String getCommandName() {
+        return CommandSharedHolder.helper.getCommandName(toMap(), "");
         // return getString("command", "");
     }
 }

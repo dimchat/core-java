@@ -53,6 +53,7 @@ import chat.dim.protocol.InstantMessage;
  */
 public class PlainMessage extends BaseMessage implements InstantMessage {
 
+    /// message body
     private Content content;
 
     public PlainMessage(Map<String, Object> msg) {

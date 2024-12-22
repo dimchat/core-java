@@ -37,7 +37,6 @@ import chat.dim.crypto.DecryptKey;
 import chat.dim.dkd.BaseContent;
 import chat.dim.format.BaseFileWrapper;
 import chat.dim.format.TransportableData;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
 
 /**
@@ -86,9 +85,6 @@ public class BaseFileContent extends BaseContent implements FileContent {
         if (key != null) {
             wrapper.setPassword(key);
         }
-    }
-    public BaseFileContent(ContentType type, TransportableData data, String filename, URI url, DecryptKey key) {
-        this(type.value, data, filename, url, key);
     }
 
     /**

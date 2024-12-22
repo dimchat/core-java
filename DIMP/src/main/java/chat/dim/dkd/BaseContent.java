@@ -33,9 +33,8 @@ package chat.dim.dkd;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.msg.MessageFactoryManager;
+import chat.dim.plugins.MessageSharedHolder;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.type.Dictionary;
@@ -77,10 +76,6 @@ public class BaseContent extends Dictionary implements Content {
         time = null;
     }
 
-    public BaseContent(ContentType msgType) {
-        this(msgType.value);
-    }
-
     public BaseContent(int msgType) {
         super();
         Date now = new Date();
@@ -95,8 +90,7 @@ public class BaseContent extends Dictionary implements Content {
     @Override
     public int getType() {
         if (type == -1) {
-            MessageFactoryManager man = MessageFactoryManager.getInstance();
-            type = man.generalFactory.getContentType(toMap(), 0);
+            type = MessageSharedHolder.helper.getContentType(toMap(), 0);
             // type = getInt("type", 0);
             assert type >= 0 : "content type error: " + toMap();
         }
@@ -105,7 +99,7 @@ public class BaseContent extends Dictionary implements Content {
 
     @Override
     public long getSerialNumber() {
-        if (sn < 0) {
+        if (sn == -1) {
             sn = getLong("sn", 0);
             assert sn > 0 : "serial number error: " + toMap();
         }

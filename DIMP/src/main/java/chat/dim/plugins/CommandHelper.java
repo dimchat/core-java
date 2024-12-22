@@ -28,19 +28,28 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd.cmd;
+package chat.dim.plugins;
+
+import java.util.Map;
+
+import chat.dim.protocol.Command;
 
 /**
- *  Command FactoryManager
+ *  Command GeneralFactory
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-public enum CommandFactoryManager {
+public interface CommandHelper {
 
-    INSTANCE;
+    //
+    //  Command
+    //
 
-    public static CommandFactoryManager getInstance() {
-        return INSTANCE;
-    }
+    void setCommandFactory(String cmd, Command.Factory factory);
 
-    public CommandGeneralFactory generalFactory = new CommandGeneralFactory();
+    Command.Factory getCommandFactory(String cmd);
+
+    String getCommandName(Map<?, ?> content, String defaultValue);
+
+    Command parseCommand(Object content);
+
 }

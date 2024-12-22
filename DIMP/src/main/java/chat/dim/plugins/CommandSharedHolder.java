@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2024 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2024 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,51 +28,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
-
-import java.util.List;
-import java.util.Map;
-
-import chat.dim.protocol.CombineContent;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.InstantMessage;
+package chat.dim.plugins;
 
 /**
- *  Combine Forward message: {
- *      type : 0xCF,
- *      sn   : 123,
- *
- *      messages : [...]  // chat history
- *  }
+ *  Command FactoryManager
+ *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-public class CombineForwardContent extends BaseContent implements CombineContent {
+public final class CommandSharedHolder {
 
-    private List<InstantMessage> history;
-
-    public CombineForwardContent(Map<String, Object> content) {
-        super(content);
-        // lazy load
-        history = null;
-    }
-
-    public CombineForwardContent(List<InstantMessage> messages) {
-        super(ContentType.COMBINE_FORWARD.value);
-        history = messages;
-        put("messages", CombineContent.revert(messages));
-    }
-
-    @Override
-    public List<InstantMessage> getMessages() {
-        List<InstantMessage> messages = history;
-        if (messages == null) {
-            Object info = get("messages");
-            if (info instanceof List) {
-                history = messages = CombineContent.convert((List<?>) info);
-            } else {
-                assert false : "combine message not found: " + toMap();
-            }
-        }
-        return messages;
-    }
+    public static CommandHelper helper = null;
 
 }

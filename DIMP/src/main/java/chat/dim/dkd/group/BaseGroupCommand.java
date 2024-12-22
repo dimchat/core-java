@@ -84,10 +84,10 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    public BaseGroupCommand(String cmd, ID groupID, List<ID> memberList) {
+    public BaseGroupCommand(String cmd, ID group, List<ID> members) {
         super(cmd);
-        setGroup(groupID);
-        setMembers(memberList);
+        setGroup(group);
+        setMembers(members);
     }
 
     @Override

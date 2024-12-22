@@ -60,13 +60,13 @@ public class SecretContent extends BaseContent implements ForwardContent {
     }
 
     public SecretContent(ReliableMessage msg) {
-        super(ContentType.FORWARD);
+        super(ContentType.FORWARD.value);
         forward = msg;
         secrets = null;
         put("forward", msg.toMap());
     }
     public SecretContent(List<ReliableMessage> messages) {
-        super(ContentType.FORWARD);
+        super(ContentType.FORWARD.value);
         forward = null;
         secrets = messages;
         put("secrets", ForwardContent.revert(messages));

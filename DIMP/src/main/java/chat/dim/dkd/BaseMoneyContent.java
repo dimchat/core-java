@@ -51,9 +51,6 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
         super(content);
     }
 
-    public BaseMoneyContent(ContentType type, String currency, Number amount) {
-        this(type.value, currency, amount);
-    }
     public BaseMoneyContent(int type, String currency, Number amount) {
         super(type);
         setCurrency(currency);
@@ -61,7 +58,7 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
     }
 
     public BaseMoneyContent(String currency, Number amount) {
-        this(ContentType.MONEY, currency, amount);
+        this(ContentType.MONEY.value, currency, amount);
     }
 
     private void setCurrency(String currency) {

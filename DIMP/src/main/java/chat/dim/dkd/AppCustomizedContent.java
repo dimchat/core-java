@@ -52,9 +52,6 @@ public class AppCustomizedContent extends BaseContent implements CustomizedConte
         super(content);
     }
 
-    public AppCustomizedContent(ContentType type, String app, String mod, String act) {
-        this(type.value, app, mod, act);
-    }
     public AppCustomizedContent(int type, String app, String mod, String act) {
         super(type);
         put("app", app);
@@ -63,7 +60,10 @@ public class AppCustomizedContent extends BaseContent implements CustomizedConte
     }
 
     public AppCustomizedContent(String app, String mod, String act) {
-        this(ContentType.CUSTOMIZED, app, mod, act);
+        super(ContentType.CUSTOMIZED.value);
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
     }
 
     //-------- getters --------

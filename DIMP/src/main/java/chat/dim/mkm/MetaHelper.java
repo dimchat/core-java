@@ -74,7 +74,7 @@ public interface MetaHelper {
         // check ID.address
         Address old = identifier.getAddress();
         //assert old != null : "ID error: " + identifier;
-        Address gen = Address.generate(meta, old.getType());
+        Address gen = Address.generate(meta, old.getNetwork());
         assert gen != null : "failed to generate address: " + old;
         return old.equals(gen);
     }

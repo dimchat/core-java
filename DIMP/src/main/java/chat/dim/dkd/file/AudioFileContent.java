@@ -64,7 +64,7 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
     }
 
     public AudioFileContent(TransportableData data, String filename, URI url, DecryptKey key) {
-        super(ContentType.AUDIO, data, filename, url, key);
+        super(ContentType.AUDIO.value, data, filename, url, key);
     }
 
     @Override

@@ -60,7 +60,7 @@ public class NameCardContent extends BaseContent implements NameCard {
     }
 
     public NameCardContent(ID identifier, String name, PortableNetworkFile avatar) {
-        super(ContentType.NAME_CARD);
+        super(ContentType.NAME_CARD.value);
         // ID
         put("ID", identifier.toString());
         // name

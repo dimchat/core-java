@@ -57,7 +57,7 @@ public class ListContent extends BaseContent implements ArrayContent {
     }
 
     public ListContent(List<Content> contents) {
-        super(ContentType.ARRAY);
+        super(ContentType.ARRAY.value);
         // set contents
         put("contents", ArrayContent.revert(contents));
         list = contents;
