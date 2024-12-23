@@ -35,8 +35,8 @@ import java.util.Map;
 import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.TransportableData;
+import chat.dim.format.UTF8;
 import chat.dim.plugins.SharedAccountHolder;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.type.Dictionary;
 
@@ -183,7 +183,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     public boolean isValid() {
         if (status == 0) {
             // meta from network, try to verify
-            if (MetaHelper.check(this)) {
+            if (checkValid()) {
                 // correct
                 status = 1;
             } else {
@@ -194,14 +194,25 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         return status > 0;
     }
 
-    @Override
-    public boolean matchIdentifier(ID identifier) {
-        return MetaHelper.matches(identifier, this);
-    }
-
-    @Override
-    public boolean matchPublicKey(VerifyKey pKey) {
-        return MetaHelper.matches(pKey, this);
+    private boolean checkValid() {
+        VerifyKey key = getPublicKey();
+        if (key == null) {
+            assert false : "meta.key should not be empty";
+            return false;
+        } else if (!hasSeed()) {
+            return !(containsKey("seed") || containsKey("fingerprint"));
+        }
+        String seed = getSeed();
+        byte[] fingerprint = getFingerprint();
+        // check meta seed & signature
+        if (fingerprint == null || fingerprint.length == 0 ||
+                seed == null || seed.isEmpty()) {
+            assert false : "meta error: " + toMap();
+            return false;
+        }
+        // verify fingerprint
+        byte[] data = UTF8.encode(seed);
+        return key.verify(data, fingerprint);
     }
 
 }
