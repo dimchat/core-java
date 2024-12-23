@@ -32,7 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.plugins.CommandSharedHolder;
+import chat.dim.plugins.SharedCommandHolder;
 
 /**
  *  Command message: {
@@ -62,14 +62,27 @@ public interface Command extends Content {
     //  Factory method
     //
     static Command parse(Object content) {
-        return CommandSharedHolder.helper.parseCommand(content);
+        return SharedCommandHolder.cmdHelper.parseCommand(content);
     }
 
     static Factory getFactory(String cmd) {
-        return CommandSharedHolder.helper.getCommandFactory(cmd);
+        return SharedCommandHolder.cmdHelper.getCommandFactory(cmd);
     }
     static void setFactory(String cmd, Factory factory) {
-        CommandSharedHolder.helper.setCommandFactory(cmd, factory);
+        SharedCommandHolder.cmdHelper.setCommandFactory(cmd, factory);
+    }
+
+    /**
+     *  General Helper
+     *  ~~~~~~~~~~~~~~
+     */
+    interface Helper {
+
+        void setCommandFactory(String cmd, Factory factory);
+        Factory getCommandFactory(String cmd);
+
+        Command parseCommand(Object content);
+
     }
 
     /**

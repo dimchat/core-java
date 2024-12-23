@@ -27,8 +27,8 @@ package chat.dim.crypto;
 
 import java.util.Map;
 
-import chat.dim.plugins.CryptoHelper;
-import chat.dim.plugins.CryptoSharedHolder;
+import chat.dim.plugins.GeneralCryptoHelper;
+import chat.dim.plugins.SharedCryptoHolder;
 import chat.dim.type.Dictionary;
 
 public abstract class BaseKey extends Dictionary implements CryptographyKey {
@@ -47,15 +47,15 @@ public abstract class BaseKey extends Dictionary implements CryptographyKey {
     //
 
     public static String getKeyAlgorithm(Map<?, ?> key) {
-        return CryptoSharedHolder.helper.getKeyAlgorithm(key, "");
+        return SharedCryptoHolder.helper.getKeyAlgorithm(key, "");
     }
 
     public static boolean matchEncryptKey(EncryptKey pKey, DecryptKey sKey) {
-        return CryptoHelper.matchSymmetricKeys(pKey, sKey);
+        return GeneralCryptoHelper.matchSymmetricKeys(pKey, sKey);
     }
 
     public static boolean matchSignKey(SignKey sKey, VerifyKey pKey) {
-        return CryptoHelper.matchAsymmetricKeys(sKey, pKey);
+        return GeneralCryptoHelper.matchAsymmetricKeys(sKey, pKey);
     }
 
     public static boolean symmetricKeyEquals(SymmetricKey a, SymmetricKey b) {

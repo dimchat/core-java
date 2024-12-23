@@ -33,7 +33,7 @@ package chat.dim.dkd;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.plugins.MessageSharedHolder;
+import chat.dim.plugins.SharedMessageHolder;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -90,7 +90,7 @@ public class BaseContent extends Dictionary implements Content {
     @Override
     public int getType() {
         if (type == -1) {
-            type = MessageSharedHolder.helper.getContentType(toMap(), 0);
+            type = SharedMessageHolder.helper.getContentType(toMap(), 0);
             // type = getInt("type", 0);
             assert type >= 0 : "content type error: " + toMap();
         }

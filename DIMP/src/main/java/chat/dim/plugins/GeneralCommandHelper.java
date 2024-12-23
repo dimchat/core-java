@@ -30,12 +30,18 @@
  */
 package chat.dim.plugins;
 
+import java.util.Map;
+
 /**
- *  Command FactoryManager
+ *  Command GeneralFactory
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-public final class CommandSharedHolder {
+public interface GeneralCommandHelper /*extends Command.Helper */{
 
-    public static CommandHelper helper = null;
+    //
+    //  CMD
+    //
+
+    String getCommandName(Map<?, ?> content, String defaultValue);
 
 }
