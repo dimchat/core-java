@@ -41,10 +41,13 @@ import chat.dim.dkd.CombineForwardContent;
  *      type : 0xCF,
  *      sn   : 123,
  *
- *      messages : [...]  // chat history
+ *      title    : "...",  // chat title
+ *      messages : [...]   // chat history
  *  }
  */
 public interface CombineContent extends Content {
+
+    String getTitle();
 
     List<InstantMessage> getMessages();
 
@@ -52,8 +55,8 @@ public interface CombineContent extends Content {
     //  Factories
     //
 
-    static CombineContent create(List<InstantMessage> messages) {
-        return new CombineForwardContent(messages);
+    static CombineContent create(String title, List<InstantMessage> messages) {
+        return new CombineForwardContent(title, messages);
     }
 
     static List<InstantMessage> convert(Iterable<?> messages) {

@@ -30,6 +30,7 @@
  */
 package chat.dim.dkd;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,8 @@ import chat.dim.protocol.InstantMessage;
  *      type : 0xCF,
  *      sn   : 123,
  *
- *      messages : [...]  // chat history
+ *      title    : "...",  // chat title
+ *      messages : [...]   // chat history
  *  }
  */
 public class CombineForwardContent extends BaseContent implements CombineContent {
@@ -55,10 +57,18 @@ public class CombineForwardContent extends BaseContent implements CombineContent
         history = null;
     }
 
-    public CombineForwardContent(List<InstantMessage> messages) {
+    public CombineForwardContent(String title, List<InstantMessage> messages) {
         super(ContentType.COMBINE_FORWARD.value);
-        history = messages;
+        // chat name
+        put("title", title);
+        // chat history
         put("messages", CombineContent.revert(messages));
+        history = messages;
+    }
+
+    @Override
+    public String getTitle() {
+        return getString("title", "");
     }
 
     @Override
@@ -67,10 +77,12 @@ public class CombineForwardContent extends BaseContent implements CombineContent
         if (messages == null) {
             Object info = get("messages");
             if (info instanceof List) {
-                history = messages = CombineContent.convert((List<?>) info);
+                messages = CombineContent.convert((List<?>) info);
             } else {
-                assert false : "combine message not found: " + toMap();
+                assert info == null : "combine message error: " + info;
+                messages = new ArrayList<>();
             }
+            history = messages;
         }
         return messages;
     }

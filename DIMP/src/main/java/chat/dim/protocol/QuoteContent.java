@@ -62,12 +62,17 @@ public interface QuoteContent extends Content {
     //
 
     /**
-     *  Create base receipt command with text & original message info
+     *  Create quote content with text & original message info
      */
     static QuoteContent create(String text, Envelope head, Content body) {
         Map<String, Object> info = purify(head);
         info.put("type", body.getType());
         info.put("sn", body.getSerialNumber());
+        // update: receiver -> group
+        ID group = body.getGroup();
+        if (group != null) {
+            info.put("receiver", group.toString());
+        }
         return new BaseQuoteContent(text, info);
     }
 
@@ -77,6 +82,7 @@ public interface QuoteContent extends Content {
         if (to == null) {
             to = envelope.getReceiver();
         }
+        // build origin info
         Map<String, Object> info = new HashMap<>();
         info.put("sender", from.toString());
         info.put("receiver", to.toString());

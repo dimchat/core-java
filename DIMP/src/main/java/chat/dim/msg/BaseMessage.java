@@ -124,6 +124,8 @@ public abstract class BaseMessage extends Dictionary implements Message {
         return getEnvelope().getType();
     }
 
+    //--------
+
     public static boolean isBroadcast(Message msg) {
         if (msg.getReceiver().isBroadcast()) {
             return true;
