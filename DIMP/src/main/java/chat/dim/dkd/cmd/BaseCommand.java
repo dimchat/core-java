@@ -33,7 +33,7 @@ package chat.dim.dkd.cmd;
 import java.util.Map;
 
 import chat.dim.dkd.BaseContent;
-import chat.dim.plugins.SharedCommandHolder;
+import chat.dim.plugins.SharedCommandExtensions;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
 
@@ -63,7 +63,7 @@ public class BaseCommand extends BaseContent implements Command {
 
     @Override
     public String getCommandName() {
-        return SharedCommandHolder.helper.getCommandName(toMap(), "");
+        return SharedCommandExtensions.helper.getCommandName(toMap(), "");
         // return getString("command", "");
     }
 }

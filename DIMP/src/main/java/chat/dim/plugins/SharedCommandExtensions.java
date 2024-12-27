@@ -36,7 +36,7 @@ import chat.dim.protocol.Command;
  *  Command FactoryManager
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-public final class SharedCommandHolder {
+public final class SharedCommandExtensions {
 
     public static Command.Helper cmdHelper = null;
 

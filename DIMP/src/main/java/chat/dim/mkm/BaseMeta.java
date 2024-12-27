@@ -36,7 +36,7 @@ import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
-import chat.dim.plugins.SharedAccountHolder;
+import chat.dim.plugins.SharedAccountExtensions;
 import chat.dim.protocol.Meta;
 import chat.dim.type.Dictionary;
 
@@ -129,7 +129,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     @Override
     public String getType() {
         if (type == null) {
-            type = SharedAccountHolder.helper.getMetaType(toMap(), "");
+            type = SharedAccountExtensions.helper.getMetaType(toMap(), "");
             // type = getInt("type", 0);
             assert type != null : "meta.type not found: " + toMap();
         }
