@@ -62,8 +62,8 @@ public class BaseCommand extends BaseContent implements Command {
     }
 
     @Override
-    public String getCommandName() {
-        return SharedCommandExtensions.helper.getCommandName(toMap(), "");
+    public String getCmd() {
+        return SharedCommandExtensions.helper.getCmd(toMap(), "");
         // return getString("command", "");
     }
 }

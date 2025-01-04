@@ -54,9 +54,9 @@ public interface Command extends Content {
     /**
      *  Get command name
      *
-     * @return command name string
+     * @return command/method/declaration
      */
-    String getCommandName();
+    String getCmd();
 
     //
     //  Factory method

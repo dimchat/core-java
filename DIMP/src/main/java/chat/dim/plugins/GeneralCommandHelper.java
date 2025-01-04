@@ -42,6 +42,6 @@ public interface GeneralCommandHelper /*extends Command.Helper */{
     //  CMD
     //
 
-    String getCommandName(Map<?, ?> content, String defaultValue);
+    String getCmd(Map<?, ?> content, String defaultValue);
 
 }
