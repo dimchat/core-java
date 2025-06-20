@@ -36,6 +36,7 @@ import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.format.PortableNetworkFile;
 import chat.dim.format.TransportableData;
+import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 
@@ -59,11 +60,11 @@ public class BaseVisa extends BaseDocument implements Visa {
     }
 
     public BaseVisa(ID identifier, String data, TransportableData signature) {
-        super(identifier, VISA, data, signature);
+        super(identifier, DocumentType.VISA, data, signature);
     }
 
     public BaseVisa(ID identifier) {
-        super(identifier, VISA);
+        super(identifier, DocumentType.VISA);
     }
 
     /**

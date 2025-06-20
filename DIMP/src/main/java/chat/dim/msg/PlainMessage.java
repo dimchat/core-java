@@ -82,7 +82,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
     }
 
     @Override
-    public int getType() {
+    public String getType() {
         return getContent().getType();
     }
 

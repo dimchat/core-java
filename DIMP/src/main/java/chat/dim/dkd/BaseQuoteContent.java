@@ -49,7 +49,7 @@ public class BaseQuoteContent extends BaseContent implements QuoteContent {
     }
 
     public BaseQuoteContent(String text, Map<String, Object> origin) {
-        super(ContentType.QUOTE.value);
+        super(ContentType.QUOTE);
         // text message
         put("text", text);
         // original envelope of message quote with,

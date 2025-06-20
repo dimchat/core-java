@@ -42,7 +42,7 @@ import chat.dim.protocol.MetaCommand;
  *      sn   : 123,
  *
  *      command : "meta", // command name
- *      ID      : "{ID}", // contact's ID
+ *      did     : "{ID}", // contact's ID
  *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }
  */
@@ -62,7 +62,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
         super(cmd);
         // ID
         assert identifier != null : "ID cannot be empty for meta command";
-        put("ID", identifier.toString());
+        put("did", identifier.toString());
         this.identifier = identifier;
         // meta
         if (meta != null) {
@@ -93,7 +93,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
     @Override
     public ID getIdentifier() {
         if (identifier == null) {
-            identifier = ID.parse(get("ID"));
+            identifier = ID.parse(get("did"));
         }
         return identifier;
     }

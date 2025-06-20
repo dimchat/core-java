@@ -52,7 +52,7 @@ public interface MoneyContent extends Content {
     //  Factories
     //
 
-    static MoneyContent create(int type, String currency, Number amount) {
+    static MoneyContent create(String type, String currency, Number amount) {
         return new BaseMoneyContent(type, currency, amount);
     }
 

@@ -52,6 +52,6 @@ public class BaseHistoryCommand extends BaseCommand implements HistoryCommand {
     }
 
     public BaseHistoryCommand(String cmd) {
-        super(ContentType.HISTORY.value, cmd);
+        super(ContentType.HISTORY, cmd);
     }
 }

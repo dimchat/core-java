@@ -120,7 +120,7 @@ public abstract class BaseMessage extends Dictionary implements Message {
     }
 
     @Override
-    public int getType() {
+    public String getType() {
         return getEnvelope().getType();
     }
 

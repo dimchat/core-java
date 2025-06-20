@@ -52,13 +52,13 @@ public class BaseCommand extends BaseContent implements Command {
         super(content);
     }
 
-    public BaseCommand(int type, String cmd) {
+    public BaseCommand(String type, String cmd) {
         super(type);
         put("command", cmd);
     }
 
     public BaseCommand(String cmd) {
-        this(ContentType.COMMAND.value, cmd);
+        this(ContentType.COMMAND, cmd);
     }
 
     @Override

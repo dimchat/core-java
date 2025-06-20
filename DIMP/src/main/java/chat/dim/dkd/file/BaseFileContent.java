@@ -66,7 +66,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
         wrapper = new BaseFileWrapper(toMap());
     }
 
-    public BaseFileContent(int type, TransportableData data, String filename, URI url, DecryptKey key) {
+    public BaseFileContent(String type, TransportableData data, String filename, URI url, DecryptKey key) {
         super(type);
         wrapper = new BaseFileWrapper(toMap());
         // file data

@@ -84,7 +84,7 @@ public interface FileContent extends Content {
     //  Factories
     //
 
-    static FileContent create(int type, TransportableData data, String filename, URI url, DecryptKey key) {
+    static FileContent create(String type, TransportableData data, String filename, URI url, DecryptKey key) {
         if (ContentType.IMAGE.equals(type)) {
             return new ImageFileContent(data, filename, url, key);
         } else if (ContentType.AUDIO.equals(type)) {
@@ -96,7 +96,7 @@ public interface FileContent extends Content {
     }
 
     static FileContent file(TransportableData data, String filename, URI url, DecryptKey key) {
-        return new BaseFileContent(ContentType.FILE.value, data, filename, url, key);
+        return new BaseFileContent(ContentType.FILE, data, filename, url, key);
     }
 
     static ImageContent image(TransportableData data, String filename, URI url, DecryptKey key) {

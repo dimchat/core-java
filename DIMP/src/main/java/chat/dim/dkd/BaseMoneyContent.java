@@ -51,14 +51,14 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
         super(content);
     }
 
-    public BaseMoneyContent(int type, String currency, Number amount) {
+    public BaseMoneyContent(String type, String currency, Number amount) {
         super(type);
         setCurrency(currency);
         setAmount(amount);
     }
 
     public BaseMoneyContent(String currency, Number amount) {
-        this(ContentType.MONEY.value, currency, amount);
+        this(ContentType.MONEY, currency, amount);
     }
 
     private void setCurrency(String currency) {

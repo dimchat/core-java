@@ -44,7 +44,7 @@ import chat.dim.protocol.Meta;
  *      sn   : 123,
  *
  *      command   : "document", // command name
- *      ID        : "{ID}",     // entity ID
+ *      did       : "{ID}",     // entity ID
  *      meta      : {...},      // only for handshaking with new friend
  *      document  : {...},      // when document is empty, means query for ID
  *      last_time : 12345       // old document time for querying

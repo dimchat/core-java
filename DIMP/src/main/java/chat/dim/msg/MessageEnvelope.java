@@ -134,12 +134,12 @@ public class MessageEnvelope extends Dictionary implements Envelope {
      *  to let the station do its job.
      */
     @Override
-    public int getType() {
-        return getInt("type", 0);
+    public String getType() {
+        return getString("type", null);
     }
 
     @Override
-    public void setType(int type) {
+    public void setType(String type) {
         put("type", type);
     }
 }

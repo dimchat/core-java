@@ -54,7 +54,7 @@ public class TransferMoneyContent extends BaseMoneyContent implements TransferCo
     }
 
     public TransferMoneyContent(String currency, Number amount) {
-        super(ContentType.TRANSFER.value, currency, amount);
+        super(ContentType.TRANSFER, currency, amount);
     }
 
     @Override

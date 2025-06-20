@@ -60,7 +60,7 @@ import chat.dim.type.Dictionary;
 public class BaseContent extends Dictionary implements Content {
 
     // message type: text, image, ...
-    private int type;
+    private String type;
 
     // serial number: random number to identify message content
     private long sn;
@@ -71,16 +71,16 @@ public class BaseContent extends Dictionary implements Content {
     public BaseContent(Map<String, Object> content) {
         super(content);
         // lazy load
-        type = -1;
-        sn = -1;
+        type = null;
+        sn   = -1;
         time = null;
     }
 
-    public BaseContent(int msgType) {
+    public BaseContent(String msgType) {
         super();
         Date now = new Date();
         type = msgType;
-        sn = InstantMessage.generateSerialNumber(msgType, now);
+        sn   = InstantMessage.generateSerialNumber(msgType, now);
         time = now;
         put("type", type);
         put("sn", sn);
@@ -88,11 +88,11 @@ public class BaseContent extends Dictionary implements Content {
     }
 
     @Override
-    public int getType() {
-        if (type == -1) {
-            type = SharedMessageExtensions.helper.getContentType(toMap(), 0);
+    public String getType() {
+        if (type == null) {
+            type = SharedMessageExtensions.helper.getContentType(toMap(), "");
             // type = getInt("type", 0);
-            assert type >= 0 : "content type error: " + toMap();
+            assert type != null: "content type error: " + toMap();
         }
         return type;
     }

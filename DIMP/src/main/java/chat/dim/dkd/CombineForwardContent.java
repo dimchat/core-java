@@ -58,7 +58,7 @@ public class CombineForwardContent extends BaseContent implements CombineContent
     }
 
     public CombineForwardContent(String title, List<InstantMessage> messages) {
-        super(ContentType.COMBINE_FORWARD.value);
+        super(ContentType.COMBINE_FORWARD);
         // chat name
         put("title", title);
         // chat history

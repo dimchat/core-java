@@ -43,7 +43,7 @@ import chat.dim.type.Converter;
  *      type : 0x33,
  *      sn   : 123,
  *
- *      ID     : "{ID}",        // contact's ID
+ *      did    : "{ID}",        // contact's ID
  *      name   : "{nickname}",  // contact's name
  *      avatar : "{URL}",       // avatar - PNF(URL)
  *      ...
@@ -60,9 +60,9 @@ public class NameCardContent extends BaseContent implements NameCard {
     }
 
     public NameCardContent(ID identifier, String name, PortableNetworkFile avatar) {
-        super(ContentType.NAME_CARD.value);
+        super(ContentType.NAME_CARD);
         // ID
-        put("ID", identifier.toString());
+        put("did", identifier.toString());
         // name
         put("name", name);
         // avatar
@@ -75,7 +75,7 @@ public class NameCardContent extends BaseContent implements NameCard {
 
     @Override
     public ID getIdentifier() {
-        return ID.parse(get("ID"));
+        return ID.parse(get("did"));
     }
 
     @Override

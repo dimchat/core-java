@@ -39,7 +39,6 @@ import chat.dim.crypto.VerifyKey;
 import chat.dim.format.JSONMap;
 import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
-import chat.dim.plugins.SharedAccountExtensions;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.type.Converter;
@@ -85,7 +84,7 @@ public class BaseDocument extends Dictionary implements Document {
         super();
 
         // ID
-        put("ID", identifier.toString());
+        put("did", identifier.toString());
         this.identifier = identifier;
 
         // document type
@@ -118,7 +117,7 @@ public class BaseDocument extends Dictionary implements Document {
         super();
 
         // ID
-        put("ID", identifier.toString());
+        put("did", identifier.toString());
         this.identifier = identifier;
 
         // document type
@@ -144,19 +143,9 @@ public class BaseDocument extends Dictionary implements Document {
     }
 
     @Override
-    public String getType() {
-        String type = (String) getProperty("type");  // deprecated
-        if (type == null) {
-            type = SharedAccountExtensions.helper.getDocumentType(toMap(), null);
-            // type = getString("type", null);
-        }
-        return type;
-    }
-
-    @Override
     public ID getIdentifier() {
         if (identifier == null) {
-            identifier = ID.parse(get("ID"));
+            identifier = ID.parse(get("did"));
         }
         return identifier;
     }

@@ -50,7 +50,7 @@ public class BaseTextContent extends BaseContent implements TextContent {
     }
 
     public BaseTextContent(String message) {
-        super(ContentType.TEXT.value);
+        super(ContentType.TEXT);
         put("text", message);
     }
 

@@ -36,6 +36,7 @@ import java.util.Map;
 
 import chat.dim.format.TransportableData;
 import chat.dim.protocol.Bulletin;
+import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.ID;
 
 /**
@@ -52,11 +53,11 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
     }
 
     public BaseBulletin(ID identifier, String data, TransportableData signature) {
-        super(identifier, BULLETIN, data, signature);
+        super(identifier, DocumentType.BULLETIN, data, signature);
     }
 
     public BaseBulletin(ID identifier) {
-        super(identifier, BULLETIN);
+        super(identifier, DocumentType.BULLETIN);
     }
 
     @Override

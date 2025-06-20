@@ -38,7 +38,7 @@ import chat.dim.format.PortableNetworkFile;
  *      type : 0x33,
  *      sn   : 123,
  *
- *      ID     : "{ID}",        // contact's ID
+ *      did    : "{ID}",        // contact's ID
  *      name   : "{nickname}",  // contact's name
  *      avatar : "{URL}",       // avatar - PNF(URL)
  *      ...

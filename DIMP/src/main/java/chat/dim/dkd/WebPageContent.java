@@ -72,7 +72,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     public WebPageContent(String title, PortableNetworkFile icon, String desc,
                           URI url, String html) {
-        super(ContentType.PAGE.value);
+        super(ContentType.PAGE);
 
         setTitle(title);
         setIcon(icon);
