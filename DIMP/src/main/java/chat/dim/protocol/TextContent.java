@@ -33,12 +33,16 @@ package chat.dim.protocol;
 import chat.dim.dkd.BaseTextContent;
 
 /**
- *  Text message: {
- *      type : 0x01,
- *      sn   : 123,
+ *  Text Content
  *
- *      text : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x01),
+ *      'sn'   : 123,
+ *
+ *      'text' : "..."
  *  }
+ *  </pre></blockquote>
  */
 public interface TextContent extends Content {
 

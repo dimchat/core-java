@@ -37,13 +37,17 @@ import chat.dim.protocol.MoneyContent;
 import chat.dim.type.Converter;
 
 /**
- *  Money message: {
- *      type : 0x40,
- *      sn   : 123,
+ *  Money Content
  *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x40),
+ *      'sn'   : 123,
+ *
+ *      'currency' : "RMB", // USD, USDT, ...
+ *      'amount'   : 100.00
  *  }
+ *  </pre></blockquote>
  */
 public class BaseMoneyContent extends BaseContent implements MoneyContent {
 

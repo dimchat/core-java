@@ -41,7 +41,6 @@ import chat.dim.protocol.ID;
 
 /**
  *  Base Document for Group
- *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 public class BaseBulletin extends BaseDocument implements Bulletin {
 

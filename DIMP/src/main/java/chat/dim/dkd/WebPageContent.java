@@ -38,20 +38,23 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.PageContent;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
- *      sn   : 123,
+ *  Web Page Content
  *
- *      title : "...",                // Web title
- *      desc  : "...",
- *      icon  : "data:image/x-icon;base64,...",
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x20),
+ *      'sn'   : 123,
  *
- *      URL   : "https://dim.chat/",  // Web URL
+ *      'title' : "...",                // Web title
+ *      'desc'  : "...",
+ *      'icon'  : "data:image/x-icon;base64,...",
  *
- *      HTML      : "...",            // Web content
- *      mime_type : "text/html",      // Content-Type
- *      encoding  : "utf8",
- *      base      : "about:blank"     // Base URL
+ *      'URL'   : "https://dim.chat/",  // Web URL
+ *
+ *      'HTML'      : "...",            // Web content
+ *      'mime_type' : "text/html",      // Content-Type
+ *      'encoding'  : "utf8",
+ *      'base'      : "about:blank"     // Base URL
  *
  *  }
  */

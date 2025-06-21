@@ -37,6 +37,25 @@ import chat.dim.protocol.Envelope;
 import chat.dim.protocol.QuoteContent;
 import chat.dim.type.Converter;
 
+/**
+ *  Quote Content
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x37),
+ *      'sn'   : 456,
+ *
+ *      'text'   : "...",  // text message
+ *      'origin' : {       // original message envelope
+ *          'sender'   : "...",
+ *          'receiver' : "...",
+ *
+ *          'type'     : 0x01,
+ *          'sn'       : 123,
+ *      }
+ *  }
+ *  </pre></blockquote>
+ */
 public class BaseQuoteContent extends BaseContent implements QuoteContent {
 
     /**

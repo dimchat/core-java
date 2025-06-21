@@ -42,7 +42,6 @@ import chat.dim.protocol.Visa;
 
 /**
  *  Base Document for User
- *  ~~~~~~~~~~~~~~~~~~~~~~
  */
 public class BaseVisa extends BaseDocument implements Visa {
 
@@ -69,8 +68,9 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     /**
      *  Public key (used for encryption, can be same with meta.key)
-     *
+     *  <p>
      *      RSA
+     *  </p>
      */
     @Override
     public EncryptKey getPublicKey() {

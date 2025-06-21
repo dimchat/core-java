@@ -39,16 +39,20 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Document Command Content
  *
- *      command   : "document", // command name
- *      did       : "{ID}",     // entity ID
- *      meta      : {...},      // only for handshaking with new friend
- *      document  : {...},      // when document is empty, means query for ID
- *      last_time : 12345       // old document time for querying
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command'   : "document", // command name
+ *      'did'       : "{ID}",     // entity ID
+ *      'meta'      : {...},      // only for handshaking with new friend
+ *      'document'  : {...},      // when this is empty, means to query
+ *      'last_time' : 12345       // old document time for querying
  *  }
+ *  </pre></blockquote>
  */
 public class BaseDocumentCommand extends BaseMetaCommand implements DocumentCommand {
 
@@ -64,8 +68,8 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
      *  Send Meta and Document to new friend
      *
      * @param identifier - entity ID
-     * @param meta - entity Meta
-     * @param doc - entity Document
+     * @param meta       - entity Meta
+     * @param doc        - entity Document
      */
     public BaseDocumentCommand(ID identifier, Meta meta, Document doc) {
         super(DOCUMENT, identifier, meta);
@@ -80,7 +84,7 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
      *  Response Entity Document
      *
      * @param identifier - entity ID
-     * @param doc - entity Document
+     * @param doc        - entity Document
      */
     public BaseDocumentCommand(ID identifier, Document doc) {
         this(identifier, null, doc);

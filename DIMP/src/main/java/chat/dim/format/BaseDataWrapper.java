@@ -30,10 +30,12 @@ import java.util.Map;
 import chat.dim.type.Dictionary;
 
 /**
- *  Transportable Data MixIn: {
+ *  Transportable Data MixIn
  *
- *      algorithm : "base64",
- *      data      : "...",     // base64_encode(data)
+ *  <blockquote><pre>
+ *  {
+ *      'algorithm' : "base64",
+ *      'data'      : "...",     // base64_encode(data)
  *      ...
  *  }
  *
@@ -41,6 +43,7 @@ import chat.dim.type.Dictionary;
  *      0. "{BASE64_ENCODE}"
  *      1. "base64,{BASE64_ENCODE}"
  *      2. "data:image/png;base64,{BASE64_ENCODE}"
+ *  </pre></blockquote>
  */
 public class BaseDataWrapper extends Dictionary {
 

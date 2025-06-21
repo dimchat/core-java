@@ -37,13 +37,17 @@ import java.util.Map;
 import chat.dim.dkd.CombineForwardContent;
 
 /**
- *  Combine Forward message: {
- *      type : 0xCF,
- *      sn   : 123,
+ *  Combine Forward Content
  *
- *      title    : "...",  // chat title
- *      messages : [...]   // chat history
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0xCF),
+ *      'sn'   : 123,
+ *
+ *      'title'    : "...",  // chat title
+ *      'messages' : [...]   // chat history
  *  }
+ *  </pre></blockquote>
  */
 public interface CombineContent extends Content {
 

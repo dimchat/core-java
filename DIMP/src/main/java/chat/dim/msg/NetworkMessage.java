@@ -37,24 +37,29 @@ import chat.dim.protocol.ReliableMessage;
 
 /**
  *  Reliable Message signed by an asymmetric key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *  This class is used to sign the SecureMessage
- *  It contains a 'signature' field which signed with sender's private key
+ *  <p>
+ *      This class is used to sign the SecureMessage
+ *      It contains a 'signature' field which signed with sender's private key
+ *  </p>
  *
+ *  <blockquote><pre>
  *  data format: {
  *      //-- envelope
- *      sender   : "moki@xxx",
- *      receiver : "hulk@yyy",
- *      time     : 123,
+ *      'sender'   : "moki@xxx",
+ *      'receiver' : "hulk@yyy",
+ *      'time'     : 123,
+ *
  *      //-- content data and key/keys
- *      data     : "...",  // base64_encode( symmetric_encrypt(content))
- *      key      : "...",  // base64_encode(asymmetric_encrypt(password))
- *      keys     : {
- *          "ID1": "key1", // base64_encode(asymmetric_encrypt(password))
+ *      'data' : "...",      // base64_encode( symmetric_encrypt(content))
+ *      'key'  : "...",      // base64_encode(asymmetric_encrypt(pwd))
+ *      'keys' : {
+ *          "ID1" : "key1",  // base64_encode(asymmetric_encrypt(pwd))
  *      },
+ *
  *      //-- signature
- *      signature: "..."   // base64_encode(asymmetric_sign(data))
+ *      'signature' : "..."  // base64_encode(asymmetric_sign(data))
  *  }
+ *  </pre></blockquote>
  */
 public class NetworkMessage extends EncryptedMessage implements ReliableMessage {
 

@@ -54,17 +54,21 @@ import chat.dim.protocol.group.ResetCommand;
 import chat.dim.protocol.group.ResignCommand;
 
 /**
- *  History command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  Group History
  *
- *      command : "reset",   // "invite", "quit", "query", ...
- *      time    : 123.456,   // command timestamp
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x89),
+ *      'sn'   : 123,
  *
- *      group   : "{GROUP_ID}",
- *      member  : "{MEMBER_ID}",
- *      members : ["{MEMBER_ID}",]
+ *      'command' : "reset",   // "invite", "quit", "query", ...
+ *      'time'    : 123.456,   // command timestamp
+ *
+ *      'group'   : "{GROUP_ID}",
+ *      'member'  : "{MEMBER_ID}",
+ *      'members' : ["{MEMBER_ID}",]
  *  }
+ *  </pre></blockquote>
  */
 public interface GroupCommand extends HistoryCommand {
 

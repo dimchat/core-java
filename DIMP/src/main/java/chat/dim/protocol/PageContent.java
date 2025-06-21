@@ -36,22 +36,25 @@ import chat.dim.dkd.WebPageContent;
 import chat.dim.format.PortableNetworkFile;
 
 /**
- *  Web Page message: {
- *      type : 0x20,
- *      sn   : 123,
+ *  Web Page
  *
- *      title : "...",                // Web title
- *      desc  : "...",
- *      icon  : "data:image/x-icon;base64,...",
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x20),
+ *      'sn'   : 123,
  *
- *      URL   : "https://github.com/moky/dimp",
+ *      'title' : "...",                // Web title
+ *      'desc'  : "...",
+ *      'icon'  : "data:image/x-icon;base64,...",
  *
- *      HTML      : "...",            // Web content
- *      mime_type : "text/html",      // Content-Type
- *      encoding  : "utf8",
- *      base      : "about:blank"     // Base URL
+ *      'URL'   : "https://github.com/moky/dimp",
  *
+ *      'HTML'      : "...",            // Web content
+ *      'mime_type' : "text/html",      // Content-Type
+ *      'encoding'  : "utf8",
+ *      'base'      : "about:blank"     // Base URL
  *  }
+ *  </pre></blockquote>
  */
 public interface PageContent extends Content {
 

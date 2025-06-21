@@ -38,6 +38,23 @@ import chat.dim.dkd.cmd.BaseHistoryCommand;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 
+/**
+ *  Group History
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x89),
+ *      'sn'   : 123,
+ *
+ *      'command' : "reset",   // "invite", "quit", "query", ...
+ *      'time'    : 123.456,   // command timestamp
+ *
+ *      'group'   : "{GROUP_ID}",
+ *      'member'  : "{MEMBER_ID}",
+ *      'members' : ["{MEMBER_ID}",]
+ *  }
+ *  </pre></blockquote>
+ */
 public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand {
 
     public BaseGroupCommand(Map<String, Object> content) {

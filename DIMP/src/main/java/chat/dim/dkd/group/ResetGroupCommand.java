@@ -37,6 +37,22 @@ import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.group.ResetCommand;
 
+/**
+ *  Reset Group History
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x89),
+ *      'sn'   : 123,
+ *
+ *      'command' : "reset",
+ *      'time'    : 123.456,
+ *
+ *      'group'   : "{GROUP_ID}",
+ *      'members' : []
+ *  }
+ *  </pre></blockquote>
+ */
 public class ResetGroupCommand extends BaseGroupCommand implements ResetCommand {
 
     public ResetGroupCommand(Map<String, Object> content) {

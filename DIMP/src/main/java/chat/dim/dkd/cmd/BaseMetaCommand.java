@@ -37,14 +37,18 @@ import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Meta Command Content
  *
- *      command : "meta", // command name
- *      did     : "{ID}", // contact's ID
- *      meta    : {...}   // when meta is empty, means query meta for ID
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command' : "meta", // command name
+ *      'did'     : "{ID}", // contact's ID
+ *      'meta'    : {...}   // when meta is empty, means query meta for ID
  *  }
+ *  </pre></blockquote>
  */
 public class BaseMetaCommand extends BaseCommand implements MetaCommand {
 
@@ -75,7 +79,7 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
      *  Response Meta
      *
      * @param identifier - entity ID
-     * @param meta - entity Meta
+     * @param meta       - entity Meta
      */
     public BaseMetaCommand(ID identifier, Meta meta) {
         this(META, identifier, meta);

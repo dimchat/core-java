@@ -38,13 +38,17 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Base Command Content
  *
- *      command : "...", // command name
- *      extra   : info   // command parameters
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command' : "...", // command name
+ *      'extra'   : info   // command parameters
  *  }
+ *  </pre></blockquote>
  */
 public class BaseCommand extends BaseContent implements Command {
 

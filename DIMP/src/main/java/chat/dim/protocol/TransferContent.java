@@ -33,15 +33,19 @@ package chat.dim.protocol;
 import chat.dim.dkd.TransferMoneyContent;
 
 /**
- *  Transfer money message: {
- *      type : 0x41,
- *      sn   : 123,
+ *  Transfer Money
  *
- *      currency : "RMB",    // USD, USDT, ...
- *      amount   : 100.00,
- *      remitter : "{FROM}", // sender ID
- *      remittee : "{TO}"    // receiver ID
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x41),
+ *      'sn'   : 123,
+ *
+ *      'currency' : "RMB",    // USD, USDT, ...
+ *      'amount'   : 100.00,
+ *      'remitter' : "{FROM}", // sender ID
+ *      'remittee' : "{TO}"    // receiver ID
  *  }
+ *  </pre></blockquote>
  */
 public interface TransferContent extends MoneyContent {
 

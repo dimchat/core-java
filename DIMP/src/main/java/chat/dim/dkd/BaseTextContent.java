@@ -36,12 +36,16 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.TextContent;
 
 /**
- *  Text message: {
- *      type : 0x01,
- *      sn   : 123,
+ *  Text Content
  *
- *      text : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x01),
+ *      'sn'   : 123,
+ *
+ *      'text' : "..."
  *  }
+ *  </pre></blockquote>
  */
 public class BaseTextContent extends BaseContent implements TextContent {
 

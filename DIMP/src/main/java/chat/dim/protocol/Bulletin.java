@@ -34,7 +34,6 @@ import java.util.List;
 
 /**
  *  Group Document
- *  ~~~~~~~~~~~~~~
  */
 public interface Bulletin extends Document {
 

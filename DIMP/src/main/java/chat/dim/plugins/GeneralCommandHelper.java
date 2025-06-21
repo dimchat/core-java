@@ -34,7 +34,6 @@ import java.util.Map;
 
 /**
  *  Command GeneralFactory
- *  ~~~~~~~~~~~~~~~~~~~~~~
  */
 public interface GeneralCommandHelper /*extends Command.Helper */{
 

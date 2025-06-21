@@ -39,15 +39,18 @@ import chat.dim.type.Dictionary;
 
 /**
  *  Envelope for message
- *  ~~~~~~~~~~~~~~~~~~~~
- *  This class is used to create a message envelope
- *  which contains 'sender', 'receiver' and 'time'
+ *  <p>
+ *      This class is used to create a message envelope
+ *      which contains 'sender', 'receiver' and 'time'
+ *  </p>
  *
+ *  <blockquote><pre>
  *  data format: {
- *      sender   : "moki@xxx",
- *      receiver : "hulk@yyy",
- *      time     : 123
+ *      'sender'   : "moki@xxx",
+ *      'receiver' : "hulk@yyy",
+ *      'time'     : 123
  *  }
+ *  </pre></blockquote>
  */
 public class MessageEnvelope extends Dictionary implements Envelope {
 

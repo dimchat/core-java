@@ -34,7 +34,6 @@ import chat.dim.protocol.Command;
 
 /**
  *  Command FactoryManager
- *  ~~~~~~~~~~~~~~~~~~~~~~
  */
 public final class SharedCommandExtensions {
 

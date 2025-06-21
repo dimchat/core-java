@@ -41,11 +41,13 @@ import chat.dim.type.Dictionary;
 
 /**
  *  Message Content
- *  ~~~~~~~~~~~~~~~
- *  This class is for creating message content
+ *  <p>
+ *      This class is for creating message content
+ *  </p>
  *
+ *  <blockquote><pre>
  *  data format: {
- *      'type'    : 0x00,        // message type
+ *      'type'    : i2s(0x00),   // message type
  *      'sn'      : 0,           // serial number
  *
  *      'time'    : 123,         // message time
@@ -56,6 +58,7 @@ import chat.dim.type.Dictionary;
  *      'command' : 'Command Name'  // for system command
  *      //...
  *  }
+ *  </pre></blockquote>
  */
 public class BaseContent extends Dictionary implements Content {
 

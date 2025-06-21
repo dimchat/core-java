@@ -36,19 +36,23 @@ import java.util.Map;
 import chat.dim.dkd.BaseQuoteContent;
 
 /**
- *  Quote message: {
- *      type : 0x37,
- *      sn   : 456,
+ *  Quote Content
  *
- *      text    : "...",  // text message
- *      origin  : {       // original message envelope
- *          sender    : "...",
- *          receiver  : "...",
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x37),
+ *      'sn'   : 456,
  *
- *          type      : 0x01,
- *          sn        : 123,
+ *      'text'   : "...",  // text message
+ *      'origin' : {       // original message envelope
+ *          'sender'   : "...",
+ *          'receiver' : "...",
+ *
+ *          'type'     : 0x01,
+ *          'sn'       : 123,
  *      }
  *  }
+ *  </pre></blockquote>
  */
 public interface QuoteContent extends Content {
 

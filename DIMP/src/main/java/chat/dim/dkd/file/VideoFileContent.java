@@ -40,22 +40,25 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.file.VideoContent;
 
 /**
- *  Video message: {
- *      type : 0x16,
- *      sn   : 123,
+ *  Video File Content
  *
- *      data     : "...",        // base64_encode(fileContent)
- *      filename : "movie.mp4",
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x16),
+ *      'sn'   : 123,
  *
- *      URL      : "http://...", // download from CDN
+ *      'data'     : "...",        // base64_encode(fileContent)
+ *      'filename' : "movie.mp4",
+ *
+ *      'URL'      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      key      : {             // symmetric key to decrypt file content
- *          algorithm : "AES",   // "DES", ...
- *          data      : "{BASE64_ENCODE}",
+ *      'key'      : {             // symmetric key to decrypt file data
+ *          'algorithm' : "AES",   // "DES", ...
+ *          'data'      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      snapshot : "data:image/jpeg;base64,..."
+ *      'snapshot' : "data:image/jpeg;base64,..."
  *  }
  */
 public class VideoFileContent extends BaseFileContent implements VideoContent {

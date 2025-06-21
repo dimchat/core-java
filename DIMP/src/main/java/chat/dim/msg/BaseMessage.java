@@ -60,19 +60,25 @@ import chat.dim.type.Dictionary;
 
 /**
  *  Message with Envelope
- *  ~~~~~~~~~~~~~~~~~~~~~
- *  Base classes for messages
- *  This class is used to create a message
- *  with the envelope fields, such as 'sender', 'receiver', and 'time'
+ *  <p>
+ *      Base classes for messages
+ *  </p>
+ *  <p>
+ *      This class is used to create a message
+ *      with the envelope fields, such as 'sender', 'receiver', and 'time'
+ *  </p>
  *
+ *  <blockquote><pre>
  *  data format: {
  *      //-- envelope
- *      sender   : "moki@xxx",
- *      receiver : "hulk@yyy",
- *      time     : 123,
+ *      'sender'   : "moki@xxx",
+ *      'receiver' : "hulk@yyy",
+ *      'time'     : 123,
+ *
  *      //-- body
  *      ...
  *  }
+ *  </pre></blockquote>
  */
 public abstract class BaseMessage extends Dictionary implements Message {
 

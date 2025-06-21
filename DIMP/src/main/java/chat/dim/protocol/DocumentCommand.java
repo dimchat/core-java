@@ -35,16 +35,20 @@ import java.util.Date;
 import chat.dim.dkd.cmd.BaseDocumentCommand;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Document Command
  *
- *      command   : "document", // command name
- *      did       : "{ID}",     // entity ID
- *      meta      : {...},      // only for handshaking with new friend
- *      document  : {...},      // when document is empty, means query for ID
- *      last_time : 12345       // old document time for querying
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command'   : "document", // command name
+ *      'did'       : "{ID}",     // entity ID
+ *      'meta'      : {...},      // only for handshaking with new friend
+ *      'document'  : {...},      // when this is empty, means to query
+ *      'last_time' : 12345       // old document time for querying
  *  }
+ *  </pre></blockquote>
  */
 public interface DocumentCommand extends MetaCommand {
 

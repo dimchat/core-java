@@ -35,9 +35,10 @@ import chat.dim.format.PortableNetworkFile;
 
 /**
  *  User Document
- *  ~~~~~~~~~~~~~
- *  This interface is defined for authorizing other apps to login,
- *  which can generate a temporary asymmetric key pair for messaging.
+ *  <p>
+ *      This interface is defined for authorizing other apps to login,
+ *      which can generate a temporary asymmetric key pair for messaging.
+ *  </p>
  */
 public interface Visa extends Document {
 

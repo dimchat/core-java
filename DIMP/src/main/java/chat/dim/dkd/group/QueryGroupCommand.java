@@ -37,10 +37,27 @@ import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.group.QueryCommand;
 
-/**
+/*
  *  NOTICE:
  *      This command is just for querying group info,
  *      should not be saved in group history
+ */
+
+/**
+ *  Query Group History
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command' : "query",
+ *      'time'    : 123.456,
+ *
+ *      'group'     : "{GROUP_ID}",
+ *      'last_time' : 0
+ *  }
+ *  </pre></blockquote>
  */
 public class QueryGroupCommand extends BaseGroupCommand implements QueryCommand {
 

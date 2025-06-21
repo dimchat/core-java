@@ -35,13 +35,17 @@ import java.util.Map;
 import chat.dim.plugins.SharedCommandExtensions;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Command Content
  *
- *      command : "...", // command name
- *      extra   : info   // command parameters
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command' : "...", // command name
+ *      'extra'   : info   // command parameters
  *  }
+ *  </pre></blockquote>
  */
 public interface Command extends Content {
 
@@ -74,7 +78,6 @@ public interface Command extends Content {
 
     /**
      *  General Helper
-     *  ~~~~~~~~~~~~~~
      */
     interface Helper {
 
@@ -87,7 +90,6 @@ public interface Command extends Content {
 
     /**
      *  Command Factory
-     *  ~~~~~~~~~~~~~~~
      */
     interface Factory {
 

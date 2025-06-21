@@ -33,13 +33,17 @@ package chat.dim.protocol;
 import chat.dim.dkd.BaseMoneyContent;
 
 /**
- *  Money message: {
- *      type : 0x40,
- *      sn   : 123,
+ *  Money Content
  *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x40),
+ *      'sn'   : 123,
+ *
+ *      'currency' : "RMB", // USD, USDT, ...
+ *      'amount'   : 100.00
  *  }
+ *  </pre></blockquote>
  */
 public interface MoneyContent extends Content {
 

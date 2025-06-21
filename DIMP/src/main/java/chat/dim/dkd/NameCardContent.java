@@ -39,15 +39,19 @@ import chat.dim.protocol.NameCard;
 import chat.dim.type.Converter;
 
 /**
- *  Name Card: {
- *      type : 0x33,
- *      sn   : 123,
+ *  Name Card
  *
- *      did    : "{ID}",        // contact's ID
- *      name   : "{nickname}",  // contact's name
- *      avatar : "{URL}",       // avatar - PNF(URL)
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x33),
+ *      'sn'   : 123,
+ *
+ *      'did'    : "{ID}",        // contact's ID
+ *      'name'   : "{nickname}",  // contact's name
+ *      'avatar' : "{URL}",       // avatar - PNF(URL)
  *      ...
  *  }
+ *  </pre></blockquote>
  */
 public class NameCardContent extends BaseContent implements NameCard {
 

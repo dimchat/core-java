@@ -35,21 +35,25 @@ import java.util.Map;
 import chat.dim.dkd.cmd.BaseReceiptCommand;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 456,
+ *  Receipt Command
  *
- *      command : "receipt",
- *      text    : "...",  // text message
- *      origin  : {       // original message envelope
- *          sender    : "...",
- *          receiver  : "...",
- *          time      : 0,
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 456,
  *
- *          sn        : 123,
- *          signature : "..."
+ *      'command' : "receipt",
+ *      'text'    : "...",  // text message
+ *      'origin'  : {       // original message envelope
+ *          'sender'    : "...",
+ *          'receiver'  : "...",
+ *          'time'      : 0,
+ *
+ *          'sn'        : 123,
+ *          'signature' : "..."
  *      }
  *  }
+ *  </pre></blockquote>
  */
 public interface ReceiptCommand extends Command {
 

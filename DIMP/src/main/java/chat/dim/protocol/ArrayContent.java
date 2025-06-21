@@ -37,12 +37,16 @@ import java.util.Map;
 import chat.dim.dkd.ListContent;
 
 /**
- *  Content Array message: {
- *      type : 0xCA,
- *      sn   : 123,
+ *  Array Content
  *
- *      contents : [...]  // content array
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0xCA),
+ *      'sn'   : 123,
+ *
+ *      'contents' : [...]  // content array
  *  }
+ *  </pre></blockquote>
  */
 public interface ArrayContent extends Content {
 

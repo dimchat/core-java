@@ -33,14 +33,18 @@ package chat.dim.protocol;
 import chat.dim.dkd.cmd.BaseMetaCommand;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Meta Command
  *
- *      command : "meta", // command name
- *      did     : "{ID}", // contact's ID
- *      meta    : {...}   // when meta is empty, means query meta for ID
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
+ *
+ *      'command' : "meta", // command name
+ *      'did'     : "{ID}", // contact's ID
+ *      'meta'    : {...}   // when meta is empty, means query meta for ID
  *  }
+ *  </pre></blockquote>
  */
 public interface MetaCommand extends Command {
 

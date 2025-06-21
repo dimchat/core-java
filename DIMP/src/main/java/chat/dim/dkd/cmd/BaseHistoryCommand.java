@@ -36,14 +36,18 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HistoryCommand;
 
 /**
- *  History command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  History Command Content
  *
- *      command : "...", // command name
- *      time    : 0,     // command timestamp
- *      extra   : info   // command parameters
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x89),
+ *      'sn'   : 123,
+ *
+ *      'command' : "...", // command name
+ *      'time'    : 0,     // command timestamp
+ *      'extra'   : info   // command parameters
  *  }
+ *  </pre></blockquote>
  */
 public class BaseHistoryCommand extends BaseCommand implements HistoryCommand {
 

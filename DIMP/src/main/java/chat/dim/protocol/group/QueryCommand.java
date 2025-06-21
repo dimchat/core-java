@@ -41,16 +41,20 @@ import chat.dim.protocol.GroupCommand;
  */
 
 /**
- *  History command: {
- *      type : 0x88,
- *      sn   : 123,
+ *  Query Group History
  *
- *      command : "query",
- *      time    : 123.456,
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x88),
+ *      'sn'   : 123,
  *
- *      group     : "{GROUP_ID}",
- *      last_time : 0
+ *      'command' : "query",
+ *      'time'    : 123.456,
+ *
+ *      'group'     : "{GROUP_ID}",
+ *      'last_time' : 0
  *  }
+ *  </pre></blockquote>
  */
 public interface QueryCommand extends GroupCommand {
 

@@ -42,53 +42,62 @@ import chat.dim.type.Dictionary;
 
 /**
  *  User/Group Meta data
- *  ~~~~~~~~~~~~~~~~~~~~
- *  This class is used to generate entity ID
+ *  <p>
+ *      This class is used to generate entity ID
+ *  </p>
  *
- *      data format: {
- *          type: 1,             // algorithm version
- *          seed: "moKy",        // user/group name
- *          key: "{public key}", // PK = secp256k1(SK);
- *          fingerprint: "..."   // CT = sign(seed, SK);
- *      }
+ *  <blockquote><pre>
+ *  data format: {
+ *      type: 1,             // algorithm version
+ *      seed: "moKy",        // user/group name
+ *      key: "{public key}", // PK = secp256k1(SK);
+ *      fingerprint: "..."   // CT = sign(seed, SK);
+ *  }
  *
- *      algorithm:
- *          fingerprint = sign(seed, SK);
+ *  algorithm:
+ *      fingerprint = sign(seed, SK);
  *
  *  abstract method:
  *      - Address generateAddress(int network);
+ *  </pre></blockquote>
  */
 public abstract class BaseMeta extends Dictionary implements Meta {
 
     /**
      *  Meta algorithm version
      *
-     *      1 = MKM : username@address (default)
-     *      2 = BTC : btc_address
-     *      4 = ETH : eth_address
+     *  <pre>
+     *  1 = MKM : username@address (default)
+     *  2 = BTC : btc_address
+     *  4 = ETH : eth_address
      *      ...
+     *  </pre>
      */
     private String type = null;
 
     /**
      *  Public key (used for signature)
-     *
+     *  <p>
      *      RSA / ECC
+     *  </p>
      */
     private VerifyKey key = null;
 
     /**
      *  Seed to generate fingerprint
-     *
+     *  <p>
      *      Username / Group-X
+     *  </p>
      */
     private String seed = null;
 
     /**
      *  Fingerprint to verify ID and public key
      *
-     *      Build: fingerprint = sign(seed, privateKey)
-     *      Check: verify(seed, fingerprint, publicKey)
+     *  <pre>
+     *  Build: fingerprint = sign(seed, privateKey)
+     *  Check: verify(seed, fingerprint, publicKey)
+     *  </pre>
      */
     private TransportableData fingerprint = null;
 

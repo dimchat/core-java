@@ -33,23 +33,27 @@ package chat.dim.protocol.file;
 import chat.dim.protocol.FileContent;
 
 /**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
+ *  Audio File Content
  *
- *      data     : "...",        // base64_encode(fileContent)
- *      filename : "voice.mp4",
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x14),
+ *      'sn'   : 123,
  *
- *      URL      : "http://...", // download from CDN
+ *      'data'     : "...",        // base64_encode(fileContent)
+ *      'filename' : "voice.mp4",
+ *
+ *      'URL'      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      key      : {             // symmetric key to decrypt file content
- *          algorithm : "AES",   // "DES", ...
- *          data      : "{BASE64_ENCODE}",
+ *      'key'      : {             // symmetric key to decrypt file data
+ *          'algorithm' : "AES",   // "DES", ...
+ *          'data'      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      text     : "..."         // Automatic Speech Recognition
+ *      'text'     : "..."         // Automatic Speech Recognition
  *  }
+ *  </pre></blockquote>
  */
 public interface AudioContent extends FileContent {
 

@@ -31,14 +31,18 @@
 package chat.dim.protocol;
 
 /**
- *  History command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  History Command
  *
- *      command : "...", // command name
- *      time    : 0,     // command timestamp
- *      extra   : info   // command parameters
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x89),
+ *      'sn'   : 123,
+ *
+ *      'command' : "...", // command name
+ *      'time'    : 0,     // command timestamp
+ *      'extra'   : info   // command parameters
  *  }
+ *  </pre></blockquote>
  */
 public interface HistoryCommand extends Command {
 

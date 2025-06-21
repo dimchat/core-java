@@ -33,16 +33,20 @@ package chat.dim.protocol.group;
 import chat.dim.protocol.GroupCommand;
 
 /**
- *  History command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  Reset Group History
  *
- *      command : "reset",
- *      time    : 123.456,
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x89),
+ *      'sn'   : 123,
  *
- *      group   : "{GROUP_ID}",
- *      members : []
+ *      'command' : "reset",
+ *      'time'    : 123.456,
+ *
+ *      'group'   : "{GROUP_ID}",
+ *      'members' : []
  *  }
+ *  </pre></blockquote>
  */
 public interface ResetCommand extends GroupCommand {
 }

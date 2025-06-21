@@ -39,13 +39,17 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.InstantMessage;
 
 /**
- *  Combine Forward message: {
- *      type : 0xCF,
- *      sn   : 123,
+ *  Combine Forward Content
  *
- *      title    : "...",  // chat title
- *      messages : [...]   // chat history
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0xCF),
+ *      'sn'   : 123,
+ *
+ *      'title'    : "...",  // chat title
+ *      'messages' : [...]   // chat history
  *  }
+ *  </pre></blockquote>
  */
 public class CombineForwardContent extends BaseContent implements CombineContent {
 

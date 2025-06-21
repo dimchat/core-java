@@ -37,13 +37,17 @@ import java.util.Map;
 import chat.dim.dkd.SecretContent;
 
 /**
- *  Top-Secret message: {
- *      type : 0xFF,
- *      sn   : 456,
+ *  Top-Secret Content
  *
- *      forward : {...}  // reliable (secure + certified) message
- *      secrets : [...]  // reliable (secure + certified) messages
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0xFF),
+ *      'sn'   : 456,
+ *
+ *      'forward' : {...}  // reliable (secure + certified) message
+ *      'secrets' : [...]  // reliable (secure + certified) messages
  *  }
+ *  </pre></blockquote>
  */
 public interface ForwardContent extends Content {
 
