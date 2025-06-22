@@ -30,9 +30,7 @@
  */
 package chat.dim.protocol;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.dkd.CombineForwardContent;
 
@@ -56,31 +54,11 @@ public interface CombineContent extends Content {
     List<InstantMessage> getMessages();
 
     //
-    //  Factories
+    //  Factory
     //
 
     static CombineContent create(String title, List<InstantMessage> messages) {
         return new CombineForwardContent(title, messages);
-    }
-
-    static List<InstantMessage> convert(Iterable<?> messages) {
-        List<InstantMessage> array = new ArrayList<>();
-        InstantMessage msg;
-        for (Object item : messages) {
-            msg = InstantMessage.parse(item);
-            if (msg != null) {
-                array.add(msg);
-            }
-        }
-        return array;
-    }
-
-    static List<Map<String, Object>> revert(Iterable<InstantMessage> messages) {
-        List<Map<String, Object>> array = new ArrayList<>();
-        for (InstantMessage msg : messages) {
-            array.add(msg.toMap());
-        }
-        return array;
     }
 
 }

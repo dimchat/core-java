@@ -31,6 +31,7 @@
 package chat.dim.dkd.cmd;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.protocol.Document;
@@ -46,57 +47,38 @@ import chat.dim.protocol.Meta;
  *      'type' : i2s(0x88),
  *      'sn'   : 123,
  *
- *      'command'   : "document", // command name
- *      'did'       : "{ID}",     // entity ID
- *      'meta'      : {...},      // only for handshaking with new friend
- *      'document'  : {...},      // when this is empty, means to query
- *      'last_time' : 12345       // old document time for querying
+ *      'command'   : "documents", // command name
+ *      'did'       : "{ID}",      // entity ID
+ *      'meta'      : {...},       // only for handshaking with new friend
+ *      'documents' : [],          // when this is null, means to query
+ *      'last_time' : 12345        // old document time for querying
  *  }
  *  </pre></blockquote>
  */
 public class BaseDocumentCommand extends BaseMetaCommand implements DocumentCommand {
 
-    private Document doc;
+    private List<Document> docs;
 
     public BaseDocumentCommand(Map<String, Object> content) {
         super(content);
         // lazy
-        doc = null;
+        docs = null;
     }
 
     /**
-     *  Send Meta and Document to new friend
+     *  Send Meta and Documents to new friend
      *
      * @param identifier - entity ID
      * @param meta       - entity Meta
-     * @param doc        - entity Document
+     * @param documents  - entity Documents
      */
-    public BaseDocumentCommand(ID identifier, Meta meta, Document doc) {
-        super(DOCUMENT, identifier, meta);
-        // document
-        if (doc != null) {
-            put("document", doc.toMap());
+    public BaseDocumentCommand(ID identifier, Meta meta, List<Document> documents) {
+        super(DOCUMENTS, identifier, meta);
+        // documents
+        if (documents != null) {
+            put("documents", Document.revert(documents));
         }
-        this.doc = doc;
-    }
-
-    /**
-     *  Response Entity Document
-     *
-     * @param identifier - entity ID
-     * @param doc        - entity Document
-     */
-    public BaseDocumentCommand(ID identifier, Document doc) {
-        this(identifier, null, doc);
-    }
-
-    /**
-     *  Query Entity Document
-     *
-     * @param identifier - entity ID
-     */
-    public BaseDocumentCommand(ID identifier) {
-        this(identifier, null, null);
+        docs = documents;
     }
 
     /**
@@ -106,7 +88,9 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
      * @param last       - last document time
      */
     public BaseDocumentCommand(ID identifier, Date last) {
-        this(identifier, null, null);
+        super(DOCUMENTS, identifier, null);
+        // documents
+        docs = null;
         // signature
         if (last != null) {
             setDateTime("last_time", last);
@@ -114,11 +98,16 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     }
 
     @Override
-    public Document getDocument() {
-        if (doc == null) {
-            doc = Document.parse(get("document"));
+    public List<Document> getDocuments() {
+        if (docs == null) {
+            Object documents = get("documents");
+            if (documents instanceof List) {
+                docs = Document.convert((Iterable<?>) documents);
+            } else {
+                assert documents == null : "documents error: " + documents;
+            }
         }
-        return doc;
+        return docs;
     }
 
     @Override

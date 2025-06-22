@@ -66,7 +66,7 @@ public class CombineForwardContent extends BaseContent implements CombineContent
         // chat name
         put("title", title);
         // chat history
-        put("messages", CombineContent.revert(messages));
+        put("messages", InstantMessage.revert(messages));
         history = messages;
     }
 
@@ -81,7 +81,7 @@ public class CombineForwardContent extends BaseContent implements CombineContent
         if (messages == null) {
             Object info = get("messages");
             if (info instanceof List) {
-                messages = CombineContent.convert((List<?>) info);
+                messages = InstantMessage.convert((List<?>) info);
             } else {
                 assert info == null : "combine message error: " + info;
                 messages = new ArrayList<>();

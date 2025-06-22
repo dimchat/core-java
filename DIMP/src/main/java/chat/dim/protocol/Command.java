@@ -50,9 +50,9 @@ import chat.dim.plugins.SharedCommandExtensions;
 public interface Command extends Content {
 
     //-------- command names begin --------
-    String META     = "meta";
-    String DOCUMENT = "document";
-    String RECEIPT  = "receipt";
+    String META      = "meta";
+    String DOCUMENTS = "documents";
+    String RECEIPT   = "receipt";
     //-------- command names end --------
 
     /**
@@ -63,7 +63,7 @@ public interface Command extends Content {
     String getCmd();
 
     //
-    //  Factory method
+    //  Factory methods
     //
     static Command parse(Object content) {
         return SharedCommandExtensions.cmdHelper.parseCommand(content);

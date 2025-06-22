@@ -30,7 +30,9 @@
  */
 package chat.dim.protocol;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import chat.dim.dkd.cmd.BaseDocumentCommand;
 
@@ -42,21 +44,21 @@ import chat.dim.dkd.cmd.BaseDocumentCommand;
  *      'type' : i2s(0x88),
  *      'sn'   : 123,
  *
- *      'command'   : "document", // command name
- *      'did'       : "{ID}",     // entity ID
- *      'meta'      : {...},      // only for handshaking with new friend
- *      'document'  : {...},      // when this is empty, means to query
- *      'last_time' : 12345       // old document time for querying
+ *      'command'   : "documents", // command name
+ *      'did'       : "{ID}",      // entity ID
+ *      'meta'      : {...},       // only for handshaking with new friend
+ *      'documents' : [],          // when this is null, means to query
+ *      'last_time' : 12345        // old document time for querying
  *  }
  *  </pre></blockquote>
  */
 public interface DocumentCommand extends MetaCommand {
 
     /*
-     *  Entity Document
+     *  Entity Documents
      *
      */
-    Document getDocument();
+    List<Document> getDocuments();
 
     /**
      *  Last document time for querying
@@ -70,16 +72,30 @@ public interface DocumentCommand extends MetaCommand {
     //
 
     static DocumentCommand query(ID identifier) {
-        return new BaseDocumentCommand(identifier);
+        return new BaseDocumentCommand(identifier, null);
     }
     static DocumentCommand query(ID identifier, Date last) {
         return new BaseDocumentCommand(identifier, last);
     }
 
-    static DocumentCommand response(ID identifier, Document doc) {
-        return new BaseDocumentCommand(identifier, doc);
+    static DocumentCommand response(ID identifier, Meta meta, List<Document> documents) {
+        return new BaseDocumentCommand(identifier, meta, documents);
     }
-    static DocumentCommand response(ID identifier, Meta meta, Document doc) {
-        return new BaseDocumentCommand(identifier, meta, doc);
+    static DocumentCommand response(ID identifier, List<Document> documents) {
+        return new BaseDocumentCommand(identifier, null, documents);
+    }
+    static DocumentCommand response(ID identifier, Meta meta, Document document) {
+        List<Document> array = new ArrayList<>();
+        if (document != null) {
+            array.add(document);
+        }
+        return new BaseDocumentCommand(identifier, meta, array);
+    }
+    static DocumentCommand response(ID identifier, Document document) {
+        List<Document> array = new ArrayList<>();
+        if (document != null) {
+            array.add(document);
+        }
+        return new BaseDocumentCommand(identifier, null, array);
     }
 }

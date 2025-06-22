@@ -73,7 +73,7 @@ public class SecretContent extends BaseContent implements ForwardContent {
         super(ContentType.FORWARD);
         forward = null;
         secrets = messages;
-        put("secrets", ForwardContent.revert(messages));
+        put("secrets", ReliableMessage.revert(messages));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SecretContent extends BaseContent implements ForwardContent {
             Object info = get("secrets");
             if (info instanceof List) {
                 // get from 'secrets'
-                secrets = messages = ForwardContent.convert((List<?>) info);
+                secrets = messages = ReliableMessage.convert((List<?>) info);
             } else {
                 assert info == null : "secret messages error: " + info;
                 // get from 'forward'
