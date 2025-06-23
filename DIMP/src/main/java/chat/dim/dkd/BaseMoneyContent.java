@@ -85,7 +85,7 @@ public class BaseMoneyContent extends BaseContent implements MoneyContent {
         if (amount instanceof Number) {
             return (Number) amount;
         }
-        return Converter.getDouble(amount, 0);
+        return Converter.getDouble(amount, null);
     }
 
 }

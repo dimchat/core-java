@@ -66,7 +66,7 @@ public class BaseContent extends Dictionary implements Content {
     private String type;
 
     // serial number: random number to identify message content
-    private long sn;
+    private Long sn;
 
     // message time
     private Date time;
@@ -75,7 +75,7 @@ public class BaseContent extends Dictionary implements Content {
         super(content);
         // lazy load
         type = null;
-        sn   = -1;
+        sn   = null;
         time = null;
     }
 
@@ -101,9 +101,9 @@ public class BaseContent extends Dictionary implements Content {
     }
 
     @Override
-    public long getSerialNumber() {
-        if (sn == -1) {
-            sn = getLong("sn", 0);
+    public Long getSerialNumber() {
+        if (sn == null) {
+            sn = getLong("sn", null);
             assert sn > 0 : "serial number error: " + toMap();
         }
         return sn;

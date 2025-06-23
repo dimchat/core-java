@@ -101,12 +101,12 @@ public class BaseQuoteContent extends BaseContent implements QuoteContent {
     }
 
     @Override
-    public long getOriginalSerialNumber() {
+    public Long getOriginalSerialNumber() {
         Map<?, ?> origin = getOrigin();
         if (origin == null) {
             // original info not found
-            return 0;
+            return null;
         }
-        return Converter.getLong(origin.get("sn"), 0);
+        return Converter.getLong(origin.get("sn"), null);
     }
 }

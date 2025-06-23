@@ -60,7 +60,7 @@ public interface ReceiptCommand extends Command {
     String getText();
 
     Envelope getOriginalEnvelope();
-    long getOriginalSerialNumber();
+    Long getOriginalSerialNumber();
     String getOriginalSignature();
 
     //

@@ -59,7 +59,7 @@ public interface QuoteContent extends Content {
     String getText();
 
     Envelope getOriginalEnvelope();
-    long getOriginalSerialNumber();
+    Long getOriginalSerialNumber();
 
     //
     //  Factories
