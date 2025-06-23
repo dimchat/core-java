@@ -36,6 +36,7 @@ import java.util.Map;
 
 import chat.dim.crypto.SignKey;
 import chat.dim.crypto.VerifyKey;
+import chat.dim.format.EncodeAlgorithms;
 import chat.dim.format.JSONMap;
 import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
@@ -279,7 +280,7 @@ public class BaseDocument extends Dictionary implements Document {
             assert false : "should not happen";
             return null;
         }
-        TransportableData ted = TransportableData.create(signature);
+        TransportableData ted = TransportableData.create(EncodeAlgorithms.DEFAULT, signature);
         // 3. update 'data' & 'signature' fields
         put("data", data);                 // JSON string
         put("signature", ted.toObject());  // BASE-64

@@ -72,7 +72,7 @@ public class BaseDataWrapper extends Dictionary {
             return encoded;
         }
         String algorithm = getString("algorithm", "");
-        if (algorithm.equals(TransportableData.DEFAULT)) {
+        if (algorithm.equals(EncodeAlgorithms.DEFAULT)) {
             algorithm = "";
         }
         if (algorithm.isEmpty()) {
@@ -106,7 +106,7 @@ public class BaseDataWrapper extends Dictionary {
     public String getAlgorithm() {
         String algorithm = getString("algorithm", "");
         if (algorithm.isEmpty()) {
-            algorithm = TransportableData.DEFAULT;
+            algorithm = EncodeAlgorithms.DEFAULT;
         }
         return algorithm;
     }
@@ -130,13 +130,13 @@ public class BaseDataWrapper extends Dictionary {
             if (!encoded.isEmpty()) {
                 String algorithm = getAlgorithm();
                 switch (algorithm) {
-                    case TransportableData.BASE_64:
+                    case EncodeAlgorithms.BASE_64:
                         data = bin = Base64.decode(encoded);
                         break;
-                    case TransportableData.BASE_58:
+                    case EncodeAlgorithms.BASE_58:
                         data = bin = Base58.decode(encoded);
                         break;
-                    case TransportableData.HEX:
+                    case EncodeAlgorithms.HEX:
                         data = bin = Hex.decode(encoded);
                         break;
                     default:
@@ -155,13 +155,13 @@ public class BaseDataWrapper extends Dictionary {
             String encoded = "";
             String algorithm = getAlgorithm();
             switch (algorithm) {
-                case TransportableData.BASE_64:
+                case EncodeAlgorithms.BASE_64:
                     encoded = Base64.encode(binary);
                     break;
-                case TransportableData.BASE_58:
+                case EncodeAlgorithms.BASE_58:
                     encoded = Base58.encode(binary);
                     break;
-                case TransportableData.HEX:
+                case EncodeAlgorithms.HEX:
                     encoded = Hex.encode(binary);
                     break;
                 default:
