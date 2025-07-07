@@ -47,7 +47,8 @@ public abstract class BaseKey extends Dictionary implements CryptographyKey {
     //
 
     public static String getKeyAlgorithm(Map<?, ?> key) {
-        return SharedCryptoExtensions.helper.getKeyAlgorithm(key, "");
+        String algorithm = SharedCryptoExtensions.helper.getKeyAlgorithm(key, null);
+        return algorithm == null ? "" : algorithm;
     }
 
     public static boolean matchEncryptKey(EncryptKey pKey, DecryptKey sKey) {

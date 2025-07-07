@@ -67,20 +67,20 @@ public class BaseDataWrapper extends Dictionary {
 
     @Override
     public String toString() {
-        String encoded = getString("data", "");
-        if (encoded.isEmpty()) {
-            return encoded;
+        String text = getString("data", null);
+        if (text == null/* || text.isEmpty()*/) {
+            return "";
         }
-        String algorithm = getString("algorithm", "");
-        if (algorithm.equals(EncodeAlgorithms.DEFAULT)) {
+        String algorithm = getString("algorithm", null);
+        if (algorithm == null || algorithm.equals(EncodeAlgorithms.DEFAULT)) {
             algorithm = "";
         }
         if (algorithm.isEmpty()) {
             // 0. "{BASE64_ENCODE}"
-            return encoded;
+            return text;
         } else {
             // 1. "base64,{BASE64_ENCODE}"
-            return algorithm + "," + encoded;
+            return algorithm + "," + text;
         }
     }
 
@@ -90,13 +90,13 @@ public class BaseDataWrapper extends Dictionary {
     public String toString(String mimeType) {
         assert !mimeType.contains(" ") : "content-type error: " + mimeType;
         // get encoded data
-        String encoded = getString("data", "");
-        if (encoded.isEmpty()) {
-            return encoded;
+        String text = getString("data", null);
+        if (text == null/* || text.isEmpty()*/) {
+            return "";
         }
         String algorithm = getAlgorithm();
         // 2. "data:image/png;base64,{BASE64_ENCODE}"
-        return "data:" + mimeType + ";" + algorithm + "," + encoded;
+        return "data:" + mimeType + ";" + algorithm + "," + text;
     }
 
     /**
@@ -104,15 +104,15 @@ public class BaseDataWrapper extends Dictionary {
      */
 
     public String getAlgorithm() {
-        String algorithm = getString("algorithm", "");
-        if (algorithm.isEmpty()) {
+        String algorithm = getString("algorithm", null);
+        if (algorithm == null || algorithm.isEmpty()) {
             algorithm = EncodeAlgorithms.DEFAULT;
         }
         return algorithm;
     }
 
     public void setAlgorithm(String algorithm) {
-        if (algorithm == null/* || algorithm.equals(TransportableData.DEFAULT)*/) {
+        if (algorithm == null/* || algorithm.equals(EncodeAlgorithms.DEFAULT)*/) {
             remove("algorithm");
         } else {
             put("algorithm", algorithm);
@@ -124,51 +124,55 @@ public class BaseDataWrapper extends Dictionary {
      */
 
     public byte[] getData() {
-        byte[] bin = data;
-        if (bin == null) {
-            String encoded = getString("data", "");
-            if (!encoded.isEmpty()) {
+        byte[] binary = data;
+        if (binary == null) {
+            String text = getString("data", null);
+            if (text == null || text.isEmpty()) {
+                assert false : "TED data empty: " + this.toMap();
+                return null;
+            } else {
                 String algorithm = getAlgorithm();
                 switch (algorithm) {
                     case EncodeAlgorithms.BASE_64:
-                        data = bin = Base64.decode(encoded);
+                        binary = Base64.decode(text);
                         break;
                     case EncodeAlgorithms.BASE_58:
-                        data = bin = Base58.decode(encoded);
+                        binary = Base58.decode(text);
                         break;
                     case EncodeAlgorithms.HEX:
-                        data = bin = Hex.decode(encoded);
+                        binary = Hex.decode(text);
                         break;
                     default:
                         assert false : "data algorithm not support: " + algorithm;
                         break;
                 }
             }
+            data = binary;
         }
-        return bin;
+        return binary;
     }
 
     public void setData(byte[] binary) {
         if (binary == null || binary.length == 0) {
             remove("data");
         } else {
-            String encoded = "";
+            String text;
             String algorithm = getAlgorithm();
             switch (algorithm) {
                 case EncodeAlgorithms.BASE_64:
-                    encoded = Base64.encode(binary);
+                    text = Base64.encode(binary);
                     break;
                 case EncodeAlgorithms.BASE_58:
-                    encoded = Base58.encode(binary);
+                    text = Base58.encode(binary);
                     break;
                 case EncodeAlgorithms.HEX:
-                    encoded = Hex.encode(binary);
+                    text = Hex.encode(binary);
                     break;
                 default:
-                    assert false : "data algorithm not support: " + algorithm;
-                    break;
+                    throw new ArithmeticException("data algorithm not support: " + algorithm);
+                    //assert false : "data algorithm not support: " + algorithm;
             }
-            put("data", encoded);
+            put("data", text);
         }
         data = binary;
     }

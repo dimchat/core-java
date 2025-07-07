@@ -98,7 +98,7 @@ public class BaseFileWrapper extends Dictionary {
             remove("data");
             ted = null;
         } else {
-            ted = TransportableData.create(EncodeAlgorithms.DEFAULT, binary);
+            ted = TransportableData.create(binary);
             put("data", ted.toObject());
         }
         attachment = ted;

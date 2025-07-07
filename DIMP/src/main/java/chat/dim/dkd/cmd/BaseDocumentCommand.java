@@ -50,7 +50,7 @@ import chat.dim.protocol.Meta;
  *      'command'   : "documents", // command name
  *      'did'       : "{ID}",      // entity ID
  *      'meta'      : {...},       // only for handshaking with new friend
- *      'documents' : [],          // when this is null, means to query
+ *      'documents' : [...],       // when this is null, means to query
  *      'last_time' : 12345        // old document time for querying
  *  }
  *  </pre></blockquote>
