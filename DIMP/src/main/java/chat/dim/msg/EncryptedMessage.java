@@ -60,37 +60,39 @@ import chat.dim.protocol.SecureMessage;
  */
 public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
-    private byte[] body;
+    private byte[] data;
     private TransportableData encryptedKey;
     private Map<String, Object> keys;  // String => String
 
     public EncryptedMessage(Map<String, Object> msg) {
         super(msg);
         // lazy load
-        body = null;
+        data = null;
         encryptedKey = null;
         keys = null;
     }
 
     @Override
     public byte[] getData() {
-        if (body == null) {
+        byte[] binary = data;
+        if (binary == null) {
             Object text = get("data");
             if (text == null) {
-                assert false : "message data cannot be empty: " + toMap();
+                assert false : "message data not found: " + toMap();
             } else if (!isBroadcast(this)) {
                 // message content had been encrypted by a symmetric key,
                 // so the data should be encoded here (with algorithm 'base64' as default).
-                body = TransportableData.decode(text);
+                binary = TransportableData.decode(text);
             } else if (text instanceof String) {
                 // broadcast message content will not be encrypted (just encoded to JsON),
                 // so return the string data directly
-                body = UTF8.encode((String) text);  // JsON
+                binary = UTF8.encode((String) text);  // JsON
             } else {
                 assert false : "content data error: " + text;
             }
+            data = binary;
         }
-        return body;
+        return binary;
     }
 
     @Override
@@ -117,6 +119,8 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
             Object map = get("keys");
             if (map instanceof Map) {
                 keys = (Map<String, Object>) map;
+            } else {
+                assert map == null : "message keys error: " + map;
             }
         }
         return keys;

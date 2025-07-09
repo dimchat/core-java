@@ -57,6 +57,6 @@ import chat.dim.protocol.FileContent;
  */
 public interface AudioContent extends FileContent {
 
-    void setText(String message);
+    void setText(String asr);
     String getText();
 }

@@ -144,8 +144,8 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public void setURL(URI location) {
-        assert location != null : "URL cannot be empty";
-        put("URL", location.toString());
+        //assert location != null : "URL cannot be empty";
+        put("URL", location == null ? null : location.toString());
         url = location;
     }
 

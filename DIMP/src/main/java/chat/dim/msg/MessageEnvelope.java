@@ -85,22 +85,26 @@ public class MessageEnvelope extends Dictionary implements Envelope {
 
     @Override
     public ID getSender() {
-        if (sender == null) {
-            sender = ID.parse(get("sender"));
-            assert sender != null : "message sender not found: " + toMap();
+        ID did = sender;
+        if (did == null) {
+            did = ID.parse(get("sender"));
+            assert did != null : "message sender error: " + toMap();
+            sender = did;
         }
-        return sender;
+        return did;
     }
 
     @Override
     public ID getReceiver() {
-        if (receiver == null) {
-            receiver = ID.parse(get("receiver"));
-            if (receiver == null) {
-                receiver = ID.ANYONE;
+        ID did = receiver;
+        if (did == null) {
+            did = ID.parse(get("receiver"));
+            if (did == null) {
+                did = ID.ANYONE;
             }
+            receiver = did;
         }
-        return receiver;
+        return did;
     }
 
     @Override

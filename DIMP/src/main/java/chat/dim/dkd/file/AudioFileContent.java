@@ -72,11 +72,11 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
     }
 
     @Override
-    public void setText(String message) {
-        if (message == null) {
+    public void setText(String asr) {
+        if (asr == null) {
             remove("text");
         } else {
-            put("text", message);
+            put("text", asr);
         }
     }
 

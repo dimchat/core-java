@@ -90,13 +90,14 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
 
     @Override
     public Content getContent() {
-        if (content == null) {
+        Content body = content;
+        if (body == null) {
             Object info = get("content");
-            assert info != null : "message content not found: " + toMap();
-            content = Content.parse(info);
-            assert content != null : "message content error: " + info;
+            body = Content.parse(info);
+            assert body != null : "message content error: " + toMap();
+            content = body;
         }
-        return content;
+        return body;
     }
 
     //@Override

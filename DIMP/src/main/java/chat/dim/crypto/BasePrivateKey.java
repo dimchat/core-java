@@ -27,7 +27,9 @@ package chat.dim.crypto;
 
 import java.util.Map;
 
+import chat.dim.type.Comparator;
 import chat.dim.type.Dictionary;
+import chat.dim.type.Mapper;
 
 public abstract class BasePrivateKey extends Dictionary implements PrivateKey {
 
@@ -37,10 +39,19 @@ public abstract class BasePrivateKey extends Dictionary implements PrivateKey {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof PrivateKey) {
-            return BaseKey.privateKeyEquals((PrivateKey) other, this);
+        if (other == null) {
+            return isEmpty();
+        } else if (other instanceof Mapper) {
+            if (this == other) {
+                // same object
+                return true;
+            } else if (other instanceof PrivateKey) {
+                return BaseKey.privateKeyEquals((PrivateKey) other, this);
+            }
+            // compare inner map
+            other = ((Mapper) other).toMap();
         }
-        return toMap() == other;
+        return other instanceof Map && Comparator.mapEquals(toMap(), (Map<?, ?>) other);
     }
 
     @Override

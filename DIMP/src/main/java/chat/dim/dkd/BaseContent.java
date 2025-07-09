@@ -51,7 +51,7 @@ import chat.dim.type.Dictionary;
  *      'sn'      : 0,           // serial number
  *
  *      'time'    : 123,         // message time
- *      'group'   : 'Group ID',  // for group message
+ *      'group'   : '{GroupID}', // for group message
  *
  *      //-- message info
  *      'text'    : 'text',         // for text message
@@ -101,12 +101,14 @@ public class BaseContent extends Dictionary implements Content {
     }
 
     @Override
-    public Long getSerialNumber() {
-        if (sn == null) {
-            sn = getLong("sn", null);
-            assert sn > 0 : "serial number error: " + toMap();
+    public long getSerialNumber() {
+        Long number = sn;
+        if (number == null) {
+            number = getLong("sn", 0L);
+            //assert number > 0 : "serial number error: " + toMap();
+            sn = number;
         }
-        return sn;
+        return number == null ? 0 : number;
     }
 
     @Override

@@ -56,6 +56,7 @@ public class BaseDataWrapper extends Dictionary {
         data = null;
     }
 
+    /*/
     @Override
     public boolean isEmpty() {
         if (super.isEmpty()) {
@@ -64,6 +65,7 @@ public class BaseDataWrapper extends Dictionary {
         byte[] binary = getData();
         return binary == null || binary.length == 0;
     }
+    /*/
 
     @Override
     public String toString() {
@@ -86,8 +88,10 @@ public class BaseDataWrapper extends Dictionary {
 
     /**
      *  Encode with 'Content-Type'
+     *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *  toString(mimeType)
      */
-    public String toString(String mimeType) {
+    public String encode(String mimeType) {
         assert !mimeType.contains(" ") : "content-type error: " + mimeType;
         // get encoded data
         String text = getString("data", null);
@@ -144,7 +148,7 @@ public class BaseDataWrapper extends Dictionary {
                         break;
                     default:
                         assert false : "data algorithm not support: " + algorithm;
-                        break;
+                        return null;
                 }
             }
             data = binary;

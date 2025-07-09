@@ -94,7 +94,7 @@ public class BaseFileWrapper extends Dictionary {
     // set binary data
     public void setData(byte[] binary) {
         TransportableData ted;
-        if (binary == null/* || binary.length == 0*/) {
+        if (binary == null || binary.length == 0) {
             remove("data");
             ted = null;
         } else {
@@ -149,10 +149,12 @@ public class BaseFileWrapper extends Dictionary {
      */
 
     public DecryptKey getPassword() {
-        if (password == null) {
-            password = SymmetricKey.parse(get("key"));
+        DecryptKey key = password;
+        if (key == null) {
+            key = SymmetricKey.parse(get("key"));
+            password = key;
         }
-        return password;
+        return key;
     }
 
     public void setPassword(DecryptKey key) {

@@ -74,17 +74,19 @@ public class BaseVisa extends BaseDocument implements Visa {
      */
     @Override
     public EncryptKey getPublicKey() {
-        if (key == null) {
+        EncryptKey visaKey = key;
+        if (visaKey == null) {
             Object info = getProperty("key");
             // assert info != null : "visa key not found: " + toMap();
             PublicKey pKey = PublicKey.parse(info);
             if (pKey instanceof EncryptKey) {
-                key = (EncryptKey) pKey;
+                visaKey = (EncryptKey) pKey;
+                key = visaKey;
             } else {
                 assert info == null : "visa key error: " + info;
             }
         }
-        return key;
+        return visaKey;
     }
 
     @Override
@@ -98,7 +100,11 @@ public class BaseVisa extends BaseDocument implements Visa {
         PortableNetworkFile img = avatar;
         if (img == null) {
             Object url = getProperty("avatar");
-            img = avatar = PortableNetworkFile.parse(url);
+            boolean empty = url instanceof String && ((String) url).length() == 0;
+            if (!empty) {
+                img = PortableNetworkFile.parse(url);
+                avatar = img;
+            }
         }
         return img;
     }

@@ -270,15 +270,9 @@ public class BaseDocument extends Dictionary implements Document {
             return null;
         }
         String data = JSONMap.encode(dict);
-        if (data == null/* || data.isEmpty()*/) {
-            assert false : "should not happen: " + dict;
-            return null;
-        }
+        assert data.length() > 0 : "should not happen: " + dict;
         signature = privateKey.sign(UTF8.encode(data));
-        if (signature == null/* || signature.length == 0*/) {
-            assert false : "should not happen";
-            return null;
-        }
+        assert signature.length > 0 : "should not happen: " + dict;
         TransportableData ted = TransportableData.create(signature);
         // 3. update 'data' & 'signature' fields
         put("data", data);                 // JSON string

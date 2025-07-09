@@ -178,8 +178,9 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         TransportableData ted = fingerprint;
         if (ted == null && hasSeed()) {
             Object base64 = get("fingerprint");
-            assert base64 != null : "meta.fingerprint not found";
+            assert base64 != null : "meta.fingerprint should not be empty: " + toMap();
             fingerprint = ted = TransportableData.parse(base64);
+            assert ted != null : "meta.fingerprint error: " + base64;
         }
         return ted == null ? null : ted.getData();
     }
@@ -208,7 +209,11 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         if (key == null) {
             assert false : "meta.key should not be empty";
             return false;
-        } else if (!hasSeed()) {
+        } else if (hasSeed()) {
+            assert containsKey("seed") && containsKey("fingerprint") : "meta error: " + toMap();
+        } else {
+            // this meta has no seed, so
+            // it should not contains 'seed' or 'fingerprint'
             return !(containsKey("seed") || containsKey("fingerprint"));
         }
         String seed = getSeed();
