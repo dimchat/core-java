@@ -1,15 +1,28 @@
 # Decentralized Instant Messaging Protocol (Java)
 
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dimchat/core-java/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/alpha-0.5.3-red.svg)](https://github.com/dimchat/core-java/archive/master.zip)
+[![License](https://img.shields.io/github/license/dimchat/core-java)](https://github.com/dimchat/core-java/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
+[![Issues](https://img.shields.io/github/issues/dimchat/core-java)](https://github.com/dimchat/core-java/issues)
+[![Repo Size](https://img.shields.io/github/repo-size/dimchat/core-java)](https://github.com/dimchat/core-java/archive/refs/heads/main.zip)
+[![Tags](https://img.shields.io/github/tag/dimchat/core-java)](https://github.com/dimchat/core-java/tags)
+[![Version](https://img.shields.io/maven-central/v/chat.dim/DIMP)](https://mvnrepository.com/artifact/chat.dim/DIMP)
 
-## Talk is cheap, show you the codes!
+[![Watchers](https://img.shields.io/github/watchers/dimchat/core-java)](https://github.com/dimchat/core-java/watchers)
+[![Forks](https://img.shields.io/github/forks/dimchat/core-java)](https://github.com/dimchat/core-java/forks)
+[![Stars](https://img.shields.io/github/stars/dimchat/core-java)](https://github.com/dimchat/core-java/stargazers)
+[![Followers](https://img.shields.io/github/followers/dimchat)](https://github.com/orgs/dimchat/followers)
 
-### Dependencies
+## Dependencies
 
-build.gradle
+* Latest Versions
+
+| Name | Version | Description |
+|------|---------|-------------|
+| [Ming Ke Ming (名可名)](https://github.com/dimchat/mkm-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/MingKeMing)](https://mvnrepository.com/artifact/chat.dim/MingKeMing) | Decentralized User Identity Authentication |
+| [Dao Ke Dao (道可道)](https://github.com/dimchat/dkd-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/DaoKeDao)](https://mvnrepository.com/artifact/chat.dim/DaoKeDao) | Universal Message Module |
+
+* build.gradle
 
 ```javascript
 allprojects {
@@ -22,13 +35,13 @@ allprojects {
 dependencies {
 
     // https://bintray.com/dimchat/core/dimp
-    compile 'chat.dim:DIMP:0.5.3'
-//  implementation group: 'chat.dim', name: 'DIMP', version: '0.5.3'
+    compile 'chat.dim:DIMP:2.0.0'
+    //implementation group: 'chat.dim', name: 'DIMP', version: '2.0.0'
 
 }
 ```
 
-pom.xml
+* pom.xml
 
 ```xml
 <dependencies>
@@ -37,407 +50,190 @@ pom.xml
     <dependency>
         <groupId>chat.dim</groupId>
         <artifactId>DIMP</artifactId>
-        <version>0.5.3</version>
+        <version>2.0.0</version>
         <type>pom</type>
     </dependency>
 
 </dependencies>
 ```
 
-### Common Extensions
+## Examples
 
-Facebook.java
+### Extends Command
+
+* _Handshake Command Protocol_
+  0. (C-S) handshake start
+  1. (S-C) handshake again with new session
+  2. (C-S) handshake restart with new session
+  3. (S-C) handshake success
 
 ```java
-/**
- *  Access database to load/save user's private key, meta and profiles
- */
-public class Facebook extends Barrack {
-    private static final Facebook ourInstance = new Facebook();
-    public static Facebook getInstance() { return ourInstance; }
-    
-    private Facebook() {
-        super();
-        //...
-    }
-    
-    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        if (!getMeta(identifier).getKey().matches(privateKey)) {
-            return false;
-        }
-        // TODO: save private key into safety storage
-        return true;
-    }
-    
-    public boolean saveMeta(Meta meta, ID identifier) {
-        if (!meta.matches(identifier)) {
-            return false;
-        }
-        // TODO: save meta to local/persistent storage
-        return true;
-    }
-    
-    public boolean saveProfile(Profile profile) {
-        if (!verifyProfile(profile)) {
-            return false;
-        }
-        // TODO: save profile in local storage
-        return true;
-    }
-    
-    private boolean verifyProfile(Profile profile) {
-        if (profile == null) {
-            return false;
-        }
-        ID identifier = profile.identifier;
-        NetworkType type = identifier.getType();
-        Meta meta = null;
-        if (type.isUser()) {
-            // verify with user's meta.key
-            meta = getMeta(identifier);
-        } else if (type.isGroup()) {
-            // verify with group owner's meta.key
-            Group group = getGroup(identifier);
-            if (group != null) {
-                meta = getMeta(group.getOwner());
-            }
-        }
-        return meta != null && profile.verify(meta.key);
-    }
-    
-    //-------- Barrack
-    
-    @Override
-    protected User createUser(ID identifier) {
-        if (identifier.isBroadcast()) {
-            // create user 'anyone@anywhere'
-            return new User(identifier);
-        }
-        // TODO: check user type
-        NetworkType type = identifier.getType();
-        if (type.isPerson()) {
-            return new User(identifier);
-        }
-        if (type.isRobot()) {
-            return new Robot(identifier);
-        }
-        if (type.isStation()) {
-            return new Station(identifier);
-        }
-        throw new TypeNotPresentException("Unsupported user type: " + type, null);
-    }
-
-    @Override
-    protected Group createGroup(ID identifier) {
-        if (identifier.isBroadcast()) {
-            // create group 'everyone@everywhere'
-            return new Group(identifier);
-        }
-        // TODO: check group type
-        NetworkType type = identifier.getType();
-        if (type == NetworkType.Polylogue) {
-            return new Polylogue(identifier);
-        }
-        if (type == NetworkType.Chatroom) {
-            return new Chatroom(identifier);
-        }
-        if (type.isProvider()) {
-            return new ServiceProvider(identifier);
-        }
-        throw new TypeNotPresentException("Unsupported group type: " + type, null);
-    }
-    
-    static {
-        // mkm.Base64 (for Android)
-        chat.dim.format.Base64.coder = new chat.dim.format.BaseCoder() {
-            @Override
-            public String encode(byte[] data) {
-                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
-            }
-            
-            @Override
-            public byte[] decode(String string) {
-                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
-            }
-        };
-    }
+public enum HandshakeState {
+    START,    // C -> S, without session key(or session expired)
+    AGAIN,    // S -> C, with new session key
+    RESTART,  // C -> S, with new session key
+    SUCCESS,  // S -> C, handshake accepted
 }
-```
 
-KeyStore.java
-
-```java
 /**
- *  For reusable symmetric key, with direction (from, to)
+ *  Handshake command message
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "handshake",    // command name
+ *      title   : "Hello world!", // "DIM?", "DIM!"
+ *      session : "{SESSION_KEY}" // session key
+ *  }
+ *  </pre></blockquote>
  */
-public class KeyStore extends KeyCache {
-    private static final KeyStore ourInstance = new KeyStore();
-    public static KeyStore getInstance() { return ourInstance; }
-    
-    private KeyStore() {
-        super();
+public class HandshakeCommand extends BaseCommand {
+
+    public final static String HANDSHAKE = "handshake";
+
+    public HandshakeCommand(Map<String, Object> content) {
+        super(content);
     }
 
-    @Override
-    public boolean saveKeys(Map keyMap) {
-        // TODO: save symmetric keys into persistent storage
-        return false;
-    }
-
-    @Override
-    public Map loadKeys() {
-        // TODO: load symmetric keys from persistent storage
-        return null;
-    }
-
-    @Override
-    public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        return super.reuseCipherKey(sender, receiver, key);
-    }
-}
-```
-
-Messenger.java
-
-```java
-/**
- *  Transform and send message
- */
-public class Messenger extends Transceiver implements ConnectionDelegate {
-    private static final Messenger ourInstance = new Messenger();
-    public static Messenger getInstance() { return ourInstance; }
-    
-    private Messenger()  {
-        super();
-        setEntityDelegate(Facebook.getInstance());
-        setCipherKeyDelegate(KeyStore.getInstance());
-    }
-    
-    public MessengerDelegate delegate = null;
-
-    @Override
-    public byte[] encryptContent(Content content, Map<String, Object> password, InstantMessage iMsg) {
-        SymmetricKey key = SymmetricKey.getInstance(password);
-        // check attachment for File/Image/Audio/Video message content
-        if (content instanceof FileContent) {
-            FileContent file = (FileContent) content;
-            byte[] data = file.getData();
-            // encrypt and upload file data onto CDN and save the URL in message content
-            data = key.encrypt(data);
-            String url = delegate.uploadFileData(data, iMsg);
-            if (url != null) {
-                // replace 'data' with 'URL'
-                file.setUrl(url);
-                file.setData(null);
-            }
+    public HandshakeCommand(String text, String session) {
+        super(HANDSHAKE);
+        // text message
+        assert text != null : "new handshake command error";
+        put("title", text);
+        // session key
+        if (session != null) {
+            put("session", session);
         }
-        return super.encryptContent(content, key, iMsg);
     }
 
-    @Override
-    public Content decryptContent(byte[] data, Map<String, Object> password, SecureMessage sMsg) {
-        SymmetricKey key = SymmetricKey.getInstance(password);
-        Content content = super.decryptContent(data, password, sMsg);
-        if (content == null) {
-            return null;
-        }
-        // check attachment for File/Image/Audio/Video message content
-        if (content instanceof FileContent) {
-            FileContent file = (FileContent) content;
-            InstantMessage iMsg = new InstantMessage(content, sMsg.envelope);
-            // download from CDN
-            byte[] fileData = delegate.downloadFileData(file.getUrl(), iMsg);
-            if (fileData == null) {
-                // save symmetric key for decrypted file data after download from CDN
-                file.setPassword(key);
-            } else {
-                // decrypt file data
-                file.setData(key.decrypt(fileData));
-                file.setUrl(null);
-            }
-        }
-        return content;
+    public String getTitle() {
+        return getString("title", null);
     }
-    
-    //
-    //  Send message
-    //
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) {
-        // Send message (secured + certified) to target station
-        ReliableMessage rMsg = signMessage(encryptMessage(iMsg));
-        Facebook facebook = getFacebook();
-        ID receiver = facebook.getID(iMsg.envelope.receiver);
-        boolean OK = true;
-        if (split && receiver.getType().isGroup()) {
-            // split for each members
-            List<ID> members = facebook.getMembers(receiver);
-            List<SecureMessage> messages;
-            if (members == null || members.size() == 0) {
-                messages = null;
-            } else {
-                messages = rMsg.split(members);
-            }
-            if (messages == null) {
-                // failed to split message, send it to group
-                OK = sendMessage(rMsg, callback);
-            } else {
-                for (Message msg : messages) {
-                    if (!sendMessage((ReliableMessage) msg, callback)) {
-                        OK = false;
-                    }
-                }
-            }
+
+    public String getSessionKey() {
+        return getString("session", null);
+    }
+
+    public HandshakeState getState() {
+        return checkState(getTitle(), getSessionKey());
+    }
+
+    private static HandshakeState checkState(String text, String session) {
+        assert text != null : "handshake title should not be empty";
+        if (text.equals("DIM!")/* || text.equals("OK!")*/) {
+            return HandshakeState.SUCCESS;
+        } else if (text.equals("DIM?")) {
+            return HandshakeState.AGAIN;
+        } else if (session == null) {
+            return HandshakeState.START;
         } else {
-            OK = sendMessage(rMsg, callback);
+            return HandshakeState.RESTART;
         }
-        // TODO: if OK, set iMsg.state = sending; else set iMsg.state = waiting
-        return OK;
     }
 
-    private boolean sendMessage(ReliableMessage rMsg, Callback callback) {
-        byte[] data = serializeMessage(rMsg);
-        MessageCallback handler = new MessageCallback(rMsg, callback);
-        return getDelegate().sendPackage(data, handler);
-    }
-    
     //
-    //  ConnectionDelegate
+    //  Factories
     //
-    @Override
-    public byte[] onReceiveDataPackage(byte[] data) {
-        // 1. deserialize message
-        ReliableMessage rMsg = deserializeMessage(data);
-        // 2. process message
-        Content response = process(rMsg);
-        if (response == null) {
-            // nothing to response
-            return null;
-        }
-        // 3. pack response
-        Facebook facebook = getFacebook();
-        User user = facebook.getCurrentUser();
-        ID receiver = facebook.getID(rMsg.envelope.sender);
-        InstantMessage iMsg = new InstantMessage(response, user.identifier, receiver);
-        ReliableMessage nMsg = signMessage(encryptMessage(iMsg));
-        // serialize message
-        return serializeMessage(nMsg);
+
+    public static HandshakeCommand start() {
+        return new HandshakeCommand("Hello world!", null);
     }
 
-    protected Content process(ReliableMessage rMsg) {
-        // TODO: try to verify/decrypt message and process it
-        return null;
+    public static HandshakeCommand restart(String sessionKey) {
+        return new HandshakeCommand("Hello world!", sessionKey);
+    }
+
+    public static HandshakeCommand again(String sessionKey) {
+        return new HandshakeCommand("DIM?", sessionKey);
+    }
+
+    public static HandshakeCommand success(String sessionKey) {
+        return new HandshakeCommand("DIM!", sessionKey);
     }
 }
 ```
 
-### User Account
-
-Register.java
+### Extends Content
 
 ```java
-    public User register(String username) {
-        // 1. generate private key
-        PrivateKey sk = PrivateKey.generate(PrivateKey.RSA);
-        
-        // 2. generate meta with username(as seed) and private key
-        String seed = username;
-        Meta meta = Meta.generate(Meta.VersionDefault, sk, seed);
-        
-        // 3. generate ID with network type by meta
-        ID identifier = meta.generateID(NetworkType.Main);
-        
-        // 4. save private key and meta info
-        facebook.savePrivateKey(sk, identifier);
-        facebook.saveMeta(meta, identifier);
-        
-        // 5. create user with ID
-        return facebook.getUser(identifier);
-    }
-```
+/**
+ *  Application Customized message: {
+ *      'type' : i2s(0xA0),
+ *      'sn'   : 123,
+ *
+ *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+ *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
+ *      'extra' : info         // action parameters
+ *  }
+ */
+public interface AppContent extends Content {
 
-### Messaging
+    // get App ID
+    String getApplication();
 
-Send.java
+    // get Module name
+    String getModule();
 
-```java
-    public ReliableMessage pack(Content content, ID sender, ID receiver) {
-        // 1. create InstantMessage
-        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
+    // get Action name
+    String getAction();
 
-        // 2. encrypt 'content' to 'data' for receiver
-        SecureMessage sMsg = messenger.encryptMessage(iMsg);
-
-        // 3. sign 'data' by sender
-        ReliableMessage rMsg = messenger.signMessage(sMsg);
-
-        // OK
-        return rMsg;
-    }
-    
-    public boolean send(Content content, ID sender, ID receiver) {
-        // 1. pack message
-        ReliableMessage rMsg = pack(content, sender, receiver);
-        
-        // 2. callback handler
-        CompletionHandler handler = new CompletionHandler() {
-            @Override
-            public void onSuccess() {
-                // TODO: remove task
-            }
-
-            @Override
-            public void onFailed(Error error) {
-                // TODO: try again
-            }
-        };
-        
-        // 3. encode and send out
-        return messenger.sendMessage(rMsg, callback);
-    }
-    
-    public void test() {
-        ID moki = facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
-        ID hulk = facebook.getID("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
-        
-        Content content = new TextContent("Hello world!");
-        send(content, moki, hulk);
-    }
-```
-
-Receive.java
-
-```java
-    public Content unpack(ReliableMessage rMsg) {
-        // 1. verify 'data' with 'signature'
-        SecureMessage sMsg = verifyMessage(rMsg);
-
-        // 2. check group message
-        ID receiver = barrack.getID(sMsg.envelope.receiver);
-        if (receiver.getType().isGroup()) {
-            // TODO: split it
-        }
-
-        // 3. decrypt 'data' to 'content'
-        InstantMessage iMsg = decryptMessage(sMsg);
-
-        // OK
-        return iMsg.content;
-    }
-    
     //
-    //  StationDelegate
+    //  Factory
     //
+
+    static AppContent create(String app, String mod, String act) {
+        return new ApplicationContent(app, mod, act);
+    }
+}
+
+public class ApplicationContent extends BaseContent implements AppContent {
+
+    public ApplicationContent(Map<String, Object> content) {
+        super(content);
+    }
+
+    public ApplicationContent(String type, String app, String mod, String act) {
+        super(type);
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
+    }
+
+    public ApplicationContent(String app, String mod, String act) {
+        super(ContentType.APPLICATION);
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
+    }
+
+    //-------- getters --------
+
     @Override
-    public void didReceivePackage(byte[] data, Station server) {
-        // 1. decode message package
-        ReliableMessage rMsg = messenger.deserializeMessage(data);
-        
-        // 2. verify and decrypt message
-        Content content = unpack(rMsg);
-        
-        // TODO: process message content
+    public String getApplication() {
+        return getString("app", "");
     }
+
+    @Override
+    public String getModule() {
+        return getString("mod", "");
+    }
+
+    @Override
+    public String getAction() {
+        return getString("act", "");
+    }
+}
+
 ```
 
+### Extends ID Address
 
-Copyright &copy; 2019 Albert Moky
+* Examples in [Plugins](https://mvnrepository.com/artifact/chat.dim/Plugins)
+
+----
+
+Copyright &copy; 2018-2025 Albert Moky
+[![Followers](https://img.shields.io/github/followers/moky)](https://github.com/moky?tab=followers)

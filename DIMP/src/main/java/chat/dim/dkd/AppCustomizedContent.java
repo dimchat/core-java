@@ -36,7 +36,10 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.CustomizedContent;
 
 /**
- *  Application Customized message: {
+ *  Application Customized message
+ *
+ *  <blockquote><pre>
+ *  data format: {
  *      'type' : i2s(0xCC),
  *      'sn'   : 123,
  *
@@ -45,6 +48,7 @@ import chat.dim.protocol.CustomizedContent;
  *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
  *      'extra' : info         // action parameters
  *  }
+ *  </pre></blockquote>
  */
 public class AppCustomizedContent extends BaseContent implements CustomizedContent {
 
