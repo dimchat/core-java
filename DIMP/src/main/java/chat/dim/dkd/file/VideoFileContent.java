@@ -60,6 +60,7 @@ import chat.dim.protocol.file.VideoContent;
  *      },
  *      'snapshot' : "data:image/jpeg;base64,..."
  *  }
+ *  </pre></blockquote>
  */
 public class VideoFileContent extends BaseFileContent implements VideoContent {
 

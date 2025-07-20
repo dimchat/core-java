@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,57 +28,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd.group;
+package chat.dim.protocol;
 
-import java.util.Date;
-import java.util.Map;
-
-import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.ID;
-import chat.dim.protocol.group.QueryCommand;
-
-/*
- *  NOTICE:
- *      This command is just for querying group info,
- *      should not be saved in group history
- */
+import chat.dim.dkd.AppCustomizedContent;
 
 /**
- *  Query Group History
+ *  Application Customized message
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
+ *      'type' : i2s(0xCC),
  *      'sn'   : 123,
  *
- *      'command' : "query",
- *      'time'    : 123.456,
- *
- *      'group'     : "{GROUP_ID}",
- *      'last_time' : 0
+ *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+ *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
+ *      'extra' : info         // action parameters
  *  }
  *  </pre></blockquote>
  */
-public class QueryGroupCommand extends BaseGroupCommand implements QueryCommand {
+public interface CustomizedContent extends Content {
 
-    public QueryGroupCommand(Map<String, Object> content) {
-        super(content);
+    // get App ID
+    String getApplication();
+
+    // get Module name
+    String getModule();
+
+    // get Action name
+    String getAction();
+
+    //
+    //  Factory
+    //
+
+    static CustomizedContent create(String app, String mod, String act) {
+        return new AppCustomizedContent(app, mod, act);
     }
-
-    public QueryGroupCommand(ID group) {
-        super(GroupCommand.QUERY, group);
-    }
-
-    public QueryGroupCommand(ID group, Date lastTime) {
-        super(GroupCommand.QUERY, group);
-        if (lastTime != null) {
-            setDateTime("last_time", lastTime);
-        }
-    }
-
-    @Override
-    public Date getLastTime() {
-        return getDateTime("last_time");
-    }
-
 }

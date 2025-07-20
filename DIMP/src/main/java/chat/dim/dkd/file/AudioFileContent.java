@@ -82,6 +82,6 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
 
     @Override
     public String getText() {
-        return getString("text", null);
+        return getString("text");
     }
 }

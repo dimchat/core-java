@@ -30,14 +30,12 @@
  */
 package chat.dim.plugins;
 
-import chat.dim.protocol.Command;
-
 /**
  *  Command FactoryManager
  */
 public final class SharedCommandExtensions {
 
-    public static Command.Helper cmdHelper = null;
+    public static CommandHelper cmdHelper = null;
 
     // general helper
     public static GeneralCommandHelper helper = null;

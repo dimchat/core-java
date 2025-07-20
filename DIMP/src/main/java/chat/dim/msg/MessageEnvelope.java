@@ -110,7 +110,7 @@ public class MessageEnvelope extends Dictionary implements Envelope {
     @Override
     public Date getTime() {
         if (time == null) {
-            time = getDateTime("time", null);
+            time = getDateTime("time");
         }
         return time;
     }
@@ -142,7 +142,7 @@ public class MessageEnvelope extends Dictionary implements Envelope {
      */
     @Override
     public String getType() {
-        return getString("type", null);
+        return getString("type");
     }
 
     @Override

@@ -77,18 +77,6 @@ public interface Command extends Content {
     }
 
     /**
-     *  General Helper
-     */
-    interface Helper {
-
-        void setCommandFactory(String cmd, Factory factory);
-        Factory getCommandFactory(String cmd);
-
-        Command parseCommand(Object content);
-
-    }
-
-    /**
      *  Command Factory
      */
     interface Factory {

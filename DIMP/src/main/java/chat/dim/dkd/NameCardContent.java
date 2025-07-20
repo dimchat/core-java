@@ -36,7 +36,6 @@ import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NameCard;
-import chat.dim.type.Converter;
 
 /**
  *  Name Card
@@ -84,7 +83,7 @@ public class NameCardContent extends BaseContent implements NameCard {
 
     @Override
     public String getName() {
-        return Converter.getString(get("name"), "");
+        return getString("name", "");
     }
 
     @Override

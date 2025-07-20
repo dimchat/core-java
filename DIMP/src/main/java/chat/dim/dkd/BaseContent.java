@@ -114,7 +114,7 @@ public class BaseContent extends Dictionary implements Content {
     @Override
     public Date getTime() {
         if (time == null) {
-            time = getDateTime("time", null);
+            time = getDateTime("time");
         }
         return time;
     }

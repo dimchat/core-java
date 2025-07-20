@@ -116,7 +116,7 @@ public class BaseReceiptCommand extends BaseCommand implements ReceiptCommand {
             // original info not found
             return null;
         }
-        return Converter.getLong(origin.get("sn"), null);
+        return Converter.getLong(origin.get("sn"));
     }
 
     @Override
@@ -126,6 +126,6 @@ public class BaseReceiptCommand extends BaseCommand implements ReceiptCommand {
             // original info not found
             return null;
         }
-        return Converter.getString(origin.get("signature"), null);
+        return Converter.getString(origin.get("signature"));
     }
 }

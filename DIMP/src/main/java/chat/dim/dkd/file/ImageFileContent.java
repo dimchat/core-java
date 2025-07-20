@@ -60,6 +60,7 @@ import chat.dim.protocol.file.ImageContent;
  *      },
  *      'thumbnail' : "data:image/jpeg;base64,..."
  *  }
+ *  </pre></blockquote>
  */
 public class ImageFileContent extends BaseFileContent implements ImageContent {
 

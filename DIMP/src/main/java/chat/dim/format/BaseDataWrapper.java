@@ -69,11 +69,11 @@ public class BaseDataWrapper extends Dictionary {
 
     @Override
     public String toString() {
-        String text = getString("data", null);
+        String text = getString("data");
         if (text == null/* || text.isEmpty()*/) {
             return "";
         }
-        String algorithm = getString("algorithm", null);
+        String algorithm = getString("algorithm");
         if (algorithm == null || algorithm.equals(EncodeAlgorithms.DEFAULT)) {
             algorithm = "";
         }
@@ -88,13 +88,14 @@ public class BaseDataWrapper extends Dictionary {
 
     /**
      *  Encode with 'Content-Type'
-     *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *  toString(mimeType)
+     *  <p>
+     *      toString(mimeType)
+     *  </p>
      */
     public String encode(String mimeType) {
         assert !mimeType.contains(" ") : "content-type error: " + mimeType;
         // get encoded data
-        String text = getString("data", null);
+        String text = getString("data");
         if (text == null/* || text.isEmpty()*/) {
             return "";
         }
@@ -104,11 +105,10 @@ public class BaseDataWrapper extends Dictionary {
     }
 
     /**
-     *  encode algorithm
+     *  Encode Algorithm
      */
-
     public String getAlgorithm() {
-        String algorithm = getString("algorithm", null);
+        String algorithm = getString("algorithm");
         if (algorithm == null || algorithm.isEmpty()) {
             algorithm = EncodeAlgorithms.DEFAULT;
         }
@@ -124,13 +124,12 @@ public class BaseDataWrapper extends Dictionary {
     }
 
     /**
-     *  binary data
+     *  Binary Data
      */
-
     public byte[] getData() {
         byte[] binary = data;
         if (binary == null) {
-            String text = getString("data", null);
+            String text = getString("data");
             if (text == null || text.isEmpty()) {
                 assert false : "TED data empty: " + this.toMap();
                 return null;

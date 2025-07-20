@@ -107,6 +107,6 @@ public class BaseQuoteContent extends BaseContent implements QuoteContent {
             // original info not found
             return null;
         }
-        return Converter.getLong(origin.get("sn"), null);
+        return Converter.getLong(origin.get("sn"));
     }
 }

@@ -61,13 +61,13 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
         super(content);
     }
 
-    /*
+    /**
      *  Group history command: {
-     *      type : 0x89,
-     *      sn   : 123,
+     *      'type' : i2s(0x89),
+     *      'sn'   : 123,
      *
-     *      command : "join",      // or quit
-     *      group   : "{GROUP_ID}",
+     *      'command' : "join",      // or quit
+     *      'group'   : "{GROUP_ID}",
      *  }
      */
     public BaseGroupCommand(String cmd, ID group) {
@@ -75,14 +75,14 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
         setGroup(group);
     }
 
-    /*
+    /**
      *  Group history command: {
-     *      type : 0x89,
-     *      sn   : 123,
+     *      'type' : i2s(0x89),
+     *      'sn'   : 123,
      *
-     *      command : "invite",      // or expel
-     *      group   : "{GROUP_ID}",
-     *      member  : "{MEMBER_ID}",
+     *      'command' : "invite",      // or expel
+     *      'group'   : "{GROUP_ID}",
+     *      'member'  : "{MEMBER_ID}",
      *  }
      */
     public BaseGroupCommand(String cmd, ID group, ID member) {
@@ -91,14 +91,14 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
         setMember(member);
     }
 
-    /*
+    /**
      *  Group history command: {
-     *      type : 0x89,
-     *      sn   : 123,
+     *      'type' : i2s(0x89),
+     *      'sn'   : 123,
      *
-     *      command : "invite",      // or expel
-     *      group   : "{GROUP_ID}",
-     *      members : ["{MEMBER_ID}", ],
+     *      'command' : "invite",      // or expel
+     *      'group'   : "{GROUP_ID}",
+     *      'members' : ["{MEMBER_ID}", ],
      *  }
      */
     public BaseGroupCommand(String cmd, ID group, List<ID> members) {

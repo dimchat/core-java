@@ -109,7 +109,7 @@ public class BaseFileWrapper extends Dictionary {
      */
 
     public String getFilename() {
-        return getString("filename", null);
+        return getString("filename");
     }
 
     public void setFilename(String name) {
@@ -127,7 +127,7 @@ public class BaseFileWrapper extends Dictionary {
     public URI getURL() {
         URI remote = remoteURL;
         if (remote == null) {
-            String locator = getString("URL", null);
+            String locator = getString("URL");
             if (locator != null && locator.length() > 0) {
                 remoteURL = remote = URI.create(locator);
             }

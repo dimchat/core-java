@@ -157,7 +157,7 @@ public class BaseDocument extends Dictionary implements Document {
      */
     private String getData() {
         if (json == null) {
-            json = getString("data", null);
+            json = getString("data");
         }
         return json;
     }
@@ -288,12 +288,12 @@ public class BaseDocument extends Dictionary implements Document {
 
     @Override
     public Date getTime() {
-        return Converter.getDateTime(getProperty("time"), null);
+        return Converter.getDateTime(getProperty("time"));
     }
 
     @Override
     public String getName() {
-        return Converter.getString(getProperty("name"), null);
+        return Converter.getString(getProperty("name"));
     }
 
     @Override

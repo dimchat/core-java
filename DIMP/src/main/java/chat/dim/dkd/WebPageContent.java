@@ -57,6 +57,7 @@ import chat.dim.protocol.PageContent;
  *      'base'      : "about:blank"     // Base URL
  *
  *  }
+ *  </pre></blockquote>
  */
 public class WebPageContent extends BaseContent implements PageContent {
 
@@ -119,7 +120,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getDesc() {
-        return getString("desc", null);
+        return getString("desc");
     }
 
     @Override
@@ -130,7 +131,7 @@ public class WebPageContent extends BaseContent implements PageContent {
     @Override
     public URI getURL() {
         if (url == null) {
-            String string = getString("URL", null);
+            String string = getString("URL");
             if (string != null) {
                 url = createURL(string);
             }
@@ -151,7 +152,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public String getHTML() {
-        return getString("HTML", null);
+        return getString("HTML");
     }
 
     @Override

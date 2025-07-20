@@ -112,6 +112,6 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
 
     @Override
     public Date getLastTime() {
-        return getDateTime("last_time", null);
+        return getDateTime("last_time");
     }
 }
