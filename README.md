@@ -4,7 +4,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dimchat/core-java/pulls)
 [![Platform](https://img.shields.io/badge/Platform-Java%208-brightgreen.svg)](https://github.com/dimchat/core-java/wiki)
 [![Issues](https://img.shields.io/github/issues/dimchat/core-java)](https://github.com/dimchat/core-java/issues)
-[![Repo Size](https://img.shields.io/github/repo-size/dimchat/core-java)](https://github.com/dimchat/core-java/archive/refs/heads/main.zip)
+[![Repo Size](https://img.shields.io/github/repo-size/dimchat/core-java)](https://github.com/dimchat/core-java/archive/refs/heads/master.zip)
 [![Tags](https://img.shields.io/github/tag/dimchat/core-java)](https://github.com/dimchat/core-java/tags)
 [![Version](https://img.shields.io/maven-central/v/chat.dim/DIMP)](https://mvnrepository.com/artifact/chat.dim/DIMP)
 
@@ -34,7 +34,7 @@ allprojects {
 
 dependencies {
 
-    // https://bintray.com/dimchat/core/dimp
+    // https://central.sonatype.com/artifact/chat.dim/DIMP
     compile 'chat.dim:DIMP:2.0.0'
     //implementation group: 'chat.dim', name: 'DIMP', version: '2.0.0'
 

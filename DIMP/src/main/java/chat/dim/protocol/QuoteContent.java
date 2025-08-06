@@ -66,7 +66,7 @@ public interface QuoteContent extends Content {
     //
 
     /**
-     *  Create quote content with text & original message info
+     *  Create quote content with text &amp; original message info
      */
     static QuoteContent create(String text, Envelope head, Content body) {
         Map<String, Object> info = purify(head);

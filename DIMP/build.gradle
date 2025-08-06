@@ -1,21 +1,28 @@
 plugins {
     id 'idea'
     id 'java'
-    id 'maven'
+    id 'java-library'
     id 'signing'
+    id "com.vanniktech.maven.publish" version "0.34.0"
 }
 
-group 'chat.dim'
+group = 'chat.dim'
+version = '2.0.0'
 //version '1.0-SNAPSHOT'
-version '2.0.0'
 
 def mod = 'DIMP'
 def desc = 'New Protocol designed for decentralized instant messaging.'
 
-def gitUrl = 'https://github.com/dimchat/core-java.git'
 def siteUrl = 'https://github.com/dimchat/core-java'
+def gitUrl = 'https://github.com/dimchat/core-java.git'
 
-sourceCompatibility = 1.8
+def connUrl = 'scm:git:git://github.com/dimchat/core-java.git'
+def devUrl = 'scm:git:ssh://github.com/dimchat/core-java.git'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenLocal()
@@ -24,51 +31,22 @@ repositories {
 }
 
 dependencies {
-    compile group: 'chat.dim', name: 'DaoKeDao', version: '2.0.0'
+    api group: 'chat.dim', name: 'DaoKeDao', version: '2.0.0'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
-
-//apply plugin: 'com.jfrog.bintray'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'jar'
-                name mod
-                description desc
-                url siteUrl
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://mit-license.org'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'moky'
-                        name 'Albert Moky'
-                        email 'albert.moky@gmail.com'
-                        roles {
-                            role 'architect'
-                        }
-                        organization 'DIM Group'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
+tasks.withType(Javadoc) {
+    options {
+        encoding = 'UTF-8'
+        charSet = 'UTF-8'
+        links = ['http://docs.oracle.com/javase/7/docs/api']
     }
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 javadoc {
@@ -77,76 +55,38 @@ javadoc {
     }
 }
 
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
+mavenPublishing {
+    coordinates(group, mod, version)
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
+    pom {
+        packaging = 'jar'
+        name = mod
+        description = desc
+        inceptionYear = "2018"
+        url = siteUrl
 
-artifacts {
-    archives sourceJar
-    archives javadocJar
-}
-
-signing {
-    sign configurations.archives
-}
-
-tasks.withType(Javadoc) {
-    options {
-        encoding 'UTF-8'
-        charSet 'UTF-8'
-        links 'http://docs.oracle.com/javase/7/docs/api'
-    }
-    options.addStringOption('Xdoclint:none', '-quiet')
-}
-
-uploadArchives {
-
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+        licenses {
+            license {
+                name = 'MIT'
+                url = 'https://mit-license.org'
+                distribution = 'https://mit-license.org'
             }
+        }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+        developers {
+            developer {
+                id = 'moky'
+                name = 'Albert Moky'
+                email = 'albert.moky@gmail.com'
+                roles = ['architect']
+                organization = 'DIM Group'
             }
+        }
 
-            pom.project {
-                packaging 'jar'
-                name mod
-                description desc
-                url siteUrl
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://mit-license.org'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'moky'
-                        name 'Albert Moky'
-                        email 'albert.moky@gmail.com'
-                        roles {
-                            role 'architect'
-                        }
-                        organization 'DIM Group'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
+        scm {
+            url = siteUrl
+            connection = connUrl
+            developerConnection = devUrl
         }
     }
 }

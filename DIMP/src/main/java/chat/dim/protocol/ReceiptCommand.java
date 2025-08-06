@@ -68,7 +68,7 @@ public interface ReceiptCommand extends Command {
     //
 
     /**
-     *  Create base receipt command with text & original message info
+     *  Create base receipt command with text &amp; original message info
      */
     static ReceiptCommand create(String text, Envelope head, Content body) {
         Map<String, Object> info;
