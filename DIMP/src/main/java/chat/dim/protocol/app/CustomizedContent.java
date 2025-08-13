@@ -28,9 +28,9 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.protocol.app;
 
-import chat.dim.dkd.AppCustomizedContent;
+import chat.dim.dkd.app.AppCustomizedContent;
 
 /**
  *  Application Customized message
@@ -47,22 +47,18 @@ import chat.dim.dkd.AppCustomizedContent;
  *  }
  *  </pre></blockquote>
  */
-public interface CustomizedContent extends Content {
-
-    // get App ID
-    String getApplication();
-
-    // get Module name
-    String getModule();
-
-    // get Action name
-    String getAction();
+public interface CustomizedContent extends ApplicationContent {
 
     //
-    //  Factory
+    //  Factory methods
     //
 
     static CustomizedContent create(String app, String mod, String act) {
         return new AppCustomizedContent(app, mod, act);
     }
+
+    static CustomizedContent create(String type, String app, String mod, String act) {
+        return new AppCustomizedContent(type, app, mod, act);
+    }
+
 }

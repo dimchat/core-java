@@ -33,9 +33,9 @@ package chat.dim.dkd.group;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.group.FireCommand;
+import chat.dim.protocol.group.GroupCommand;
 
 public class FireGroupCommand extends BaseGroupCommand implements FireCommand {
 

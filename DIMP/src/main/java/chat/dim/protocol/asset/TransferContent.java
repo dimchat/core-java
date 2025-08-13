@@ -28,64 +28,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.protocol.asset;
 
-import java.util.Map;
-
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.MoneyContent;
-import chat.dim.type.Converter;
+import chat.dim.dkd.asset.TransferMoneyContent;
+import chat.dim.protocol.ID;
 
 /**
- *  Money Content
+ *  Transfer Money
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x40),
+ *      'type' : i2s(0x41),
  *      'sn'   : 123,
  *
- *      'currency' : "RMB", // USD, USDT, ...
- *      'amount'   : 100.00
+ *      'currency' : "RMB",    // USD, USDT, ...
+ *      'amount'   : 100.00,
+ *      'remitter' : "{FROM}", // sender ID
+ *      'remittee' : "{TO}"    // receiver ID
  *  }
  *  </pre></blockquote>
  */
-public class BaseMoneyContent extends BaseContent implements MoneyContent {
+public interface TransferContent extends MoneyContent {
 
-    public BaseMoneyContent(Map<String, Object> content) {
-        super(content);
+    // sender
+    void setRemitter(ID sender);
+    ID getRemitter();
+
+    // receiver
+    void setRemittee(ID receiver);
+    ID getRemittee();
+
+    //
+    //  Factory
+    //
+
+    static TransferContent create(String currency, Number amount) {
+        return new TransferMoneyContent(currency, amount);
     }
-
-    public BaseMoneyContent(String type, String currency, Number amount) {
-        super(type);
-        setCurrency(currency);
-        setAmount(amount);
-    }
-
-    public BaseMoneyContent(String currency, Number amount) {
-        this(ContentType.MONEY, currency, amount);
-    }
-
-    private void setCurrency(String currency) {
-        put("currency", currency);
-    }
-
-    @Override
-    public String getCurrency() {
-        return getString("currency", "");
-    }
-
-    @Override
-    public void setAmount(Number amount) {
-        put("amount", amount);
-    }
-
-    @Override
-    public Number getAmount() {
-        Object amount = get("amount");
-        if (amount instanceof Number) {
-            return (Number) amount;
-        }
-        return Converter.getDouble(amount, 0.0);
-    }
-
 }

@@ -28,9 +28,8 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.protocol.group;
 
-import java.util.Date;
 import java.util.List;
 
 import chat.dim.dkd.group.BaseGroupCommand;
@@ -39,19 +38,11 @@ import chat.dim.dkd.group.FireGroupCommand;
 import chat.dim.dkd.group.HireGroupCommand;
 import chat.dim.dkd.group.InviteGroupCommand;
 import chat.dim.dkd.group.JoinGroupCommand;
-import chat.dim.dkd.group.QueryGroupCommand;
 import chat.dim.dkd.group.QuitGroupCommand;
 import chat.dim.dkd.group.ResetGroupCommand;
 import chat.dim.dkd.group.ResignGroupCommand;
-import chat.dim.protocol.group.ExpelCommand;
-import chat.dim.protocol.group.FireCommand;
-import chat.dim.protocol.group.HireCommand;
-import chat.dim.protocol.group.InviteCommand;
-import chat.dim.protocol.group.JoinCommand;
-import chat.dim.protocol.group.QueryCommand;
-import chat.dim.protocol.group.QuitCommand;
-import chat.dim.protocol.group.ResetCommand;
-import chat.dim.protocol.group.ResignCommand;
+import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.ID;
 
 /**
  *  Group History
@@ -81,7 +72,7 @@ public interface GroupCommand extends HistoryCommand {
     String EXPEL    = "expel";  // Deprecated (use 'reset' instead)
     String JOIN     = "join";
     String QUIT     = "quit";
-    String QUERY    = "query";
+    //String QUERY  = "query";  // Deprecated
     String RESET    = "reset";
     // administrator/assistant
     String HIRE     = "hire";
@@ -138,13 +129,6 @@ public interface GroupCommand extends HistoryCommand {
 
     static QuitCommand quit(ID group) {
         return new QuitGroupCommand(group);
-    }
-
-    static QueryCommand query(ID group) {
-        return new QueryGroupCommand(group);
-    }
-    static QueryCommand query(ID group, Date lastTime) {
-        return new QueryGroupCommand(group, lastTime);
     }
 
     static ResetCommand reset(ID group, List<ID> members) {

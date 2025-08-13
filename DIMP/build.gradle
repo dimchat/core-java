@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'chat.dim'
-version = '2.0.0'
+version = '2.0.2'
 //version '1.0-SNAPSHOT'
 
 def mod = 'DIMP'
@@ -20,8 +20,8 @@ def connUrl = 'scm:git:git://github.com/dimchat/core-java.git'
 def devUrl = 'scm:git:ssh://github.com/dimchat/core-java.git'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    api group: 'chat.dim', name: 'DaoKeDao', version: '2.0.0'
+    api group: 'chat.dim', name: 'DaoKeDao', version: '2.0.2'
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
@@ -44,7 +44,7 @@ tasks.withType(Javadoc) {
     options {
         encoding = 'UTF-8'
         charSet = 'UTF-8'
-        links = ['http://docs.oracle.com/javase/7/docs/api']
+        links = ['https://docs.oracle.com/javase/7/docs/api']
     }
     options.addStringOption('Xdoclint:none', '-quiet')
 }

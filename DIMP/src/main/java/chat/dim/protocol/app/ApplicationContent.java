@@ -28,19 +28,16 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.protocol.app;
 
-import java.util.Map;
-
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.CustomizedContent;
+import chat.dim.protocol.Content;
 
 /**
- *  Application Customized message
+ *  Content for Application 0nly
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xCC),
+ *      'type' : i2s(0xA0),
  *      'sn'   : 123,
  *
  *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
@@ -50,40 +47,15 @@ import chat.dim.protocol.CustomizedContent;
  *  }
  *  </pre></blockquote>
  */
-public class AppCustomizedContent extends BaseContent implements CustomizedContent {
+public interface ApplicationContent extends Content {
 
-    public AppCustomizedContent(Map<String, Object> content) {
-        super(content);
-    }
+    // get App ID
+    String getApplication();
 
-    public AppCustomizedContent(String type, String app, String mod, String act) {
-        super(type);
-        put("app", app);
-        put("mod", mod);
-        put("act", act);
-    }
+    // get Module name
+    String getModule();
 
-    public AppCustomizedContent(String app, String mod, String act) {
-        super(ContentType.CUSTOMIZED);
-        put("app", app);
-        put("mod", mod);
-        put("act", act);
-    }
+    // get Action name
+    String getAction();
 
-    //-------- getters --------
-
-    @Override
-    public String getApplication() {
-        return getString("app", "");
-    }
-
-    @Override
-    public String getModule() {
-        return getString("mod", "");
-    }
-
-    @Override
-    public String getAction() {
-        return getString("act", "");
-    }
 }

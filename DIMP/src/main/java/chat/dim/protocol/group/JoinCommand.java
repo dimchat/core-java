@@ -30,7 +30,5 @@
  */
 package chat.dim.protocol.group;
 
-import chat.dim.protocol.GroupCommand;
-
 public interface JoinCommand extends GroupCommand {
 }

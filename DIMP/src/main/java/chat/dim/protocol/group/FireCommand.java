@@ -32,7 +32,6 @@ package chat.dim.protocol.group;
 
 import java.util.List;
 
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 
 public interface FireCommand extends GroupCommand {

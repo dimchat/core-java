@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.protocol.file;
 
 import java.net.URI;
 
@@ -38,9 +38,8 @@ import chat.dim.dkd.file.BaseFileContent;
 import chat.dim.dkd.file.ImageFileContent;
 import chat.dim.dkd.file.VideoFileContent;
 import chat.dim.format.TransportableData;
-import chat.dim.protocol.file.AudioContent;
-import chat.dim.protocol.file.ImageContent;
-import chat.dim.protocol.file.VideoContent;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.ContentType;
 
 /**
  *  File Content

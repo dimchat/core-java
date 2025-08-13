@@ -30,8 +30,6 @@
  */
 package chat.dim.protocol.file;
 
-import chat.dim.protocol.FileContent;
-
 /**
  *  Audio File Content
  *

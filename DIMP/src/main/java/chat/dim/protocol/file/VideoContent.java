@@ -31,7 +31,6 @@
 package chat.dim.protocol.file;
 
 import chat.dim.format.PortableNetworkFile;
-import chat.dim.protocol.FileContent;
 
 /**
  *  Video File Content

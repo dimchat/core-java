@@ -32,8 +32,8 @@ package chat.dim.dkd.group;
 
 import java.util.Map;
 
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.ResignCommand;
 
 public class ResignGroupCommand extends BaseGroupCommand implements ResignCommand {

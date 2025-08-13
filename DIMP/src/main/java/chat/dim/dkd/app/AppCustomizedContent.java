@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,41 +28,63 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.group;
+package chat.dim.dkd.app;
 
-import java.util.Date;
+import java.util.Map;
 
-import chat.dim.protocol.GroupCommand;
-
-/*
- *  NOTICE:
- *      This command is just for querying group info,
- *      should not be saved in group history
- */
+import chat.dim.dkd.BaseContent;
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.app.CustomizedContent;
 
 /**
- *  Query Group History
+ *  Application Customized message
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
+ *      'type' : i2s(0xCC),
  *      'sn'   : 123,
  *
- *      'command' : "query",
- *      'time'    : 123.456,
- *
- *      'group'     : "{GROUP_ID}",
- *      'last_time' : 0
+ *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+ *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
+ *      'extra' : info         // action parameters
  *  }
  *  </pre></blockquote>
  */
-public interface QueryCommand extends GroupCommand {
+public class AppCustomizedContent extends BaseContent implements CustomizedContent {
 
-    /**
-     *  Last group history time for querying
-     *
-     * @return time of last group history from sender
-     */
-    Date getLastTime();
+    public AppCustomizedContent(Map<String, Object> content) {
+        super(content);
+    }
 
+    public AppCustomizedContent(String type, String app, String mod, String act) {
+        super(type);
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
+    }
+
+    public AppCustomizedContent(String app, String mod, String act) {
+        super(ContentType.CUSTOMIZED);
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
+    }
+
+    //-------- getters --------
+
+    @Override
+    public String getApplication() {
+        return getString("app", "");
+    }
+
+    @Override
+    public String getModule() {
+        return getString("mod", "");
+    }
+
+    @Override
+    public String getAction() {
+        return getString("act", "");
+    }
 }

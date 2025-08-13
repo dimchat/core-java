@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.dkd.cmd.BaseHistoryCommand;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.group.GroupCommand;
 
 /**
  *  Group History

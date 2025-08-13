@@ -28,56 +28,65 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd;
+package chat.dim.dkd.asset;
 
 import java.util.Map;
 
+import chat.dim.dkd.BaseContent;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.ID;
-import chat.dim.protocol.TransferContent;
+import chat.dim.protocol.asset.MoneyContent;
+import chat.dim.type.Converter;
 
 /**
- *  Transfer Money
+ *  Money Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x41),
+ *      'type' : i2s(0x40),
  *      'sn'   : 123,
  *
- *      'currency' : "RMB",    // USD, USDT, ...
- *      'amount'   : 100.00,
- *      'remitter' : "{FROM}", // sender ID
- *      'remittee' : "{TO}"    // receiver ID
+ *      'currency' : "RMB", // USD, USDT, ...
+ *      'amount'   : 100.00
  *  }
  *  </pre></blockquote>
  */
-public class TransferMoneyContent extends BaseMoneyContent implements TransferContent {
+public class BaseMoneyContent extends BaseContent implements MoneyContent {
 
-    public TransferMoneyContent(Map<String, Object> content) {
+    public BaseMoneyContent(Map<String, Object> content) {
         super(content);
     }
 
-    public TransferMoneyContent(String currency, Number amount) {
-        super(ContentType.TRANSFER, currency, amount);
+    public BaseMoneyContent(String type, String currency, Number amount) {
+        super(type);
+        setCurrency(currency);
+        setAmount(amount);
+    }
+
+    public BaseMoneyContent(String currency, Number amount) {
+        this(ContentType.MONEY, currency, amount);
+    }
+
+    private void setCurrency(String currency) {
+        put("currency", currency);
     }
 
     @Override
-    public void setRemitter(ID sender) {
-        setString("remitter", sender);
+    public String getCurrency() {
+        return getString("currency", "");
     }
 
     @Override
-    public ID getRemitter() {
-        return ID.parse(get("remitter"));
+    public void setAmount(Number amount) {
+        put("amount", amount);
     }
 
     @Override
-    public void setRemittee(ID receiver) {
-        setString("remittee", receiver);
+    public Number getAmount() {
+        Object amount = get("amount");
+        if (amount instanceof Number) {
+            return (Number) amount;
+        }
+        return Converter.getDouble(amount, 0.0);
     }
 
-    @Override
-    public ID getRemittee() {
-        return ID.parse(get("remittee"));
-    }
 }

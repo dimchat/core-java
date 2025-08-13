@@ -28,39 +28,56 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.dkd.asset;
 
-import chat.dim.dkd.BaseMoneyContent;
+import java.util.Map;
+
+import chat.dim.protocol.ContentType;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.asset.TransferContent;
 
 /**
- *  Money Content
+ *  Transfer Money
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x40),
+ *      'type' : i2s(0x41),
  *      'sn'   : 123,
  *
- *      'currency' : "RMB", // USD, USDT, ...
- *      'amount'   : 100.00
+ *      'currency' : "RMB",    // USD, USDT, ...
+ *      'amount'   : 100.00,
+ *      'remitter' : "{FROM}", // sender ID
+ *      'remittee' : "{TO}"    // receiver ID
  *  }
  *  </pre></blockquote>
  */
-public interface MoneyContent extends Content {
+public class TransferMoneyContent extends BaseMoneyContent implements TransferContent {
 
-    String getCurrency();
-
-    void setAmount(Number amount);
-    Number getAmount();
-
-    //
-    //  Factories
-    //
-
-    static MoneyContent create(String type, String currency, Number amount) {
-        return new BaseMoneyContent(type, currency, amount);
+    public TransferMoneyContent(Map<String, Object> content) {
+        super(content);
     }
 
-    static MoneyContent create(String currency, Number amount) {
-        return new BaseMoneyContent(currency, amount);
+    public TransferMoneyContent(String currency, Number amount) {
+        super(ContentType.TRANSFER, currency, amount);
+    }
+
+    @Override
+    public void setRemitter(ID sender) {
+        setString("remitter", sender);
+    }
+
+    @Override
+    public ID getRemitter() {
+        return ID.parse(get("remitter"));
+    }
+
+    @Override
+    public void setRemittee(ID receiver) {
+        setString("remittee", receiver);
+    }
+
+    @Override
+    public ID getRemittee() {
+        return ID.parse(get("remittee"));
     }
 }

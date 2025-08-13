@@ -37,7 +37,7 @@ import chat.dim.crypto.DecryptKey;
 import chat.dim.dkd.BaseContent;
 import chat.dim.format.BaseFileWrapper;
 import chat.dim.format.TransportableData;
-import chat.dim.protocol.FileContent;
+import chat.dim.protocol.file.FileContent;
 
 /**
  *  Base File Content

@@ -33,8 +33,8 @@ package chat.dim.dkd.group;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.InviteCommand;
 
 public class InviteGroupCommand extends BaseGroupCommand implements InviteCommand {
