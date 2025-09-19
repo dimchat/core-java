@@ -33,11 +33,11 @@ package chat.dim.dkd.file;
 import java.net.URI;
 import java.util.Map;
 
-import chat.dim.crypto.DecryptKey;
 import chat.dim.dkd.BaseContent;
 import chat.dim.format.BaseFileWrapper;
-import chat.dim.format.TransportableData;
-import chat.dim.protocol.file.FileContent;
+import chat.dim.protocol.DecryptKey;
+import chat.dim.protocol.FileContent;
+import chat.dim.protocol.TransportableData;
 
 /**
  *  Base File Content

@@ -32,8 +32,8 @@ package chat.dim.msg;
 
 import java.util.Map;
 
-import chat.dim.format.TransportableData;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.TransportableData;
 
 /**
  *  Reliable Message signed by an asymmetric key

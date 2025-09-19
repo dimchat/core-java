@@ -32,9 +32,9 @@ package chat.dim.msg;
 
 import java.util.Map;
 
-import chat.dim.format.TransportableData;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.SecureMessage;
+import chat.dim.protocol.TransportableData;
 
 /**
  *  Secure Message

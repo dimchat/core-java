@@ -33,7 +33,6 @@ package chat.dim.protocol;
 import java.net.URI;
 
 import chat.dim.dkd.WebPageContent;
-import chat.dim.format.PortableNetworkFile;
 
 /**
  *  Web Page

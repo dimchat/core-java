@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2025 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2025 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,39 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.plugins;
+package chat.dim.protocol;
 
-import chat.dim.protocol.Command;
+import chat.dim.dkd.asset.BaseMoneyContent;
 
-public interface CommandHelper {
+/**
+ *  Money Content
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x40),
+ *      'sn'   : 123,
+ *
+ *      'currency' : "RMB", // USD, USDT, ...
+ *      'amount'   : 100.00
+ *  }
+ *  </pre></blockquote>
+ */
+public interface MoneyContent extends Content {
 
-    void setCommandFactory(String cmd, Command.Factory factory);
-    Command.Factory getCommandFactory(String cmd);
+    String getCurrency();
 
-    Command parseCommand(Object content);
+    void setAmount(Number amount);
+    Number getAmount();
 
+    //
+    //  Factories
+    //
+
+    static MoneyContent create(String type, String currency, Number amount) {
+        return new BaseMoneyContent(type, currency, amount);
+    }
+
+    static MoneyContent create(String currency, Number amount) {
+        return new BaseMoneyContent(currency, amount);
+    }
 }

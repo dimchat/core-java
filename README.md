@@ -19,6 +19,7 @@
 
 | Name | Version | Description |
 |------|---------|-------------|
+| [Cryptography](https://github.com/dimchat/mkm-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/Crypto)](https://mvnrepository.com/artifact/chat.dim/Crypto) | Crypto Keys |
 | [Ming Ke Ming (名可名)](https://github.com/dimchat/mkm-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/MingKeMing)](https://mvnrepository.com/artifact/chat.dim/MingKeMing) | Decentralized User Identity Authentication |
 | [Dao Ke Dao (道可道)](https://github.com/dimchat/dkd-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/DaoKeDao)](https://mvnrepository.com/artifact/chat.dim/DaoKeDao) | Universal Message Module |
 
@@ -27,16 +28,16 @@
 ```javascript
 allprojects {
     repositories {
-        jcenter()
+        mavenLocal()
         mavenCentral()
+        google()
     }
 }
 
 dependencies {
 
     // https://central.sonatype.com/artifact/chat.dim/DIMP
-    compile 'chat.dim:DIMP:2.0.0'
-    //implementation group: 'chat.dim', name: 'DIMP', version: '2.0.0'
+    implementation group: 'chat.dim', name: 'DIMP', version: '2.0.0'
 
 }
 ```
@@ -164,67 +165,25 @@ public class HandshakeCommand extends BaseCommand {
  *      'sn'   : 123,
  *
  *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
- *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
- *      'extra' : info         // action parameters
+ *      'extra' : info         // others
  *  }
  */
-public interface AppContent extends Content {
-
-    // get App ID
-    String getApplication();
-
-    // get Module name
-    String getModule();
-
-    // get Action name
-    String getAction();
-
-    //
-    //  Factory
-    //
-
-    static AppContent create(String app, String mod, String act) {
-        return new ApplicationContent(app, mod, act);
-    }
-}
-
 public class ApplicationContent extends BaseContent implements AppContent {
 
     public ApplicationContent(Map<String, Object> content) {
         super(content);
     }
 
-    public ApplicationContent(String type, String app, String mod, String act) {
-        super(type);
-        put("app", app);
-        put("mod", mod);
-        put("act", act);
-    }
-
-    public ApplicationContent(String app, String mod, String act) {
+    public ApplicationContent(String app) {
         super(ContentType.APPLICATION);
         put("app", app);
-        put("mod", mod);
-        put("act", act);
     }
-
-    //-------- getters --------
 
     @Override
     public String getApplication() {
         return getString("app", "");
     }
 
-    @Override
-    public String getModule() {
-        return getString("mod", "");
-    }
-
-    @Override
-    public String getAction() {
-        return getString("act", "");
-    }
 }
 
 ```

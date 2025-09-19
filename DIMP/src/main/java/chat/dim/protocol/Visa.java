@@ -30,9 +30,6 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.crypto.EncryptKey;
-import chat.dim.format.PortableNetworkFile;
-
 /**
  *  User Document
  *  <p>

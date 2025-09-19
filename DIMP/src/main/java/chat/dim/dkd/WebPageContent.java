@@ -33,9 +33,9 @@ package chat.dim.dkd;
 import java.net.URI;
 import java.util.Map;
 
-import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.PageContent;
+import chat.dim.protocol.PortableNetworkFile;
 
 /**
  *  Web Page Content

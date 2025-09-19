@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,41 +28,24 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.asset;
-
-import chat.dim.dkd.asset.TransferMoneyContent;
-import chat.dim.protocol.ID;
+package chat.dim.protocol;
 
 /**
- *  Transfer Money
+ *  Content for Application 0nly
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x41),
+ *      'type' : i2s(0xA0),
  *      'sn'   : 123,
  *
- *      'currency' : "RMB",    // USD, USDT, ...
- *      'amount'   : 100.00,
- *      'remitter' : "{FROM}", // sender ID
- *      'remittee' : "{TO}"    // receiver ID
+ *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      'extra' : info         // others
  *  }
  *  </pre></blockquote>
  */
-public interface TransferContent extends MoneyContent {
+public interface AppContent extends Content {
 
-    // sender
-    void setRemitter(ID sender);
-    ID getRemitter();
+    // get App ID
+    String getApplication();
 
-    // receiver
-    void setRemittee(ID receiver);
-    ID getRemittee();
-
-    //
-    //  Factory
-    //
-
-    static TransferContent create(String currency, Number amount) {
-        return new TransferMoneyContent(currency, amount);
-    }
 }

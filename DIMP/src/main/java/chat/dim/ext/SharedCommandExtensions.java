@@ -28,19 +28,16 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.plugins;
-
-import java.util.Map;
+package chat.dim.ext;
 
 /**
- *  Command GeneralFactory
+ *  Command FactoryManager
  */
-public interface GeneralCommandHelper /*extends Command.Helper */{
+public final class SharedCommandExtensions {
 
-    //
-    //  CMD
-    //
+    public static CommandHelper cmdHelper = null;
 
-    String getCmd(Map<?, ?> content, String defaultValue);
+    // general helper
+    public static GeneralCommandHelper helper = null;
 
 }

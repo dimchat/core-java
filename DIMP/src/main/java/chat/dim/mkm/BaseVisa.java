@@ -32,12 +32,12 @@ package chat.dim.mkm;
 
 import java.util.Map;
 
-import chat.dim.crypto.EncryptKey;
-import chat.dim.crypto.PublicKey;
-import chat.dim.format.PortableNetworkFile;
-import chat.dim.format.TransportableData;
 import chat.dim.protocol.DocumentType;
+import chat.dim.protocol.EncryptKey;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.PortableNetworkFile;
+import chat.dim.protocol.PublicKey;
+import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.Visa;
 
 /**

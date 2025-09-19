@@ -32,7 +32,7 @@ package chat.dim.protocol;
 
 import java.util.Map;
 
-import chat.dim.plugins.SharedCommandExtensions;
+import chat.dim.ext.SharedCommandExtensions;
 
 /**
  *  Command Content

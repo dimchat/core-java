@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2022 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,16 +28,40 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.plugins;
+package chat.dim.protocol;
+
+import chat.dim.dkd.asset.TransferMoneyContent;
 
 /**
- *  Command FactoryManager
+ *  Transfer Money
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x41),
+ *      'sn'   : 123,
+ *
+ *      'currency' : "RMB",    // USD, USDT, ...
+ *      'amount'   : 100.00,
+ *      'remitter' : "{FROM}", // sender ID
+ *      'remittee' : "{TO}"    // receiver ID
+ *  }
+ *  </pre></blockquote>
  */
-public final class SharedCommandExtensions {
+public interface TransferContent extends MoneyContent {
 
-    public static CommandHelper cmdHelper = null;
+    // sender
+    void setRemitter(ID sender);
+    ID getRemitter();
 
-    // general helper
-    public static GeneralCommandHelper helper = null;
+    // receiver
+    void setRemittee(ID receiver);
+    ID getRemittee();
 
+    //
+    //  Factory
+    //
+
+    static TransferContent create(String currency, Number amount) {
+        return new TransferMoneyContent(currency, amount);
+    }
 }

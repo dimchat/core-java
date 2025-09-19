@@ -33,7 +33,7 @@ package chat.dim.dkd;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.plugins.SharedMessageExtensions;
+import chat.dim.ext.SharedMessageExtensions;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;

@@ -34,10 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.format.TransportableData;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.TransportableData;
 
 /**
  *  Base Document for Group

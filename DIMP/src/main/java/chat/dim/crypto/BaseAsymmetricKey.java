@@ -27,6 +27,7 @@ package chat.dim.crypto;
 
 import java.util.Map;
 
+import chat.dim.protocol.AsymmetricKey;
 import chat.dim.type.Dictionary;
 
 public abstract class BaseAsymmetricKey extends Dictionary implements AsymmetricKey {

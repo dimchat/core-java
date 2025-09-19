@@ -27,6 +27,7 @@ package chat.dim.format;
 
 import java.util.Map;
 
+import chat.dim.protocol.EncodeAlgorithms;
 import chat.dim.type.Dictionary;
 
 /**

@@ -1,8 +1,13 @@
 /* license: https://mit-license.org
+ *
+ *  DIMP : Decentralized Instant Messaging Protocol
+ *
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2025 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +28,19 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.format;
+package chat.dim.ext;
+
+import java.util.Map;
 
 /**
- *  Algorithms for Encoding Data
+ *  Command GeneralFactory
  */
-public interface EncodeAlgorithms {
+public interface GeneralCommandHelper /*extends Command.Helper */{
 
-    String DEFAULT = "base64";
+    //
+    //  CMD
+    //
 
-    String BASE_64 = "base64";
-    String BASE_58 = "base58";
-    String HEX     = "hex";
+    String getCmd(Map<?, ?> content, String defaultValue);
 
 }

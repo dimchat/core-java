@@ -32,12 +32,12 @@ package chat.dim.mkm;
 
 import java.util.Map;
 
-import chat.dim.crypto.PublicKey;
-import chat.dim.crypto.VerifyKey;
-import chat.dim.format.TransportableData;
+import chat.dim.ext.SharedAccountExtensions;
 import chat.dim.format.UTF8;
-import chat.dim.plugins.SharedAccountExtensions;
 import chat.dim.protocol.Meta;
+import chat.dim.protocol.PublicKey;
+import chat.dim.protocol.TransportableData;
+import chat.dim.protocol.VerifyKey;
 import chat.dim.type.Dictionary;
 
 /**

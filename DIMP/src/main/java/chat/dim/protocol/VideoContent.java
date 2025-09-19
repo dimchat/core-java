@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,40 +28,37 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.asset;
+package chat.dim.protocol;
 
-import chat.dim.dkd.asset.BaseMoneyContent;
-import chat.dim.protocol.Content;
+import chat.dim.protocol.PortableNetworkFile;
 
 /**
- *  Money Content
+ *  Video File Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x40),
+ *      'type' : i2s(0x16),
  *      'sn'   : 123,
  *
- *      'currency' : "RMB", // USD, USDT, ...
- *      'amount'   : 100.00
+ *      'data'     : "...",        // base64_encode(fileContent)
+ *      'filename' : "movie.mp4",
+ *
+ *      'URL'      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      'key'      : {             // symmetric key to decrypt file data
+ *          'algorithm' : "AES",   // "DES", ...
+ *          'data'      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      'snapshot' : "data:image/jpeg;base64,..."
  *  }
  *  </pre></blockquote>
  */
-public interface MoneyContent extends Content {
+public interface VideoContent extends FileContent {
 
-    String getCurrency();
+    void setSnapshot(PortableNetworkFile img);
 
-    void setAmount(Number amount);
-    Number getAmount();
+    PortableNetworkFile getSnapshot();
 
-    //
-    //  Factories
-    //
-
-    static MoneyContent create(String type, String currency, Number amount) {
-        return new BaseMoneyContent(type, currency, amount);
-    }
-
-    static MoneyContent create(String currency, Number amount) {
-        return new BaseMoneyContent(currency, amount);
-    }
 }

@@ -34,7 +34,7 @@ import java.util.Map;
 
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.asset.TransferContent;
+import chat.dim.protocol.TransferContent;
 
 /**
  *  Transfer Money

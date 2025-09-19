@@ -34,7 +34,7 @@ import java.util.Map;
 
 import chat.dim.dkd.BaseContent;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.app.CustomizedContent;
+import chat.dim.protocol.CustomizedContent;
 
 /**
  *  Application Customized message

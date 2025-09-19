@@ -1,13 +1,8 @@
 /* license: https://mit-license.org
- *
- *  DIMP : Decentralized Instant Messaging Protocol
- *
- *                                Written in 2023 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2023 Albert Moky
+ * Copyright (c) 2025 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,37 +25,12 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.dkd.NameCardContent;
-
 /**
- *  Name Card
- *
- *  <blockquote><pre>
- *  data format: {
- *      'type' : i2s(0x33),
- *      'sn'   : 123,
- *
- *      'did'    : "{ID}",        // contact's ID
- *      'name'   : "{nickname}",  // contact's name
- *      'avatar' : "{URL}",       // avatar - PNF(URL)
- *      ...
- *  }
- *  </pre></blockquote>
+ *  Algorithms for Asymmetric Key
  */
-public interface NameCard extends Content {
+public interface AsymmetricAlgorithms {
 
-    ID getIdentifier();
-
-    String getName();
-
-    PortableNetworkFile getAvatar();
-
-    //
-    //  Factory
-    //
-
-    static NameCard create(ID identifier, String name, PortableNetworkFile avatar) {
-        return new NameCardContent(identifier, name, avatar);
-    }
+    String RSA = "RSA"; //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
+    String ECC = "ECC";
 
 }

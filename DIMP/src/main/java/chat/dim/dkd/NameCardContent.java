@@ -32,10 +32,10 @@ package chat.dim.dkd;
 
 import java.util.Map;
 
-import chat.dim.format.PortableNetworkFile;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NameCard;
+import chat.dim.protocol.PortableNetworkFile;
 
 /**
  *  Name Card

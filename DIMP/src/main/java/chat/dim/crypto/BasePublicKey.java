@@ -27,6 +27,8 @@ package chat.dim.crypto;
 
 import java.util.Map;
 
+import chat.dim.protocol.PublicKey;
+import chat.dim.protocol.SignKey;
 import chat.dim.type.Dictionary;
 
 public abstract class BasePublicKey extends Dictionary implements PublicKey {

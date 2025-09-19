@@ -33,10 +33,10 @@ package chat.dim.dkd.file;
 import java.net.URI;
 import java.util.Map;
 
-import chat.dim.crypto.DecryptKey;
-import chat.dim.format.TransportableData;
+import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.file.AudioContent;
+import chat.dim.protocol.DecryptKey;
+import chat.dim.protocol.TransportableData;
 
 /**
  *  Audio File Content

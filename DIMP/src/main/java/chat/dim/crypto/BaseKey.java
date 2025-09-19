@@ -27,8 +27,15 @@ package chat.dim.crypto;
 
 import java.util.Map;
 
-import chat.dim.plugins.GeneralCryptoHelper;
-import chat.dim.plugins.SharedCryptoExtensions;
+import chat.dim.ext.GeneralCryptoHelper;
+import chat.dim.ext.SharedCryptoExtensions;
+import chat.dim.protocol.CryptographyKey;
+import chat.dim.protocol.DecryptKey;
+import chat.dim.protocol.EncryptKey;
+import chat.dim.protocol.PrivateKey;
+import chat.dim.protocol.SignKey;
+import chat.dim.protocol.SymmetricKey;
+import chat.dim.protocol.VerifyKey;
 import chat.dim.type.Dictionary;
 
 public abstract class BaseKey extends Dictionary implements CryptographyKey {

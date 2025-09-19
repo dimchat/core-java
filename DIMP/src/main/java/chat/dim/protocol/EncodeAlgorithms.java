@@ -23,14 +23,17 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.crypto;
+package chat.dim.protocol;
 
 /**
- *  Algorithms for Asymmetric Key
+ *  Algorithms for Encoding Data
  */
-public interface AsymmetricAlgorithms {
+public interface EncodeAlgorithms {
 
-    String RSA = "RSA"; //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
-    String ECC = "ECC";
+    String DEFAULT = "base64";
+
+    String BASE_64 = "base64";
+    String BASE_58 = "base58";
+    String HEX     = "hex";
 
 }

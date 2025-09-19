@@ -1,13 +1,8 @@
 /* license: https://mit-license.org
- *
- *  DIMP : Decentralized Instant Messaging Protocol
- *
- *                                Written in 2022 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 Albert Moky
+ * Copyright (c) 2025 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,37 +23,20 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.app;
-
-import chat.dim.dkd.app.AppCustomizedContent;
+package chat.dim.protocol;
 
 /**
- *  Application Customized message
- *
- *  <blockquote><pre>
- *  data format: {
- *      'type' : i2s(0xCC),
- *      'sn'   : 123,
- *
- *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
- *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
- *      'extra' : info         // action parameters
- *  }
- *  </pre></blockquote>
+ *  Algorithms for Symmetric Key
  */
-public interface CustomizedContent extends ApplicationContent {
+public interface SymmetricAlgorithms {
 
-    //
-    //  Factory methods
-    //
+    String AES = "AES"; //-- "AES/CBC/PKCS7Padding"
+    String DES = "DES";
 
-    static CustomizedContent create(String app, String mod, String act) {
-        return new AppCustomizedContent(app, mod, act);
-    }
-
-    static CustomizedContent create(String type, String app, String mod, String act) {
-        return new AppCustomizedContent(type, app, mod, act);
-    }
+    /**
+     *  Symmetric key algorithm for broadcast message,
+     *  which will do nothing when en/decoding message data
+     */
+    String PLAIN = "PLAIN"; // do nothing
 
 }

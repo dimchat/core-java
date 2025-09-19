@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2022 by Moky <albert.moky@gmail.com>
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,34 +28,33 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.app;
-
-import chat.dim.protocol.Content;
+package chat.dim.protocol;
 
 /**
- *  Content for Application 0nly
+ *  Audio File Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xA0),
+ *      'type' : i2s(0x14),
  *      'sn'   : 123,
  *
- *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
- *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
- *      'extra' : info         // action parameters
+ *      'data'     : "...",        // base64_encode(fileContent)
+ *      'filename' : "voice.mp4",
+ *
+ *      'URL'      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      'key'      : {             // symmetric key to decrypt file data
+ *          'algorithm' : "AES",   // "DES", ...
+ *          'data'      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      'text'     : "..."         // Automatic Speech Recognition
  *  }
  *  </pre></blockquote>
  */
-public interface ApplicationContent extends Content {
+public interface AudioContent extends FileContent {
 
-    // get App ID
-    String getApplication();
-
-    // get Module name
-    String getModule();
-
-    // get Action name
-    String getAction();
-
+    void setText(String asr);
+    String getText();
 }

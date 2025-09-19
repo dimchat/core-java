@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,33 +28,43 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.file;
+package chat.dim.protocol;
+
+import chat.dim.dkd.app.AppCustomizedContent;
 
 /**
- *  Audio File Content
+ *  Application Customized message
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x14),
+ *      'type' : i2s(0xCC),
  *      'sn'   : 123,
  *
- *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "voice.mp4",
- *
- *      'URL'      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      'key'      : {             // symmetric key to decrypt file data
- *          'algorithm' : "AES",   // "DES", ...
- *          'data'      : "{BASE64_ENCODE}",
- *          ...
- *      },
- *      'text'     : "..."         // Automatic Speech Recognition
+ *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      'mod'   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+ *      'act'   : "{ACTION}",  // action name (3.g.: "throw")
+ *      'extra' : info         // action parameters
  *  }
  *  </pre></blockquote>
  */
-public interface AudioContent extends FileContent {
+public interface CustomizedContent extends AppContent {
 
-    void setText(String asr);
-    String getText();
+    // get Module name
+    String getModule();
+
+    // get Action name
+    String getAction();
+
+    //
+    //  Factory methods
+    //
+
+    static CustomizedContent create(String app, String mod, String act) {
+        return new AppCustomizedContent(app, mod, act);
+    }
+
+    static CustomizedContent create(String type, String app, String mod, String act) {
+        return new AppCustomizedContent(type, app, mod, act);
+    }
+
 }

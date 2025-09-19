@@ -1,8 +1,13 @@
 /* license: https://mit-license.org
+ *
+ *  DIMP : Decentralized Instant Messaging Protocol
+ *
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2025 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,20 +28,37 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.crypto;
+package chat.dim.protocol;
+
+import chat.dim.protocol.PortableNetworkFile;
 
 /**
- *  Algorithms for Symmetric Key
+ *  Image File Content
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      'type' : i2s(0x12),
+ *      'sn'   : 123,
+ *
+ *      'data'     : "...",        // base64_encode(fileContent)
+ *      'filename' : "photo.png",
+ *
+ *      'URL'      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      'key'      : {             // symmetric key to decrypt file data
+ *          'algorithm' : "AES",   // "DES", ...
+ *          'data'      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      'thumbnail' : "data:image/jpeg;base64,..."
+ *  }
+ *  </pre></blockquote>
  */
-public interface SymmetricAlgorithms {
+public interface ImageContent extends FileContent {
 
-    String AES = "AES"; //-- "AES/CBC/PKCS7Padding"
-    String DES = "DES";
+    void setThumbnail(PortableNetworkFile img);
 
-    /**
-     *  Symmetric key algorithm for broadcast message,
-     *  which will do nothing when en/decoding message data
-     */
-    String PLAIN = "PLAIN"; // do nothing
+    PortableNetworkFile getThumbnail();
 
 }

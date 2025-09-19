@@ -33,7 +33,7 @@ package chat.dim.dkd.cmd;
 import java.util.Map;
 
 import chat.dim.dkd.BaseContent;
-import chat.dim.plugins.SharedCommandExtensions;
+import chat.dim.ext.SharedCommandExtensions;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
 

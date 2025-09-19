@@ -34,7 +34,7 @@ import java.util.Map;
 
 import chat.dim.dkd.BaseContent;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.asset.MoneyContent;
+import chat.dim.protocol.MoneyContent;
 import chat.dim.type.Converter;
 
 /**

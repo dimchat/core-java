@@ -28,20 +28,25 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol.file;
+package chat.dim.protocol;
 
-import chat.dim.format.PortableNetworkFile;
+import java.net.URI;
+
+import chat.dim.dkd.file.AudioFileContent;
+import chat.dim.dkd.file.BaseFileContent;
+import chat.dim.dkd.file.ImageFileContent;
+import chat.dim.dkd.file.VideoFileContent;
 
 /**
- *  Video File Content
+ *  File Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x16),
+ *      'type' : i2s(0x10),
  *      'sn'   : 123,
  *
  *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "movie.mp4",
+ *      'filename' : "photo.png",
  *
  *      'URL'      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
@@ -50,15 +55,59 @@ import chat.dim.format.PortableNetworkFile;
  *          'algorithm' : "AES",   // "DES", ...
  *          'data'      : "{BASE64_ENCODE}",
  *          ...
- *      },
- *      'snapshot' : "data:image/jpeg;base64,..."
+ *      }
  *  }
  *  </pre></blockquote>
  */
-public interface VideoContent extends FileContent {
+public interface FileContent extends Content {
 
-    void setSnapshot(PortableNetworkFile img);
+    void setData(byte[] binary);
+    byte[] getData();
 
-    PortableNetworkFile getSnapshot();
+    void setFilename(String name);
+    String getFilename();
+
+    /**
+     *  URL for download the file data from CDN
+     */
+    void setURL(URI url);
+    URI getURL();
+
+    /**
+     *  Symmetric key to decrypt the downloaded data from URL
+     */
+    void setPassword(DecryptKey key);
+    DecryptKey getPassword();
+
+    //
+    //  Factories
+    //
+
+    static FileContent create(String type, TransportableData data, String filename, URI url, DecryptKey key) {
+        if (ContentType.IMAGE.equals(type)) {
+            return new ImageFileContent(data, filename, url, key);
+        } else if (ContentType.AUDIO.equals(type)) {
+            return new AudioFileContent(data, filename, url, key);
+        } else if (ContentType.VIDEO.equals(type)) {
+            return new VideoFileContent(data, filename, url, key);
+        }
+        return new BaseFileContent(type, data, filename, url, key);
+    }
+
+    static FileContent file(TransportableData data, String filename, URI url, DecryptKey key) {
+        return new BaseFileContent(ContentType.FILE, data, filename, url, key);
+    }
+
+    static ImageContent image(TransportableData data, String filename, URI url, DecryptKey key) {
+        return new ImageFileContent(data, filename, url, key);
+    }
+
+    static AudioContent audio(TransportableData data, String filename, URI url, DecryptKey key) {
+        return new AudioFileContent(data, filename, url, key);
+    }
+
+    static VideoContent video(TransportableData data, String filename, URI url, DecryptKey key) {
+        return new VideoFileContent(data, filename, url, key);
+    }
 
 }
