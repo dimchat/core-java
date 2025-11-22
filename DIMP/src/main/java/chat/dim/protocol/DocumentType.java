@@ -36,6 +36,6 @@ public interface DocumentType {
 
     String PROFILE  = "profile";   // for user profile (reserved)
 
-    String BULLETIN = "bulletin";  // for group info (owner, administrators and assistants)
+    String BULLETIN = "bulletin";  // for group info (owner, administrators, ...)
 
 }

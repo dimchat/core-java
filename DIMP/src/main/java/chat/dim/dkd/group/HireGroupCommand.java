@@ -43,14 +43,10 @@ public class HireGroupCommand extends BaseGroupCommand implements HireCommand {
         super(content);
     }
 
-    public HireGroupCommand(ID group, List<ID> administrators, List<ID> assistants) {
+    public HireGroupCommand(ID group, List<ID> administrators) {
         super(GroupCommand.HIRE, group);
-        if (administrators != null) {
-            put("administrators", ID.revert(administrators));
-        }
-        if (assistants != null) {
-            put("assistants", ID.revert(assistants));
-        }
+        assert administrators != null : "administrators should not empty here";
+        setAdministrators(administrators);
     }
 
     @Override
@@ -72,22 +68,4 @@ public class HireGroupCommand extends BaseGroupCommand implements HireCommand {
         }
     }
 
-    @Override
-    public List<ID> getAssistants() {
-        Object bots = get("assistants");
-        if (bots instanceof List) {
-            return ID.convert((List<?>) bots);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public void setAssistants(List<ID> bots) {
-        if (bots == null) {
-            remove("assistants");
-        } else {
-            put("assistants", ID.revert(bots));
-        }
-    }
 }

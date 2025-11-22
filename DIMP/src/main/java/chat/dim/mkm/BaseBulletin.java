@@ -30,8 +30,6 @@
  */
 package chat.dim.mkm;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.protocol.Bulletin;
@@ -43,9 +41,6 @@ import chat.dim.protocol.TransportableData;
  *  Base Document for Group
  */
 public class BaseBulletin extends BaseDocument implements Bulletin {
-
-    // Group bots for split and distribute group messages
-    private List<ID> assistants = null;
 
     public BaseBulletin(Map<String, Object> dictionary) {
         super(dictionary);
@@ -64,34 +59,4 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
         return ID.parse(getProperty("founder"));
     }
 
-    /**
-     *  Group bots for split and distribute group messages
-     *
-     * @return bot ID list
-     */
-    @Override
-    public List<ID> getAssistants() {
-        if (assistants == null) {
-            Object array = getProperty("assistants");
-            if (array instanceof List) {
-                assistants = ID.convert((List<?>) array);
-            } else {
-                // get from 'assistant'
-                List<ID> bots = new ArrayList<>();
-                ID single = ID.parse(getProperty("assistant"));
-                if (single != null) {
-                    bots.add(single);
-                }
-                assistants = bots;
-            }
-        }
-        return assistants;
-    }
-
-    @Override
-    public void setAssistants(List<ID> bots) {
-        setProperty("assistants", bots == null ? null : ID.revert(bots));
-        setProperty("assistant", null);
-        assistants = bots;
-    }
 }

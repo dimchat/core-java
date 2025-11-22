@@ -74,7 +74,7 @@ public interface GroupCommand extends HistoryCommand {
     String QUIT     = "quit";
     //String QUERY  = "query";  // Deprecated
     String RESET    = "reset";
-    // administrator/assistant
+    // administrator
     String HIRE     = "hire";
     String FIRE     = "fire";
     String RESIGN   = "resign";
@@ -135,14 +135,14 @@ public interface GroupCommand extends HistoryCommand {
         return new ResetGroupCommand(group, members);
     }
 
-    //  Administrators, Assistants
+    //  Administrators
 
-    static HireCommand hire(ID group, List<ID> administrators, List<ID> assistants) {
-        return new HireGroupCommand(group, administrators, assistants);
+    static HireCommand hire(ID group, List<ID> administrators) {
+        return new HireGroupCommand(group, administrators);
     }
 
-    static FireCommand fire(ID group, List<ID> administrators, List<ID> assistants) {
-        return new FireGroupCommand(group, administrators, assistants);
+    static FireCommand fire(ID group, List<ID> administrators) {
+        return new FireGroupCommand(group, administrators);
     }
 
     static ResignCommand resign(ID group) {

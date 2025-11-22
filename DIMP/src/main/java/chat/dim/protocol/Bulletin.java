@@ -30,8 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.List;
-
 /**
  *  Group Document
  */
@@ -44,17 +42,4 @@ public interface Bulletin extends Document {
      */
     ID getFounder();
 
-    /**
-     *  Get group assistants
-     *
-     * @return group bot ID list
-     */
-    List<ID> getAssistants();
-
-    /**
-     *  Set group assistants
-     *
-     * @param bots - group bot ID list
-     */
-    void setAssistants(List<ID> bots);
 }

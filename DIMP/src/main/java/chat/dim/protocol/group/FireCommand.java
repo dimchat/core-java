@@ -40,12 +40,7 @@ public interface FireCommand extends GroupCommand {
      *  Administrators
      */
     List<ID> getAdministrators();
-    void setAdministrators(List<ID> members);
 
-    /**
-     *  Assistants (Bots)
-     */
-    List<ID> getAssistants();
-    void setAssistants(List<ID> bots);
+    void setAdministrators(List<ID> members);
 
 }
