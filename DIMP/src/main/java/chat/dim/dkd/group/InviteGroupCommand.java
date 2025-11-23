@@ -43,10 +43,6 @@ public class InviteGroupCommand extends BaseGroupCommand implements InviteComman
         super(content);
     }
 
-    public InviteGroupCommand(ID group, ID member) {
-        super(GroupCommand.INVITE, group, member);
-    }
-
     public InviteGroupCommand(ID group, List<ID> members) {
         super(GroupCommand.INVITE, group, members);
     }

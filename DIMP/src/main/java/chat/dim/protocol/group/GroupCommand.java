@@ -46,15 +46,14 @@ import chat.dim.protocol.ID;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x89),
- *      'sn'   : 123,
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
  *
- *      'command' : "reset",   // "invite", "quit", "query", ...
- *      'time'    : 123.456,   // command timestamp
+ *      "command" : "reset",   // "invite", "quit", "query", ...
+ *      "time"    : 123.456,   // command timestamp
  *
- *      'group'   : "{GROUP_ID}",
- *      'member'  : "{MEMBER_ID}",
- *      'members' : ["{MEMBER_ID}",]
+ *      "group"   : "{GROUP_ID}",
+ *      "members" : ["{MEMBER_ID}",]
  *  }
  *  </pre></blockquote>
  */
@@ -78,13 +77,6 @@ public interface GroupCommand extends HistoryCommand {
     //-------- group command names end --------
 
     /*
-     *  Member ID (or String)
-     *
-     */
-    ID getMember();
-    void setMember(ID member);
-
-    /*
      *  Member ID (or String) list
      *
      */
@@ -98,24 +90,15 @@ public interface GroupCommand extends HistoryCommand {
     static GroupCommand create(String cmd, ID group) {
         return new BaseGroupCommand(cmd, group);
     }
-    static GroupCommand create(String cmd, ID group, ID member) {
-        return new BaseGroupCommand(cmd, group, member);
-    }
     static GroupCommand create(String cmd, ID group, List<ID> members) {
         return new BaseGroupCommand(cmd, group, members);
     }
 
-    static InviteCommand invite(ID group, ID member) {
-        return new InviteGroupCommand(group, member);
-    }
     static InviteCommand invite(ID group, List<ID> members) {
         return new InviteGroupCommand(group, members);
     }
 
     // Deprecated (use 'reset' instead)
-    static ExpelCommand expel(ID group, ID member) {
-        return new ExpelGroupCommand(group, member);
-    }
     static ExpelCommand expel(ID group, List<ID> members) {
         return new ExpelGroupCommand(group, members);
     }

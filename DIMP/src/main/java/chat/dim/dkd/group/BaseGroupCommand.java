@@ -43,15 +43,14 @@ import chat.dim.protocol.group.GroupCommand;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x89),
- *      'sn'   : 123,
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
  *
- *      'command' : "reset",   // "invite", "quit", "query", ...
- *      'time'    : 123.456,   // command timestamp
+ *      "command" : "reset",   // "invite", "quit", "query", ...
+ *      "time"    : 123.456,   // command timestamp
  *
- *      'group'   : "{GROUP_ID}",
- *      'member'  : "{MEMBER_ID}",
- *      'members' : ["{MEMBER_ID}",]
+ *      "group"   : "{GROUP_ID}",
+ *      "members" : ["{MEMBER_ID}",]
  *  }
  *  </pre></blockquote>
  */
@@ -63,11 +62,11 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
 
     /**
      *  Group history command: {
-     *      'type' : i2s(0x89),
-     *      'sn'   : 123,
+     *      "type" : i2s(0x89),
+     *      "sn"   : 123,
      *
-     *      'command' : "join",      // or quit
-     *      'group'   : "{GROUP_ID}",
+     *      "command" : "join",      // or quit
+     *      "group"   : "{GROUP_ID}",
      *  }
      */
     public BaseGroupCommand(String cmd, ID group) {
@@ -77,28 +76,12 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
 
     /**
      *  Group history command: {
-     *      'type' : i2s(0x89),
-     *      'sn'   : 123,
+     *      "type" : i2s(0x89),
+     *      "sn"   : 123,
      *
-     *      'command' : "invite",      // or expel
-     *      'group'   : "{GROUP_ID}",
-     *      'member'  : "{MEMBER_ID}",
-     *  }
-     */
-    public BaseGroupCommand(String cmd, ID group, ID member) {
-        super(cmd);
-        setGroup(group);
-        setMember(member);
-    }
-
-    /**
-     *  Group history command: {
-     *      'type' : i2s(0x89),
-     *      'sn'   : 123,
-     *
-     *      'command' : "invite",      // or expel
-     *      'group'   : "{GROUP_ID}",
-     *      'members' : ["{MEMBER_ID}", ],
+     *      "command" : "invite",      // or expel
+     *      "group"   : "{GROUP_ID}",
+     *      "members" : ["{MEMBER_ID}", ],
      *  }
      */
     public BaseGroupCommand(String cmd, ID group, List<ID> members) {
@@ -108,37 +91,28 @@ public class BaseGroupCommand extends BaseHistoryCommand implements GroupCommand
     }
 
     @Override
-    public ID getMember() {
-        return ID.parse(get("member"));
-    }
-
-    @Override
-    public void setMember(ID member) {
-        setString("member", member);
-        remove("members");
-    }
-
-    @Override
     public List<ID> getMembers() {
         Object members = get("members");
         if (members instanceof List) {
             return ID.convert((List<?>) members);
         }
         // get from 'member'
-        List<ID> array = new ArrayList<>();
-        ID single = getMember();
+        ID single = ID.parse(get("member"));
         if (single != null) {
+            List<ID> array = new ArrayList<>();
             array.add(single);
+            return array;
         }
-        return array;
+        assert false : "failed to get group members";
+        return null;
     }
 
     @Override
     public void setMembers(List<ID> members) {
-        if (members == null) {
-            remove("members");
-        } else {
+        if (members != null) {
             put("members", ID.revert(members));
+        } else {
+            remove("members");
         }
         remove("member");
     }

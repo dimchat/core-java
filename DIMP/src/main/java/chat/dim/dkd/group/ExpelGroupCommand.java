@@ -46,10 +46,6 @@ public class ExpelGroupCommand extends BaseGroupCommand implements ExpelCommand 
         super(content);
     }
 
-    public ExpelGroupCommand(ID group, ID member) {
-        super(GroupCommand.EXPEL, group, member);
-    }
-
     public ExpelGroupCommand(ID group, List<ID> members) {
         super(GroupCommand.EXPEL, group, members);
     }
