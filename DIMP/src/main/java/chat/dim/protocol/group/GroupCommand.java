@@ -34,13 +34,10 @@ import java.util.List;
 
 import chat.dim.dkd.group.BaseGroupCommand;
 import chat.dim.dkd.group.ExpelGroupCommand;
-import chat.dim.dkd.group.FireGroupCommand;
-import chat.dim.dkd.group.HireGroupCommand;
 import chat.dim.dkd.group.InviteGroupCommand;
 import chat.dim.dkd.group.JoinGroupCommand;
 import chat.dim.dkd.group.QuitGroupCommand;
 import chat.dim.dkd.group.ResetGroupCommand;
-import chat.dim.dkd.group.ResignGroupCommand;
 import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.ID;
 
@@ -135,17 +132,4 @@ public interface GroupCommand extends HistoryCommand {
         return new ResetGroupCommand(group, members);
     }
 
-    //  Administrators
-
-    static HireCommand hire(ID group, List<ID> administrators) {
-        return new HireGroupCommand(group, administrators);
-    }
-
-    static FireCommand fire(ID group, List<ID> administrators) {
-        return new FireGroupCommand(group, administrators);
-    }
-
-    static ResignCommand resign(ID group) {
-        return new ResignGroupCommand(group);
-    }
 }
