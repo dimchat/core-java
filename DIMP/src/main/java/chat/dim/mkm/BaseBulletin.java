@@ -36,6 +36,7 @@ import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.TransportableData;
+import chat.dim.type.Converter;
 
 /**
  *  Base Document for Group
@@ -52,6 +53,16 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
 
     public BaseBulletin(ID identifier) {
         super(identifier, DocumentType.BULLETIN);
+    }
+
+    @Override
+    public String getName() {
+        return Converter.getString(getProperty("name"));
+    }
+
+    @Override
+    public void setName(String title) {
+        setProperty("name", title);
     }
 
     @Override

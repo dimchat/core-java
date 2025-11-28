@@ -291,14 +291,5 @@ public class BaseDocument extends Dictionary implements Document {
         return Converter.getDateTime(getProperty("time"));
     }
 
-    @Override
-    public String getName() {
-        return Converter.getString(getProperty("name"));
-    }
-
-    @Override
-    public void setName(String value) {
-        setProperty("name", value);
-    }
 }
 

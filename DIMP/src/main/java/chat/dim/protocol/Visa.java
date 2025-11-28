@@ -40,6 +40,14 @@ package chat.dim.protocol;
 public interface Visa extends Document {
 
     /**
+     *  Get nickname
+     *
+     * @return user name
+     */
+    String getName();
+    void setName(String nickname);
+
+    /**
      *  Get public key to encrypt message for user
      *
      * @return public key as visa.key

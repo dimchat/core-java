@@ -39,6 +39,7 @@ import chat.dim.protocol.PortableNetworkFile;
 import chat.dim.protocol.PublicKey;
 import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.Visa;
+import chat.dim.type.Converter;
 
 /**
  *  Base Document for User
@@ -64,6 +65,16 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     public BaseVisa(ID identifier) {
         super(identifier, DocumentType.VISA);
+    }
+
+    @Override
+    public String getName() {
+        return Converter.getString(getProperty("name"));
+    }
+
+    @Override
+    public void setName(String nickname) {
+        setProperty("name", nickname);
     }
 
     /**

@@ -36,6 +36,14 @@ package chat.dim.protocol;
 public interface Bulletin extends Document {
 
     /**
+     *  Get title
+     *
+     * @return group name
+     */
+    String getName();
+    void setName(String title);
+
+    /**
      *  Get group founder
      *
      * @return user ID
