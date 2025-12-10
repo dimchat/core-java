@@ -52,22 +52,19 @@ import chat.dim.protocol.MetaCommand;
  */
 public class BaseMetaCommand extends BaseCommand implements MetaCommand {
 
-    private ID identifier;
     private Meta meta;
 
     public BaseMetaCommand(Map<String, Object> content) {
         super(content);
         // lazy
-        identifier = null;
         meta = null;
     }
 
-    public BaseMetaCommand(String cmd, ID identifier, Meta meta) {
+    public BaseMetaCommand(String cmd, ID did, Meta meta) {
         super(cmd);
         // ID
-        assert identifier != null : "ID cannot be empty for meta command";
-        put("did", identifier.toString());
-        this.identifier = identifier;
+        assert did != null : "ID cannot be empty for meta command";
+        put("did", did.toString());
         // meta
         if (meta != null) {
             put("meta", meta.toMap());
@@ -78,28 +75,25 @@ public class BaseMetaCommand extends BaseCommand implements MetaCommand {
     /**
      *  Response Meta
      *
-     * @param identifier - entity ID
-     * @param meta       - entity Meta
+     * @param did  - entity ID
+     * @param meta - entity Meta
      */
-    public BaseMetaCommand(ID identifier, Meta meta) {
-        this(META, identifier, meta);
+    public BaseMetaCommand(ID did, Meta meta) {
+        this(META, did, meta);
     }
 
     /**
      *  Query Meta
      *
-     * @param identifier - entity ID
+     * @param did - entity ID
      */
-    public BaseMetaCommand(ID identifier) {
-        this(META, identifier, null);
+    public BaseMetaCommand(ID did) {
+        this(META, did, null);
     }
 
     @Override
     public ID getIdentifier() {
-        if (identifier == null) {
-            identifier = ID.parse(get("did"));
-        }
-        return identifier;
+        return ID.parse(get("did"));
     }
 
     @Override

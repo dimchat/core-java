@@ -68,12 +68,12 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     /**
      *  Send Meta and Documents to new friend
      *
-     * @param identifier - entity ID
-     * @param meta       - entity Meta
-     * @param documents  - entity Documents
+     * @param did       - entity ID
+     * @param meta      - entity Meta
+     * @param documents - entity Documents
      */
-    public BaseDocumentCommand(ID identifier, Meta meta, List<Document> documents) {
-        super(DOCUMENTS, identifier, meta);
+    public BaseDocumentCommand(ID did, Meta meta, List<Document> documents) {
+        super(DOCUMENTS, did, meta);
         // documents
         if (documents != null) {
             put("documents", Document.revert(documents));
@@ -84,11 +84,11 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     /**
      *  Query Entity Document for updating with current signature
      *
-     * @param identifier - entity ID
-     * @param last       - last document time
+     * @param did  - entity ID
+     * @param last - last document time
      */
-    public BaseDocumentCommand(ID identifier, Date last) {
-        super(DOCUMENTS, identifier, null);
+    public BaseDocumentCommand(ID did, Date last) {
+        super(DOCUMENTS, did, null);
         // documents
         docs = null;
         // signature

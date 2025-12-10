@@ -71,31 +71,31 @@ public interface DocumentCommand extends MetaCommand {
     //  Factories
     //
 
-    static DocumentCommand query(ID identifier) {
-        return new BaseDocumentCommand(identifier, null);
+    static DocumentCommand query(ID did) {
+        return new BaseDocumentCommand(did, null);
     }
-    static DocumentCommand query(ID identifier, Date last) {
-        return new BaseDocumentCommand(identifier, last);
+    static DocumentCommand query(ID did, Date last) {
+        return new BaseDocumentCommand(did, last);
     }
 
-    static DocumentCommand response(ID identifier, Meta meta, List<Document> documents) {
-        return new BaseDocumentCommand(identifier, meta, documents);
+    static DocumentCommand response(ID did, Meta meta, List<Document> documents) {
+        return new BaseDocumentCommand(did, meta, documents);
     }
-    static DocumentCommand response(ID identifier, List<Document> documents) {
-        return new BaseDocumentCommand(identifier, null, documents);
+    static DocumentCommand response(ID did, List<Document> documents) {
+        return new BaseDocumentCommand(did, null, documents);
     }
-    static DocumentCommand response(ID identifier, Meta meta, Document document) {
+    static DocumentCommand response(ID did, Meta meta, Document document) {
         List<Document> array = new ArrayList<>();
         if (document != null) {
             array.add(document);
         }
-        return new BaseDocumentCommand(identifier, meta, array);
+        return new BaseDocumentCommand(did, meta, array);
     }
-    static DocumentCommand response(ID identifier, Document document) {
+    static DocumentCommand response(ID did, Document document) {
         List<Document> array = new ArrayList<>();
         if (document != null) {
             array.add(document);
         }
-        return new BaseDocumentCommand(identifier, null, array);
+        return new BaseDocumentCommand(did, null, array);
     }
 }

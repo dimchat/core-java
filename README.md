@@ -81,7 +81,7 @@ public enum HandshakeState {
  *
  *  <blockquote><pre>
  *  data format: {
- *      type : 0x88,
+ *      type : i2s(0x88),
  *      sn   : 123,
  *
  *      command : "handshake",    // command name

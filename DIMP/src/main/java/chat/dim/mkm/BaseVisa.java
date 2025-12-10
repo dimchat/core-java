@@ -59,12 +59,12 @@ public class BaseVisa extends BaseDocument implements Visa {
         super(dictionary);
     }
 
-    public BaseVisa(ID identifier, String data, TransportableData signature) {
-        super(identifier, DocumentType.VISA, data, signature);
+    public BaseVisa(ID did, String data, TransportableData signature) {
+        super(did, DocumentType.VISA, data, signature);
     }
 
-    public BaseVisa(ID identifier) {
-        super(identifier, DocumentType.VISA);
+    public BaseVisa(ID did) {
+        super(did, DocumentType.VISA);
     }
 
     @Override

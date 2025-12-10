@@ -75,17 +75,17 @@ public class BaseDocument extends Dictionary implements Document {
     /**
      *  Create entity document with data and signature loaded from local storage
      *
-     * @param identifier - entity ID
-     * @param type       - document type
-     * @param data       - document data in JsON format
-     * @param signature  - signature of document data in Base64 format
+     * @param did       - entity ID
+     * @param type      - document type
+     * @param data      - document data in JsON format
+     * @param signature - signature of document data in Base64 format
      */
-    public BaseDocument(ID identifier, String type, String data, TransportableData signature) {
+    public BaseDocument(ID did, String type, String data, TransportableData signature) {
         super();
 
         // ID
-        put("did", identifier.toString());
-        this.identifier = identifier;
+        put("did", did.toString());
+        this.identifier = did;
 
         // document type
         assert !type.isEmpty() && !type.equals("*") : "document type error: " + type;
@@ -110,15 +110,15 @@ public class BaseDocument extends Dictionary implements Document {
     /**
      *  Create a new empty document
      *
-     * @param identifier - entity ID
-     * @param type       - document type
+     * @param did  - entity ID
+     * @param type - document type
      */
-    public BaseDocument(ID identifier, String type) {
+    public BaseDocument(ID did, String type) {
         super();
 
         // ID
-        put("did", identifier.toString());
-        this.identifier = identifier;
+        put("did", did.toString());
+        this.identifier = did;
 
         // document type
         assert !type.isEmpty() && !type.equals("*") : "document type error: " + type;
@@ -144,10 +144,12 @@ public class BaseDocument extends Dictionary implements Document {
 
     @Override
     public ID getIdentifier() {
-        if (identifier == null) {
-            identifier = ID.parse(get("did"));
+        ID did = identifier;
+        if (did == null) {
+            did = ID.parse(get("did"));
+            identifier = did;
         }
-        return identifier;
+        return did;
     }
 
     /**

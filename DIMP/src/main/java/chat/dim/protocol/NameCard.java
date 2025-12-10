@@ -59,8 +59,8 @@ public interface NameCard extends Content {
     //  Factory
     //
 
-    static NameCard create(ID identifier, String name, PortableNetworkFile avatar) {
-        return new NameCardContent(identifier, name, avatar);
+    static NameCard create(ID did, String name, PortableNetworkFile avatar) {
+        return new NameCardContent(did, name, avatar);
     }
 
 }

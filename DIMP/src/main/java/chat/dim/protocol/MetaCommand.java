@@ -64,11 +64,11 @@ public interface MetaCommand extends Command {
     //  Factories
     //
 
-    static MetaCommand query(ID identifier) {
-        return new BaseMetaCommand(identifier);
+    static MetaCommand query(ID did) {
+        return new BaseMetaCommand(did);
     }
 
-    static MetaCommand response(ID identifier, Meta meta) {
-        return new BaseMetaCommand(identifier, meta);
+    static MetaCommand response(ID did, Meta meta) {
+        return new BaseMetaCommand(did, meta);
     }
 }
