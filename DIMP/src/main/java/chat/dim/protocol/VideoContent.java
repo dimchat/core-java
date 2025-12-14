@@ -30,28 +30,26 @@
  */
 package chat.dim.protocol;
 
-import chat.dim.protocol.PortableNetworkFile;
-
 /**
  *  Video File Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x16),
- *      'sn'   : 123,
+ *      "type" : i2s(0x16),
+ *      "sn"   : 123,
  *
- *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "movie.mp4",
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "movie.mp4",
  *
- *      'URL'      : "http://...", // download from CDN
+ *      "URL"      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      'key'      : {             // symmetric key to decrypt file data
- *          'algorithm' : "AES",   // "DES", ...
- *          'data'      : "{BASE64_ENCODE}",
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      'snapshot' : "data:image/jpeg;base64,..."
+ *      "snapshot" : "data:image/jpeg;base64,..."
  *  }
  *  </pre></blockquote>
  */

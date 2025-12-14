@@ -46,8 +46,6 @@ import chat.dim.type.Converter;
  */
 public class BaseVisa extends BaseDocument implements Visa {
 
-    private ID identifier;
-
     // Public Key for encryption
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
     // For safety considerations, the visa.key which used to encrypt message data
@@ -59,32 +57,32 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     public BaseVisa(Map<String, Object> dictionary) {
         super(dictionary);
-        // lazy
-        identifier = null;
     }
 
-    public BaseVisa(ID did, String data, TransportableData signature) {
+    public BaseVisa(String data, TransportableData signature) {
         super(DocumentType.VISA, data, signature);
-        // ID
-        put("did", did.toString());
-        identifier = did;
     }
 
-    public BaseVisa(ID did) {
+    public BaseVisa() {
         super(DocumentType.VISA);
-        // ID
-        put("did", did.toString());
-        identifier = did;
+    }
+
+    public ID getIdentifier() {
+        return ID.parse(get("did"));
     }
 
     @Override
-    public ID getIdentifier() {
-        ID did = identifier;
-        if (did == null) {
-            did = ID.parse(get("did"));
-            identifier = did;
+    public String getTerminal() {
+        String terminal = getString("terminal");
+        if (terminal == null) {
+            ID did = getIdentifier();
+            if (did != null) {
+                terminal = did.getTerminal();
+            } else {
+                assert false : "visa ID not found: " + toMap();
+            }
         }
-        return did;
+        return terminal;
     }
 
     @Override

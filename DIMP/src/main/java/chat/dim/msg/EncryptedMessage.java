@@ -45,15 +45,15 @@ import chat.dim.protocol.TransportableData;
  *  <blockquote><pre>
  *  data format: {
  *      //-- envelope
- *      'sender'   : "moki@xxx",
- *      'receiver' : "hulk@yyy",
- *      'time'     : 123,
+ *      "sender"   : "moki@xxx",
+ *      "receiver" : "hulk@yyy",
+ *      "time"     : 123,
  *
  *      //-- content data and key/keys
- *      'data' : "...",      // base64_encode( symmetric_encrypt(content))
- *      'key'  : "...",      // base64_encode(asymmetric_encrypt(pwd))
- *      'keys' : {
- *          "ID1" : "key1",  // base64_encode(asymmetric_encrypt(pwd))
+ *      "data"     : "...",      // base64_encode( symmetric_encrypt(content))
+ *      "keys"     : {
+ *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
+ *          "digest" : "..."   // hash(pwd.data)
  *      }
  *  }
  *  </pre></blockquote>
@@ -61,14 +61,12 @@ import chat.dim.protocol.TransportableData;
 public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
     private byte[] data;
-    private TransportableData encryptedKey;
     private Map<String, Object> keys;  // String => String
 
     public EncryptedMessage(Map<String, Object> msg) {
         super(msg);
         // lazy load
         data = null;
-        encryptedKey = null;
         keys = null;
     }
 
@@ -95,23 +93,6 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
         return binary;
     }
 
-    @Override
-    public byte[] getEncryptedKey() {
-        TransportableData ted = encryptedKey;
-        if (ted == null) {
-            Object base64 = get("key");
-            if (base64 == null) {
-                // check 'keys'
-                Map<?, ?> keys = getEncryptedKeys();
-                if (keys != null) {
-                    base64 = keys.get(getReceiver().toString());
-                }
-            }
-            encryptedKey = ted = TransportableData.parse(base64);
-        }
-        return ted == null ? null : ted.getData();
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> getEncryptedKeys() {
@@ -121,6 +102,7 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
                 keys = (Map<String, Object>) map;
             } else {
                 assert map == null : "message keys error: " + map;
+                // TODO: get from 'key'
             }
         }
         return keys;
