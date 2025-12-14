@@ -37,7 +37,6 @@ import java.util.Map;
 import chat.dim.format.JSONMap;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Document;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.SignKey;
 import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.VerifyKey;
@@ -45,8 +44,6 @@ import chat.dim.type.Converter;
 import chat.dim.type.Dictionary;
 
 public class BaseDocument extends Dictionary implements Document {
-
-    private ID identifier;
 
     private String json;            // JsON.encode(properties)
     private TransportableData sig;  // LocalUser(identifier).sign(data)
@@ -61,9 +58,8 @@ public class BaseDocument extends Dictionary implements Document {
      */
     public BaseDocument(Map<String, Object> dictionary) {
         super(dictionary);
-        // lazy
-        identifier = null;
 
+        // lazy
         json = null;
         sig = null;
 
@@ -75,17 +71,12 @@ public class BaseDocument extends Dictionary implements Document {
     /**
      *  Create entity document with data and signature loaded from local storage
      *
-     * @param did       - entity ID
      * @param type      - document type
      * @param data      - document data in JsON format
      * @param signature - signature of document data in Base64 format
      */
-    public BaseDocument(ID did, String type, String data, TransportableData signature) {
+    public BaseDocument(String type, String data, TransportableData signature) {
         super();
-
-        // ID
-        put("did", did.toString());
-        this.identifier = did;
 
         // document type
         assert !type.isEmpty() && !type.equals("*") : "document type error: " + type;
@@ -110,15 +101,10 @@ public class BaseDocument extends Dictionary implements Document {
     /**
      *  Create a new empty document
      *
-     * @param did  - entity ID
      * @param type - document type
      */
-    public BaseDocument(ID did, String type) {
+    public BaseDocument(String type) {
         super();
-
-        // ID
-        put("did", did.toString());
-        this.identifier = did;
 
         // document type
         assert !type.isEmpty() && !type.equals("*") : "document type error: " + type;
@@ -140,16 +126,6 @@ public class BaseDocument extends Dictionary implements Document {
     @Override
     public boolean isValid() {
         return status > 0;
-    }
-
-    @Override
-    public ID getIdentifier() {
-        ID did = identifier;
-        if (did == null) {
-            did = ID.parse(get("did"));
-            identifier = did;
-        }
-        return did;
     }
 
     /**
@@ -294,4 +270,3 @@ public class BaseDocument extends Dictionary implements Document {
     }
 
 }
-

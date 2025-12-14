@@ -40,6 +40,13 @@ package chat.dim.protocol;
 public interface Visa extends Document {
 
     /**
+     *  Get entity ID
+     *
+     * @return entity ID
+     */
+    ID getIdentifier();
+
+    /**
      *  Get nickname
      *
      * @return user name

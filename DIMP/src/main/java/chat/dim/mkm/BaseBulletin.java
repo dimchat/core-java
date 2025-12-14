@@ -47,12 +47,12 @@ public class BaseBulletin extends BaseDocument implements Bulletin {
         super(dictionary);
     }
 
-    public BaseBulletin(ID did, String data, TransportableData signature) {
-        super(did, DocumentType.BULLETIN, data, signature);
+    public BaseBulletin(String data, TransportableData signature) {
+        super(DocumentType.BULLETIN, data, signature);
     }
 
-    public BaseBulletin(ID did) {
-        super(did, DocumentType.BULLETIN);
+    public BaseBulletin() {
+        super(DocumentType.BULLETIN);
     }
 
     @Override
