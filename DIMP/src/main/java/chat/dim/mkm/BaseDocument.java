@@ -202,10 +202,12 @@ public class BaseDocument extends Dictionary implements Document {
 
     @Override
     public boolean verify(VerifyKey publicKey) {
+        /*/
         if (status > 0) {
             // already verify OK
             return true;
         }
+        /*/
         String data = getData();
         byte[] signature = getSignature();
         if (data == null) {
@@ -223,6 +225,10 @@ public class BaseDocument extends Dictionary implements Document {
         } else if (publicKey.verify(UTF8.encode(data), signature)) {
             // signature matched
             status = 1;
+        } else {
+            // public key not matched,
+            // no need to affect the status here
+            return false;
         }
         // NOTICE: if status is 0, it doesn't mean the entity document is invalid,
         //         try another key
@@ -232,6 +238,7 @@ public class BaseDocument extends Dictionary implements Document {
     @Override
     public byte[] sign(SignKey privateKey) {
         byte[] signature;
+        /*/
         if (status > 0) {
             // already signed/verified
             assert json != null : "document data error: " + toMap();
@@ -239,6 +246,7 @@ public class BaseDocument extends Dictionary implements Document {
             assert signature != null : "document signature error: " + toMap();
             return signature;
         }
+        /*/
         // 1. update sign time
         setProperty("time", System.currentTimeMillis() / 1000.0d);
         // 2. encode & sign
