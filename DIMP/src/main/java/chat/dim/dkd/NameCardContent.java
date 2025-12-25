@@ -42,12 +42,12 @@ import chat.dim.protocol.PortableNetworkFile;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x33),
- *      'sn'   : 123,
+ *      "type" : i2s(0x33),
+ *      "sn"   : 123,
  *
- *      'did'    : "{ID}",        // contact's ID
- *      'name'   : "{nickname}",  // contact's name
- *      'avatar' : "{URL}",       // avatar - PNF(URL)
+ *      "did"    : "{ID}",        // contact's ID
+ *      "name"   : "{nickname}",  // contact's name
+ *      "avatar" : "{URL}",       // avatar - PNF(URL)
  *      ...
  *  }
  *  </pre></blockquote>
@@ -91,7 +91,12 @@ public class NameCardContent extends BaseContent implements NameCard {
         PortableNetworkFile img = image;
         if (img == null) {
             Object url = get("avatar");
-            img = image = PortableNetworkFile.parse(url);
+            if (url instanceof String && ((String) url).isEmpty()) {
+                // ignore empty URL
+                url = null;
+            }
+            img = PortableNetworkFile.parse(url);
+            image = img;
         }
         return img;
     }

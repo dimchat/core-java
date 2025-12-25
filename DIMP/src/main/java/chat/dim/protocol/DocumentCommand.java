@@ -30,7 +30,6 @@
  */
 package chat.dim.protocol;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,14 +40,14 @@ import chat.dim.dkd.cmd.BaseDocumentCommand;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
- *      'sn'   : 123,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
  *
- *      'command'   : "documents", // command name
- *      'did'       : "{ID}",      // entity ID
- *      'meta'      : {...},       // only for handshaking with new friend
- *      'documents' : [...],       // when this is null, means to query
- *      'last_time' : 12345        // old document time for querying
+ *      "command"   : "documents", // command name
+ *      "did"       : "{ID}",      // entity ID
+ *      "meta"      : {...},       // only for handshaking with new friend
+ *      "documents" : [...],       // when this is null, means to query
+ *      "last_time" : 12345        // old document time for querying
  *  }
  *  </pre></blockquote>
  */
@@ -71,9 +70,6 @@ public interface DocumentCommand extends MetaCommand {
     //  Factories
     //
 
-    static DocumentCommand query(ID did) {
-        return new BaseDocumentCommand(did, null);
-    }
     static DocumentCommand query(ID did, Date last) {
         return new BaseDocumentCommand(did, last);
     }
@@ -81,21 +77,5 @@ public interface DocumentCommand extends MetaCommand {
     static DocumentCommand response(ID did, Meta meta, List<Document> documents) {
         return new BaseDocumentCommand(did, meta, documents);
     }
-    static DocumentCommand response(ID did, List<Document> documents) {
-        return new BaseDocumentCommand(did, null, documents);
-    }
-    static DocumentCommand response(ID did, Meta meta, Document document) {
-        List<Document> array = new ArrayList<>();
-        if (document != null) {
-            array.add(document);
-        }
-        return new BaseDocumentCommand(did, meta, array);
-    }
-    static DocumentCommand response(ID did, Document document) {
-        List<Document> array = new ArrayList<>();
-        if (document != null) {
-            array.add(document);
-        }
-        return new BaseDocumentCommand(did, null, array);
-    }
+
 }

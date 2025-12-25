@@ -30,6 +30,7 @@
  */
 package chat.dim.dkd.cmd;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -44,41 +45,41 @@ import chat.dim.protocol.Meta;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
- *      'sn'   : 123,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
  *
- *      'command'   : "documents", // command name
- *      'did'       : "{ID}",      // entity ID
- *      'meta'      : {...},       // only for handshaking with new friend
- *      'documents' : [...],       // when this is null, means to query
- *      'last_time' : 12345        // old document time for querying
+ *      "command"   : "documents", // command name
+ *      "did"       : "{ID}",      // entity ID
+ *      "meta"      : {...},       // only for handshaking with new friend
+ *      "documents" : [...],       // when this is null, means to query
+ *      "last_time" : 12345        // old document time for querying
  *  }
  *  </pre></blockquote>
  */
 public class BaseDocumentCommand extends BaseMetaCommand implements DocumentCommand {
 
-    private List<Document> docs;
+    private List<Document> documents;
 
     public BaseDocumentCommand(Map<String, Object> content) {
         super(content);
         // lazy
-        docs = null;
+        documents = null;
     }
 
     /**
      *  Send Meta and Documents to new friend
      *
-     * @param did       - entity ID
-     * @param meta      - entity Meta
-     * @param documents - entity Documents
+     * @param did  - entity ID
+     * @param meta - entity Meta
+     * @param docs - entity Documents
      */
-    public BaseDocumentCommand(ID did, Meta meta, List<Document> documents) {
+    public BaseDocumentCommand(ID did, Meta meta, List<Document> docs) {
         super(DOCUMENTS, did, meta);
         // documents
-        if (documents != null) {
-            put("documents", Document.revert(documents));
+        if (docs != null) {
+            put("documents", Document.revert(docs));
         }
-        docs = documents;
+        documents = docs;
     }
 
     /**
@@ -90,7 +91,7 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     public BaseDocumentCommand(ID did, Date last) {
         super(DOCUMENTS, did, null);
         // documents
-        docs = null;
+        documents = null;
         // signature
         if (last != null) {
             setDateTime("last_time", last);
@@ -99,13 +100,16 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
 
     @Override
     public List<Document> getDocuments() {
+        List<Document> docs = documents;
         if (docs == null) {
-            Object documents = get("documents");
-            if (documents instanceof List) {
-                docs = Document.convert((Iterable<?>) documents);
+            Object array = get("documents");
+            if (array instanceof List) {
+                docs = Document.convert((Iterable<?>) array);
             } else {
-                assert documents == null : "documents error: " + documents;
+                assert array == null : "documents error: " + array;
+                docs = new ArrayList<>();
             }
+            documents = docs;
         }
         return docs;
     }
@@ -114,4 +118,5 @@ public class BaseDocumentCommand extends BaseMetaCommand implements DocumentComm
     public Date getLastTime() {
         return getDateTime("last_time");
     }
+
 }

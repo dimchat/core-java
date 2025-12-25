@@ -71,9 +71,9 @@ import chat.dim.type.Dictionary;
  *  <blockquote><pre>
  *  data format: {
  *      //-- envelope
- *      'sender'   : "moki@xxx",
- *      'receiver' : "hulk@yyy",
- *      'time'     : 123,
+ *      "sender"   : "moki@xxx",
+ *      "receiver" : "hulk@yyy",
+ *      "time"     : 123,
  *
  *      //-- body
  *      ...
@@ -97,10 +97,12 @@ public abstract class BaseMessage extends Dictionary implements Message {
 
     @Override
     public Envelope getEnvelope() {
-        if (envelope == null) {
-            envelope = Envelope.parse(toMap());
+        Envelope head = envelope;
+        if (head == null) {
+            head = Envelope.parse(toMap());
+            envelope = head;
         }
-        return envelope;
+        return head;
     }
 
     //--------
