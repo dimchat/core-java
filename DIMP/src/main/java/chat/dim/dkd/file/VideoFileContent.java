@@ -44,21 +44,21 @@ import chat.dim.protocol.VideoContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x16),
- *      'sn'   : 123,
+ *      "type" : i2s(0x16),
+ *      "sn"   : 123,
  *
- *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "movie.mp4",
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "movie.mp4",
  *
- *      'URL'      : "http://...", // download from CDN
+ *      "URL"      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      'key'      : {             // symmetric key to decrypt file data
- *          'algorithm' : "AES",   // "DES", ...
- *          'data'      : "{BASE64_ENCODE}",
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      'snapshot' : "data:image/jpeg;base64,..."
+ *      "snapshot" : "data:image/jpeg;base64,..."
  *  }
  *  </pre></blockquote>
  */
@@ -77,7 +77,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
 
     @Override
     public void setSnapshot(PortableNetworkFile img) {
-        if (img == null) {
+        if (img == null || img.size() == 0) {
             remove("snapshot");
         } else {
             put("snapshot", img.toObject());
@@ -89,8 +89,9 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     public PortableNetworkFile getSnapshot() {
         PortableNetworkFile img = snapshot;
         if (img == null) {
-            Object base64 = get("snapshot");
-            img = snapshot = PortableNetworkFile.parse(base64);
+            Object uri = get("snapshot");
+            img = PortableNetworkFile.parse(uri);
+            snapshot = img;
         }
         return img;
     }

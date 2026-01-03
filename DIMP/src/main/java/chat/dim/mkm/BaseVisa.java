@@ -52,7 +52,7 @@ public class BaseVisa extends BaseDocument implements Visa {
     private EncryptKey key = null;
 
     // Avatar URL
-    private PortableNetworkFile avatar = null;
+    private PortableNetworkFile image = null;
 
     public BaseVisa(Map<String, Object> dictionary) {
         super(dictionary);
@@ -107,22 +107,23 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     @Override
     public PortableNetworkFile getAvatar() {
-        PortableNetworkFile img = avatar;
+        PortableNetworkFile img = image;
         if (img == null) {
-            Object url = getProperty("avatar");
-            boolean empty = url instanceof String && ((String) url).isEmpty();
-            if (!empty) {
-                img = PortableNetworkFile.parse(url);
-                avatar = img;
-            }
+            Object uri = getProperty("avatar");
+            img = PortableNetworkFile.parse(uri);
+            image = img;
         }
         return img;
     }
 
     @Override
     public void setAvatar(PortableNetworkFile img) {
-        setProperty("avatar", img == null ? null : img.toObject());
-        avatar = img;
+        if (img == null || img.size() == 0) {
+            setProperty("avatar", null);
+        } else {
+            setProperty("avatar", img.toObject());
+        }
+        image = img;
     }
 
 }

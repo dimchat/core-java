@@ -35,8 +35,8 @@ import chat.dim.type.Dictionary;
  *
  *  <blockquote><pre>
  *  {
- *      'algorithm' : "base64",
- *      'data'      : "...",     // base64_encode(data)
+ *      "algorithm" : "base64",
+ *      "data"      : "...",     // base64_encode(data)
  *      ...
  *  }
  *

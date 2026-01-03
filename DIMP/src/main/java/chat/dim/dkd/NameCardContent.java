@@ -90,14 +90,11 @@ public class NameCardContent extends BaseContent implements NameCard {
     public PortableNetworkFile getAvatar() {
         PortableNetworkFile img = image;
         if (img == null) {
-            Object url = get("avatar");
-            if (url instanceof String && ((String) url).isEmpty()) {
-                // ignore empty URL
-                url = null;
-            }
-            img = PortableNetworkFile.parse(url);
+            Object uri = get("avatar");
+            img = PortableNetworkFile.parse(uri);
             image = img;
         }
         return img;
     }
+
 }

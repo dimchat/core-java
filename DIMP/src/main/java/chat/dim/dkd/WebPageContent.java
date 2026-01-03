@@ -42,20 +42,19 @@ import chat.dim.protocol.PortableNetworkFile;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x20),
- *      'sn'   : 123,
+ *      "type" : i2s(0x20),
+ *      "sn"   : 123,
  *
- *      'title' : "...",                // Web title
- *      'desc'  : "...",
- *      'icon'  : "data:image/x-icon;base64,...",
+ *      "title" : "...",                // Web title
+ *      "desc"  : "...",
+ *      "icon"  : "data:image/x-icon;base64,...",
  *
- *      'URL'   : "https://dim.chat/",  // Web URL
+ *      "URL"   : "https://github.com/moky/dimp",
  *
- *      'HTML'      : "...",            // Web content
- *      'mime_type' : "text/html",      // Content-Type
- *      'encoding'  : "utf8",
- *      'base'      : "about:blank"     // Base URL
- *
+ *      "HTML"      : "...",            // Web content
+ *      "mime_type" : "text/html",      // Content-Type
+ *      "encoding"  : "utf8",
+ *      "base"      : "about:blank"     // Base URL
  *  }
  *  </pre></blockquote>
  */
@@ -102,15 +101,16 @@ public class WebPageContent extends BaseContent implements PageContent {
     public PortableNetworkFile getIcon() {
         PortableNetworkFile img = icon;
         if (img == null) {
-            Object base64 = get("icon");
-            img = icon = PortableNetworkFile.parse(base64);
+            Object uri = get("icon");
+            img = PortableNetworkFile.parse(uri);
+            icon = img;
         }
         return img;
     }
 
     @Override
     public void setIcon(PortableNetworkFile img) {
-        if (img == null) {
+        if (img == null || img.size() == 0) {
             remove("icon");
         } else {
             put("icon", img.toObject());

@@ -44,21 +44,21 @@ import chat.dim.protocol.TransportableData;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x12),
- *      'sn'   : 123,
+ *      "type" : i2s(0x12),
+ *      "sn"   : 123,
  *
- *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "photo.png",
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "photo.png",
  *
- *      'URL'      : "http://...", // download from CDN
+ *      "URL"      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      'key'      : {             // symmetric key to decrypt file data
- *          'algorithm' : "AES",   // "DES", ...
- *          'data'      : "{BASE64_ENCODE}",
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      'thumbnail' : "data:image/jpeg;base64,..."
+ *      "thumbnail" : "data:image/jpeg;base64,..."
  *  }
  *  </pre></blockquote>
  */
@@ -77,7 +77,7 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
 
     @Override
     public void setThumbnail(PortableNetworkFile img) {
-        if (img == null) {
+        if (img == null || img.size() == 0) {
             remove("thumbnail");
         } else {
             put("thumbnail", img.toObject());
@@ -89,8 +89,9 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     public PortableNetworkFile getThumbnail() {
         PortableNetworkFile img = thumbnail;
         if (img == null) {
-            Object base64 = get("thumbnail");
-            img = thumbnail = PortableNetworkFile.parse(base64);
+            Object uri = get("thumbnail");
+            img = PortableNetworkFile.parse(uri);
+            thumbnail = img;
         }
         return img;
     }
