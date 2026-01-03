@@ -32,6 +32,7 @@ package chat.dim.mkm;
 
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.EncryptKey;
 import chat.dim.protocol.ID;
@@ -39,7 +40,6 @@ import chat.dim.protocol.PortableNetworkFile;
 import chat.dim.protocol.PublicKey;
 import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.Visa;
-import chat.dim.type.Converter;
 
 /**
  *  Base Document for User
@@ -78,8 +78,8 @@ public class BaseVisa extends BaseDocument implements Visa {
             ID did = getIdentifier();
             if (did != null) {
                 terminal = did.getTerminal();
-            } else {
-                assert false : "visa ID not found: " + toMap();
+            //} else {
+            //    assert false : "visa ID not found: " + toMap();
             }
         }
         return terminal;
@@ -129,7 +129,7 @@ public class BaseVisa extends BaseDocument implements Visa {
         PortableNetworkFile img = avatar;
         if (img == null) {
             Object url = getProperty("avatar");
-            boolean empty = url instanceof String && ((String) url).length() == 0;
+            boolean empty = url instanceof String && ((String) url).isEmpty();
             if (!empty) {
                 img = PortableNetworkFile.parse(url);
                 avatar = img;

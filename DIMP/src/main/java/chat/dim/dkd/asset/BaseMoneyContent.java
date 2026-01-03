@@ -32,21 +32,21 @@ package chat.dim.dkd.asset;
 
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.dkd.BaseContent;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MoneyContent;
-import chat.dim.type.Converter;
 
 /**
  *  Money Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x40),
- *      'sn'   : 123,
+ *      "type" : i2s(0x40),
+ *      "sn"   : 123,
  *
- *      'currency' : "RMB", // USD, USDT, ...
- *      'amount'   : 100.00
+ *      "currency" : "RMB", // USD, USDT, ...
+ *      "amount"   : 100.00
  *  }
  *  </pre></blockquote>
  */

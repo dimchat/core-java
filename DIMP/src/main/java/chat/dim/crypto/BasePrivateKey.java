@@ -27,8 +27,8 @@ package chat.dim.crypto;
 
 import java.util.Map;
 
+import chat.dim.data.Comparator;
 import chat.dim.protocol.PrivateKey;
-import chat.dim.type.Comparator;
 import chat.dim.type.Dictionary;
 import chat.dim.type.Mapper;
 

@@ -32,27 +32,27 @@ package chat.dim.dkd.cmd;
 
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ReceiptCommand;
-import chat.dim.type.Converter;
 
 /**
  *  Receipt Command Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
- *      'sn'   : 456,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 456,
  *
- *      'command' : "receipt",
- *      'text'    : "...",  // text message
- *      'origin'  : {       // original message envelope
- *          'sender'    : "...",
- *          'receiver'  : "...",
- *          'time'      : 0,
+ *      "command" : "receipt",
+ *      "text"    : "...",  // text message
+ *      "origin"  : {       // original message envelope
+ *          "sender"    : "...",
+ *          "receiver"  : "...",
+ *          "time"      : 0,
  *
- *          'sn'        : 123,
- *          'signature' : "..."
+ *          "sn"        : 123,
+ *          "signature" : "..."
  *      }
  *  }
  *  </pre></blockquote>

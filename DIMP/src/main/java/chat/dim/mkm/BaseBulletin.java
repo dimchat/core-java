@@ -32,11 +32,11 @@ package chat.dim.mkm;
 
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.TransportableData;
-import chat.dim.type.Converter;
 
 /**
  *  Base Document for Group

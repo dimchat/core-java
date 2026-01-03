@@ -32,26 +32,26 @@ package chat.dim.dkd;
 
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.QuoteContent;
-import chat.dim.type.Converter;
 
 /**
  *  Quote Content
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x37),
- *      'sn'   : 456,
+ *      "type" : i2s(0x37),
+ *      "sn"   : 456,
  *
- *      'text'   : "...",  // text message
- *      'origin' : {       // original message envelope
- *          'sender'   : "...",
- *          'receiver' : "...",
+ *      "text"   : "...",  // text message
+ *      "origin" : {       // original message envelope
+ *          "sender"   : "...",
+ *          "receiver" : "...",
  *
- *          'type'     : 0x01,
- *          'sn'       : 123,
+ *          "type"     : i2s(0x01),
+ *          "sn"       : 123,
  *      }
  *  }
  *  </pre></blockquote>

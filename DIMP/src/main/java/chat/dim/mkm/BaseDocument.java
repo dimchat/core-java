@@ -34,13 +34,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.format.JSONMap;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.SignKey;
 import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.VerifyKey;
-import chat.dim.type.Converter;
 import chat.dim.type.Dictionary;
 
 public class BaseDocument extends Dictionary implements Document {
