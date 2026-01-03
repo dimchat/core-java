@@ -210,16 +210,16 @@ public class BaseDocument extends Dictionary implements Document {
         /*/
         String data = getData();
         byte[] signature = getSignature();
-        if (data == null) {
+        if (data == null || data.isEmpty()) {
             // NOTICE: if data is empty, signature should be empty at the same time
             //         this happen while entity document not found
-            if (signature == null) {
+            if (signature == null || signature.length == 0) {
                 status = 0;
             } else {
                 // data signature error
                 status = -1;
             }
-        } else if (signature == null) {
+        } else if (signature == null || signature.length == 0) {
             // signature error
             status = -1;
         } else if (publicKey.verify(UTF8.encode(data), signature)) {

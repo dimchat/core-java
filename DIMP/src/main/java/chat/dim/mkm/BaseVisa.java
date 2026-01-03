@@ -35,7 +35,6 @@ import java.util.Map;
 import chat.dim.data.Converter;
 import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.EncryptKey;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.PortableNetworkFile;
 import chat.dim.protocol.PublicKey;
 import chat.dim.protocol.TransportableData;
@@ -65,24 +64,6 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     public BaseVisa() {
         super(DocumentType.VISA);
-    }
-
-    public ID getIdentifier() {
-        return ID.parse(get("did"));
-    }
-
-    @Override
-    public String getTerminal() {
-        String terminal = getString("terminal");
-        if (terminal == null) {
-            ID did = getIdentifier();
-            if (did != null) {
-                terminal = did.getTerminal();
-            //} else {
-            //    assert false : "visa ID not found: " + toMap();
-            }
-        }
-        return terminal;
     }
 
     @Override

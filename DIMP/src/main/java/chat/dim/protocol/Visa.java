@@ -40,13 +40,6 @@ package chat.dim.protocol;
 public interface Visa extends Document {
 
     /**
-     *  Get terminal of ID
-     *
-     * @return login point
-     */
-    String getTerminal();
-
-    /**
      *  Get nickname
      *
      * @return user name
