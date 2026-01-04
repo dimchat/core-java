@@ -28,7 +28,6 @@ package chat.dim.format;
 import java.util.Map;
 
 import chat.dim.protocol.EncodeAlgorithms;
-import chat.dim.type.Dictionary;
 
 /**
  *  Transportable Data MixIn
@@ -46,27 +45,29 @@ import chat.dim.type.Dictionary;
  *      2. "data:image/png;base64,{BASE64_ENCODE}"
  *  </pre></blockquote>
  */
-public class BaseDataWrapper extends Dictionary {
+class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableDataWrapper {
 
     // binary data
     private byte[] data;
 
-    public BaseDataWrapper(Map<String, Object> content) {
-        super(content);
+    public BaseDataWrapper(Map<String, Object> map) {
+        super(map);
         // lazy load
         data = null;
     }
 
-    /*/
     @Override
     public boolean isEmpty() {
         if (super.isEmpty()) {
             return true;
         }
-        byte[] binary = getData();
-        return binary == null || binary.length == 0;
+        byte[] binary = data;
+        if (binary != null && binary.length > 0) {
+            return false;
+        }
+        String text = getString("data");
+        return text == null || text.isEmpty();
     }
-    /*/
 
     @Override
     public String toString() {
@@ -87,12 +88,7 @@ public class BaseDataWrapper extends Dictionary {
         }
     }
 
-    /**
-     *  Encode with 'Content-Type'
-     *  <p>
-     *      toString(mimeType)
-     *  </p>
-     */
+    @Override
     public String encode(String mimeType) {
         assert !mimeType.contains(" ") : "content-type error: " + mimeType;
         // get encoded data
@@ -105,9 +101,7 @@ public class BaseDataWrapper extends Dictionary {
         return "data:" + mimeType + ";" + algorithm + "," + text;
     }
 
-    /**
-     *  Encode Algorithm
-     */
+    @Override
     public String getAlgorithm() {
         String algorithm = getString("algorithm");
         if (algorithm == null || algorithm.isEmpty()) {
@@ -116,6 +110,7 @@ public class BaseDataWrapper extends Dictionary {
         return algorithm;
     }
 
+    @Override
     public void setAlgorithm(String algorithm) {
         if (algorithm == null/* || algorithm.equals(EncodeAlgorithms.DEFAULT)*/) {
             remove("algorithm");
@@ -124,15 +119,13 @@ public class BaseDataWrapper extends Dictionary {
         }
     }
 
-    /**
-     *  Binary Data
-     */
+    @Override
     public byte[] getData() {
         byte[] binary = data;
         if (binary == null) {
             String text = getString("data");
             if (text == null || text.isEmpty()) {
-                assert false : "TED data empty: " + this.toMap();
+                assert false : "TED data empty: " + toMap();
                 return null;
             } else {
                 String algorithm = getAlgorithm();
@@ -156,6 +149,7 @@ public class BaseDataWrapper extends Dictionary {
         return binary;
     }
 
+    @Override
     public void setData(byte[] binary) {
         if (binary == null || binary.length == 0) {
             remove("data");

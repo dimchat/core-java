@@ -34,7 +34,8 @@ import java.net.URI;
 import java.util.Map;
 
 import chat.dim.dkd.BaseContent;
-import chat.dim.format.BaseFileWrapper;
+import chat.dim.format.PortableNetworkFileWrapper;
+import chat.dim.format.SharedNetworkFormatAccess;
 import chat.dim.protocol.DecryptKey;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.TransportableData;
@@ -63,16 +64,16 @@ import chat.dim.protocol.TransportableData;
  */
 public class BaseFileContent extends BaseContent implements FileContent {
 
-    private final BaseFileWrapper wrapper;
+    private final PortableNetworkFileWrapper wrapper;
 
     public BaseFileContent(Map<String, Object> content) {
         super(content);
-        wrapper = new BaseFileWrapper(toMap());
+        wrapper = createWrapper();
     }
 
     public BaseFileContent(String type, TransportableData data, String filename, URI url, DecryptKey key) {
         super(type);
-        wrapper = new BaseFileWrapper(toMap());
+        wrapper = createWrapper();
         // file data
         if (data != null) {
             wrapper.setData(data);
@@ -89,6 +90,11 @@ public class BaseFileContent extends BaseContent implements FileContent {
         if (key != null) {
             wrapper.setPassword(key);
         }
+    }
+
+    protected PortableNetworkFileWrapper createWrapper() {
+        PortableNetworkFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
+        return factory.createPortableNetworkFileWrapper(toMap());
     }
 
     /**

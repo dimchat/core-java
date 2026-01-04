@@ -31,7 +31,6 @@ import java.util.Map;
 import chat.dim.protocol.DecryptKey;
 import chat.dim.protocol.SymmetricKey;
 import chat.dim.protocol.TransportableData;
-import chat.dim.type.Dictionary;
 
 
 /**
@@ -53,7 +52,7 @@ import chat.dim.type.Dictionary;
  *  }
  *  </pre></blockquote>
  */
-public class BaseFileWrapper extends Dictionary {
+class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetworkFileWrapper {
 
     // file content (not encrypted)
     private TransportableData attachment;
@@ -71,10 +70,7 @@ public class BaseFileWrapper extends Dictionary {
         password = null;
     }
 
-    /**
-     *  file data
-     */
-
+    @Override
     public TransportableData getData() {
         TransportableData ted = attachment;
         if (ted == null) {
@@ -84,6 +80,7 @@ public class BaseFileWrapper extends Dictionary {
         return ted;
     }
 
+    @Override
     public void setData(TransportableData ted) {
         if (ted == null) {
             remove("data");
@@ -92,7 +89,8 @@ public class BaseFileWrapper extends Dictionary {
         }
         attachment = ted;
     }
-    // set binary data
+
+    @Override
     public void setData(byte[] binary) {
         TransportableData ted;
         if (binary == null || binary.length == 0) {
@@ -105,14 +103,12 @@ public class BaseFileWrapper extends Dictionary {
         attachment = ted;
     }
 
-    /**
-     *  file name
-     */
-
+    @Override
     public String getFilename() {
         return getString("filename");
     }
 
+    @Override
     public void setFilename(String name) {
         if (name == null/* || name.isEmpty()*/) {
             remove("filename");
@@ -121,10 +117,7 @@ public class BaseFileWrapper extends Dictionary {
         }
     }
 
-    /**
-     *  download URL
-     */
-
+    @Override
     public URI getURL() {
         URI remote = remoteURL;
         if (remote == null) {
@@ -136,6 +129,7 @@ public class BaseFileWrapper extends Dictionary {
         return remote;
     }
 
+    @Override
     public void setURL(URI remote) {
         if (remote == null) {
             remove("URL");
@@ -145,10 +139,7 @@ public class BaseFileWrapper extends Dictionary {
         remoteURL = remote;
     }
 
-    /**
-     *  decrypt key
-     */
-
+    @Override
     public DecryptKey getPassword() {
         DecryptKey key = password;
         if (key == null) {
@@ -158,6 +149,7 @@ public class BaseFileWrapper extends Dictionary {
         return key;
     }
 
+    @Override
     public void setPassword(DecryptKey key) {
         setMap("key", key);
         password = key;
