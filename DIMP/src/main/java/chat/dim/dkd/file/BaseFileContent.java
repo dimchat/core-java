@@ -109,7 +109,7 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     @Override
     public void setData(byte[] data) {
-        wrapper.setData(data);
+        wrapper.setBinary(data);
     }
 
     /**

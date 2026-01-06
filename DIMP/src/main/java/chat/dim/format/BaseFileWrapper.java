@@ -71,6 +71,16 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
     }
 
     @Override
+    public Map<String, Object> toMap() {
+        Object base64 = get("data");
+        TransportableData ted = attachment;
+        if (base64 == null && ted != null) {
+            put("data", ted.toObject());
+        }
+        return super.toMap();
+    }
+
+    @Override
     public TransportableData getData() {
         TransportableData ted = attachment;
         if (ted == null) {
@@ -82,25 +92,24 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
 
     @Override
     public void setData(TransportableData ted) {
-        if (ted == null) {
-            remove("data");
-        } else {
+        remove("data");
+        /*/
+        if (ted != null) {
             put("data", ted.toObject());
         }
+        /*/
         attachment = ted;
     }
 
     @Override
-    public void setData(byte[] binary) {
+    public void setBinary(byte[] binary) {
         TransportableData ted;
         if (binary == null || binary.length == 0) {
-            remove("data");
             ted = null;
         } else {
             ted = TransportableData.create(binary);
-            put("data", ted.toObject());
         }
-        attachment = ted;
+        setData(ted);
     }
 
     @Override

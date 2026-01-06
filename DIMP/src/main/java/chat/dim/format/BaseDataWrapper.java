@@ -58,9 +58,6 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
 
     @Override
     public boolean isEmpty() {
-        if (super.isEmpty()) {
-            return true;
-        }
         byte[] binary = data;
         if (binary != null && binary.length > 0) {
             return false;
@@ -71,8 +68,15 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
 
     @Override
     public String toString() {
-        String text = getString("data");
-        if (text == null/* || text.isEmpty()*/) {
+        // serialize data
+        return encode();
+    }
+
+    @Override
+    public String encode() {
+        // get encoded data
+        String text = getEncodedData();
+        if (text == null || text.isEmpty()) {
             return "";
         }
         String algorithm = getString("algorithm");
@@ -82,18 +86,22 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
         if (algorithm.isEmpty()) {
             // 0. "{BASE64_ENCODE}"
             return text;
-        } else {
+        }
+        String mimeType = getString("mime-type");
+        if (mimeType == null || mimeType.isEmpty()) {
             // 1. "base64,{BASE64_ENCODE}"
             return algorithm + "," + text;
         }
+        // 2. "data:image/png;base64,{BASE64_ENCODE}"
+        return "data:" + mimeType + ";" + algorithm + "," + text;
     }
 
     @Override
     public String encode(String mimeType) {
-        assert !mimeType.contains(" ") : "content-type error: " + mimeType;
+        assert !mimeType.contains(" ") : "mime-type error: " + mimeType;
         // get encoded data
-        String text = getString("data");
-        if (text == null/* || text.isEmpty()*/) {
+        String text = getEncodedData();
+        if (text == null || text.isEmpty()) {
             return "";
         }
         String algorithm = getAlgorithm();
@@ -127,23 +135,8 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
             if (text == null || text.isEmpty()) {
                 assert false : "TED data empty: " + toMap();
                 return null;
-            } else {
-                String algorithm = getAlgorithm();
-                switch (algorithm) {
-                    case EncodeAlgorithms.BASE_64:
-                        binary = Base64.decode(text);
-                        break;
-                    case EncodeAlgorithms.BASE_58:
-                        binary = Base58.decode(text);
-                        break;
-                    case EncodeAlgorithms.HEX:
-                        binary = Hex.decode(text);
-                        break;
-                    default:
-                        assert false : "data algorithm not support: " + algorithm;
-                        return null;
-                }
             }
+            binary = decodeData(text, getAlgorithm());
             data = binary;
         }
         return binary;
@@ -151,28 +144,67 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
 
     @Override
     public void setData(byte[] binary) {
-        if (binary == null || binary.length == 0) {
-            remove("data");
-        } else {
-            String text;
-            String algorithm = getAlgorithm();
-            switch (algorithm) {
-                case EncodeAlgorithms.BASE_64:
-                    text = Base64.encode(binary);
-                    break;
-                case EncodeAlgorithms.BASE_58:
-                    text = Base58.encode(binary);
-                    break;
-                case EncodeAlgorithms.HEX:
-                    text = Hex.encode(binary);
-                    break;
-                default:
-                    throw new ArithmeticException("data algorithm not support: " + algorithm);
-                    //assert false : "data algorithm not support: " + algorithm;
-            }
+        remove("data");
+        /*/
+        if (binary != null && binary.length > 0) {
+            String text = encodeData(binary, getAlgorithm());
             put("data", text);
         }
+        /*/
         data = binary;
+    }
+
+    // decode data
+    protected byte[] decodeData(String text, String algorithm) {
+        switch (algorithm) {
+
+            case EncodeAlgorithms.BASE_64:
+                return Base64.decode(text);
+
+            case EncodeAlgorithms.BASE_58:
+                return Base58.decode(text);
+
+            case EncodeAlgorithms.HEX:
+                return Hex.decode(text);
+
+            default:
+                assert false : "data algorithm not support: " + algorithm;
+        }
+        return null;
+    }
+
+    // encode data
+    protected String encodeData(byte[] binary, String algorithm) {
+        switch (algorithm) {
+
+            case EncodeAlgorithms.BASE_64:
+                return Base64.encode(binary);
+
+            case EncodeAlgorithms.BASE_58:
+                return Base58.encode(binary);
+
+            case EncodeAlgorithms.HEX:
+                return Hex.encode(binary);
+            default:
+                throw new ArithmeticException("data algorithm not support: " + algorithm);
+                //assert false : "data algorithm not support: " + algorithm;
+        }
+        //return null;
+    }
+
+    // get encoded data
+    protected String getEncodedData() {
+        String text = getString("data");
+        if (text == null || text.isEmpty()) {
+            byte[] binary = data;
+            if (binary == null || binary.length == 0) {
+                return null;
+            }
+            text = encodeData(binary, getAlgorithm());
+            assert text != null : "failed to encode data: " + binary.length;
+            put("data", text);
+        }
+        return text;
     }
 
 }

@@ -33,8 +33,6 @@ import chat.dim.protocol.TransportableData;
 
 public interface PortableNetworkFileWrapper {
 
-    boolean isEmpty();
-
     // serialize data
     Map<String, Object> toMap();
 
@@ -44,7 +42,7 @@ public interface PortableNetworkFileWrapper {
     TransportableData getData();
     void setData(TransportableData ted);
     // set binary data
-    void setData(byte[] binary);
+    void setBinary(byte[] binary);
 
     /**
      *  file name

@@ -46,10 +46,6 @@ public abstract class BaseNetworkFormatWrapper {
         return dictionary;
     }
 
-    public boolean isEmpty() {
-        return dictionary.isEmpty();
-    }
-
     public Object get(String key) {
         return dictionary.get(key);
     }

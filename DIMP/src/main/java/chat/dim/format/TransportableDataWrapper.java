@@ -31,12 +31,9 @@ public interface TransportableDataWrapper {
 
     boolean isEmpty();
 
-    // serialize data
-    Map<String, Object> toMap();
-
     //  0. "{BASE64_ENCODE}"
     //  1. "base64,{BASE64_ENCODE}"
-    String toString();
+    String encode();
 
     /**
      *  Encode with 'Content-Type'
