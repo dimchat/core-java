@@ -76,7 +76,7 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
     public String encode() {
         // get encoded data
         String text = getEncodedData();
-        if (text == null || text.isEmpty()) {
+        if (text == null/* || text.isEmpty()*/) {
             return "";
         }
         String algorithm = getString("algorithm");
@@ -91,9 +91,10 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
         if (mimeType == null || mimeType.isEmpty()) {
             // 1. "base64,{BASE64_ENCODE}"
             return algorithm + "," + text;
+        } else {
+            // 2. "data:image/png;base64,{BASE64_ENCODE}"
+            return "data:" + mimeType + ";" + algorithm + "," + text;
         }
-        // 2. "data:image/png;base64,{BASE64_ENCODE}"
-        return "data:" + mimeType + ";" + algorithm + "," + text;
     }
 
     @Override
@@ -101,7 +102,7 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
         assert !mimeType.contains(" ") : "mime-type error: " + mimeType;
         // get encoded data
         String text = getEncodedData();
-        if (text == null || text.isEmpty()) {
+        if (text == null/* || text.isEmpty()*/) {
             return "";
         }
         String algorithm = getAlgorithm();
@@ -136,8 +137,14 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
                 assert false : "TED data empty: " + toMap();
                 return null;
             }
-            binary = decodeData(text, getAlgorithm());
-            data = binary;
+            String encoding = getAlgorithm();
+            DataCoder coder = SharedNetworkFormatAccess.getDataCoder(encoding);
+            if (coder != null) {
+                binary = coder.decode(text);
+                data = binary;
+            } else {
+                assert false : "encoding not supported: " + encoding;
+            }
         }
         return binary;
     }
@@ -147,49 +154,18 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
         remove("data");
         /*/
         if (binary != null && binary.length > 0) {
-            String text = encodeData(binary, getAlgorithm());
-            put("data", text);
+            String encoding = getAlgorithm();
+            DataCoder coder = SharedNetworkFormatAccess.getDataCoder(encoding);
+            if (coder != null) {
+                String text = coder.encode(binary);
+                assert text != null : "failed to encode data: " + binary.length;
+                put("data", text);
+            } else {
+                assert false : "encoding not supported: " + encoding;
+            }
         }
         /*/
         data = binary;
-    }
-
-    // decode data
-    protected byte[] decodeData(String text, String algorithm) {
-        switch (algorithm) {
-
-            case EncodeAlgorithms.BASE_64:
-                return Base64.decode(text);
-
-            case EncodeAlgorithms.BASE_58:
-                return Base58.decode(text);
-
-            case EncodeAlgorithms.HEX:
-                return Hex.decode(text);
-
-            default:
-                assert false : "data algorithm not support: " + algorithm;
-        }
-        return null;
-    }
-
-    // encode data
-    protected String encodeData(byte[] binary, String algorithm) {
-        switch (algorithm) {
-
-            case EncodeAlgorithms.BASE_64:
-                return Base64.encode(binary);
-
-            case EncodeAlgorithms.BASE_58:
-                return Base58.encode(binary);
-
-            case EncodeAlgorithms.HEX:
-                return Hex.encode(binary);
-            default:
-                throw new ArithmeticException("data algorithm not support: " + algorithm);
-                //assert false : "data algorithm not support: " + algorithm;
-        }
-        //return null;
     }
 
     // get encoded data
@@ -198,11 +174,18 @@ class BaseDataWrapper extends BaseNetworkFormatWrapper implements TransportableD
         if (text == null || text.isEmpty()) {
             byte[] binary = data;
             if (binary == null || binary.length == 0) {
+                assert false : "TED data empty: " + toMap();
                 return null;
             }
-            text = encodeData(binary, getAlgorithm());
-            assert text != null : "failed to encode data: " + binary.length;
-            put("data", text);
+            String encoding = getAlgorithm();
+            DataCoder coder = SharedNetworkFormatAccess.getDataCoder(encoding);
+            if (coder != null) {
+                text = coder.encode(binary);
+                assert text != null : "failed to encode data: " + binary.length;
+                put("data", text);
+            } else {
+                assert false : "encoding not supported: " + encoding;
+            }
         }
         return text;
     }

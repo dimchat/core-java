@@ -25,7 +25,10 @@
  */
 package chat.dim.format;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import chat.dim.protocol.EncodeAlgorithms;
 
 public final class SharedNetworkFormatAccess {
 
@@ -44,5 +47,72 @@ public final class SharedNetworkFormatAccess {
             return new BaseFileWrapper(content);
         }
     };
+
+    //
+    //  Coders for encoding
+    //
+    private static final Map<String, DataCoder> dataCoders = new HashMap<>();
+    public static DataCoder getDataCoder(String encoding) {
+        if (encoding == null || encoding.isEmpty()) {
+            encoding = "*";
+        } else {
+            encoding = encoding.toLowerCase();
+        }
+        return dataCoders.get(encoding);
+    }
+    public static void setDataCoder(String encoding, DataCoder coder) {
+        if (encoding != null/* && !encoding.isEmpty()*/) {
+            encoding = encoding.toLowerCase();
+        }
+        dataCoders.put(encoding, coder);
+    }
+
+    //
+    //  Coders for charset
+    //
+    private static final Map<String, StringCoder> stringCoders = new HashMap<>();
+    public static StringCoder getStringCoder(String charset) {
+        if (charset == null || charset.isEmpty()) {
+            charset = "*";
+        } else {
+            charset = charset.toLowerCase();
+        }
+        return stringCoders.get(charset);
+    }
+    public static void setStringCoder(String charset, StringCoder coder) {
+        if (charset != null/* && !charset.isEmpty()*/) {
+            charset = charset.toLowerCase();
+        }
+        stringCoders.put(charset, coder);
+    }
+
+    static {
+        //
+        //  Base-64
+        //
+        setDataCoder(EncodeAlgorithms.BASE_64, new DataCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return Base64.encode(data);
+            }
+            @Override
+            public byte[] decode(String string) {
+                return Base64.decode(string);
+            }
+        });
+        //
+        //  UTF-8
+        //
+        setStringCoder("utf-8", new StringCoder() {
+            @Override
+            public byte[] encode(String string) {
+                return UTF8.encode(string);
+            }
+            @Override
+            public String decode(byte[] data) {
+                return UTF8.decode(data);
+            }
+        });
+    }
 
 }
