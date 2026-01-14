@@ -1,0 +1,141 @@
+/* license: https://mit-license.org
+ * ==============================================================================
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2026 Albert Moky
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ==============================================================================
+ */
+package chat.dim.format;
+
+import chat.dim.protocol.EncodeAlgorithms;
+import chat.dim.rfc.DataURI;
+import chat.dim.rfc.MIME;
+
+
+/**
+ *  TED for embed image/audio
+ */
+public class EmbedData {
+
+    private DataURI dataUri;
+
+    private final String mimeType;
+    private final String encoding;
+    private byte[] binary;
+
+    public EmbedData(DataURI uri) {
+        super();
+        dataUri = uri;
+        mimeType = uri.mimeType;
+        encoding = uri.encoding;
+        binary = null;
+    }
+
+    public EmbedData(String type, byte[] data) {
+        super();
+        dataUri = null;
+        mimeType = type;
+        encoding = EncodeAlgorithms.BASE_64;
+        binary = data;
+    }
+
+    public String getEncoding() {
+        assert EncodeAlgorithms.BASE_64.equalsIgnoreCase(encoding) : "encoding error: " + encoding;
+        return encoding;
+    }
+
+    protected DataCoder getCoder() {
+        String encoding = getEncoding();
+        return SharedNetworkFormatAccess.getDataCoder(encoding);
+    }
+
+    @Override
+    public String toString() {
+        DataURI uri = getDataURI();
+        return uri == null ? "" : uri.toString();
+    }
+
+    // encode
+    protected DataURI getDataURI() {
+        DataURI uri = dataUri;
+        if (uri == null) {
+            DataCoder coder = getCoder();
+            byte[] data = binary;
+            if (coder == null || data == null || data.length == 0) {
+                assert false : "cannot encode data: " + encoding;
+                return null;
+            }
+            String base64 = coder.encode(data);
+            assert base64 != null && !base64.isEmpty() : "failed to encode " + data.length + " byte(s)";
+            assert mimeType != null && !mimeType.isEmpty() : "mime-type error: " + mimeType;
+            uri = new DataURI(mimeType, null, encoding, base64);
+            dataUri = uri;
+        }
+        return uri;
+    }
+
+    // decode
+    public byte[] getData() {
+        byte[] data = binary;
+        if (data == null) {
+            DataURI uri = dataUri;
+            if (uri == null || uri.isEmpty()) {
+                assert false : "data uri error: " + uri;
+                return null;
+            }
+            DataCoder coder = getCoder();
+            String base64 = uri.body;
+            if (coder == null || base64 == null || base64.isEmpty()) {
+                assert false : "cannot decode data: " + encoding;
+                return null;
+            }
+            data = coder.decode(base64);
+            assert data != null && data.length > 0 : "failed to decode " + base64.length() + " char(s)";
+            binary = data;
+        }
+        return data;
+    }
+
+    //
+    //  factories:
+    //
+    //      "data:image/jpg;base64,{BASE64_ENCODE}"
+    //      "data:audio/mp4;base64,{BASE64_ENCODE}"
+    //
+
+    public static EmbedData createImage(byte[] jpeg) {
+        return new EmbedData(MIME.ContentType.IMAGE_JPG, jpeg);
+    }
+
+    public static EmbedData createAudio(byte[] mp4) {
+        return new EmbedData(MIME.ContentType.AUDIO_MP4, mp4);
+    }
+
+    public static EmbedData parse(String text) {
+        DataURI uri = DataURI.parse(text);
+        if (uri == null) {
+            //assert false : "data uri error: " + text;
+            return null;
+        }
+        return new EmbedData(uri);
+    }
+
+}

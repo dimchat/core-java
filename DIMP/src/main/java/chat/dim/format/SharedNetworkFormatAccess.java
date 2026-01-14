@@ -30,6 +30,7 @@ import java.util.Map;
 
 import chat.dim.protocol.EncodeAlgorithms;
 
+
 public final class SharedNetworkFormatAccess {
 
     // wrapper for TED
@@ -67,25 +68,6 @@ public final class SharedNetworkFormatAccess {
         dataCoders.put(encoding, coder);
     }
 
-    //
-    //  Coders for charset
-    //
-    private static final Map<String, StringCoder> stringCoders = new HashMap<>();
-    public static StringCoder getStringCoder(String charset) {
-        if (charset == null || charset.isEmpty()) {
-            charset = "*";
-        } else {
-            charset = charset.toLowerCase();
-        }
-        return stringCoders.get(charset);
-    }
-    public static void setStringCoder(String charset, StringCoder coder) {
-        if (charset != null/* && !charset.isEmpty()*/) {
-            charset = charset.toLowerCase();
-        }
-        stringCoders.put(charset, coder);
-    }
-
     static {
         //
         //  Base-64
@@ -100,19 +82,28 @@ public final class SharedNetworkFormatAccess {
                 return Base64.decode(string);
             }
         });
+
+        /*/
         //
-        //  UTF-8
+        //  Plain (UTF-8)
         //
-        setStringCoder("utf-8", new StringCoder() {
+        setDataCoder("*", new DataCoder() {
             @Override
-            public byte[] encode(String string) {
-                return UTF8.encode(string);
-            }
-            @Override
-            public String decode(byte[] data) {
+            public String encode(byte[] data) {
+                // This binary data was encoded from a string using UTF-8 encoding:
+                //      data = UTF8.encode(string);
+                // we need to reverse it to a string here.
                 return UTF8.decode(data);
             }
+            @Override
+            public byte[] decode(String string) {
+                // This string was decoded from a binary data using UTF-8 encoding:
+                //      data = UTF8.decode(binary)
+                // we need to revers it to a binary data here.
+                return UTF8.encode(string);
+            }
         });
+        /*/
     }
 
 }
