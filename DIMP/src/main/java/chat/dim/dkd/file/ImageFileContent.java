@@ -77,7 +77,7 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
 
     @Override
     public void setThumbnail(PortableNetworkFile img) {
-        if (img == null || img.size() == 0) {
+        if (img == null || img.isEmpty()) {
             remove("thumbnail");
         } else {
             put("thumbnail", img.toObject());

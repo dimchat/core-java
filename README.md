@@ -70,23 +70,23 @@ dependencies {
 
 ```java
 public enum HandshakeState {
-    START,    // C -> S, without session key(or session expired)
+    START,    // C -> S, without session key (or session expired)
     AGAIN,    // S -> C, with new session key
     RESTART,  // C -> S, with new session key
     SUCCESS,  // S -> C, handshake accepted
 }
 
 /**
- *  Handshake command message
+ *  Handshake command
  *
  *  <blockquote><pre>
  *  data format: {
- *      type : i2s(0x88),
- *      sn   : 123,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
  *
- *      command : "handshake",    // command name
- *      title   : "Hello world!", // "DIM?", "DIM!"
- *      session : "{SESSION_KEY}" // session key
+ *      "command" : "handshake",    // command name
+ *      "title"   : "Hello world!", // "DIM?", "DIM!"
+ *      "session" : "{SESSION_KEY}" // session key
  *  }
  *  </pre></blockquote>
  */
@@ -160,12 +160,13 @@ public class HandshakeCommand extends BaseCommand {
 
 ```java
 /**
- *  Application Customized message: {
- *      'type' : i2s(0xA0),
- *      'sn'   : 123,
+ *  Content for Application 0nly: {
+ *  
+ *      "type" : i2s(0xA0),
+ *      "sn"   : 123,
  *
- *      'app'   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      'extra' : info         // others
+ *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      "extra" : info         // others
  *  }
  */
 public class ApplicationContent extends BaseContent implements AppContent {
@@ -194,5 +195,5 @@ public class ApplicationContent extends BaseContent implements AppContent {
 
 ----
 
-Copyright &copy; 2018-2025 Albert Moky
+Copyright &copy; 2018-2026 Albert Moky
 [![Followers](https://img.shields.io/github/followers/moky)](https://github.com/moky?tab=followers)

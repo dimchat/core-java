@@ -110,7 +110,7 @@ public class WebPageContent extends BaseContent implements PageContent {
 
     @Override
     public void setIcon(PortableNetworkFile img) {
-        if (img == null || img.size() == 0) {
+        if (img == null || img.isEmpty()) {
             remove("icon");
         } else {
             put("icon", img.toObject());

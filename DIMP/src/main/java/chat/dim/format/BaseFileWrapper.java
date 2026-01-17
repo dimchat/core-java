@@ -85,7 +85,8 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
         TransportableData ted = attachment;
         if (ted == null) {
             Object base64 = get("data");
-            attachment = ted = TransportableData.parse(base64);
+            ted = TransportableData.parse(base64);
+            attachment = ted;
         }
         return ted;
     }

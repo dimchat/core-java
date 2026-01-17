@@ -118,7 +118,7 @@ public class BaseVisa extends BaseDocument implements Visa {
 
     @Override
     public void setAvatar(PortableNetworkFile img) {
-        if (img == null || img.size() == 0) {
+        if (img == null || img.isEmpty()) {
             setProperty("avatar", null);
         } else {
             setProperty("avatar", img.toObject());

@@ -77,7 +77,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
 
     @Override
     public void setSnapshot(PortableNetworkFile img) {
-        if (img == null || img.size() == 0) {
+        if (img == null || img.isEmpty()) {
             remove("snapshot");
         } else {
             put("snapshot", img.toObject());
