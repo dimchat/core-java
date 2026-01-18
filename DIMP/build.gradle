@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'chat.dim'
-version = '2.2.0'
+version = '2.3.0'
 //version '1.0-SNAPSHOT'
 
 def mod = 'DIMP'

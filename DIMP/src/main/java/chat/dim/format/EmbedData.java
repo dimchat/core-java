@@ -36,28 +36,25 @@ import chat.dim.rfc.MIME;
 public class EmbedData {
 
     private DataURI dataUri;
-
-    private final String mimeType;
-    private final String encoding;
+    private final DataURI.Header dataHead;
     private byte[] binary;
 
     public EmbedData(DataURI uri) {
         super();
         dataUri = uri;
-        mimeType = uri.mimeType;
-        encoding = uri.encoding;
+        dataHead = uri.head;
         binary = null;
     }
 
-    public EmbedData(String type, byte[] data) {
+    public EmbedData(String mimeType, byte[] data) {
         super();
         dataUri = null;
-        mimeType = type;
-        encoding = EncodeAlgorithms.BASE_64;
+        dataHead = new DataURI.Header(mimeType, EncodeAlgorithms.BASE_64, null);
         binary = data;
     }
 
     public String getEncoding() {
+        String encoding = dataHead.encoding;
         assert EncodeAlgorithms.BASE_64.equalsIgnoreCase(encoding) : "encoding error: " + encoding;
         return encoding;
     }
@@ -80,13 +77,12 @@ public class EmbedData {
             DataCoder coder = getCoder();
             byte[] data = binary;
             if (coder == null || data == null || data.length == 0) {
-                assert false : "cannot encode data: " + encoding;
+                assert false : "cannot encode data: " + dataHead.encoding;
                 return null;
             }
             String base64 = coder.encode(data);
             assert base64 != null && !base64.isEmpty() : "failed to encode " + data.length + " byte(s)";
-            assert mimeType != null && !mimeType.isEmpty() : "mime-type error: " + mimeType;
-            uri = new DataURI(mimeType, null, encoding, base64);
+            uri = new DataURI(dataHead, base64);
             dataUri = uri;
         }
         return uri;
@@ -104,7 +100,7 @@ public class EmbedData {
             DataCoder coder = getCoder();
             String base64 = uri.body;
             if (coder == null || base64 == null || base64.isEmpty()) {
-                assert false : "cannot decode data: " + encoding;
+                assert false : "cannot decode data: " + getEncoding();
                 return null;
             }
             data = coder.decode(base64);
