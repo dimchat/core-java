@@ -41,8 +41,6 @@ public interface PortableNetworkFileWrapper {
      */
     TransportableData getData();
     void setData(TransportableData ted);
-    // set binary data
-    void setBinary(byte[] binary);
 
     /**
      *  file name

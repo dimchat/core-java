@@ -75,7 +75,7 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
         Object base64 = get("data");
         TransportableData ted = attachment;
         if (base64 == null && ted != null) {
-            put("data", ted.toObject());
+            put("data", ted.serialize());
         }
         return super.toMap();
     }
@@ -100,17 +100,6 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
         }
         /*/
         attachment = ted;
-    }
-
-    @Override
-    public void setBinary(byte[] binary) {
-        TransportableData ted;
-        if (binary == null || binary.length == 0) {
-            ted = null;
-        } else {
-            ted = TransportableData.create(binary);
-        }
-        setData(ted);
     }
 
     @Override

@@ -126,7 +126,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         }
 
         if (fingerprint != null) {
-            put("fingerprint", fingerprint.toObject());
+            put("fingerprint", fingerprint.serialize());
             this.fingerprint = fingerprint;
         }
 
@@ -174,7 +174,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
     }
 
     @Override
-    public byte[] getFingerprint() {
+    public TransportableData getFingerprint() {
         TransportableData ted = fingerprint;
         if (ted == null && hasSeed()) {
             Object base64 = get("fingerprint");
@@ -182,7 +182,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
             fingerprint = ted = TransportableData.parse(base64);
             assert ted != null : "meta.fingerprint error: " + base64;
         }
-        return ted == null ? null : ted.getData();
+        return ted;
     }
 
     //
@@ -217,16 +217,16 @@ public abstract class BaseMeta extends Dictionary implements Meta {
             return !(containsKey("seed") || containsKey("fingerprint"));
         }
         String seed = getSeed();
-        byte[] fingerprint = getFingerprint();
+        TransportableData fingerprint = getFingerprint();
         // check meta seed & signature
-        if (fingerprint == null || fingerprint.length == 0 ||
+        if (fingerprint == null || fingerprint.isEmpty() ||
                 seed == null || seed.isEmpty()) {
             assert false : "meta error: " + toMap();
             return false;
         }
         // verify fingerprint
         byte[] data = UTF8.encode(seed);
-        return key.verify(data, fingerprint);
+        return key.verify(data, fingerprint.getBytes());
     }
 
 }

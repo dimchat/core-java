@@ -35,7 +35,7 @@ import java.util.Map;
 
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.PageContent;
-import chat.dim.protocol.PortableNetworkFile;
+import chat.dim.protocol.TransportableFile;
 
 /**
  *  Web Page Content
@@ -61,7 +61,7 @@ import chat.dim.protocol.PortableNetworkFile;
 public class WebPageContent extends BaseContent implements PageContent {
 
     // small image
-    private PortableNetworkFile icon;
+    private TransportableFile icon;
 
     // web URL
     private  URI url;
@@ -73,7 +73,7 @@ public class WebPageContent extends BaseContent implements PageContent {
         url = null;
     }
 
-    public WebPageContent(String title, PortableNetworkFile icon, String desc,
+    public WebPageContent(String title, TransportableFile icon, String desc,
                           URI url, String html) {
         super(ContentType.PAGE);
 
@@ -98,22 +98,22 @@ public class WebPageContent extends BaseContent implements PageContent {
     }
 
     @Override
-    public PortableNetworkFile getIcon() {
-        PortableNetworkFile img = icon;
+    public TransportableFile getIcon() {
+        TransportableFile img = icon;
         if (img == null) {
             Object uri = get("icon");
-            img = PortableNetworkFile.parse(uri);
+            img = TransportableFile.parse(uri);
             icon = img;
         }
         return img;
     }
 
     @Override
-    public void setIcon(PortableNetworkFile img) {
+    public void setIcon(TransportableFile img) {
         if (img == null || img.isEmpty()) {
             remove("icon");
         } else {
-            put("icon", img.toObject());
+            put("icon", img.serialize());
         }
         icon = img;
     }

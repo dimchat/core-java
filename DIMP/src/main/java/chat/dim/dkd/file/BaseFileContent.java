@@ -102,14 +102,13 @@ public class BaseFileContent extends BaseContent implements FileContent {
      */
 
     @Override
-    public byte[] getData() {
-        TransportableData ted = wrapper.getData();
-        return ted == null ? null : ted.getData();
+    public TransportableData getData() {
+        return wrapper.getData();
     }
 
     @Override
-    public void setData(byte[] data) {
-        wrapper.setBinary(data);
+    public void setData(TransportableData data) {
+        wrapper.setData(data);
     }
 
     /**

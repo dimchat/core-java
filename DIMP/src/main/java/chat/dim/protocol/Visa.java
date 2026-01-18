@@ -66,13 +66,13 @@ public interface Visa extends Document {
      *
      * @return PNF(URL)
      */
-    PortableNetworkFile getAvatar();
+    TransportableFile getAvatar();
 
     /**
      *  Set avatar URL
      *
      * @param img - image URL
      */
-    void setAvatar(PortableNetworkFile img);
+    void setAvatar(TransportableFile img);
 
 }

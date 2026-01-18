@@ -55,8 +55,8 @@ package chat.dim.protocol;
  */
 public interface VideoContent extends FileContent {
 
-    void setSnapshot(PortableNetworkFile img);
+    void setSnapshot(TransportableFile img);
 
-    PortableNetworkFile getSnapshot();
+    TransportableFile getSnapshot();
 
 }

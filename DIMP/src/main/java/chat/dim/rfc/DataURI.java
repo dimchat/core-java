@@ -75,6 +75,14 @@ public class DataURI {
         }
     }
 
+    public String getCharset() {
+        return head.getExtra("charset");
+    }
+
+    public String getFilename() {
+        return head.getExtra("filename");
+    }
+
     @Override
     public String toString() {
         String text = uriString;

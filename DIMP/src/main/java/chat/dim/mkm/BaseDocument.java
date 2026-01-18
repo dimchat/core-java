@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.data.Converter;
+import chat.dim.format.Base64Data;
 import chat.dim.format.JSONMap;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Document;
@@ -89,7 +90,7 @@ public class BaseDocument extends Dictionary implements Document {
 
         // document signature (Base64)
         assert !signature.isEmpty() : "document signature should not be empty";
-        put("signature", signature.toObject());
+        put("signature", signature.serialize());
         this.sig = signature;
 
         properties = null;  // lazy
@@ -151,7 +152,7 @@ public class BaseDocument extends Dictionary implements Document {
             Object base64 = get("signature");
             sig = ted = TransportableData.parse(base64);
         }
-        return ted == null ? null : ted.getData();
+        return ted == null ? null : ted.getBytes();
     }
 
     @Override
@@ -259,10 +260,10 @@ public class BaseDocument extends Dictionary implements Document {
         assert data.length() > 0 : "should not happen: " + dict;
         signature = privateKey.sign(UTF8.encode(data));
         assert signature.length > 0 : "should not happen: " + dict;
-        TransportableData ted = TransportableData.create(signature);
+        TransportableData ted = Base64Data.create(signature);
         // 3. update 'data' & 'signature' fields
         put("data", data);                 // JSON string
-        put("signature", ted.toObject());  // BASE-64
+        put("signature", ted.serialize());  // BASE-64
         json = data;
         sig = ted;
         // 4. update status

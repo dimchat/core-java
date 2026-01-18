@@ -42,18 +42,18 @@ import chat.dim.dkd.file.VideoFileContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x10),
- *      'sn'   : 123,
+ *      "type" : i2s(0x10),
+ *      "sn"   : 123,
  *
- *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "photo.png",
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "photo.png",
  *
- *      'URL'      : "http://...", // download from CDN
+ *      "URL"      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      'key'      : {             // symmetric key to decrypt file data
- *          'algorithm' : "AES",   // "DES", ...
- *          'data'      : "{BASE64_ENCODE}",
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
  *          ...
  *      }
  *  }
@@ -61,8 +61,8 @@ import chat.dim.dkd.file.VideoFileContent;
  */
 public interface FileContent extends Content {
 
-    void setData(byte[] binary);
-    byte[] getData();
+    void setData(TransportableData binary);
+    TransportableData getData();
 
     void setFilename(String name);
     String getFilename();

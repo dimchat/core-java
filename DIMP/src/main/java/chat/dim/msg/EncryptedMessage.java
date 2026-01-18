@@ -32,7 +32,7 @@ package chat.dim.msg;
 
 import java.util.Map;
 
-import chat.dim.format.UTF8;
+import chat.dim.format.PlainData;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.TransportableData;
 
@@ -50,7 +50,7 @@ import chat.dim.protocol.TransportableData;
  *      "time"     : 123,
  *
  *      //-- content data and key/keys
- *      "data"     : "...",      // base64_encode( symmetric_encrypt(content))
+ *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
  *      "keys"     : {
  *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
  *          "digest" : "..."   // hash(pwd.data)
@@ -60,7 +60,7 @@ import chat.dim.protocol.TransportableData;
  */
 public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
-    private byte[] data;
+    private TransportableData data;
     private Map<String, Object> keys;  // String => String
 
     public EncryptedMessage(Map<String, Object> msg) {
@@ -71,26 +71,26 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
     }
 
     @Override
-    public byte[] getData() {
-        byte[] binary = data;
-        if (binary == null) {
+    public TransportableData getData() {
+        TransportableData ted = data;
+        if (ted == null) {
             Object text = get("data");
             if (text == null) {
                 assert false : "message data not found: " + toMap();
             } else if (!isBroadcast(this)) {
                 // message content had been encrypted by a symmetric key,
                 // so the data should be encoded here (with algorithm 'base64' as default).
-                binary = TransportableData.decode(text);
+                ted = TransportableData.parse(text);
             } else if (text instanceof String) {
                 // broadcast message content will not be encrypted (just encoded to JsON),
                 // so return the string data directly
-                binary = UTF8.encode((String) text);  // JsON
+                ted = PlainData.parse((String) text);  // JsON
             } else {
                 assert false : "content data error: " + text;
             }
-            data = binary;
+            data = ted;
         }
-        return binary;
+        return ted;
     }
 
     @SuppressWarnings("unchecked")

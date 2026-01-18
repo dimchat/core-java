@@ -45,19 +45,18 @@ import chat.dim.protocol.TransportableData;
  *  <blockquote><pre>
  *  data format: {
  *      //-- envelope
- *      'sender'   : "moki@xxx",
- *      'receiver' : "hulk@yyy",
- *      'time'     : 123,
+ *      "sender"   : "moki@xxx",
+ *      "receiver" : "hulk@yyy",
+ *      "time"     : 123,
  *
  *      //-- content data and key/keys
- *      'data' : "...",      // base64_encode( symmetric_encrypt(content))
- *      'key'  : "...",      // base64_encode(asymmetric_encrypt(pwd))
- *      'keys' : {
- *          "ID1" : "key1",  // base64_encode(asymmetric_encrypt(pwd))
+ *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
+ *      "keys"     : {
+ *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
+ *          "digest" : "..."   // hash(pwd.data)
  *      },
- *
  *      //-- signature
- *      'signature' : "..."  // base64_encode(asymmetric_sign(data))
+ *      "signature": "..."   // base64_encode(asymmetric_sign(data))
  *  }
  *  </pre></blockquote>
  */
@@ -72,7 +71,7 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
     }
 
     @Override
-    public byte[] getSignature() {
+    public TransportableData getSignature() {
         TransportableData ted = signature;
         if (ted == null) {
             Object base64 = get("signature");
@@ -80,7 +79,7 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
             signature = ted = TransportableData.parse(base64);
             // assert ted != null : "failed to decode message signature: " + base64;
         }
-        return ted == null ? null : ted.getData();
+        return ted;
     }
 
 }

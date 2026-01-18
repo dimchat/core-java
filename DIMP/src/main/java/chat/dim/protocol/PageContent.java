@@ -39,19 +39,19 @@ import chat.dim.dkd.WebPageContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x20),
- *      'sn'   : 123,
+ *      "type" : i2s(0x20),
+ *      "sn"   : 123,
  *
- *      'title' : "...",                // Web title
- *      'desc'  : "...",
- *      'icon'  : "data:image/x-icon;base64,...",
+ *      "title" : "...",                // Web title
+ *      "desc"  : "...",
+ *      "icon"  : "data:image/x-icon;base64,...",
  *
- *      'URL'   : "https://github.com/moky/dimp",
+ *      "URL"   : "https://github.com/moky/dimp",
  *
- *      'HTML'      : "...",            // Web content
- *      'mime_type' : "text/html",      // Content-Type
- *      'encoding'  : "utf8",
- *      'base'      : "about:blank"     // Base URL
+ *      "HTML"      : "...",            // Web content
+ *      "mime_type" : "text/html",      // Content-Type
+ *      "encoding"  : "utf8",
+ *      "base"      : "about:blank"     // Base URL
  *  }
  *  </pre></blockquote>
  */
@@ -60,8 +60,8 @@ public interface PageContent extends Content {
     void setTitle(String text);
     String getTitle();
 
-    void setIcon(PortableNetworkFile img);
-    PortableNetworkFile getIcon();
+    void setIcon(TransportableFile img);
+    TransportableFile getIcon();
 
     void setDesc(String text);
     String getDesc();
@@ -76,7 +76,7 @@ public interface PageContent extends Content {
     //  Factory
     //
 
-    static PageContent create(String title, PortableNetworkFile icon, String desc,
+    static PageContent create(String title, TransportableFile icon, String desc,
                               URI url, String html) {
         return new WebPageContent(title, icon, desc, url, html);
     }

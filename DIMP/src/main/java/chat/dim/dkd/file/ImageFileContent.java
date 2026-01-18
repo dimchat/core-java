@@ -36,8 +36,8 @@ import java.util.Map;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.DecryptKey;
 import chat.dim.protocol.ImageContent;
-import chat.dim.protocol.PortableNetworkFile;
 import chat.dim.protocol.TransportableData;
+import chat.dim.protocol.TransportableFile;
 
 /**
  *  Image File Content
@@ -65,7 +65,7 @@ import chat.dim.protocol.TransportableData;
 public class ImageFileContent extends BaseFileContent implements ImageContent {
 
     // small image
-    private PortableNetworkFile thumbnail = null;
+    private TransportableFile thumbnail = null;
 
     public ImageFileContent(Map<String, Object> content) {
         super(content);
@@ -76,21 +76,21 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     }
 
     @Override
-    public void setThumbnail(PortableNetworkFile img) {
+    public void setThumbnail(TransportableFile img) {
         if (img == null || img.isEmpty()) {
             remove("thumbnail");
         } else {
-            put("thumbnail", img.toObject());
+            put("thumbnail", img.serialize());
         }
         thumbnail = img;
     }
 
     @Override
-    public PortableNetworkFile getThumbnail() {
-        PortableNetworkFile img = thumbnail;
+    public TransportableFile getThumbnail() {
+        TransportableFile img = thumbnail;
         if (img == null) {
             Object uri = get("thumbnail");
-            img = PortableNetworkFile.parse(uri);
+            img = TransportableFile.parse(uri);
             thumbnail = img;
         }
         return img;

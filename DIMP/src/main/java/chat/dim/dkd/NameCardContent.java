@@ -35,7 +35,7 @@ import java.util.Map;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NameCard;
-import chat.dim.protocol.PortableNetworkFile;
+import chat.dim.protocol.TransportableFile;
 
 /**
  *  Name Card
@@ -54,7 +54,7 @@ import chat.dim.protocol.PortableNetworkFile;
  */
 public class NameCardContent extends BaseContent implements NameCard {
 
-    private PortableNetworkFile image;
+    private TransportableFile image;
 
     public NameCardContent(Map<String, Object> content) {
         super(content);
@@ -62,7 +62,7 @@ public class NameCardContent extends BaseContent implements NameCard {
         image = null;
     }
 
-    public NameCardContent(ID did, String name, PortableNetworkFile avatar) {
+    public NameCardContent(ID did, String name, TransportableFile avatar) {
         super(ContentType.NAME_CARD);
         // ID
         put("did", did.toString());
@@ -71,7 +71,7 @@ public class NameCardContent extends BaseContent implements NameCard {
         // avatar
         if (avatar != null) {
             // encode
-            put("avatar", avatar.toObject());
+            put("avatar", avatar.serialize());
         }
         image = avatar;
     }
@@ -87,11 +87,11 @@ public class NameCardContent extends BaseContent implements NameCard {
     }
 
     @Override
-    public PortableNetworkFile getAvatar() {
-        PortableNetworkFile img = image;
+    public TransportableFile getAvatar() {
+        TransportableFile img = image;
         if (img == null) {
             Object uri = get("avatar");
-            img = PortableNetworkFile.parse(uri);
+            img = TransportableFile.parse(uri);
             image = img;
         }
         return img;

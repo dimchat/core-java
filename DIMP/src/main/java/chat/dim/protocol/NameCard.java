@@ -37,12 +37,12 @@ import chat.dim.dkd.NameCardContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x33),
- *      'sn'   : 123,
+ *      "type" : i2s(0x33),
+ *      "sn"   : 123,
  *
- *      'did'    : "{ID}",        // contact's ID
- *      'name'   : "{nickname}",  // contact's name
- *      'avatar' : "{URL}",       // avatar - PNF(URL)
+ *      "did"    : "{ID}",        // contact's ID
+ *      "name"   : "{nickname}",  // contact's name
+ *      "avatar" : "{URL}",       // avatar - PNF(URL)
  *      ...
  *  }
  *  </pre></blockquote>
@@ -53,13 +53,13 @@ public interface NameCard extends Content {
 
     String getName();
 
-    PortableNetworkFile getAvatar();
+    TransportableFile getAvatar();
 
     //
     //  Factory
     //
 
-    static NameCard create(ID did, String name, PortableNetworkFile avatar) {
+    static NameCard create(ID did, String name, TransportableFile avatar) {
         return new NameCardContent(did, name, avatar);
     }
 

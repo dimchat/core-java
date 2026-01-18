@@ -1,13 +1,8 @@
 /* license: https://mit-license.org
- *
- *  DIMP : Decentralized Instant Messaging Protocol
- *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,35 +23,62 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.format;
 
-/**
- *  Image File Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x12),
- *      "sn"   : 123,
- *
- *      "data"     : "...",        // base64_encode(fileContent)
- *      "filename" : "photo.png",
- *
- *      "URL"      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      "key"      : {             // symmetric key to decrypt file data
- *          "algorithm" : "AES",   // "DES", ...
- *          "data"      : "{BASE64_ENCODE}",
- *          ...
- *      },
- *      "thumbnail" : "data:image/jpeg;base64,..."
- *  }
- *  </pre></blockquote>
- */
-public interface ImageContent extends FileContent {
+import chat.dim.protocol.TransportableData;
+import chat.dim.type.ConstantString;
+import chat.dim.type.Stringer;
 
-    void setThumbnail(TransportableFile img);
 
-    TransportableFile getThumbnail();
+public class PlainData extends ConstantString implements TransportableData {
+
+    private byte[] data;
+
+    public PlainData(String str) {
+        super(str);
+        // lazy load
+        data = null;
+    }
+
+    public PlainData(Stringer str) {
+        super(str);
+        // lazy load
+        data = null;
+    }
+
+    @Override
+    public String getEncoding() {
+        return null;
+    }
+
+    @Override
+    public byte[] getBytes() {
+        byte[] binary = data;
+        if (binary == null) {
+            binary = UTF8.encode(super.toString());
+            data = binary;
+        }
+        return binary;
+    }
+
+    @Override
+    public Object serialize() {
+        return toString();
+    }
+
+    //
+    //  Factory methods
+    //
+
+    public static PlainData create(byte[] data) {
+        String text = UTF8.decode(data);
+        PlainData ted = new PlainData(text);
+        ted.data = data;
+        return ted;
+    }
+
+    public static PlainData parse(String text) {
+        return new PlainData(text);
+    }
 
 }
