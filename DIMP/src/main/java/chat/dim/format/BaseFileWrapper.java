@@ -28,9 +28,11 @@ package chat.dim.format;
 import java.net.URI;
 import java.util.Map;
 
+import chat.dim.data.Converter;
 import chat.dim.protocol.DecryptKey;
 import chat.dim.protocol.SymmetricKey;
 import chat.dim.protocol.TransportableData;
+import chat.dim.type.Mapper;
 
 
 /**
@@ -52,7 +54,9 @@ import chat.dim.protocol.TransportableData;
  *  }
  *  </pre></blockquote>
  */
-class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetworkFileWrapper {
+class BaseFileWrapper implements PortableNetworkFileWrapper {
+
+    private final Map<String, Object> dictionary;
 
     // file content (not encrypted)
     private TransportableData attachment;
@@ -62,22 +66,50 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
     // key to decrypt data downloaded from CDN
     private DecryptKey password;
 
-    public BaseFileWrapper(Map<String, Object> content) {
-        super(content);
+    public BaseFileWrapper(Map<String, Object> map) {
+        super();
+        if (map instanceof Mapper) {
+            map = ((Mapper) map).toMap();
+        }
+        dictionary = map;
         // lazy load
         attachment = null;
         remoteURL = null;
         password = null;
     }
 
+    public Object get(String key) {
+        return dictionary.get(key);
+    }
+
+    public Object put(String key, Object value) {
+        return dictionary.put(key, value);
+    }
+
+    public Object remove(String key) {
+        return dictionary.remove(key);
+    }
+
+    public String getString(String key) {
+        return Converter.getString(dictionary.get(key));
+    }
+
     @Override
     public Map<String, Object> toMap() {
+        // serialize 'data'
         Object base64 = get("data");
         TransportableData ted = attachment;
         if (base64 == null && ted != null) {
             put("data", ted.serialize());
         }
-        return super.toMap();
+        // serialize 'key'
+        Object key = get("key");
+        DecryptKey pwd = password;
+        if (key == null && pwd != null) {
+            put("key", pwd.toMap());
+        }
+        // OK
+        return dictionary;
     }
 
     @Override
@@ -140,18 +172,23 @@ class BaseFileWrapper extends BaseNetworkFormatWrapper implements PortableNetwor
 
     @Override
     public DecryptKey getPassword() {
-        DecryptKey key = password;
-        if (key == null) {
-            key = SymmetricKey.parse(get("key"));
-            password = key;
+        DecryptKey pwd = password;
+        if (pwd == null) {
+            pwd = SymmetricKey.parse(get("key"));
+            password = pwd;
         }
-        return key;
+        return pwd;
     }
 
     @Override
-    public void setPassword(DecryptKey key) {
-        setMap("key", key);
-        password = key;
+    public void setPassword(DecryptKey pwd) {
+        remove("key");
+        /*/
+        if (pwd != null) {
+            put("key", pwd.toMap());
+        }
+        /*/
+        password = pwd;
     }
 
 }

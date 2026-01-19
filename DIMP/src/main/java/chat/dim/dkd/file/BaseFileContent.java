@@ -94,7 +94,13 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     protected PortableNetworkFileWrapper createWrapper() {
         PortableNetworkFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
-        return factory.createPortableNetworkFileWrapper(toMap());
+        return factory.createPortableNetworkFileWrapper(super.toMap());
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        // call wrapper to serialize 'data' & 'key"
+        return wrapper.toMap();
     }
 
     /**
