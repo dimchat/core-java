@@ -26,26 +26,26 @@
 package chat.dim.format;
 
 import chat.dim.protocol.EncodeAlgorithms;
-import chat.dim.protocol.TransportableData;
-import chat.dim.type.ConstantString;
-import chat.dim.type.Stringer;
 
 
-public class Base64Data extends ConstantString implements TransportableData {
+/**
+ *  Base-64 encoding
+ */
+public class Base64Data extends BaseData {
 
-    private byte[] data;
-
-    public Base64Data(String str) {
-        super(str);
-        // lazy load
-        data = null;
+    public Base64Data(String base64) {
+        super(base64);
+        assert !base64.isEmpty() : "base64 string should not be empty";
     }
 
-    public Base64Data(Stringer str) {
-        super(str);
-        // lazy load
-        data = null;
+    public Base64Data(byte[] bytes) {
+        super(bytes);
+        assert bytes.length > 0 : "decoded data should not be empty";
     }
+
+    //
+    //  TransportableData
+    //
 
     @Override
     public String getEncoding() {
@@ -54,17 +54,24 @@ public class Base64Data extends ConstantString implements TransportableData {
 
     @Override
     public byte[] getBytes() {
-        byte[] binary = data;
-        if (binary == null) {
-            binary = Base64.decode(super.toString());
-            data = binary;
+        byte[] bytes = binary;
+        if (bytes == null) {
+            assert string != null : "base64 data error";
+            bytes = Base64.decode(string);
+            binary = bytes;
         }
-        return binary;
+        return bytes;
     }
 
     @Override
-    public Object serialize() {
-        return toString();
+    public String toString() {
+        String base64 = string;
+        if (base64 == null) {
+            assert binary != null : "base64 data error";
+            base64 = Base64.encode(binary);
+            string = base64;
+        }
+        return base64;
     }
 
     //
@@ -72,13 +79,10 @@ public class Base64Data extends ConstantString implements TransportableData {
     //
 
     public static Base64Data create(byte[] data) {
-        String base64 = Base64.encode(data);
-        Base64Data ted = new Base64Data(base64);
-        ted.data = data;
-        return ted;
+        return new Base64Data(data);
     }
 
-    public static Base64Data parse(String text) {
+    public static Base64Data create(String text) {
         return new Base64Data(text);
     }
 

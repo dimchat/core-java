@@ -31,43 +31,24 @@ import chat.dim.rfc.MIME;
 
 
 /**
- *  TED for embed image/audio
+ *  Data URI for embed image/audio
  */
-public class EmbedData {
+public class EmbedData extends BaseData {
 
     private DataURI dataUri;
     private final DataURI.Header dataHead;
-    private byte[] binary;
 
     public EmbedData(DataURI uri) {
-        super();
+        super(uri.toString());
         dataUri = uri;
         dataHead = uri.head;
-        binary = null;
     }
 
     public EmbedData(String mimeType, byte[] data) {
-        super();
+        super(data);
+        assert data.length > 0 : "decoded data should not be empty";
         dataUri = null;
         dataHead = new DataURI.Header(mimeType, EncodeAlgorithms.BASE_64, null);
-        binary = data;
-    }
-
-    public String getEncoding() {
-        String encoding = dataHead.encoding;
-        assert EncodeAlgorithms.BASE_64.equalsIgnoreCase(encoding) : "encoding error: " + encoding;
-        return encoding;
-    }
-
-    protected DataCoder getCoder() {
-        String encoding = getEncoding();
-        return SharedNetworkFormatAccess.getDataCoder(encoding);
-    }
-
-    @Override
-    public String toString() {
-        DataURI uri = getDataURI();
-        return uri == null ? "" : uri.toString();
     }
 
     // encode
@@ -88,8 +69,24 @@ public class EmbedData {
         return uri;
     }
 
-    // decode
-    public byte[] getData() {
+    protected DataCoder getCoder() {
+        String encoding = getEncoding();
+        return SharedNetworkFormatAccess.getDataCoder(encoding);
+    }
+
+    //
+    //  TransportableData
+    //
+
+    @Override
+    public String getEncoding() {
+        String encoding = dataHead.encoding;
+        assert EncodeAlgorithms.BASE_64.equalsIgnoreCase(encoding) : "encoding error: " + encoding;
+        return encoding;
+    }
+
+    @Override
+    public byte[] getBytes() {
         byte[] data = binary;
         if (data == null) {
             DataURI uri = dataUri;
@@ -110,6 +107,17 @@ public class EmbedData {
         return data;
     }
 
+    @Override
+    public String toString() {
+        String text = string;
+        if (text == null) {
+            DataURI uri = getDataURI();
+            text = uri == null ? "" : uri.toString();
+            string = text;
+        }
+        return text;
+    }
+
     //
     //  factories:
     //
@@ -118,11 +126,19 @@ public class EmbedData {
     //
 
     public static EmbedData createImage(byte[] jpeg) {
-        return new EmbedData(MIME.ContentType.IMAGE_JPG, jpeg);
+        return create(MIME.ContentType.IMAGE_JPG, jpeg);
     }
 
     public static EmbedData createAudio(byte[] mp4) {
-        return new EmbedData(MIME.ContentType.AUDIO_MP4, mp4);
+        return create(MIME.ContentType.AUDIO_MP4, mp4);
+    }
+
+    public static EmbedData create(String mimeType, byte[] data) {
+        return new EmbedData(mimeType, data);
+    }
+
+    public static EmbedData create(DataURI uri) {
+        return new EmbedData(uri);
     }
 
     public static EmbedData parse(String text) {
@@ -131,7 +147,7 @@ public class EmbedData {
             //assert false : "data uri error: " + text;
             return null;
         }
-        return new EmbedData(uri);
+        return create(uri);
     }
 
 }

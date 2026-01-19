@@ -25,26 +25,23 @@
  */
 package chat.dim.format;
 
-import chat.dim.protocol.TransportableData;
-import chat.dim.type.ConstantString;
-import chat.dim.type.Stringer;
 
-
-public class PlainData extends ConstantString implements TransportableData {
-
-    private byte[] data;
+/**
+ *  UTF-8 encoding
+ */
+public class PlainData extends BaseData {
 
     public PlainData(String str) {
         super(str);
-        // lazy load
-        data = null;
     }
 
-    public PlainData(Stringer str) {
-        super(str);
-        // lazy load
-        data = null;
+    public PlainData(byte[] bytes) {
+        super(bytes);
     }
+
+    //
+    //  TransportableData
+    //
 
     @Override
     public String getEncoding() {
@@ -53,17 +50,24 @@ public class PlainData extends ConstantString implements TransportableData {
 
     @Override
     public byte[] getBytes() {
-        byte[] binary = data;
-        if (binary == null) {
-            binary = UTF8.encode(super.toString());
-            data = binary;
+        byte[] bytes = binary;
+        if (bytes == null) {
+            assert string != null : "base64 data error";
+            bytes = UTF8.encode(string);
+            binary = bytes;
         }
-        return binary;
+        return bytes;
     }
 
     @Override
-    public Object serialize() {
-        return toString();
+    public String toString() {
+        String base64 = string;
+        if (base64 == null) {
+            assert binary != null : "base64 data error";
+            base64 = UTF8.decode(binary);
+            string = base64;
+        }
+        return base64;
     }
 
     //
@@ -71,13 +75,10 @@ public class PlainData extends ConstantString implements TransportableData {
     //
 
     public static PlainData create(byte[] data) {
-        String text = UTF8.decode(data);
-        PlainData ted = new PlainData(text);
-        ted.data = data;
-        return ted;
+        return new PlainData(data);
     }
 
-    public static PlainData parse(String text) {
+    public static PlainData create(String text) {
         return new PlainData(text);
     }
 
