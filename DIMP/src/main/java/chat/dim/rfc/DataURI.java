@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -59,7 +60,7 @@ public class DataURI {
     }
 
     public String getHeader(String name) {
-        String value = head.getExtra(name);
+        String value = head.getExtraValue(name);
         if (value != null) {
             // charset
             // filename
@@ -76,11 +77,11 @@ public class DataURI {
     }
 
     public String getCharset() {
-        return head.getExtra("charset");
+        return head.getExtraValue("charset");
     }
 
     public String getFilename() {
-        return head.getExtra("filename");
+        return head.getExtraValue("filename");
     }
 
     @Override
@@ -139,11 +140,18 @@ public class DataURI {
             headerString = null;
         }
 
+        public Set<String> getExtraKeys() {
+            if (extra == null) {
+                return null;
+            }
+            return extra.keySet();
+        }
+
         // charset: default is "us-ascii"
         // filename: "avatar.png"
-        public String getExtra(String name) {
+        public String getExtraValue(String name) {
             if (extra == null) {
-                assert false : "extra info is empty";
+                //assert false : "extra info is empty";
                 return null;
             } else if (name == null || name.isEmpty()) {
                 assert false : "header name should not be empty";
@@ -219,6 +227,8 @@ public class DataURI {
             // split extra info
             Map<String, String> extra = null;
             int pos;
+            String name;
+            String value;
             for (final String item : array) {
                 if (item.length() == 0) {
                     assert false : "header error: " + uri;
@@ -233,7 +243,10 @@ public class DataURI {
                     if (extra == null) {
                         extra = new HashMap<>();
                     }
-                    extra.put(item.substring(0, pos), item.substring(pos + 1));
+                    name = item.substring(0, pos);
+                    name = name.toLowerCase();
+                    value = item.substring(pos + 1);
+                    extra.put(name, value);
                     continue;
                 }
                 //

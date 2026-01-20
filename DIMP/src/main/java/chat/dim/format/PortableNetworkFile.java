@@ -26,11 +26,14 @@
 package chat.dim.format;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import chat.dim.protocol.DecryptKey;
 import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.TransportableFile;
+import chat.dim.rfc.DataURI;
 import chat.dim.type.Dictionary;
 
 
@@ -93,7 +96,8 @@ public class PortableNetworkFile extends Dictionary implements TransportableFile
         }
         // check 'data'
         String text = getString("data");
-        if (text != null && text.startsWith("data:")) {
+        DataURI uri = DataURI.parse(text);
+        if (uri != null) {
             int count = map.size();
             if (count == 1) {
                 // this PNF info contains 'data' only,
@@ -101,8 +105,15 @@ public class PortableNetworkFile extends Dictionary implements TransportableFile
                 // so return the URI string here.
                 return text;
             } else if (count == 2 && map.containsKey("filename")) {
-                // ignore 'filename' field
-                return text;
+                // check 'filename'
+                String filename = getString("filename");
+                if (filename == null) {
+                    // nothing changed
+                    return text;
+                }
+                // add 'filename' to data URI
+                uri = newDataURI(uri, filename);
+                return uri.toString();
             }
             // this PNF info contains other params,
             // cannot serialize it as a string.
@@ -113,6 +124,29 @@ public class PortableNetworkFile extends Dictionary implements TransportableFile
         // cannot build URI string
         assert map.containsKey("filename") : "PNF info error: " + map;
         return null;
+    }
+
+    protected DataURI newDataURI(DataURI uri, String filename) {
+        DataURI.Header head = uri.head;
+        Map<String, String> extra = new HashMap<>();
+        // copy extra values
+        Set<String> keys = head.getExtraKeys();
+        if (keys != null) {
+            // copy all entries
+            for (String name : keys) {
+                extra.put(name, head.getExtraValue(name));
+            }
+        }
+        if (filename.isEmpty()) {
+            // erase 'filename'
+            extra.remove("filename");
+        } else {
+            // update 'filename'
+            extra.put("filename", filename);
+        }
+        // create data URI with new extra info
+        head = new DataURI.Header(head.mimeType, head.encoding, extra);
+        return new DataURI(head, uri.body);
     }
 
     @Override
