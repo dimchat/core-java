@@ -25,8 +25,6 @@
  */
 package chat.dim.format;
 
-import chat.dim.protocol.EncodeAlgorithms;
-
 
 /**
  *  Base-64 encoding
@@ -49,7 +47,7 @@ public class Base64Data extends BaseData {
 
     @Override
     public String getEncoding() {
-        return EncodeAlgorithms.BASE_64;
+        return BASE_64;
     }
 
     @Override

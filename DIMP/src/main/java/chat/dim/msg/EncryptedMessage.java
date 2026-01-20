@@ -61,13 +61,11 @@ import chat.dim.protocol.TransportableData;
 public class EncryptedMessage extends BaseMessage implements SecureMessage {
 
     private TransportableData data;
-    private Map<String, Object> keys;  // String => String
 
     public EncryptedMessage(Map<String, Object> msg) {
         super(msg);
         // lazy load
         data = null;
-        keys = null;
     }
 
     @Override
@@ -96,16 +94,13 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> getEncryptedKeys() {
-        if (keys == null) {
-            Object map = get("keys");
-            if (map instanceof Map) {
-                keys = (Map<String, Object>) map;
-            } else {
-                assert map == null : "message keys error: " + map;
-                // TODO: get from 'key'
-            }
+        Object map = get("keys");
+        if (map instanceof Map) {
+            return (Map<String, Object>) map;  // String => String
         }
-        return keys;
+        assert map == null : "message keys error: " + map;
+        // TODO: get from 'key'
+        return null;
     }
 
 }

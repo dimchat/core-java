@@ -25,7 +25,6 @@
  */
 package chat.dim.format;
 
-import chat.dim.protocol.EncodeAlgorithms;
 import chat.dim.rfc.DataURI;
 import chat.dim.rfc.MIME;
 
@@ -33,32 +32,34 @@ import chat.dim.rfc.MIME;
 /**
  *  Data URI for embed image/audio
  */
-public class EmbedData extends BaseData {
+public abstract class EmbedData extends BaseData {
 
     private DataURI dataUri;
     private final DataURI.Header dataHead;
 
-    public EmbedData(DataURI uri) {
+    protected EmbedData(DataURI uri) {
         super(uri.toString());
         dataUri = uri;
         dataHead = uri.head;
     }
 
-    public EmbedData(String mimeType, byte[] data) {
+    protected EmbedData(DataURI.Header head, byte[] data) {
         super(data);
         assert data.length > 0 : "decoded data should not be empty";
         dataUri = null;
-        dataHead = new DataURI.Header(mimeType, EncodeAlgorithms.BASE_64, null);
+        dataHead = head;
     }
+
+    protected abstract DataCoder getDataCoder();  // Base64.coder
 
     // encode
     protected DataURI getDataURI() {
         DataURI uri = dataUri;
         if (uri == null) {
-            DataCoder coder = getCoder();
+            DataCoder coder = getDataCoder();
             byte[] data = binary;
             if (coder == null || data == null || data.length == 0) {
-                assert false : "cannot encode data: " + dataHead.encoding;
+                assert false : "cannot encode data: " + getEncoding();
                 return null;
             }
             String base64 = coder.encode(data);
@@ -69,20 +70,13 @@ public class EmbedData extends BaseData {
         return uri;
     }
 
-    protected DataCoder getCoder() {
-        String encoding = getEncoding();
-        return SharedNetworkFormatAccess.getDataCoder(encoding);
-    }
-
     //
     //  TransportableData
     //
 
     @Override
     public String getEncoding() {
-        String encoding = dataHead.encoding;
-        assert EncodeAlgorithms.BASE_64.equalsIgnoreCase(encoding) : "encoding error: " + encoding;
-        return encoding;
+        return dataHead.encoding;  // "base64"
     }
 
     @Override
@@ -94,7 +88,7 @@ public class EmbedData extends BaseData {
                 assert false : "data uri error: " + uri;
                 return null;
             }
-            DataCoder coder = getCoder();
+            DataCoder coder = getDataCoder();
             String base64 = uri.body;
             if (coder == null || base64 == null || base64.isEmpty()) {
                 assert false : "cannot decode data: " + getEncoding();
@@ -134,20 +128,13 @@ public class EmbedData extends BaseData {
     }
 
     public static EmbedData create(String mimeType, byte[] data) {
-        return new EmbedData(mimeType, data);
-    }
-
-    public static EmbedData create(DataURI uri) {
-        return new EmbedData(uri);
-    }
-
-    public static EmbedData parse(String text) {
-        DataURI uri = DataURI.parse(text);
-        if (uri == null) {
-            //assert false : "data uri error: " + text;
-            return null;
-        }
-        return create(uri);
+        DataURI.Header head = new DataURI.Header(mimeType, BASE_64, null);
+        return new EmbedData(head, data) {
+            @Override
+            protected DataCoder getDataCoder() {
+                return Base64.coder;
+            }
+        };
     }
 
 }

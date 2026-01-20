@@ -73,7 +73,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      *      ...
      *  </pre>
      */
-    private String type = null;
+    private String type;
 
     /**
      *  Public key (used for signature)
@@ -81,7 +81,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      *      RSA / ECC
      *  </p>
      */
-    private VerifyKey key = null;
+    private VerifyKey key;
 
     /**
      *  Seed to generate fingerprint
@@ -89,7 +89,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      *      Username / Group-X
      *  </p>
      */
-    private String seed = null;
+    private String seed;
 
     /**
      *  Fingerprint to verify ID and public key
@@ -99,7 +99,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
      *  Check: verify(seed, fingerprint, publicKey)
      *  </pre>
      */
-    private TransportableData fingerprint = null;
+    private TransportableData fingerprint;
 
     private int status;        // 1 for valid, -1 for invalid
 
@@ -107,6 +107,11 @@ public abstract class BaseMeta extends Dictionary implements Meta {
         super(dictionary);
         // meta info from network, waiting to verify.
         this.status = 0;
+        // lazy load
+        type = null;
+        key = null;
+        seed = null;
+        fingerprint = null;
     }
 
     protected BaseMeta(String type, VerifyKey key, String seed, TransportableData fingerprint) {
@@ -122,13 +127,13 @@ public abstract class BaseMeta extends Dictionary implements Meta {
 
         if (seed != null) {
             put("seed", seed);
-            this.seed = seed;
         }
+        this.seed = seed;
 
         if (fingerprint != null) {
             put("fingerprint", fingerprint.serialize());
-            this.fingerprint = fingerprint;
         }
+        this.fingerprint = fingerprint;
 
         // generated meta, or loaded from local storage,
         // no need to verify again.

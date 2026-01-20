@@ -35,6 +35,11 @@ import chat.dim.type.Stringer;
  */
 public abstract class BaseData implements TransportableData {
 
+    public static final String BASE_64 = "base64";
+    public static final String BASE_58 = "base58";
+    public static final String HEX     = "hex";
+    // ...
+
     protected String string;  // encoded string
     protected byte[] binary;  // decoded bytes
 
