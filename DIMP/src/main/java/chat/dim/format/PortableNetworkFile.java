@@ -35,31 +35,11 @@ import chat.dim.type.Dictionary;
 
 
 /**
- *  Transportable File
- *  <p>
- *      PNF - Portable Network File
- *  </p>
- *
- *  <blockquote><pre>
- *  0.  "{URL}"
- *  1. {
- *         "data"     : "...",        // base64_encode(fileContent)
- *         "filename" : "avatar.png",
- *
- *         "URL"      : "http://...", // download from CDN
- *         // before fileContent uploaded to a public CDN,
- *         // it can be encrypted by a symmetric key
- *         "key"      : {             // symmetric key to decrypt file data
- *             "algorithm" : "AES",   // "DES", ...
- *             "data"      : "{BASE64_ENCODE}",
- *             ...
- *         }
- *      }
- *  </pre></blockquote>
+ *  PNF - Portable Network File
  */
 public class PortableNetworkFile extends Dictionary implements TransportableFile {
 
-    private final PortableNetworkFileWrapper wrapper;
+    private final TransportableFileWrapper wrapper;
 
     public PortableNetworkFile(Map<String, Object> content) {
         super(content);
@@ -87,9 +67,9 @@ public class PortableNetworkFile extends Dictionary implements TransportableFile
         }
     }
 
-    protected PortableNetworkFileWrapper createWrapper() {
-        PortableNetworkFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
-        return factory.createPortableNetworkFileWrapper(super.toMap());
+    protected TransportableFileWrapper createWrapper() {
+        TransportableFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
+        return factory.createTransportableFileWrapper(super.toMap());
     }
 
     protected String getURIString() {
@@ -99,34 +79,37 @@ public class PortableNetworkFile extends Dictionary implements TransportableFile
         URI url = getURL();
         if (url != null) {
             int count = map.size();
-            if (map.containsKey("filename")) {
-                count -= 1;
+            if (count == 1) {
+                // this PNF info contains 'URL' only,
+                // so return the URI string here.
+                return url.toString();
+            } else if (count == 2 && map.containsKey("filename")) {
+                // ignore 'filename' field
+                return url.toString();
             }
-            if (count != 1) {
-                // this PNF info contains other params,
-                // cannot serialize it as a string.
-                return null;
-            }
-            // this PNF info contains 'URL' only (the field 'filename' can be ignored)
-            // so serialize it as a string here.
-            return url.toString();
+            // this PNF info contains other params,
+            // cannot serialize it as a string.
+            return null;
         }
         // check 'data'
         String text = getString("data");
         if (text != null && text.startsWith("data:")) {
             int count = map.size();
-            if (map.containsKey("filename")) {
-                count -= 1;
+            if (count == 1) {
+                // this PNF info contains 'data' only,
+                // and it is a data URI,
+                // so return the URI string here.
+                return text;
+            } else if (count == 2 && map.containsKey("filename")) {
+                // ignore 'filename' field
+                return text;
             }
-            if (count != 1) {
-                // this PNF info contains other params,
-                // cannot serialize it as a string.
-                return null;
-            }
-            // this PNF info contains 'data' only (the field 'filename' can be ignored)
-            // so serialize it as a string here.
-            return text;
+            // this PNF info contains other params,
+            // cannot serialize it as a string.
+            return null;
         }
+        // the file data was saved into local storage,
+        // so there is just a 'filename' here,
         // cannot build URI string
         assert map.containsKey("filename") : "PNF info error: " + map;
         return null;

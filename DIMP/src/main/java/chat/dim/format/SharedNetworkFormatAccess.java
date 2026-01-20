@@ -34,10 +34,10 @@ import chat.dim.protocol.EncodeAlgorithms;
 public final class SharedNetworkFormatAccess {
 
     // wrapper for PNF
-    public static PortableNetworkFileWrapper.Factory pnfWrapperFactory = new PortableNetworkFileWrapper.Factory() {
+    public static TransportableFileWrapper.Factory pnfWrapperFactory = new TransportableFileWrapper.Factory() {
         @Override
-        public PortableNetworkFileWrapper createPortableNetworkFileWrapper(Map<String, Object> content) {
-            return new BaseFileWrapper(content);
+        public TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content) {
+            return new PortableNetworkFileWrapper(content);
         }
     };
 
