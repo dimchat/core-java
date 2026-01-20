@@ -84,7 +84,7 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
             } else if (text instanceof String) {
                 // broadcast message content will not be encrypted (just encoded to JsON),
                 // so return the string data directly
-                ted = PlainData.parse((String) text);  // JsON
+                ted = PlainData.create((String) text);  // JsON
             } else {
                 assert false : "content data error: " + text;
             }

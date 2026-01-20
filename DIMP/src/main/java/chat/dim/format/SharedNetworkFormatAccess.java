@@ -33,14 +33,6 @@ import chat.dim.protocol.EncodeAlgorithms;
 
 public final class SharedNetworkFormatAccess {
 
-    // wrapper for TED
-    public static TransportableDataWrapper.Factory tedWrapperFactory = new TransportableDataWrapper.Factory() {
-        @Override
-        public TransportableDataWrapper createTransportableDataWrapper(Map<String, Object> map) {
-            return new BaseDataWrapper(map);
-        }
-    };
-
     // wrapper for PNF
     public static PortableNetworkFileWrapper.Factory pnfWrapperFactory = new PortableNetworkFileWrapper.Factory() {
         @Override

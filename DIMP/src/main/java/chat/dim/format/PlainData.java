@@ -82,4 +82,7 @@ public class PlainData extends BaseData {
         return new PlainData(text);
     }
 
+    // empty data
+    public static final PlainData ZERO = new PlainData(new byte[0]);
+
 }
