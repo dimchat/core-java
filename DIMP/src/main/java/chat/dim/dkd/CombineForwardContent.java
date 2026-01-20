@@ -43,11 +43,11 @@ import chat.dim.protocol.InstantMessage;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xCF),
- *      'sn'   : 123,
+ *      "type" : i2s(0xCF),
+ *      "sn"   : 123,
  *
- *      'title'    : "...",  // chat title
- *      'messages' : [...]   // chat history
+ *      "title"    : "...",  // chat title
+ *      "messages" : [...]   // chat history
  *  }
  *  </pre></blockquote>
  */
@@ -66,8 +66,18 @@ public class CombineForwardContent extends BaseContent implements CombineContent
         // chat name
         put("title", title);
         // chat history
-        put("messages", InstantMessage.revert(messages));
-        history = messages;
+        history = messages;  // lazy serialize
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        // serialize 'messages'
+        List<InstantMessage> messages = history;
+        if (messages != null && get("messages") == null) {
+            put("messages", InstantMessage.revert(messages));
+        }
+        // OK
+        return super.toMap();
     }
 
     @Override

@@ -76,12 +76,20 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     }
 
     @Override
-    public void setSnapshot(TransportableFile img) {
-        if (img == null || img.isEmpty()) {
-            remove("snapshot");
-        } else {
+    public Map<String, Object> toMap() {
+        // serialize 'snapshot'
+        TransportableFile img = snapshot;
+        if (img != null && get("snapshot") == null) {
             put("snapshot", img.serialize());
         }
+        // OK
+        return super.toMap();
+    }
+
+    @Override
+    public void setSnapshot(TransportableFile img) {
+        remove("snapshot");
+        //setMap("snapshot", img);
         snapshot = img;
     }
 

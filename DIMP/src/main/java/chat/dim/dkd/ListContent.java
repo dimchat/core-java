@@ -43,10 +43,10 @@ import chat.dim.protocol.ContentType;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xCA),
- *      'sn'   : 123,
+ *      "type" : i2s(0xCA),
+ *      "sn"   : 123,
  *
- *      'contents' : [...]  // content array
+ *      "contents" : [...]  // content array
  *  }
  *  </pre></blockquote>
  */
@@ -62,9 +62,19 @@ public class ListContent extends BaseContent implements ArrayContent {
 
     public ListContent(List<Content> contents) {
         super(ContentType.ARRAY);
-        // set contents
-        put("contents", Content.revert(contents));
-        list = contents;
+        // content list
+        list = contents;  // lazy serialize
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        // serialize 'contents'
+        List<Content> contents = list;
+        if (contents != null && get("contents") == null) {
+            put("contents", Content.revert(contents));
+        }
+        // OK
+        return super.toMap();
     }
 
     @Override

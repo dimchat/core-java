@@ -97,15 +97,13 @@ class PortableNetworkFileWrapper implements TransportableFileWrapper {
     @Override
     public Map<String, Object> toMap() {
         // serialize 'data'
-        Object base64 = get("data");
         TransportableData ted = attachment;
-        if (base64 == null && ted != null) {
+        if (ted != null && get("data") == null) {
             put("data", ted.serialize());
         }
         // serialize 'key'
-        Object key = get("key");
         DecryptKey pwd = password;
-        if (key == null && pwd != null) {
+        if (pwd != null && get("key") == null) {
             put("key", pwd.toMap());
         }
         // OK

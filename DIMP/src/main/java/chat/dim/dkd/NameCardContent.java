@@ -69,11 +69,18 @@ public class NameCardContent extends BaseContent implements NameCard {
         // name
         put("name", name);
         // avatar
-        if (avatar != null) {
-            // encode
-            put("avatar", avatar.serialize());
+        image = avatar;  // lazy serialize
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        // serialize 'avatar'
+        TransportableFile img = image;
+        if (img != null && get("avatar") == null) {
+            put("avatar", img.serialize());
         }
-        image = avatar;
+        // OK
+        return super.toMap();
     }
 
     @Override

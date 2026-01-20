@@ -76,12 +76,20 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     }
 
     @Override
-    public void setThumbnail(TransportableFile img) {
-        if (img == null || img.isEmpty()) {
-            remove("thumbnail");
-        } else {
+    public Map<String, Object> toMap() {
+        // serialize 'thumbnail'
+        TransportableFile img = thumbnail;
+        if (img != null && get("thumbnail") == null) {
             put("thumbnail", img.serialize());
         }
+        // OK
+        return super.toMap();
+    }
+
+    @Override
+    public void setThumbnail(TransportableFile img) {
+        remove("thumbnail");
+        //setMap("thumbnail", img);
         thumbnail = img;
     }
 

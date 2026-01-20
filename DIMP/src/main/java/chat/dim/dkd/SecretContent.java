@@ -43,11 +43,11 @@ import chat.dim.protocol.ReliableMessage;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xFF),
- *      'sn'   : 456,
+ *      "type" : i2s(0xFF),
+ *      "sn"   : 456,
  *
- *      'forward' : {...}  // reliable (secure + certified) message
- *      'secrets' : [...]  // reliable (secure + certified) messages
+ *      "forward" : {...}  // reliable (secure + certified) message
+ *      "secrets" : [...]  // reliable (secure + certified) messages
  *  }
  *  </pre></blockquote>
  */
@@ -67,13 +67,33 @@ public class SecretContent extends BaseContent implements ForwardContent {
         super(ContentType.FORWARD);
         forward = msg;
         secrets = null;
-        put("forward", msg.toMap());
+        //put("forward", msg.toMap());
     }
+
     public SecretContent(List<ReliableMessage> messages) {
         super(ContentType.FORWARD);
         forward = null;
         secrets = messages;
-        put("secrets", ReliableMessage.revert(messages));
+        //put("secrets", ReliableMessage.revert(messages));
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        ReliableMessage msg = forward;
+        List<ReliableMessage> messages = secrets;
+        if (messages != null) {
+            // serialize 'secrets'
+            if (get("secrets") == null) {
+                put("secrets", ReliableMessage.revert(messages));
+            }
+        } else if (msg != null) {
+            // serialize 'forward'
+            if (get("forward") == null) {
+                put("forward", msg.toMap());
+            }
+        }
+        // OK
+        return super.toMap();
     }
 
     @Override

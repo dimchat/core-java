@@ -44,12 +44,12 @@ import chat.dim.protocol.InstantMessage;
  *  <blockquote><pre>
  *  data format: {
  *      //-- envelope
- *      'sender'   : "moki@xxx",
- *      'receiver' : "hulk@yyy",
- *      'time'     : 123,
+ *      "sender"   : "moki@xxx",
+ *      "receiver" : "hulk@yyy",
+ *      "time"     : 123,
  *
  *      //-- content
- *      'content'  : {...}
+ *      "content"  : {...}
  *  }
  *  </pre></blockquote>
  */
@@ -67,6 +67,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
     public PlainMessage(Envelope head, Content body) {
         super(head);
         setContent(body);
+        //content = body;
     }
 
     @Override
@@ -102,8 +103,20 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
 
     //@Override
     public void setContent(Content body) {
-        setMap("content", body);
+        remove("content");
+        //setMap("content", body);
         content = body;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        // serialize 'content'
+        Content body = content;
+        if (body != null && get("content") == null) {
+            put("content", body.toMap());
+        }
+        // OK
+        return super.toMap();
     }
 
 }
