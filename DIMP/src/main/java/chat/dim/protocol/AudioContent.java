@@ -35,26 +35,31 @@ package chat.dim.protocol;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x14),
- *      'sn'   : 123,
+ *      "type" : i2s(0x14),
+ *      "sn"   : 123,
  *
- *      'data'     : "...",        // base64_encode(fileContent)
- *      'filename' : "voice.mp4",
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "voice.mp4",
  *
- *      'URL'      : "http://...", // download from CDN
+ *      "URL"      : "http://...", // download from CDN
  *      // before fileContent uploaded to a public CDN,
  *      // it should be encrypted by a symmetric key
- *      'key'      : {             // symmetric key to decrypt file data
- *          'algorithm' : "AES",   // "DES", ...
- *          'data'      : "{BASE64_ENCODE}",
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
  *          ...
  *      },
- *      'text'     : "..."         // Automatic Speech Recognition
+ *      "duration" : 123.45,
+ *      "text"     : "..."         // Automatic Speech Recognition
  *  }
  *  </pre></blockquote>
  */
 public interface AudioContent extends FileContent {
 
+    void setDuration(float duration);
+    float getDuration();
+
     void setText(String asr);
     String getText();
+
 }

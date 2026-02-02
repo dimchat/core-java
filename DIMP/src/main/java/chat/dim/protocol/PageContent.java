@@ -73,12 +73,15 @@ public interface PageContent extends Content {
     String getHTML();
 
     //
-    //  Factory
+    //  Factories
     //
 
-    static PageContent create(String title, TransportableFile icon, String desc,
-                              URI url, String html) {
-        return new WebPageContent(title, icon, desc, url, html);
+    static PageContent createWithURL(URI url, String title, TransportableFile icon, String desc) {
+        return new WebPageContent(title, icon, desc, url, null);
+    }
+
+    static PageContent createWithHTML(String html, String title, TransportableFile icon, String desc) {
+        return new WebPageContent(title, icon, desc, null, html);
     }
 
 }

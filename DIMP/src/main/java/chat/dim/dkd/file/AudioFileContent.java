@@ -57,6 +57,7 @@ import chat.dim.protocol.TransportableData;
  *          "data"      : "{BASE64_ENCODE}",
  *          ...
  *      },
+ *      "duration" : 123.45,
  *      "text"     : "..."         // Automatic Speech Recognition
  *  }
  *  </pre></blockquote>
@@ -69,6 +70,16 @@ public class AudioFileContent extends BaseFileContent implements AudioContent {
 
     public AudioFileContent(TransportableData data, String filename, URI url, DecryptKey key) {
         super(ContentType.AUDIO, data, filename, url, key);
+    }
+
+    @Override
+    public void setDuration(float duration) {
+        put("duration", duration);
+    }
+
+    @Override
+    public float getDuration() {
+        return getFloat("duration");
     }
 
     @Override

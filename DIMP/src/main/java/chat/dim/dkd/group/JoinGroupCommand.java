@@ -36,6 +36,19 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.JoinCommand;
 
+
+/**
+ *  Group history command: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "join",
+ *      "time"    : 123.456,
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "text"    : "May I?",
+ *  }
+ */
 public class JoinGroupCommand extends BaseGroupCommand implements JoinCommand {
 
     public JoinGroupCommand(Map<String, Object> content) {
@@ -45,4 +58,10 @@ public class JoinGroupCommand extends BaseGroupCommand implements JoinCommand {
     public JoinGroupCommand(ID group) {
         super(GroupCommand.JOIN, group);
     }
+
+    @Override
+    public String getAsk() {
+        return getString("text");
+    }
+
 }

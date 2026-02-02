@@ -40,16 +40,16 @@ import chat.dim.dkd.BaseQuoteContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x37),
- *      'sn'   : 456,
+ *      "type" : i2s(0x37),
+ *      "sn"   : 456,
  *
- *      'text'   : "...",  // text message
- *      'origin' : {       // original message envelope
- *          'sender'   : "...",
- *          'receiver' : "...",
+ *      "text"   : "...",  // text message
+ *      "origin" : {       // original message envelope
+ *          "sender"   : "...",
+ *          "receiver" : "...",
  *
- *          'type'     : 0x01,
- *          'sn'       : 123,
+ *          "type"     : i2s(0x01),
+ *          "sn"       : 123,
  *      }
  *  }
  *  </pre></blockquote>
@@ -69,27 +69,24 @@ public interface QuoteContent extends Content {
      *  Create quote content with text &amp; original message info
      */
     static QuoteContent create(String text, Envelope head, Content body) {
-        Map<String, Object> info = purify(head);
-        info.put("type", body.getType());
-        info.put("sn", body.getSerialNumber());
-        // update: receiver -> group
-        ID group = body.getGroup();
-        if (group != null) {
-            info.put("receiver", group.toString());
-        }
+        Map<String, Object> info = purify(head, body);
         return new BaseQuoteContent(text, info);
     }
 
-    static Map<String, Object> purify(Envelope envelope) {
-        ID from = envelope.getSender();
-        ID to = envelope.getGroup();
+    static Map<String, Object> purify(Envelope head, Content body) {
+        ID from = head.getSender();
+        ID to = body.getGroup();
         if (to == null) {
-            to = envelope.getReceiver();
+            to = head.getReceiver();
         }
+        String type = body.getType();
+        long sn = body.getSerialNumber();
         // build origin info
         Map<String, Object> info = new HashMap<>();
         info.put("sender", from.toString());
         info.put("receiver", to.toString());
+        info.put("type", type);
+        info.put("sn", sn);
         return info;
     }
 

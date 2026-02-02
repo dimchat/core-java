@@ -57,8 +57,8 @@ public interface MIME {
     String GIF          = "gif";
     String PNG          = "png";
     String JPG          = "jpeg";
-    String X_ICON       = "x-icon";
-    String SVG_XML      = "svg+xml";
+    String ICON         = "x-icon";
+    String SVG          = "svg+xml";
     String WEB_P        = "webp";
 
     String WAV          = "wav";
@@ -69,9 +69,9 @@ public interface MIME {
     String WEB_M        = "webm";
 
     String PDF          = "pdf";
-    String MS_WORD      = "msword";
-    String MS_EXCEL     = "vnd.ms-excel";
-    String MS_PPT       = "vnd.ms-powerpoint";
+    String WORD         = "msword";
+    String EXCEL        = "vnd.ms-excel";
+    String PPT          = "vnd.ms-powerpoint";
     String ZIP          = "zip";
     String JSON         = "json";
     String OCTET_STREAM = "octet-stream";
@@ -97,8 +97,8 @@ public interface MIME {
         String IMAGE_GIF        = IMAGE + "/" + GIF;      //  image/gif
         String IMAGE_PNG        = IMAGE + "/" + PNG;      //  image/png
         String IMAGE_JPG        = IMAGE + "/" + JPG;      //  image/jpeg
-        String IMAGE_X_ICON     = IMAGE + "/" + X_ICON;   //  image/x-icon
-        String IMAGE_SVG_XML    = IMAGE + "/" + SVG_XML;  //  image/svg+xml
+        String IMAGE_ICON       = IMAGE + "/" + ICON;     //  image/x-icon
+        String IMAGE_SVG        = IMAGE + "/" + SVG;      //  image/svg+xml
         String IMAGE_WEB_P      = IMAGE + "/" + WEB_P;    //  image/webp
 
         //
@@ -122,9 +122,9 @@ public interface MIME {
         //  application/*
         //
         String APP_PDF          = APP + "/" + PDF;           //  application/pdf
-        String APP_MS_WORD      = APP + "/" + MS_WORD;       //  application/msword
-        String APP_MS_EXCEL     = APP + "/" + MS_EXCEL;      //  application/vnd.ms-excel
-        String APP_MS_PPT       = APP + "/" + MS_PPT;        //  application/vnd.ms-powerpoint
+        String APP_WORD         = APP + "/" + WORD;          //  application/msword
+        String APP_EXCEL        = APP + "/" + EXCEL;         //  application/vnd.ms-excel
+        String APP_PPT          = APP + "/" + PPT;           //  application/vnd.ms-powerpoint
         String APP_ZIP          = APP + "/" + ZIP;           //  application/zip
         String APP_XML          = APP + "/" + XML;           //  application/xml
         String APP_JSON         = APP + "/" + JSON;          //  application/json

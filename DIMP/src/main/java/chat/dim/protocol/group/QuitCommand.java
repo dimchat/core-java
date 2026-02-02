@@ -30,5 +30,21 @@
  */
 package chat.dim.protocol.group;
 
+
+/**
+ *  Group history command: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "quit",
+ *      "time"    : 123.456,
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "text"    : "Good bye!",
+ *  }
+ */
 public interface QuitCommand extends GroupCommand {
+
+    String getBye();
+
 }

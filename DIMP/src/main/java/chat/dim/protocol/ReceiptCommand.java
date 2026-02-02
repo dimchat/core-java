@@ -39,18 +39,18 @@ import chat.dim.dkd.cmd.BaseReceiptCommand;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
- *      'sn'   : 456,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 456,
  *
- *      'command' : "receipt",
- *      'text'    : "...",  // text message
- *      'origin'  : {       // original message envelope
- *          'sender'    : "...",
- *          'receiver'  : "...",
- *          'time'      : 0,
+ *      "command" : "receipt",
+ *      "text"    : "...",  // text message
+ *      "origin"  : {       // original message envelope
+ *          "sender"    : "...",
+ *          "receiver"  : "...",
+ *          "time"      : 0,
  *
- *          'sn'        : 123,
- *          'signature' : "..."
+ *          "sn"        : 123,
+ *          "signature" : "..."
  *      }
  *  }
  *  </pre></blockquote>
@@ -71,34 +71,25 @@ public interface ReceiptCommand extends Command {
      *  Create base receipt command with text &amp; original message info
      */
     static ReceiptCommand create(String text, Envelope head, Content body) {
-        Map<String, Object> info;
-        if (head == null) {
-            info = null;
-        } else if (body == null) {
-            info = purify(head);
-        } else {
-            info = purify(head);
-            info.put("sn", body.getSerialNumber());
-        }
-        ReceiptCommand command = new BaseReceiptCommand(text, info);
-        if (body != null) {
-            // check group
-            ID group = body.getGroup();
-            if (group != null) {
-                command.setGroup(group);
-            }
-        }
-        return command;
+        Map<String, Object> info = purify(head, body);
+        return new BaseReceiptCommand(text, info);
     }
 
-    static Map<String, Object> purify(Envelope envelope) {
-        Map<String, Object> info = envelope.copyMap(false);
+    static Map<String, Object> purify(Envelope head, Content body) {
+        if (head == null) {
+            return null;
+        }
+        Map<String, Object> info = head.copyMap(false);
         if (info.containsKey("data")) {
             info.remove("data");
             info.remove("key");
             info.remove("keys");
             info.remove("meta");
             info.remove("visa");
+        }
+        if (body != null) {
+            long sn = body.getSerialNumber();
+            info.put("sn", sn);
         }
         return info;
     }

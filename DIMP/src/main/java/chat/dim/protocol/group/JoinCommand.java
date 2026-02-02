@@ -30,5 +30,21 @@
  */
 package chat.dim.protocol.group;
 
+
+/**
+ *  Group history command: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "join",
+ *      "time"    : 123.456,
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "text"    : "May I?",
+ *  }
+ */
 public interface JoinCommand extends GroupCommand {
+
+    String getAsk();
+
 }
