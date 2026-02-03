@@ -146,13 +146,13 @@ public class BaseDocument extends Dictionary implements Document {
      *
      * @return signature data
      */
-    private byte[] getSignature() {
+    private TransportableData getSignature() {
         TransportableData ted = sig;
         if (ted == null) {
             Object base64 = get("signature");
             sig = ted = TransportableData.parse(base64);
         }
-        return ted == null ? null : ted.getBytes();
+        return ted;
     }
 
     @Override
@@ -210,20 +210,20 @@ public class BaseDocument extends Dictionary implements Document {
         }
         /*/
         String data = getData();
-        byte[] signature = getSignature();
+        TransportableData signature = getSignature();
         if (data == null || data.isEmpty()) {
             // NOTICE: if data is empty, signature should be empty at the same time
             //         this happen while entity document not found
-            if (signature == null || signature.length == 0) {
+            if (signature == null || signature.isEmpty()) {
                 status = 0;
             } else {
                 // data signature error
                 status = -1;
             }
-        } else if (signature == null || signature.length == 0) {
+        } else if (signature == null || signature.isEmpty()) {
             // signature error
             status = -1;
-        } else if (publicKey.verify(UTF8.encode(data), signature)) {
+        } else if (publicKey.verify(UTF8.encode(data), signature.getBytes())) {
             // signature matched
             status = 1;
         } else {

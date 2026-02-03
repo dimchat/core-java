@@ -109,27 +109,52 @@ public abstract class BaseMessage extends Dictionary implements Message {
 
     @Override
     public ID getSender() {
-        return getEnvelope().getSender();
+        Envelope head = getEnvelope();
+        if (head == null) {
+            assert false : "message head not found: " + toMap();
+            return null;
+        }
+        return head.getSender();
     }
 
     @Override
     public ID getReceiver() {
-        return getEnvelope().getReceiver();
+        Envelope head = getEnvelope();
+        if (head == null) {
+            assert false : "message head not found: " + toMap();
+            return null;
+        }
+        return head.getReceiver();
     }
 
     @Override
     public Date getTime() {
-        return getEnvelope().getTime();
+        Envelope head = getEnvelope();
+        if (head == null) {
+            assert false : "message head not found: " + toMap();
+            return null;
+        }
+        return head.getTime();
     }
 
     @Override
     public ID getGroup() {
-        return getEnvelope().getGroup();
+        Envelope head = getEnvelope();
+        if (head == null) {
+            assert false : "message head not found: " + toMap();
+            return null;
+        }
+        return head.getGroup();
     }
 
     @Override
     public String getType() {
-        return getEnvelope().getType();
+        Envelope head = getEnvelope();
+        if (head == null) {
+            assert false : "message head not found: " + toMap();
+            return null;
+        }
+        return head.getType();
     }
 
     //--------

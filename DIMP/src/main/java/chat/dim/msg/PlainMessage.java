@@ -72,21 +72,42 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
 
     @Override
     public Date getTime() {
-        Date time = getContent().getTime();
-        if (time != null) {
-            return time;
+        Envelope head = getEnvelope();
+        Content body = getContent();
+        if (body == null) {
+            assert false : "message body not found: " + toMap();
+            if (head == null) {
+                assert false : "message head not found: " + toMap();
+                return null;
+            }
+            return head.getTime();
         }
-        return super.getTime();
+        // get body.time or head.time
+        Date time = body.getTime();
+        if (time == null && head != null) {
+            time = head.getTime();
+        }
+        return time;
     }
 
     @Override
     public ID getGroup() {
-        return getContent().getGroup();
+        Content body = getContent();
+        if (body == null) {
+            assert false : "message body not found: " + toMap();
+            return null;
+        }
+        return body.getGroup();
     }
 
     @Override
     public String getType() {
-        return getContent().getType();
+        Content body = getContent();
+        if (body == null) {
+            assert false : "message body not found: " + toMap();
+            return null;
+        }
+        return body.getType();
     }
 
     @Override

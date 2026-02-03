@@ -25,6 +25,8 @@
  */
 package chat.dim.format;
 
+import chat.dim.protocol.TransportableData;
+
 
 /**
  *  Base-64 encoding
@@ -76,11 +78,11 @@ public class Base64Data extends BaseData {
     //  Factory methods
     //
 
-    public static Base64Data create(byte[] data) {
+    public static TransportableData create(byte[] data) {
         return new Base64Data(data);
     }
 
-    public static Base64Data create(String text) {
+    public static TransportableData create(String text) {
         return new Base64Data(text);
     }
 

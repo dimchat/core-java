@@ -25,6 +25,8 @@
  */
 package chat.dim.format;
 
+import chat.dim.protocol.TransportableData;
+
 
 /**
  *  UTF-8 encoding
@@ -74,15 +76,15 @@ public class PlainData extends BaseData {
     //  Factory methods
     //
 
-    public static PlainData create(byte[] data) {
+    public static TransportableData create(byte[] data) {
         return new PlainData(data);
     }
 
-    public static PlainData create(String text) {
+    public static TransportableData create(String text) {
         return new PlainData(text);
     }
 
     // empty data
-    public static final PlainData ZERO = new PlainData(new byte[0]);
+    public static final TransportableData ZERO = new PlainData(new byte[0]);
 
 }

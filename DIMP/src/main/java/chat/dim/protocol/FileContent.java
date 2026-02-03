@@ -61,10 +61,10 @@ import chat.dim.dkd.file.VideoFileContent;
  */
 public interface FileContent extends Content {
 
-    void setData(TransportableData binary);
+    void setData(TransportableData data);
     TransportableData getData();
 
-    void setFilename(String name);
+    void setFilename(String filename);
     String getFilename();
 
     /**

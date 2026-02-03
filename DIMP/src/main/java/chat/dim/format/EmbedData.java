@@ -25,6 +25,7 @@
  */
 package chat.dim.format;
 
+import chat.dim.protocol.TransportableData;
 import chat.dim.rfc.DataURI;
 import chat.dim.rfc.MIME;
 
@@ -119,15 +120,15 @@ public abstract class EmbedData extends BaseData {
     //      "data:audio/mp4;base64,{BASE64_ENCODE}"
     //
 
-    public static EmbedData createImage(byte[] jpeg) {
+    public static TransportableData createImage(byte[] jpeg) {
         return create(MIME.ContentType.IMAGE_JPG, jpeg);
     }
 
-    public static EmbedData createAudio(byte[] mp4) {
+    public static TransportableData createAudio(byte[] mp4) {
         return create(MIME.ContentType.AUDIO_MP4, mp4);
     }
 
-    public static EmbedData create(String mimeType, byte[] data) {
+    public static TransportableData create(String mimeType, byte[] data) {
         DataURI.Header head = new DataURI.Header(mimeType, BASE_64, null);
         return new EmbedData(head, data) {
             @Override
