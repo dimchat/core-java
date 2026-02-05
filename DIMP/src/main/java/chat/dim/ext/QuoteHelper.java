@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2022 by Moky <albert.moky@gmail.com>
+ *                                Written in 2026 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,16 +30,19 @@
  */
 package chat.dim.ext;
 
+import java.util.Map;
+
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
+
+
 /**
- *  Command FactoryManager
+ *  Helper for QuoteContent & ReceiptCommand
  */
-public final class SharedCommandExtensions {
+public interface QuoteHelper {
 
-    public static CommandHelper cmdHelper = null;
+    Map<String, Object> purifyForQuote(Envelope head, Content body);
 
-    public static QuoteHelper quoteHelper = new QuotePurifier();
-
-    // general helper
-    public static GeneralCommandHelper helper = null;
+    Map<String, Object> purifyForReceipt(Envelope head, Content body);
 
 }

@@ -33,6 +33,7 @@ package chat.dim.protocol;
 import java.util.Map;
 
 import chat.dim.dkd.cmd.BaseReceiptCommand;
+import chat.dim.ext.SharedCommandExtensions;
 
 /**
  *  Receipt Command
@@ -76,22 +77,7 @@ public interface ReceiptCommand extends Command {
     }
 
     static Map<String, Object> purify(Envelope head, Content body) {
-        if (head == null) {
-            return null;
-        }
-        Map<String, Object> info = head.copyMap(false);
-        if (info.containsKey("data")) {
-            info.remove("data");
-            info.remove("key");
-            info.remove("keys");
-            info.remove("meta");
-            info.remove("visa");
-        }
-        if (body != null) {
-            long sn = body.getSerialNumber();
-            info.put("sn", sn);
-        }
-        return info;
+        return SharedCommandExtensions.quoteHelper.purifyForReceipt(head, body);
     }
 
 }

@@ -1,0 +1,81 @@
+/* license: https://mit-license.org
+ *
+ *  DIMP : Decentralized Instant Messaging Protocol
+ *
+ *                                Written in 2026 by Moky <albert.moky@gmail.com>
+ *
+ * ==============================================================================
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2026 Albert Moky
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ==============================================================================
+ */
+package chat.dim.ext;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ID;
+
+
+public class QuotePurifier implements QuoteHelper {
+
+    @Override
+    public Map<String, Object> purifyForQuote(Envelope head, Content body) {
+        ID from = head.getSender();
+        ID to = body.getGroup();
+        if (to == null) {
+            to = head.getReceiver();
+        }
+        String type = body.getType();
+        long sn = body.getSerialNumber();
+        // build origin info
+        Map<String, Object> info = new HashMap<>();
+        info.put("sender", from.toString());
+        info.put("receiver", to.toString());
+        info.put("type", type);
+        info.put("sn", sn);
+        return info;
+    }
+
+    @Override
+    public Map<String, Object> purifyForReceipt(Envelope head, Content body) {
+        if (head == null) {
+            return null;
+        }
+        Map<String, Object> info = head.copyMap(false);
+        if (info.containsKey("data")) {
+            info.remove("data");
+            info.remove("key");
+            info.remove("keys");
+            info.remove("meta");
+            info.remove("visa");
+        }
+        if (body != null) {
+            long sn = body.getSerialNumber();
+            info.put("sn", sn);
+        }
+        return info;
+    }
+
+}

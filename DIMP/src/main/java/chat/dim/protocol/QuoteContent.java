@@ -30,10 +30,10 @@
  */
 package chat.dim.protocol;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.dkd.BaseQuoteContent;
+import chat.dim.ext.SharedCommandExtensions;
 
 /**
  *  Quote Content
@@ -74,20 +74,7 @@ public interface QuoteContent extends Content {
     }
 
     static Map<String, Object> purify(Envelope head, Content body) {
-        ID from = head.getSender();
-        ID to = body.getGroup();
-        if (to == null) {
-            to = head.getReceiver();
-        }
-        String type = body.getType();
-        long sn = body.getSerialNumber();
-        // build origin info
-        Map<String, Object> info = new HashMap<>();
-        info.put("sender", from.toString());
-        info.put("receiver", to.toString());
-        info.put("type", type);
-        info.put("sn", sn);
-        return info;
+        return SharedCommandExtensions.quoteHelper.purifyForQuote(head, body);
     }
 
 }
