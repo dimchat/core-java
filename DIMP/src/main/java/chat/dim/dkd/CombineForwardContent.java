@@ -73,7 +73,7 @@ public class CombineForwardContent extends BaseContent implements CombineContent
     public Map<String, Object> toMap() {
         // serialize 'messages'
         List<InstantMessage> messages = history;
-        if (messages != null && get("messages") == null) {
+        if (messages != null && !containsKey("messages")) {
             put("messages", InstantMessage.revert(messages));
         }
         // OK

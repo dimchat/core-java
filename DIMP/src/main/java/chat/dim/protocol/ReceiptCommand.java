@@ -33,6 +33,7 @@ package chat.dim.protocol;
 import java.util.Map;
 
 import chat.dim.dkd.cmd.BaseReceiptCommand;
+import chat.dim.ext.QuoteHelper;
 import chat.dim.ext.SharedCommandExtensions;
 
 /**
@@ -72,12 +73,17 @@ public interface ReceiptCommand extends Command {
      *  Create base receipt command with text &amp; original message info
      */
     static ReceiptCommand create(String text, Envelope head, Content body) {
-        Map<String, Object> info = purify(head, body);
-        return new BaseReceiptCommand(text, info);
-    }
-
-    static Map<String, Object> purify(Envelope head, Content body) {
-        return SharedCommandExtensions.quoteHelper.purifyForReceipt(head, body);
+        QuoteHelper helper = SharedCommandExtensions.quoteHelper;
+        Map<String, Object> origin = helper.purifyForReceipt(head, body);
+        ReceiptCommand content = new BaseReceiptCommand(text, origin);
+        if (body != null) {
+            // check group
+            ID group = body.getGroup();
+            if (group != null) {
+                content.setGroup(group);
+            }
+        }
+        return content;
     }
 
 }

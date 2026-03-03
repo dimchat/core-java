@@ -30,6 +30,7 @@
  */
 package chat.dim.protocol;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.dkd.SecretContent;
@@ -39,18 +40,15 @@ import chat.dim.dkd.SecretContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xFF),
- *      'sn'   : 456,
+ *      "type" : i2s(0xFF),
+ *      "sn"   : 456,
  *
- *      'forward' : {...}  // reliable (secure + certified) message
- *      'secrets' : [...]  // reliable (secure + certified) messages
+ *      "forward" : {...}  // reliable (secure + certified) message
+ *      "secrets" : [...]  // reliable (secure + certified) messages
  *  }
  *  </pre></blockquote>
  */
 public interface ForwardContent extends Content {
-
-    // forward message
-    ReliableMessage getForward();
 
     // secret messages
     List<ReliableMessage> getSecrets();
@@ -60,7 +58,11 @@ public interface ForwardContent extends Content {
     //
 
     static ForwardContent create(ReliableMessage message) {
-        return new SecretContent(message);
+        List<ReliableMessage> array = new ArrayList<>();
+        if (message != null) {
+            array.add(message);
+        }
+        return new SecretContent(array);
     }
 
     static ForwardContent create(List<ReliableMessage> messages) {

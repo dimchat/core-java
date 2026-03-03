@@ -62,7 +62,7 @@ public interface TransportableFileWrapper {
      *  decrypt key
      */
     DecryptKey getPassword();
-    void setPassword(DecryptKey key);
+    void setPassword(DecryptKey password);
 
     /**
      *  Wrapper Factory
@@ -70,6 +70,9 @@ public interface TransportableFileWrapper {
     interface Factory {
 
         TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content);
+
+        TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content,
+                                                                TransportableData data, String filename, URI url, DecryptKey password);
 
     }
 

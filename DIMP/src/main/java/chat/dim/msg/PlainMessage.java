@@ -133,7 +133,7 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
     public Map<String, Object> toMap() {
         // serialize 'content'
         Content body = content;
-        if (body != null && get("content") == null) {
+        if (body != null && !containsKey("content")) {
             put("content", body.toMap());
         }
         // OK

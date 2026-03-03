@@ -33,6 +33,7 @@ package chat.dim.protocol;
 import java.util.Map;
 
 import chat.dim.dkd.BaseQuoteContent;
+import chat.dim.ext.QuoteHelper;
 import chat.dim.ext.SharedCommandExtensions;
 
 /**
@@ -69,12 +70,9 @@ public interface QuoteContent extends Content {
      *  Create quote content with text &amp; original message info
      */
     static QuoteContent create(String text, Envelope head, Content body) {
-        Map<String, Object> info = purify(head, body);
-        return new BaseQuoteContent(text, info);
-    }
-
-    static Map<String, Object> purify(Envelope head, Content body) {
-        return SharedCommandExtensions.quoteHelper.purifyForQuote(head, body);
+        QuoteHelper helper = SharedCommandExtensions.quoteHelper;
+        Map<String, Object> origin = helper.purifyForQuote(head, body);
+        return new BaseQuoteContent(text, origin);
     }
 
 }

@@ -90,7 +90,7 @@ public class WebPageContent extends BaseContent implements PageContent {
     public Map<String, Object> toMap() {
         // serialize 'icon'
         TransportableFile img = icon;
-        if (img != null && get("icon") == null) {
+        if (img != null && !containsKey("icon")) {
             put("icon", img.serialize());
         }
         // OK
@@ -122,7 +122,11 @@ public class WebPageContent extends BaseContent implements PageContent {
     @Override
     public void setIcon(TransportableFile img) {
         remove("icon");
-        //setMap("icon", img);
+        /*/
+        if (img != null) {
+            put("icon", img.serialize());
+        }
+        /*/
         icon = img;
     }
 

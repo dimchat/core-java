@@ -79,7 +79,7 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     public Map<String, Object> toMap() {
         // serialize 'snapshot'
         TransportableFile img = snapshot;
-        if (img != null && get("snapshot") == null) {
+        if (img != null && !containsKey("snapshot")) {
             put("snapshot", img.serialize());
         }
         // OK
@@ -89,7 +89,11 @@ public class VideoFileContent extends BaseFileContent implements VideoContent {
     @Override
     public void setSnapshot(TransportableFile img) {
         remove("snapshot");
-        //setMap("snapshot", img);
+        /*/
+        if (img != null) {
+            put("snapshot", img.serialize());
+        }
+        /*/
         snapshot = img;
     }
 

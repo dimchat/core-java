@@ -68,33 +68,14 @@ public class BaseFileContent extends BaseContent implements FileContent {
 
     public BaseFileContent(Map<String, Object> content) {
         super(content);
-        wrapper = createWrapper();
-    }
-
-    public BaseFileContent(String type, TransportableData data, String filename, URI url, DecryptKey key) {
-        super(type);
-        wrapper = createWrapper();
-        // file data
-        if (data != null) {
-            wrapper.setData(data);
-        }
-        // file name
-        if (filename != null) {
-            wrapper.setFilename(filename);
-        }
-        // download URL
-        if (url != null) {
-            wrapper.setURL(url);
-        }
-        // decrypt key
-        if (key != null) {
-            wrapper.setPassword(key);
-        }
-    }
-
-    protected TransportableFileWrapper createWrapper() {
         TransportableFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
-        return factory.createTransportableFileWrapper(super.toMap());
+        wrapper = factory.createTransportableFileWrapper(super.toMap());
+    }
+
+    public BaseFileContent(String type, TransportableData data, String filename, URI url, DecryptKey password) {
+        super(type);
+        TransportableFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
+        wrapper = factory.createTransportableFileWrapper(super.toMap(), data, filename, url, password);
     }
 
     @Override

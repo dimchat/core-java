@@ -25,16 +25,44 @@
  */
 package chat.dim.format;
 
+import java.net.URI;
 import java.util.Map;
+
+import chat.dim.protocol.DecryptKey;
+import chat.dim.protocol.TransportableData;
 
 
 public final class SharedNetworkFormatAccess {
 
     // wrapper for PNF
     public static TransportableFileWrapper.Factory pnfWrapperFactory = new TransportableFileWrapper.Factory() {
+
         @Override
         public TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content) {
             return new PortableNetworkFileWrapper(content);
+        }
+
+        @Override
+        public TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content,
+                                                                       TransportableData data, String filename, URI url, DecryptKey password) {
+            TransportableFileWrapper wrapper = new PortableNetworkFileWrapper(content);
+            // file data
+            if (data != null) {
+                wrapper.setData(data);
+            }
+            // file name
+            if (filename != null) {
+                wrapper.setFilename(filename);
+            }
+            // download URL
+            if (url != null) {
+                wrapper.setURL(url);
+            }
+            // decrypt key
+            if (password != null) {
+                wrapper.setPassword(password);
+            }
+            return wrapper;
         }
     };
 

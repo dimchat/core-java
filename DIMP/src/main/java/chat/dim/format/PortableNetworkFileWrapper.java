@@ -90,6 +90,10 @@ class PortableNetworkFileWrapper implements TransportableFileWrapper {
         return dictionary.remove(key);
     }
 
+    public boolean containsKey(String key) {
+        return dictionary.containsKey(key);
+    }
+
     public String getString(String key) {
         return Converter.getString(dictionary.get(key));
     }
@@ -98,12 +102,12 @@ class PortableNetworkFileWrapper implements TransportableFileWrapper {
     public Map<String, Object> toMap() {
         // serialize 'data'
         TransportableData ted = attachment;
-        if (ted != null && get("data") == null) {
+        if (ted != null && !containsKey("data")) {
             put("data", ted.serialize());
         }
         // serialize 'key'
         DecryptKey pwd = password;
-        if (pwd != null && get("key") == null) {
+        if (pwd != null && !containsKey("key")) {
             put("key", pwd.toMap());
         }
         // OK
@@ -126,7 +130,7 @@ class PortableNetworkFileWrapper implements TransportableFileWrapper {
         remove("data");
         /*/
         if (ted != null) {
-            put("data", ted.toObject());
+            put("data", ted.serialize());
         }
         /*/
         attachment = ted;

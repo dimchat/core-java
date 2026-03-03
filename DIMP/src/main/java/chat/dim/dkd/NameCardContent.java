@@ -76,7 +76,7 @@ public class NameCardContent extends BaseContent implements NameCard {
     public Map<String, Object> toMap() {
         // serialize 'avatar'
         TransportableFile img = image;
-        if (img != null && get("avatar") == null) {
+        if (img != null && !containsKey("avatar")) {
             put("avatar", img.serialize());
         }
         // OK

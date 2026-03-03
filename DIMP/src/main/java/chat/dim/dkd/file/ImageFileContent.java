@@ -79,7 +79,7 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     public Map<String, Object> toMap() {
         // serialize 'thumbnail'
         TransportableFile img = thumbnail;
-        if (img != null && get("thumbnail") == null) {
+        if (img != null && !containsKey("thumbnail")) {
             put("thumbnail", img.serialize());
         }
         // OK
@@ -89,7 +89,11 @@ public class ImageFileContent extends BaseFileContent implements ImageContent {
     @Override
     public void setThumbnail(TransportableFile img) {
         remove("thumbnail");
-        //setMap("thumbnail", img);
+        /*/
+        if (img != null) {
+            put("thumbnail", img.serialize());
+        }
+        /*/
         thumbnail = img;
     }
 

@@ -46,33 +46,14 @@ public class PortableNetworkFile extends Dictionary implements TransportableFile
 
     public PortableNetworkFile(Map<String, Object> content) {
         super(content);
-        wrapper = createWrapper();
-    }
-
-    public PortableNetworkFile(TransportableData data, String filename, URI url, DecryptKey key) {
-        super();
-        wrapper = createWrapper();
-        // file data
-        if (data != null) {
-            wrapper.setData(data);
-        }
-        // file name
-        if (filename != null) {
-            wrapper.setFilename(filename);
-        }
-        // download URL
-        if (url != null) {
-            wrapper.setURL(url);
-        }
-        // decrypt key
-        if (key != null) {
-            wrapper.setPassword(key);
-        }
-    }
-
-    protected TransportableFileWrapper createWrapper() {
         TransportableFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
-        return factory.createTransportableFileWrapper(super.toMap());
+        wrapper = factory.createTransportableFileWrapper(super.toMap());
+    }
+
+    public PortableNetworkFile(TransportableData data, String filename, URI url, DecryptKey password) {
+        super();
+        TransportableFileWrapper.Factory factory = SharedNetworkFormatAccess.pnfWrapperFactory;
+        wrapper = factory.createTransportableFileWrapper(super.toMap(), data, filename, url, password);
     }
 
     protected String getURIString() {

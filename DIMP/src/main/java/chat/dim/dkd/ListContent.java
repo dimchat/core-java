@@ -70,7 +70,7 @@ public class ListContent extends BaseContent implements ArrayContent {
     public Map<String, Object> toMap() {
         // serialize 'contents'
         List<Content> contents = list;
-        if (contents != null && get("contents") == null) {
+        if (contents != null && !containsKey("contents")) {
             put("contents", Content.revert(contents));
         }
         // OK

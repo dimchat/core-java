@@ -53,56 +53,31 @@ import chat.dim.protocol.ReliableMessage;
  */
 public class SecretContent extends BaseContent implements ForwardContent {
 
-    private ReliableMessage forward;
     private List<ReliableMessage> secrets;
 
     public SecretContent(Map<String, Object> content) {
         super(content);
         // lazy load
-        forward = null;
         secrets = null;
-    }
-
-    public SecretContent(ReliableMessage msg) {
-        super(ContentType.FORWARD);
-        forward = msg;
-        secrets = null;
-        //put("forward", msg.toMap());
     }
 
     public SecretContent(List<ReliableMessage> messages) {
         super(ContentType.FORWARD);
-        forward = null;
+        // secret messages
         secrets = messages;
         //put("secrets", ReliableMessage.revert(messages));
     }
 
     @Override
     public Map<String, Object> toMap() {
-        ReliableMessage msg = forward;
+        // serialize secret messages
         List<ReliableMessage> messages = secrets;
-        if (messages != null) {
-            // serialize 'secrets'
-            if (get("secrets") == null) {
-                put("secrets", ReliableMessage.revert(messages));
-            }
-        } else if (msg != null) {
-            // serialize 'forward'
-            if (get("forward") == null) {
-                put("forward", msg.toMap());
-            }
+        if (messages != null && !containsKey("secrets")) {
+            put("secrets", ReliableMessage.revert(messages));
+            remove("forward");
         }
         // OK
         return super.toMap();
-    }
-
-    @Override
-    public ReliableMessage getForward() {
-        if (forward == null) {
-            Object info = get("forward");
-            forward = ReliableMessage.parse(info);
-        }
-        return forward;
     }
 
     @Override
@@ -115,9 +90,10 @@ public class SecretContent extends BaseContent implements ForwardContent {
                 secrets = messages = ReliableMessage.convert((List<?>) info);
             } else {
                 assert info == null : "secret messages error: " + info;
-                // get from 'forward'
                 messages = new ArrayList<>();
-                ReliableMessage msg = getForward();
+                // get from 'forward'
+                Object forward = get("forward");
+                ReliableMessage msg = ReliableMessage.parse(forward);
                 if (msg != null) {
                     messages.add(msg);
                 }
