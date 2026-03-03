@@ -23,41 +23,6 @@
 | [Ming Ke Ming (名可名)](https://github.com/dimchat/mkm-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/MingKeMing)](https://mvnrepository.com/artifact/chat.dim/MingKeMing) | Decentralized User Identity Authentication |
 | [Dao Ke Dao (道可道)](https://github.com/dimchat/dkd-java) | [![Version](https://img.shields.io/maven-central/v/chat.dim/DaoKeDao)](https://mvnrepository.com/artifact/chat.dim/DaoKeDao) | Universal Message Module |
 
-* build.gradle
-
-```javascript
-allprojects {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-}
-
-dependencies {
-
-    // https://central.sonatype.com/artifact/chat.dim/DIMP
-    implementation group: 'chat.dim', name: 'DIMP', version: '2.0.0'
-
-}
-```
-
-* pom.xml
-
-```xml
-<dependencies>
-
-    <!-- https://mvnrepository.com/artifact/chat.dim/DIMP -->
-    <dependency>
-        <groupId>chat.dim</groupId>
-        <artifactId>DIMP</artifactId>
-        <version>2.0.0</version>
-        <type>pom</type>
-    </dependency>
-
-</dependencies>
-```
-
 ## Examples
 
 ### Extends Command
@@ -70,35 +35,77 @@ dependencies {
 
 ```java
 public enum HandshakeState {
-    START,    // C -> S, without session key (or session expired)
+    START,    // C -> S, without session key(or session expired)
     AGAIN,    // S -> C, with new session key
     RESTART,  // C -> S, with new session key
-    SUCCESS,  // S -> C, handshake accepted
-}
+    SUCCESS;  // S -> C, handshake accepted
 
+    public static HandshakeState checkState(String title, String session) {
+        assert title != null : "handshake title should not be empty";
+        if (title.equals("DIM!")/* || text.equals("OK!")*/) {
+            return SUCCESS;
+        } else if (title.equals("DIM?")) {
+            return AGAIN;
+        } else if (session == null) {
+            return START;
+        } else {
+            return RESTART;
+        }
+    }
+
+}
+```
+
+```java
 /**
- *  Handshake command
+ *  Handshake command message
  *
  *  <blockquote><pre>
  *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
+ *      type : 0x88,
+ *      sn   : 123,
  *
- *      "command" : "handshake",    // command name
- *      "title"   : "Hello world!", // "DIM?", "DIM!"
- *      "session" : "{SESSION_KEY}" // session key
+ *      command : "handshake",    // command name
+ *      title   : "Hello world!", // "DIM?", "DIM!"
+ *      session : "{SESSION_KEY}" // session key
  *  }
  *  </pre></blockquote>
  */
-public class HandshakeCommand extends BaseCommand {
+public interface HandshakeCommand extends Command {
 
-    public final static String HANDSHAKE = "handshake";
+    String HANDSHAKE = "handshake";
 
-    public HandshakeCommand(Map<String, Object> content) {
+    String getTitle();
+    String getSessionKey();
+
+    HandshakeState getState();
+
+    static HandshakeCommand start() {
+        return new BaseHandshakeCommand("Hello world!", null);
+    }
+
+    static HandshakeCommand restart(String sessionKey) {
+        return new BaseHandshakeCommand("Hello world!", sessionKey);
+    }
+
+    static HandshakeCommand again(String sessionKey) {
+        return new BaseHandshakeCommand("DIM?", sessionKey);
+    }
+
+    static HandshakeCommand success(String sessionKey) {
+        return new BaseHandshakeCommand("DIM!", sessionKey);
+    }
+}
+```
+
+```java
+public class BaseHandshakeCommand extends BaseCommand implements HandshakeCommand {
+
+    public BaseHandshakeCommand(Map<String, Object> content) {
         super(content);
     }
 
-    public HandshakeCommand(String text, String session) {
+    public BaseHandshakeCommand(String text, String session) {
         super(HANDSHAKE);
         // text message
         assert text != null : "new handshake command error";
@@ -109,50 +116,21 @@ public class HandshakeCommand extends BaseCommand {
         }
     }
 
+    @Override
     public String getTitle() {
         return getString("title", null);
     }
 
+    @Override
     public String getSessionKey() {
         return getString("session", null);
     }
 
+    @Override
     public HandshakeState getState() {
-        return checkState(getTitle(), getSessionKey());
+        return HandshakeState.checkState(getTitle(), getSessionKey());
     }
 
-    private static HandshakeState checkState(String text, String session) {
-        assert text != null : "handshake title should not be empty";
-        if (text.equals("DIM!")/* || text.equals("OK!")*/) {
-            return HandshakeState.SUCCESS;
-        } else if (text.equals("DIM?")) {
-            return HandshakeState.AGAIN;
-        } else if (session == null) {
-            return HandshakeState.START;
-        } else {
-            return HandshakeState.RESTART;
-        }
-    }
-
-    //
-    //  Factories
-    //
-
-    public static HandshakeCommand start() {
-        return new HandshakeCommand("Hello world!", null);
-    }
-
-    public static HandshakeCommand restart(String sessionKey) {
-        return new HandshakeCommand("Hello world!", sessionKey);
-    }
-
-    public static HandshakeCommand again(String sessionKey) {
-        return new HandshakeCommand("DIM?", sessionKey);
-    }
-
-    public static HandshakeCommand success(String sessionKey) {
-        return new HandshakeCommand("DIM!", sessionKey);
-    }
 }
 ```
 
@@ -160,34 +138,106 @@ public class HandshakeCommand extends BaseCommand {
 
 ```java
 /**
- *  Content for Application 0nly: {
- *  
+ *  Content for Application 0nly
+ *
+ *  <blockquote><pre>
+ *  data format: {
  *      "type" : i2s(0xA0),
  *      "sn"   : 123,
  *
  *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
  *      "extra" : info         // others
  *  }
+ *  </pre></blockquote>
  */
-public class ApplicationContent extends BaseContent implements AppContent {
+public interface AppContent extends Content {
 
-    public ApplicationContent(Map<String, Object> content) {
+    // get App ID
+    String getApplication();
+
+}
+```
+
+```java
+/**
+ *  Customized Content
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0xCC),
+ *      "sn"   : 123,
+ *
+ *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+ *      "mod"   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+ *      "act"   : "{ACTION}",  // action name (3.g.: "throw")
+ *      "extra" : info         // action parameters
+ *  }
+ *  </pre></blockquote>
+ */
+public interface CustomizedContent extends Content {
+
+    // get Module Name
+    String getModule();
+
+    // get Action Name
+    String getAction();
+
+    //
+    //  Factory methods
+    //
+
+    static CustomizedContent create(String app, String mod, String act) {
+        return new AppCustomizedContent(app, mod, act);
+    }
+
+    static CustomizedContent create(String type, String app, String mod, String act) {
+        return new AppCustomizedContent(type, app, mod, act);
+    }
+
+}
+```
+
+```java
+public class AppCustomizedContent extends BaseContent implements AppContent, CustomizedContent {
+
+    public AppCustomizedContent(Map<String, Object> content) {
         super(content);
     }
 
-    public ApplicationContent(String app) {
-        super(ContentType.APPLICATION);
+    public AppCustomizedContent(String type, String app, String mod, String act) {
+        super(type);
         put("app", app);
+        put("mod", mod);
+        put("act", act);
     }
+
+    public AppCustomizedContent(String app, String mod, String act) {
+        super(ContentType.CUSTOMIZED);
+        put("app", app);
+        put("mod", mod);
+        put("act", act);
+    }
+
+    //-------- getters --------
 
     @Override
     public String getApplication() {
         return getString("app", "");
     }
 
-}
+    @Override
+    public String getModule() {
+        return getString("mod", "");
+    }
 
+    @Override
+    public String getAction() {
+        return getString("act", "");
+    }
+
+}
 ```
+
 
 ### Extends ID Address
 
