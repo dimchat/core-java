@@ -59,6 +59,11 @@ public class DataURI {
         return encoded == null || encoded.isEmpty();
     }
 
+    // default is "us-ascii"
+    public String getCharset() {
+        return head.getCharset();
+    }
+
     public String getHeader(String name) {
         String value = head.getExtraValue(name);
         if (value != null) {
@@ -74,14 +79,6 @@ public class DataURI {
         } else {
             return null;
         }
-    }
-
-    public String getCharset() {
-        return head.getExtraValue("charset");
-    }
-
-    public String getFilename() {
-        return head.getExtraValue("filename");
     }
 
     @Override
@@ -138,6 +135,10 @@ public class DataURI {
             this.extra = extra;
             // lazy load
             headerString = null;
+        }
+
+        public String getCharset() {
+            return getExtraValue("charset");
         }
 
         public Set<String> getExtraKeys() {

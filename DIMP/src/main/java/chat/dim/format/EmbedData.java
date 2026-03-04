@@ -33,41 +33,85 @@ import chat.dim.rfc.MIME;
 /**
  *  Data URI for embed image/audio
  */
-public abstract class EmbedData extends BaseData {
+public class EmbedData extends BaseData {
 
     private DataURI dataUri;
     private final DataURI.Header dataHead;
 
-    protected EmbedData(DataURI uri) {
+    public EmbedData(DataURI uri) {
         super(uri.toString());
         dataUri = uri;
         dataHead = uri.head;
     }
 
-    protected EmbedData(DataURI.Header head, byte[] data) {
+    public EmbedData(byte[] data, DataURI.Header head) {
         super(data);
         assert data.length > 0 : "decoded data should not be empty";
         dataUri = null;
         dataHead = head;
     }
 
-    protected abstract DataCoder getDataCoder();  // Base64.coder
+    //
+    //  Uri Headers
+    //
 
-    // encode
-    protected DataURI getDataURI() {
+    // default is "text/plain"
+    public String getMimeType() {
+        return dataHead.mimeType;
+    }
+
+    // default is "us-ascii"
+    public String getCharset() {
+        return dataHead.getCharset();
+    }
+
+    // "avatar.png"
+    public String getFilename() {
+        return dataHead.getExtraValue("filename");
+    }
+
+    public String getHeader(String name) {
+        String value = dataHead.getExtraValue(name);
+        if (value != null) {
+            // charset
+            // filename
+            return value;
+        } else if ("encoding".equalsIgnoreCase(name)) {
+            return dataHead.encoding;
+        } else if ("mime-type".equalsIgnoreCase(name)) {
+            return dataHead.mimeType;
+        } else if ("content-type".equalsIgnoreCase(name)) {
+            return dataHead.mimeType;
+        } else {
+            return null;
+        }
+    }
+
+    // "data:.../...;base64,..."
+    public DataURI getDataURI() {
         DataURI uri = dataUri;
-        if (uri == null) {
-            DataCoder coder = getDataCoder();
-            byte[] data = binary;
-            if (coder == null || data == null || data.length == 0) {
-                assert false : "cannot encode data: " + getEncoding();
+        if (uri != null) {
+            return uri;
+        }
+        // check encoded data uri
+        String txt = string;
+        if (txt == null || txt.isEmpty()) {
+            // encode data to build uri
+            byte[] bin = binary;
+            if (bin == null/* || bin.length == 0*/) {
                 return null;
             }
-            String base64 = coder.encode(data);
-            assert base64 != null && !base64.isEmpty() : "failed to encode " + data.length + " byte(s)";
+            assert bin.length > 0 : "embed data empty";
+            // encode body
+            String base64 = Base64.encode(bin);
+            assert base64 != null && !base64.isEmpty() : "failed to encode " + bin.length + " byte(s)";
+            // build uri with header
             uri = new DataURI(dataHead, base64);
-            dataUri = uri;
+        } else {
+            assert txt.startsWith("data:") : "data uri error: " + txt;
+            uri = DataURI.parse(txt);
         }
+        dataUri = uri;
         return uri;
     }
 
@@ -82,24 +126,19 @@ public abstract class EmbedData extends BaseData {
 
     @Override
     public byte[] getBytes() {
-        byte[] data = binary;
-        if (data == null) {
+        byte[] bin = binary;
+        if (bin == null) {
             DataURI uri = dataUri;
-            if (uri == null || uri.isEmpty()) {
-                assert false : "data uri error: " + uri;
-                return null;
+            if (uri != null/* && !uri.isEmpty()*/) {
+                String base64 = uri.body;
+                if (base64 != null && !base64.isEmpty()) {
+                    bin = Base64.decode(base64);
+                }
             }
-            DataCoder coder = getDataCoder();
-            String base64 = uri.body;
-            if (coder == null || base64 == null || base64.isEmpty()) {
-                assert false : "cannot decode data: " + getEncoding();
-                return null;
-            }
-            data = coder.decode(base64);
-            assert data != null && data.length > 0 : "failed to decode " + base64.length() + " char(s)";
-            binary = data;
+            assert uri != null && !uri.isEmpty() : "failed to decode data uri";
+            binary = bin;
         }
-        return data;
+        return bin;
     }
 
     @Override
@@ -107,35 +146,51 @@ public abstract class EmbedData extends BaseData {
         String text = string;
         if (text == null) {
             DataURI uri = getDataURI();
-            text = uri == null ? "" : uri.toString();
+            if (uri != null/* && !uri.isEmpty()*/) {
+                text = uri.toString();
+            } else {
+                text = "";
+                assert false : "failed to encode data uri";
+            }
             string = text;
         }
         return text;
     }
 
     //
-    //  factories:
+    //  Factory methods:
     //
-    //      "data:image/jpg;base64,{BASE64_ENCODE}"
-    //      "data:audio/mp4;base64,{BASE64_ENCODE}"
+    //      Image URI: "data:image/jpg;base64,{BASE64_ENCODE}"
+    //      Audio URI: "data:audio/mp4;base64,{BASE64_ENCODE}"
     //
 
     public static TransportableData createImage(byte[] jpeg) {
-        return create(MIME.ContentType.IMAGE_JPG, jpeg);
+        return create(jpeg, MIME.ContentType.IMAGE_JPG);
     }
 
     public static TransportableData createAudio(byte[] mp4) {
-        return create(MIME.ContentType.AUDIO_MP4, mp4);
+        return create(mp4, MIME.ContentType.AUDIO_MP4);
     }
 
-    public static TransportableData create(String mimeType, byte[] data) {
+    // create with bytes
+    public static TransportableData create(byte[] data, String mimeType) {
         DataURI.Header head = new DataURI.Header(mimeType, BASE_64, null);
-        return new EmbedData(head, data) {
-            @Override
-            protected DataCoder getDataCoder() {
-                return Base64.coder;
-            }
-        };
+        return new EmbedData(data, head);
+    }
+
+    // create with string
+    public static TransportableData create(String dataUri) {
+        DataURI uri = DataURI.parse(dataUri);
+        if (uri == null) {
+            assert false : "data uri error: " + dataUri;
+            return null;
+        }
+        return new EmbedData(uri);
+    }
+
+    // create with uri
+    public static TransportableData create(DataURI uri) {
+        return new EmbedData(uri);
     }
 
 }
