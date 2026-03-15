@@ -40,12 +40,12 @@ import chat.dim.protocol.HistoryCommand;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x89),
- *      'sn'   : 123,
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
  *
- *      'command' : "...", // command name
- *      'time'    : 0,     // command timestamp
- *      'extra'   : info   // command parameters
+ *      "command" : "...", // command name
+ *      "time"    : 0,     // command timestamp
+ *      "extra"   : info   // command parameters
  *  }
  *  </pre></blockquote>
  */
@@ -58,4 +58,5 @@ public class BaseHistoryCommand extends BaseCommand implements HistoryCommand {
     public BaseHistoryCommand(String cmd) {
         super(ContentType.HISTORY, cmd);
     }
+
 }

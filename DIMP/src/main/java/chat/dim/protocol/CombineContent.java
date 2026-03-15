@@ -39,11 +39,11 @@ import chat.dim.dkd.CombineForwardContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xCF),
- *      'sn'   : 123,
+ *      "type" : i2s(0xCF),
+ *      "sn"   : 123,
  *
- *      'title'    : "...",  // chat title
- *      'messages' : [...]   // chat history
+ *      "title"    : "...",  // chat title
+ *      "messages" : [...]   // chat history
  *  }
  *  </pre></blockquote>
  */

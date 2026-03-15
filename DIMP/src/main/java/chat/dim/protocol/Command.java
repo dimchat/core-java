@@ -39,11 +39,11 @@ import chat.dim.ext.SharedCommandExtensions;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
- *      'sn'   : 123,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
  *
- *      'command' : "...", // command name
- *      'extra'   : info   // command parameters
+ *      "command" : "...", // command name
+ *      "extra"   : info   // command parameters
  *  }
  *  </pre></blockquote>
  */

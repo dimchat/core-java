@@ -37,13 +37,13 @@ import chat.dim.dkd.asset.TransferMoneyContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x41),
- *      'sn'   : 123,
+ *      "type" : i2s(0x41),
+ *      "sn"   : 123,
  *
- *      'currency' : "RMB",    // USD, USDT, ...
- *      'amount'   : 100.00,
- *      'remitter' : "{FROM}", // sender ID
- *      'remittee' : "{TO}"    // receiver ID
+ *      "currency" : "RMB",    // USD, USDT, ...
+ *      "amount"   : 100.00,
+ *      "remitter" : "{FROM}", // sender ID
+ *      "remittee" : "{TO}"    // receiver ID
  *  }
  *  </pre></blockquote>
  */
@@ -64,4 +64,5 @@ public interface TransferContent extends MoneyContent {
     static TransferContent create(String currency, Number amount) {
         return new TransferMoneyContent(currency, amount);
     }
+
 }

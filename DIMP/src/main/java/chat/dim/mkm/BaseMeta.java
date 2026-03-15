@@ -41,7 +41,7 @@ import chat.dim.protocol.VerifyKey;
 import chat.dim.type.Dictionary;
 
 /**
- *  User/Group Meta data
+ *  User/Group Meta info
  *  <p>
  *      This class is used to generate entity ID
  *  </p>
@@ -218,7 +218,7 @@ public abstract class BaseMeta extends Dictionary implements Meta {
             assert containsKey("seed") && containsKey("fingerprint") : "meta error: " + toMap();
         } else {
             // this meta has no seed, so
-            // it should not contains 'seed' or 'fingerprint'
+            // it should not contain 'seed' or 'fingerprint'
             return !(containsKey("seed") || containsKey("fingerprint"));
         }
         String seed = getSeed();

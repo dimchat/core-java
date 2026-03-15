@@ -46,9 +46,9 @@ import chat.dim.type.Dictionary;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'sender'   : "moki@xxx",
- *      'receiver' : "hulk@yyy",
- *      'time'     : 123
+ *      "sender"   : "moki@xxx",
+ *      "receiver" : "hulk@yyy",
+ *      "time"     : 123
  *  }
  *  </pre></blockquote>
  */

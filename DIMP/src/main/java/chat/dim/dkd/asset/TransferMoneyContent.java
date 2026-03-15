@@ -41,13 +41,13 @@ import chat.dim.protocol.TransferContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x41),
- *      'sn'   : 123,
+ *      "type" : i2s(0x41),
+ *      "sn"   : 123,
  *
- *      'currency' : "RMB",    // USD, USDT, ...
- *      'amount'   : 100.00,
- *      'remitter' : "{FROM}", // sender ID
- *      'remittee' : "{TO}"    // receiver ID
+ *      "currency" : "RMB",    // USD, USDT, ...
+ *      "amount"   : 100.00,
+ *      "remitter" : "{FROM}", // sender ID
+ *      "remittee" : "{TO}"    // receiver ID
  *  }
  *  </pre></blockquote>
  */
@@ -80,4 +80,5 @@ public class TransferMoneyContent extends BaseMoneyContent implements TransferCo
     public ID getRemittee() {
         return ID.parse(get("remittee"));
     }
+
 }

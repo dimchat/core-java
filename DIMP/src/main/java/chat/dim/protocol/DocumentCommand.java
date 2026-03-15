@@ -53,9 +53,8 @@ import chat.dim.dkd.cmd.BaseDocumentCommand;
  */
 public interface DocumentCommand extends MetaCommand {
 
-    /*
+    /**
      *  Entity Documents
-     *
      */
     List<Document> getDocuments();
 

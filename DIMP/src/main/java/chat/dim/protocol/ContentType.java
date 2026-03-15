@@ -41,8 +41,8 @@ package chat.dim.protocol;
  *      DKDContentType_Text indicates this is a normal message with plaintext.
  *
  *      DKDContentType_File indicates this is a file, it may include filename
- *      and file data, but usually the file data will encrypted and upload to
- *      somewhere and here is just a URL to retrieve it.
+ *      and file data, but usually the file data will be encrypted and uploaded
+ *      to somewhere and here is just a URL to retrieve it.
  *
  *      DKDContentType_Image indicates this is an image, it may send the image
  *      data directly(encrypt the image data with Base64), but we suggest to

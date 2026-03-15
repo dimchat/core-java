@@ -76,10 +76,12 @@ public class PlainData extends BaseData {
     //  Factory methods
     //
 
+    // create with bytes
     public static TransportableData create(byte[] data) {
         return new PlainData(data);
     }
 
+    // create with string
     public static TransportableData create(String text) {
         return new PlainData(text);
     }

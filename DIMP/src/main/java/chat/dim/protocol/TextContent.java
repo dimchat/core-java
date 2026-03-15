@@ -37,10 +37,10 @@ import chat.dim.dkd.BaseTextContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x01),
- *      'sn'   : 123,
+ *      "type" : i2s(0x01),
+ *      "sn"   : 123,
  *
- *      'text' : "..."
+ *      "text" : "..."
  *  }
  *  </pre></blockquote>
  */

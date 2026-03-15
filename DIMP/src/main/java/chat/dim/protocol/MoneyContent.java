@@ -37,11 +37,11 @@ import chat.dim.dkd.asset.BaseMoneyContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x40),
- *      'sn'   : 123,
+ *      "type" : i2s(0x40),
+ *      "sn"   : 123,
  *
- *      'currency' : "RMB", // USD, USDT, ...
- *      'amount'   : 100.00
+ *      "currency" : "RMB", // USD, USDT, ...
+ *      "amount"   : 100.00
  *  }
  *  </pre></blockquote>
  */
@@ -63,4 +63,5 @@ public interface MoneyContent extends Content {
     static MoneyContent create(String currency, Number amount) {
         return new BaseMoneyContent(currency, amount);
     }
+
 }

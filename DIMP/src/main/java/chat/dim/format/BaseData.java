@@ -80,6 +80,10 @@ public abstract class BaseData implements TransportableData {
         return str.length();
         /*/
         byte[] bytes = getBytes();
+        if (bytes == null) {
+            assert false : "transportable data error";
+            return 0;
+        }
         assert bytes.length > 0 : "transportable data empty";
         return bytes.length;
     }

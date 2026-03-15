@@ -76,9 +76,8 @@ public interface GroupCommand extends HistoryCommand {
     String RESIGN   = "resign";
     //-------- group command names end --------
 
-    /*
-     *  Member ID (or String) list
-     *
+    /**
+     *  Member ID list
      */
     List<ID> getMembers();
     void setMembers(List<ID> members);

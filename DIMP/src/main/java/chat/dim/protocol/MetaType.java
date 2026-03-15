@@ -39,7 +39,7 @@ package chat.dim.protocol;
  *
  *      MKMMetaVersion_MKM give a seed string first, and sign this seed to get
  *      fingerprint; after that, use the fingerprint to generate address.
- *      This will get a firmly relationship between (username, address and key).
+ *      This will get a firm relationship between (username, address and key).
  *
  *      MKMMetaVersion_BTC use the key data to generate address directly.
  *      This can build a BTC address for the entity ID (no username).

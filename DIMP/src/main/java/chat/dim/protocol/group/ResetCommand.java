@@ -35,14 +35,14 @@ package chat.dim.protocol.group;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x89),
- *      'sn'   : 123,
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
  *
- *      'command' : "reset",
- *      'time'    : 123.456,
+ *      "command" : "reset",
+ *      "time"    : 123.456,
  *
- *      'group'   : "{GROUP_ID}",
- *      'members' : []
+ *      "group"   : "{GROUP_ID}",
+ *      "members" : []
  *  }
  *  </pre></blockquote>
  */

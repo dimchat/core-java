@@ -40,10 +40,10 @@ import chat.dim.protocol.TextContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x01),
- *      'sn'   : 123,
+ *      "type" : i2s(0x01),
+ *      "sn"   : 123,
  *
- *      'text' : "..."
+ *      "text" : "..."
  *  }
  *  </pre></blockquote>
  */
@@ -62,4 +62,5 @@ public class BaseTextContent extends BaseContent implements TextContent {
     public String getText() {
         return getString("text", "");
     }
+
 }

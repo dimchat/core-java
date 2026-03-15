@@ -39,10 +39,10 @@ import chat.dim.dkd.ListContent;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0xCA),
- *      'sn'   : 123,
+ *      "type" : i2s(0xCA),
+ *      "sn"   : 123,
  *
- *      'contents' : [...]  // content array
+ *      "contents" : [...]  // content array
  *  }
  *  </pre></blockquote>
  */

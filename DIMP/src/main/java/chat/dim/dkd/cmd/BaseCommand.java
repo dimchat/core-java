@@ -42,11 +42,11 @@ import chat.dim.protocol.ContentType;
  *
  *  <blockquote><pre>
  *  data format: {
- *      'type' : i2s(0x88),
- *      'sn'   : 123,
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
  *
- *      'command' : "...", // command name
- *      'extra'   : info   // command parameters
+ *      "command" : "...", // command name
+ *      "extra"   : info   // command parameters
  *  }
  *  </pre></blockquote>
  */
@@ -70,4 +70,5 @@ public class BaseCommand extends BaseContent implements Command {
         return SharedCommandExtensions.helper.getCmd(toMap(), "");
         // return getString("command", "");
     }
+
 }

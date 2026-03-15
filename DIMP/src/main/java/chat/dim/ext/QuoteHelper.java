@@ -37,7 +37,7 @@ import chat.dim.protocol.Envelope;
 
 
 /**
- *  Helper for QuoteContent & ReceiptCommand
+ *  Helper for QuoteContent and ReceiptCommand
  */
 public interface QuoteHelper {
 

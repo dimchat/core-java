@@ -46,7 +46,7 @@ import chat.dim.protocol.group.GroupCommand;
  *      "type" : i2s(0x89),
  *      "sn"   : 123,
  *
- *      "command" : "reset",   // "invite", "quit", "query", ...
+ *      "command" : "reset",   // "invite", "quit", ...
  *      "time"    : 123.456,   // command timestamp
  *
  *      "group"   : "{GROUP_ID}",

@@ -78,10 +78,12 @@ public class Base64Data extends BaseData {
     //  Factory methods
     //
 
+    // create with bytes
     public static TransportableData create(byte[] data) {
         return new Base64Data(data);
     }
 
+    // create with string
     public static TransportableData create(String text) {
         return new Base64Data(text);
     }
