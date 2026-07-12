@@ -49,7 +49,7 @@ import chat.dim.type.Dictionary;
  *     |  time       |     |  time      |     |  time        |
  *     |             |     |            |     |              |
  *     |  content    |     |  data      |     |  data        |
- *     +-------------+     |  key/keys  |     |  key/keys    |
+ *     +-------------+     |  keys      |     |  keys        |
  *                         +------------+     |  signature   |
  *                                            +--------------+
  *     Algorithm:

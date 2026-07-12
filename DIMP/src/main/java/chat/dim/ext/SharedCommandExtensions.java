@@ -34,6 +34,9 @@ package chat.dim.ext;
  *  Command FactoryManager
  */
 public final class SharedCommandExtensions {
+    private SharedCommandExtensions() {
+        throw new AssertionError("Utility class cannot be instantiated");
+    }
 
     public static CommandHelper cmdHelper = null;
 

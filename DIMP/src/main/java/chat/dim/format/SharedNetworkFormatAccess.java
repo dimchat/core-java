@@ -33,6 +33,9 @@ import chat.dim.protocol.TransportableData;
 
 
 public final class SharedNetworkFormatAccess {
+    private SharedNetworkFormatAccess() {
+        throw new AssertionError("Utility class cannot be instantiated");
+    }
 
     // wrapper for PNF
     public static TransportableFileWrapper.Factory pnfWrapperFactory = new TransportableFileWrapper.Factory() {

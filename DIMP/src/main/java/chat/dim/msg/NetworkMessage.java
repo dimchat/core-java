@@ -49,7 +49,7 @@ import chat.dim.protocol.TransportableData;
  *      "receiver" : "hulk@yyy",
  *      "time"     : 123,
  *
- *      //-- content data and key/keys
+ *      //-- content data and keys
  *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
  *      "keys"     : {
  *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))

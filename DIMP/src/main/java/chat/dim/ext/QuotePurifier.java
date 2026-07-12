@@ -66,7 +66,6 @@ public class QuotePurifier implements QuoteHelper {
         Map<String, Object> info = head.copyMap(false);
         if (info.containsKey("data")) {
             info.remove("data");
-            info.remove("key");
             info.remove("keys");
             info.remove("meta");
             info.remove("visa");
