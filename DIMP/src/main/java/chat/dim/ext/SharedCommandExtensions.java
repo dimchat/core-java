@@ -40,8 +40,6 @@ public final class SharedCommandExtensions {
 
     public static CommandHelper cmdHelper = null;
 
-    public static QuoteHelper quoteHelper = new QuotePurifier();
-
     // general helper
     public static GeneralCommandHelper helper = null;
 

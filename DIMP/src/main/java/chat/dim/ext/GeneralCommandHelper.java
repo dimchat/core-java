@@ -32,6 +32,10 @@ package chat.dim.ext;
 
 import java.util.Map;
 
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
+
 /**
  *  Command GeneralFactory
  */
@@ -42,5 +46,11 @@ public interface GeneralCommandHelper /*extends Command.Helper */{
     //
 
     String getCmd(Map<?, ?> content, String defaultValue);
+
+    //
+    //  Receipt
+    //
+
+    Command createReceipt(String text, Envelope head, Content body);
 
 }
