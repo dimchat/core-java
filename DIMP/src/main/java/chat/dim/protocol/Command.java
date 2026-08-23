@@ -40,7 +40,7 @@ import chat.dim.ext.SharedCommandExtensions;
  *  <blockquote><pre>
  *  data format: {
  *      "type" : i2s(0x88),
- *      "sn"   : 123,
+ *      "sn"   : 12345,
  *
  *      "command" : "...", // command name
  *      "extra"   : info   // command parameters
@@ -48,12 +48,6 @@ import chat.dim.ext.SharedCommandExtensions;
  *  </pre></blockquote>
  */
 public interface Command extends Content {
-
-    //-------- command names begin --------
-    String META      = "meta";
-    String DOCUMENTS = "documents";
-    String RECEIPT   = "receipt";
-    //-------- command names end --------
 
     /**
      *  Get command name

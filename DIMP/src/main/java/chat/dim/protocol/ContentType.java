@@ -79,7 +79,8 @@ package chat.dim.protocol;
  */
 public interface ContentType {
 
-    String ANY       = "" + (0x00); // 0000 0000 (Undefined)
+    String ANY       = "*";
+    //String UNKNOWN = "" + (0x00); // 0000 0000 (Undefined)
 
     String TEXT      = "" + (0x01); // 0000 0001
 

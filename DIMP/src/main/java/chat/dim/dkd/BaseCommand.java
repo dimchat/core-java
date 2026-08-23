@@ -28,80 +28,46 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.dkd.cmd;
+package chat.dim.dkd;
 
 import java.util.Map;
 
-import chat.dim.protocol.ID;
-import chat.dim.protocol.Meta;
-import chat.dim.protocol.MetaCommand;
+import chat.dim.ext.SharedCommandExtensions;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.ContentType;
 
 /**
- *  Meta Command Content
+ *  Base Command Content
  *
  *  <blockquote><pre>
  *  data format: {
  *      "type" : i2s(0x88),
  *      "sn"   : 123,
  *
- *      "command" : "meta", // command name
- *      "did"     : "{ID}", // contact's ID
- *      "meta"    : {...}   // when meta is null, means query meta for ID
+ *      "command" : "...", // command name
+ *      "extra"   : info   // command parameters
  *  }
  *  </pre></blockquote>
  */
-public class BaseMetaCommand extends BaseCommand implements MetaCommand {
+public class BaseCommand extends BaseContent implements Command {
 
-    private Meta meta;
-
-    public BaseMetaCommand(Map<String, Object> content) {
+    public BaseCommand(Map<String, Object> content) {
         super(content);
-        // lazy
-        meta = null;
     }
 
-    public BaseMetaCommand(String cmd, ID did, Meta meta) {
-        super(cmd);
-        // ID
-        assert did != null : "ID cannot be empty for meta command";
-        put("did", did.toString());
-        // meta
-        if (meta != null) {
-            put("meta", meta.toMap());
-        }
-        this.meta = meta;
+    public BaseCommand(String type, String cmd) {
+        super(type);
+        put("command", cmd);
     }
 
-    /**
-     *  Response Meta
-     *
-     * @param did  - entity ID
-     * @param meta - entity Meta
-     */
-    public BaseMetaCommand(ID did, Meta meta) {
-        this(META, did, meta);
-    }
-
-    /**
-     *  Query Meta
-     *
-     * @param did - entity ID
-     */
-    public BaseMetaCommand(ID did) {
-        this(META, did, null);
+    public BaseCommand(String cmd) {
+        this(ContentType.COMMAND, cmd);
     }
 
     @Override
-    public ID getIdentifier() {
-        return ID.parse(get("did"));
-    }
-
-    @Override
-    public Meta getMeta() {
-        if (meta == null) {
-            meta = Meta.parse(get("meta"));
-        }
-        return meta;
+    public String getCmd() {
+        return SharedCommandExtensions.helper.getCmd(toMap(), "");
+        // return getString("command", "");
     }
 
 }
