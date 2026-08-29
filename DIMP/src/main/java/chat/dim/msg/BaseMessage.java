@@ -157,19 +157,4 @@ public abstract class BaseMessage extends Dictionary implements Message {
         return head.getType();
     }
 
-    //--------
-
-    public static boolean isBroadcast(Message msg) {
-        if (msg.getReceiver().isBroadcast()) {
-            return true;
-        }
-        // check exposed group
-        Object overtGroup = msg.get("group");
-        if (overtGroup == null) {
-            return false;
-        }
-        ID group = ID.parse(overtGroup);
-        return group != null && group.isBroadcast();
-    }
-
 }

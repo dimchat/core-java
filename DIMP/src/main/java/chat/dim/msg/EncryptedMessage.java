@@ -32,6 +32,8 @@ package chat.dim.msg;
 
 import java.util.Map;
 
+import chat.dim.ext.GeneralMessageHelper;
+import chat.dim.ext.SharedMessageExtensions;
 import chat.dim.format.PlainData;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.TransportableData;
@@ -72,10 +74,11 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
     public TransportableData getData() {
         TransportableData ted = data;
         if (ted == null) {
+            GeneralMessageHelper helper = SharedMessageExtensions.helper;
             Object text = get("data");
             if (text == null) {
                 assert false : "message data not found: " + toMap();
-            } else if (!isBroadcast(this)) {
+            } else if (!helper.isBroadcast(this)) {
                 // message content had been encrypted by a symmetric key,
                 // so the data should be encoded here (with algorithm 'base64' as default).
                 ted = TransportableData.parse(text);
