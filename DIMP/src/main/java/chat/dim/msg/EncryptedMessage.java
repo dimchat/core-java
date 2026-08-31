@@ -31,10 +31,13 @@
 package chat.dim.msg;
 
 import java.util.Map;
+import java.util.Set;
 
-import chat.dim.ext.GeneralMessageHelper;
+import chat.dim.crypto.EncryptedBundle;
+import chat.dim.ext.MessageHelper;
 import chat.dim.ext.SharedMessageExtensions;
 import chat.dim.format.PlainData;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.TransportableData;
 
@@ -74,7 +77,7 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
     public TransportableData getData() {
         TransportableData ted = data;
         if (ted == null) {
-            GeneralMessageHelper helper = SharedMessageExtensions.helper;
+            MessageHelper helper = SharedMessageExtensions.helper;
             Object text = get("data");
             if (text == null) {
                 assert false : "message data not found: " + toMap();
@@ -103,6 +106,15 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
         }
         assert map == null : "message keys error: " + map;
         return null;
+    }
+
+    @Override
+    public EncryptedBundle decodeKeyBundle(ID receiver, Set<String> terminals) {
+        Map<String, Object> keys = getEncryptedKeys();
+        if (keys == null || keys.isEmpty()) {
+            return null;
+        }
+        return EncryptedBundle.decode(keys, receiver, terminals);
     }
 
 }

@@ -60,14 +60,14 @@ public interface Command extends Content {
     //  Factory methods
     //
     static Command parse(Object content) {
-        return SharedCommandExtensions.cmdHelper.parseCommand(content);
+        return SharedCommandExtensions.commandHelper.parseCommand(content);
     }
 
     static Factory getFactory(String cmd) {
-        return SharedCommandExtensions.cmdHelper.getCommandFactory(cmd);
+        return SharedCommandExtensions.commandHelper.getCommandFactory(cmd);
     }
     static void setFactory(String cmd, Factory factory) {
-        SharedCommandExtensions.cmdHelper.setCommandFactory(cmd, factory);
+        SharedCommandExtensions.commandHelper.setCommandFactory(cmd, factory);
     }
 
     /**

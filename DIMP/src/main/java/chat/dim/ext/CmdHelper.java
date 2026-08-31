@@ -37,9 +37,9 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 
 /**
- *  Command GeneralFactory
+ *  Cmd GeneralHelper
  */
-public interface GeneralCommandHelper /*extends Command.Helper */{
+public interface CmdHelper /*extends Command.Helper */{
 
     //
     //  CMD
