@@ -28,6 +28,7 @@ package chat.dim.format;
 import java.net.URI;
 import java.util.Map;
 
+import chat.dim.ext.SharedFileFormatExtensions;
 import chat.dim.protocol.DecryptKey;
 import chat.dim.protocol.TransportableData;
 
@@ -63,6 +64,27 @@ public interface TransportableFileWrapper {
      */
     DecryptKey getPassword();
     void setPassword(DecryptKey password);
+
+    //
+    //  Factory
+    //
+
+    /**
+     *  Create wrapper with the given content
+     */
+    static TransportableFileWrapper create(Map<String, Object> content) {
+        TransportableFileWrapper.Factory factory = SharedFileFormatExtensions.pnfWrapperFactory;
+        return factory.createTransportableFileWrapper(content);
+    }
+
+    /**
+     *  Create wrapper with the given content and overrides
+     */
+    static TransportableFileWrapper create(Map<String, Object> content,
+                                           TransportableData data, String filename, URI url, DecryptKey password) {
+        TransportableFileWrapper.Factory factory = SharedFileFormatExtensions.pnfWrapperFactory;
+        return factory.createTransportableFileWrapper(content, data, filename, url, password);
+    }
 
     /**
      *  Wrapper Factory

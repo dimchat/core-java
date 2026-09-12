@@ -77,7 +77,7 @@ public class NetworkMessage extends EncryptedMessage implements ReliableMessage 
             Object base64 = get("signature");
             assert base64 != null : "message signature cannot be empty: " + toMap();
             signature = ted = TransportableData.parse(base64);
-            // assert ted != null : "failed to decode message signature: " + base64;
+            assert ted != null : "failed to decode message signature: " + base64;
         }
         return ted;
     }
