@@ -41,6 +41,6 @@ public final class SharedCommandExtensions {
     public static CommandHelper commandHelper = null;
 
     // general helper
-    public static CmdHelper helper = null;
+    public static CommandHandler handler = null;
 
 }

@@ -39,7 +39,7 @@ import chat.dim.protocol.Envelope;
 /**
  *  Cmd GeneralHelper
  */
-public interface CmdHelper /*extends Command.Helper */{
+public interface CommandHandler /*extends Command.Helper */{
 
     //
     //  CMD
