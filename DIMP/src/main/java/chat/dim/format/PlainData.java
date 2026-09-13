@@ -33,10 +33,16 @@ import chat.dim.protocol.TransportableData;
  */
 public class PlainData extends BaseData {
 
+    /**
+     *  Create with encoded string only (decode lazily).
+     */
     public PlainData(String str) {
         super(str);
     }
 
+    /**
+     *  Create with decoded bytes only (encode lazily).
+     */
     public PlainData(byte[] bytes) {
         super(bytes);
     }
@@ -45,6 +51,9 @@ public class PlainData extends BaseData {
     //  TransportableData
     //
 
+    /**
+     *  No encoding, 'PLAIN'.
+     */
     @Override
     public String getEncoding() {
         return null;
@@ -76,17 +85,23 @@ public class PlainData extends BaseData {
     //  Factory methods
     //
 
-    // create with bytes
+    /**
+     *  Create with decoded bytes only (encode lazily).
+     */
     public static TransportableData create(byte[] data) {
         return new PlainData(data);
     }
 
-    // create with string
+    /**
+     *  Create with encoded string only (decode lazily).
+     */
     public static TransportableData create(String text) {
         return new PlainData(text);
     }
 
-    // empty data
+    /**
+     *  empty data
+     */
     public static final TransportableData ZERO = new PlainData(new byte[0]);
 
 }

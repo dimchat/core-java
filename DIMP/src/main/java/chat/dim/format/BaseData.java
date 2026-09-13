@@ -30,24 +30,45 @@ import java.util.Arrays;
 import chat.dim.protocol.TransportableData;
 import chat.dim.type.Stringer;
 
+
 /**
  *  Base Transportable Data
+ *  <p>
+ *  Base class for transportable data.
+ *  </p>
+ *  <p>
+ *  Holds both an encoded string representation (e.g. base64 string)
+ *  and the decoded binary bytes; the missing side is lazy loaded.
+ *  </p>
+ *  <p>
+ *  The {@link Stringer} / {@link CharSequence} delegation lives in the
+ *  superclass {@link BaseString}.
+ *  </p>
  */
-public abstract class BaseData implements TransportableData {
+public abstract class BaseData extends BaseString implements TransportableData {
 
-    protected String string;  // encoded string
-    protected byte[] binary;  // decoded bytes
+    // decoded bytes
+    protected byte[] binary;
 
+    /**
+     *  Create data with encoded string (decoded bytes lazy loaded).
+     *
+     *  @param str  encoded string
+     */
     protected BaseData(String str) {
-        super();
+        super(str);
         assert str != null : "encoded string should not be null";
-        string = str;
         // lazy load
         binary = null;
     }
 
+    /**
+     *  Create data with decoded bytes (encoded string lazy loaded).
+     *
+     *  @param bytes  decoded bytes
+     */
     protected BaseData(byte[] bytes) {
-        super();
+        super(null);
         assert bytes != null : "decoded data should not be null";
         binary = bytes;
         // lazy load
@@ -96,77 +117,35 @@ public abstract class BaseData implements TransportableData {
     }
 
     @Override
-    public int compareTo(String other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty() ? 0 : "s".compareTo("");
-        }
-        // compare with encoded string
-        String str = toString();
-        return str.compareTo(other);
-    }
-
-    @Override
-    public int compareToIgnoreCase(String other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty() ? 0 : "s".compareToIgnoreCase("");
-        }
-        // compare with encoded string
-        String str = toString();
-        return str.compareToIgnoreCase(other);
-    }
-
-    @Override
-    public int compareToIgnoreCase(Stringer other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty() ? 0 : "s".compareToIgnoreCase("");
-        }
-        // compare with encoded string
-        String str = toString();
-        return str.compareToIgnoreCase(other.toString());
-    }
-
-    @Override
-    public boolean equalsIgnoreCase(String other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty();
-        }
-        // compare with encoded string
-        String str = toString();
-        return str.equalsIgnoreCase(other);
-    }
-
-    @Override
-    public boolean equalsIgnoreCase(Stringer other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty();
-        }
-        // compare with encoded string
-        String str = toString();
-        return str.equalsIgnoreCase(other.toString());
-    }
-
-    @Override
     public boolean equals(Object other) {
         if (other == null) {
+            //return isEmpty();
             return false;
+        } else if (this == other) {
+            // same object
+            return true;
         } else if (other instanceof BaseData) {
-            if (this == other) {
-                // same object
-                return true;
+            BaseData o = (BaseData) other;
+            if (o.isEmpty()) {
+                return isEmpty();
             }
             // compare as base data
-            return dataEquals((BaseData) other);
+            return dataEquals(o);
         } else if (other instanceof TransportableData) {
+            TransportableData o = (TransportableData) other;
+            if (o.isEmpty()) {
+                return isEmpty();
+            }
             // compare as ted
-            return tedEquals((TransportableData) other);
+            return tedEquals(o);
         } else if (other instanceof Stringer) {
-            // compare with inner string
-            Stringer otherString = (Stringer) other;
-            return otherString.toString().equals(toString());
+            Stringer o = (Stringer) other;
+            // compare with encoded string
+            return toString().equals(o.toString());
         } else if (other instanceof String) {
+            String s = (String) other;
             // compare with inner string
-            String otherString = (String) other;
-            return otherString.equals(toString());
+            return toString().equals(s);
         }
         assert false : "unknown data: " + other;
         return false;
@@ -176,9 +155,7 @@ public abstract class BaseData implements TransportableData {
     //  Compare inner string first, then inner bytes, then decoded bytes.
     //
     protected boolean dataEquals(BaseData other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty();
-        }
+        assert !other.isEmpty() : "base data error: " + other;
         // compare with inner string
         String thisString = string;
         String thatString = other.string;
@@ -202,9 +179,7 @@ public abstract class BaseData implements TransportableData {
     //  Compare encoded string first, otherwise decoded bytes.
     //
     private boolean tedEquals(TransportableData other) {
-        if (other == null || other.isEmpty()) {
-            return isEmpty();
-        }
+        assert !other.isEmpty() : "base data error: " + other;
         // compare with encoded string
         String thisString = string;
         if (thisString != null && !thisString.isEmpty()) {
@@ -215,22 +190,6 @@ public abstract class BaseData implements TransportableData {
     }
 
     //
-    //  CharSequence
-    //
-
-    @Override
-    public char charAt(int index) {
-        String str = toString();
-        return str.charAt(index);
-    }
-
-    @Override
-    public CharSequence subSequence(int start, int end) {
-        String str = toString();
-        return str.subSequence(start, end);
-    }
-
-    //
     //  Object
     //
 
@@ -238,6 +197,15 @@ public abstract class BaseData implements TransportableData {
     public int hashCode() {
         byte[] bytes = getBytes();
         return Arrays.hashCode(bytes);
+    }
+
+    /**
+     *  Subclasses must implement {@code toString()} to return the encoded
+     *  string representation (same as Dart's {@code UnimplementedError}).
+     */
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("BaseData subclass must implement toString()");
     }
 
 }
