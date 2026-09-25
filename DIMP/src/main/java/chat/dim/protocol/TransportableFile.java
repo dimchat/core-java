@@ -56,12 +56,19 @@ import chat.dim.type.Mapper;
  */
 public interface TransportableFile extends TransportableResource, Mapper<String, Object> {
 
-    /** When file data is too big, don't set it in this dictionary,
-     *  but upload it to a CDN and set the download URL instead.
+    /**
+     *  Binary file data (encoded as {@link TransportableData}).
+     *  <p>
+     *  When file data is too big, don't set it in this dictionary, but upload it to
+     *  a CDN and set the download URL ({@link #setURL(URI)}) instead to reduce payload size.
+     *  </p>
      */
     void setData(TransportableData data);
     TransportableData getData();
 
+    /**
+     *  Original filename of the file (e.g., "avatar.png").
+     */
     void setFilename(String filename);
     String getFilename();
 
@@ -119,17 +126,37 @@ public interface TransportableFile extends TransportableResource, Mapper<String,
         return create(data, filename, null, null);
     }
 
+    /**
+     *  Create with data / filename / url / password.
+     *
+     * @param data      binary file data (null if using {@code url} instead)
+     * @param filename  original file name
+     * @param url       CDN download URL (alternative to {@code data})
+     * @param password  decryption key for encrypted content
+     */
     static TransportableFile create(TransportableData data, String filename, URI url, DecryptKey password) {
         return SharedFileFormatExtensions.pnfHelper.createTransportableFile(data, filename, url, password);
     }
 
+    /**
+     *  Parse a structured object into a PNF.
+     *
+     * @param pnf  raw object (string / map) to parse
+     * @return PNF object, or null if parsing fails
+     */
     static TransportableFile parse(Object pnf) {
         return SharedFileFormatExtensions.pnfHelper.parseTransportableFile(pnf);
     }
 
+    /**
+     *  Set the PNF factory.
+     */
     static void setFactory(Factory factory) {
         SharedFileFormatExtensions.pnfHelper.setTransportableFileFactory(factory);
     }
+    /**
+     *  Get the PNF factory.
+     */
     static Factory getFactory() {
         return SharedFileFormatExtensions.pnfHelper.getTransportableFileFactory();
     }

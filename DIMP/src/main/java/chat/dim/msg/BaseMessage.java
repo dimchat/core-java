@@ -73,7 +73,7 @@ import chat.dim.type.Dictionary;
  *      //-- envelope
  *      "sender"   : "moki@xxx",
  *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
+ *      "time"     : 123.45,
  *
  *      //-- body
  *      ...

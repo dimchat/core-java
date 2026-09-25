@@ -37,6 +37,10 @@ import chat.dim.type.Stringer;
  *  Provides character sequence operations (index, substring, trim, etc.)
  *  by delegating to the inner string value.
  *  </p>
+ *  <p>
+ *  Contract: if {@code isEmpty()} returns false, {@code toString()} is
+ *  guaranteed to return a non-empty string.
+ *  </p>
  */
 public class BaseString implements Stringer {
 
@@ -134,7 +138,8 @@ public class BaseString implements Stringer {
     @Override
     public int compareTo(String s) {
         if (s == null || s.isEmpty()) {
-            return isEmpty() ? 0 : "s".compareTo("");
+            //return isEmpty() ? 0 : "s".compareTo("");
+            return isEmpty() ? 0 : 1;
         //} else if (isEmpty()) {
         //    return "".compareTo(s);
         }
@@ -145,7 +150,8 @@ public class BaseString implements Stringer {
     @Override
     public int compareToIgnoreCase(String s) {
         if (s == null || s.isEmpty()) {
-            return isEmpty() ? 0 : "s".compareToIgnoreCase("");
+            //return isEmpty() ? 0 : "s".compareToIgnoreCase("");
+            return isEmpty() ? 0 : 1;
         //} else if (isEmpty()) {
         //    return "".compareToIgnoreCase(s);
         }
@@ -156,7 +162,8 @@ public class BaseString implements Stringer {
     @Override
     public int compareToIgnoreCase(Stringer other) {
         if (other == null || other.isEmpty()) {
-            return isEmpty() ? 0 : "s".compareToIgnoreCase("");
+            //return isEmpty() ? 0 : "s".compareToIgnoreCase("");
+            return isEmpty() ? 0 : 1;
         //} else if (isEmpty()) {
         //    return "".compareToIgnoreCase(other.toString());
         } else if (this == other) {

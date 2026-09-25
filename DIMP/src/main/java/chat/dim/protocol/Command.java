@@ -35,15 +35,21 @@ import java.util.Map;
 import chat.dim.ext.SharedCommandExtensions;
 
 /**
- *  Command Content
+ *  Command message content interface.
+ *
+ *  Base interface for all command-type messages, which are used to send
+ *  operational instructions with parameters between entities.
  *
  *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 12345,
+ *  JSON format: {
+ *      "type"  : i2s(0x88),
+ *      "sn"    : 12345,
  *
- *      "command" : "...", // command name
- *      "extra"   : info   // command parameters
+ *      "time"    : 123.45,         // message time
+ *      "group" : "group@zzz",
+ *
+ *      "command" : "...",  // Unique command name/identifier
+ *      "extra"   : info    // Optional command parameters (dynamic structure)
  *  }
  *  </pre></blockquote>
  */
@@ -59,27 +65,50 @@ public interface Command extends Content {
     //
     //  Factory methods
     //
+
+    /**
+     *  Parse any object to command
+     *
+     * @param content any object (map/string/...)
+     * @return Command
+     */
     static Command parse(Object content) {
         return SharedCommandExtensions.commandHelper.parseCommand(content);
     }
 
+    /**
+     *  Get command factory for name (cmd)
+     *
+     * @param cmd command name
+     * @return CommandFactory
+     */
     static Factory getFactory(String cmd) {
         return SharedCommandExtensions.commandHelper.getCommandFactory(cmd);
     }
+
+    /**
+     *  Set command factory for name (cmd)
+     *
+     * @param cmd command name
+     * @param factory CommandFactory
+     */
     static void setFactory(String cmd, Factory factory) {
         SharedCommandExtensions.commandHelper.setCommandFactory(cmd, factory);
     }
 
     /**
-     *  Command Factory
+     *  Factory interface for parsing command messages from map objects.
+     *
+     *  Provides a standardized way to convert raw map data (from JSON) into
+     *  strongly-typed {@link Command} instances.
      */
     interface Factory {
 
         /**
-         *  Parse map object to command
+         *  Parses a map object (from JSON) into a {@link Command} instance.
          *
-         * @param content - command content
-         * @return Command
+         * @param content is the raw map data containing command information.
+         * @return a Command instance if parsing succeeds, null otherwise.
          */
         Command parseCommand(Map<String, Object> content);
     }

@@ -48,7 +48,7 @@ import chat.dim.type.Dictionary;
  *  data format: {
  *      "sender"   : "moki@xxx",
  *      "receiver" : "hulk@yyy",
- *      "time"     : 123
+ *      "time"     : 123.45
  *  }
  *  </pre></blockquote>
  */
@@ -66,6 +66,13 @@ public class MessageEnvelope extends Dictionary implements Envelope {
         time     = null;
     }
 
+    /**
+     *  Create a new envelope with sender, receiver and time.
+     *
+     *  @param from the message sender (required)
+     *  @param to the message receiver, default is ANYONE
+     *  @param when the message time, default is now
+     */
     public MessageEnvelope(ID from, ID to, Date when) {
         super();
         assert from != null : "message sender should not be empty";

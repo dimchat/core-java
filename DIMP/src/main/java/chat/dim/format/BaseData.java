@@ -44,6 +44,11 @@ import chat.dim.type.Stringer;
  *  The {@link Stringer} / {@link CharSequence} delegation lives in the
  *  superclass {@link BaseString}.
  *  </p>
+ *  <p>
+ *  Semantics: the encoded string is a lossless encoding of the decoded
+ *  bytes, so they are one-to-one — equal (non-empty) strings imply equal
+ *  bytes, and vice versa.
+ *  </p>
  */
 public abstract class BaseData extends BaseString implements TransportableData {
 
@@ -140,11 +145,17 @@ public abstract class BaseData extends BaseString implements TransportableData {
             return tedEquals(o);
         } else if (other instanceof Stringer) {
             Stringer o = (Stringer) other;
+            if (o.isEmpty()) {
+                return isEmpty();
+            }
             // compare with encoded string
             return toString().equals(o.toString());
         } else if (other instanceof String) {
             String s = (String) other;
-            // compare with inner string
+            if (s.isEmpty()) {
+                return isEmpty();
+            }
+            // compare with encoded string
             return toString().equals(s);
         }
         assert false : "unknown data: " + other;
@@ -153,6 +164,11 @@ public abstract class BaseData extends BaseString implements TransportableData {
 
     //
     //  Compare inner string first, then inner bytes, then decoded bytes.
+    //
+    //  The encoded string and the decoded bytes are one-to-one: the string
+    //  is a lossless encoding of the bytes, so when both inner strings are
+    //  non-empty, string equality implies byte equality (and vice versa);
+    //  this also keeps the hashCode()/equals() contract valid.
     //
     protected boolean dataEquals(BaseData other) {
         assert !other.isEmpty() : "base data error: " + other;
@@ -178,7 +194,7 @@ public abstract class BaseData extends BaseString implements TransportableData {
     //
     //  Compare encoded string first, otherwise decoded bytes.
     //
-    private boolean tedEquals(TransportableData other) {
+    protected boolean tedEquals(TransportableData other) {
         assert !other.isEmpty() : "base data error: " + other;
         // compare with encoded string
         String thisString = string;

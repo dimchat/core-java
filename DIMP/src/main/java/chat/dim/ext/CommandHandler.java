@@ -37,7 +37,10 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 
 /**
- *  Cmd GeneralHelper
+ *  A helper interface for extracting command names from structured command content.
+ *
+ *  This interface provides a standardized way to retrieve command identifiers
+ *  from command payloads (typically Map-based), with support for default values.
  */
 public interface CommandHandler /*extends Command.Helper */{
 
@@ -45,12 +48,34 @@ public interface CommandHandler /*extends Command.Helper */{
     //  CMD
     //
 
+    /**
+     *  Retrieves the command name from a structured command content Map.
+     *
+     *  Looks up the command name key (e.g., "command") in the content Map
+     *  and returns its value. If the key is not found or the value is null,
+     *  returns the defaultValue (if provided).
+     *
+     * @param content the structured command payload (Map) to extract the command name from
+     * @param defaultValue the optional fallback value if the command name is not found
+     * @return the extracted command name, or the defaultValue, or null if neither exists
+     */
     String getCmd(Map<?, ?> content, String defaultValue);
 
     //
     //  Receipt
     //
 
+    /**
+     *  Create ReceiptCommand with original envelope info.
+     *
+     *  Extracts and cleans up metadata from the original message envelope/content
+     *  to form the "origin" field in receipt commands (removes sensitive/redundant fields).
+     *
+     * @param text the message
+     * @param head the original message envelope
+     * @param body the original instant message content (optional)
+     * @return a Command receipt
+     */
     Command createReceipt(String text, Envelope head, Content body);
 
 }

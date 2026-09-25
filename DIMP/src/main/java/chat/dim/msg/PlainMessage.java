@@ -46,7 +46,7 @@ import chat.dim.protocol.InstantMessage;
  *      //-- envelope
  *      "sender"   : "moki@xxx",
  *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
+ *      "time"     : 123.45,
  *
  *      //-- content
  *      "content"  : {...}
@@ -64,6 +64,12 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
         content = null;
     }
 
+    /**
+     *  Create a new instant message with envelope and content
+     *
+     *  @param head the message envelope
+     *  @param body the message content
+     */
     public PlainMessage(Envelope head, Content body) {
         super(head);
         setContent(body);
@@ -126,6 +132,12 @@ public class PlainMessage extends BaseMessage implements InstantMessage {
         return body;
     }
 
+    /**
+     *  Set message body (content).
+     *
+     *  Removes the 'content' field from the dictionary first and keeps
+     *  the body in memory only; it will be serialized in {@link #toMap()}.
+     */
     //@Override
     public void setContent(Content body) {
         remove("content");

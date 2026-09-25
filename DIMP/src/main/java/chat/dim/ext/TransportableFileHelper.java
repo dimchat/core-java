@@ -32,15 +32,46 @@ import chat.dim.protocol.TransportableData;
 import chat.dim.protocol.TransportableFile;
 
 /**
- *  PNF Helper
+ *  PNF Helper.
+ *  <p>
+ *  Helper interface for creating/parsing {@link TransportableFile} instances.
+ *  </p>
+ *  Provides factory methods to abstract the creation logic of
+ *  {@link TransportableFile} implementations.
  */
 public interface TransportableFileHelper {
 
+    /**
+     *  Set transportable file factory.
+     */
     void setTransportableFileFactory(TransportableFile.Factory factory);
+
+    /**
+     *  Get transportable file factory.
+     */
     TransportableFile.Factory getTransportableFileFactory();
 
+    /**
+     *  Parses a raw object into a {@link TransportableFile} instance.
+     *  <p>
+     *  Converts arbitrary raw data (e.g., string, map) into a standardized
+ *  TransportableFile object.
+     *  </p>
+     *
+     *  @param pnf  raw data object to parse
+     *  @return parsed {@link TransportableFile} instance (null if parsing fails)
+     */
     TransportableFile parseTransportableFile(Object pnf);
 
+    /**
+     *  Creates a {@link TransportableFile} instance with the given metadata.
+     *
+     *  @param data      binary file data (encoded as {@link TransportableData})
+     *  @param filename  original file name (e.g., "document.pdf")
+     *  @param url       remote CDN URL (alternative to {@code data} for large files)
+     *  @param password  decryption key for encrypted CDN content
+     *  @return an initialized {@link TransportableFile} instance
+     */
     TransportableFile createTransportableFile(TransportableData data, String filename,
                                               URI url, DecryptKey password);
 

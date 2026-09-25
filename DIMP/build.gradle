@@ -44,7 +44,7 @@ tasks.withType(Javadoc) {
     options {
         encoding = 'UTF-8'
         charSet = 'UTF-8'
-        links = ['https://docs.oracle.com/javase/7/docs/api']
+        links = ['https://docs.oracle.com/en/java/javase/' + JavaVersion.current().majorVersion + '/docs/api/']
     }
     options.addStringOption('Xdoclint:none', '-quiet')
 }

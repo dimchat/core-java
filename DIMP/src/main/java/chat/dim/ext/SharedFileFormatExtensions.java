@@ -28,15 +28,21 @@ package chat.dim.ext;
 import chat.dim.format.TransportableFileWrapper;
 
 /**
- *  PNF FactoryManager
+ *  PNF GeneralManager
  */
 public final class SharedFileFormatExtensions {
     private SharedFileFormatExtensions() {
         throw new AssertionError("Utility class cannot be instantiated");
     }
 
+    /**
+     *  PNF helper (null before set).
+     */
     public static TransportableFileHelper pnfHelper = null;
 
+    /**
+     *  PNF wrapper factory (null before set).
+     */
     public static TransportableFileWrapper.Factory pnfWrapperFactory = null;
 
 }

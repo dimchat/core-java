@@ -32,6 +32,10 @@ package chat.dim.ext;
 
 /**
  *  Command GeneralManager
+ *
+ *  Holds the shared singletons used by the command layer:
+ *  the {@link CommandHelper} (factory registry, from protocol/helpers.dart)
+ *  and the general {@link CommandHandler} (from cmd_ext.dart).
  */
 public final class SharedCommandExtensions {
     private SharedCommandExtensions() {

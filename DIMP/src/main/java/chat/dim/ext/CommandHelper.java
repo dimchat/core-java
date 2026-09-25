@@ -32,11 +32,36 @@ package chat.dim.ext;
 
 import chat.dim.protocol.Command;
 
+/**
+ *  General Helper
+ *
+ *  Helper interface for registering and using command factories
+ *  to parse command messages from raw content.
+ */
 public interface CommandHelper {
 
+    /**
+     *  Set command factory for name (cmd)
+     *
+     * @param cmd command name
+     * @param factory CommandFactory
+     */
     void setCommandFactory(String cmd, Command.Factory factory);
+
+    /**
+     *  Get command factory for name (cmd)
+     *
+     * @param cmd command name
+     * @return CommandFactory
+     */
     Command.Factory getCommandFactory(String cmd);
 
+    /**
+     *  Parse any object to command
+     *
+     * @param content any object
+     * @return Command
+     */
     Command parseCommand(Object content);
 
 }

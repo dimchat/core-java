@@ -34,33 +34,70 @@ import chat.dim.protocol.TransportableData;
 
 
 /**
- *  PNF Wrapper
+ *  PNF Wrapper.
+ *  <p>
+ *  A wrapper interface for serializing/deserializing {@link chat.dim.protocol.TransportableFile} data
+ *  to/from a Map.
+ *  </p>
+ *  The serialized Map follows this structure:
+ *  <blockquote><pre>
+ *  {
+ *      "data"     : "&lt;base64-encoded file content&gt;",   // from TransportableData
+ *      "filename" : "photo.png",                         // original file name
+ *
+ *      "URL"      : "http://example.com/photo.png",     // remote CDN URL (alternative to `data`)
+ *      "key"      : {                                   // symmetric decryption key (encrypted CDN content)
+ *          "algorithm" : "AES",                         // encryption algorithm ("AES", "DES", ...)
+ *          "data"      : "&lt;base64-encoded key data&gt;" // key material (base64 encoded)
+ *      }
+ *  }
+ *  </pre></blockquote>
+ *  Key notes:
+ *  <ul>
+ *    <li>{@code data} and {@code URL} are mutually exclusive for large files
+ *        (prefer {@code URL} to reduce payload size)</li>
+ *    <li>{@code key} is required only if the CDN-hosted content is encrypted</li>
+ *  </ul>
  */
 public interface TransportableFileWrapper {
 
-    // serialize data
+    /**
+     *  Converts the wrapper's state to a structured Map.
+     *  <p>
+     *  Serializes the {@link TransportableData} into the "data" field; subclasses may
+     *  override this to implement lazy serialization for other properties (e.g. defer
+     *  encoding large file data until this method is called).
+     *  </p>
+     */
     Map<String, Object> toMap();
 
     /**
-     *  file data
+     *  Binary file data (encoded as {@link TransportableData}).
+     *  <p>
+     *  For large files, use {@link #setURL(URI) url} instead to avoid large payloads.
+     *  </p>
      */
     TransportableData getData();
     void setData(TransportableData ted);
 
     /**
-     *  file name
+     *  Original filename of the file (e.g., "avatar.png").
      */
     String getFilename();
     void setFilename(String name);
 
     /**
-     *  download URL
+     *  Remote CDN URL to download the file (alternative to {@link #getData() data} for large files).
      */
     URI getURL();
     void setURL(URI remote);
 
     /**
-     *  decrypt key
+     *  Symmetric decryption key for encrypted file content from {@link #getURL() url}.
+     *  <p>
+     *  Aliased as {@code password} for legacy compatibility (actual value is a
+     *  {@link DecryptKey}).
+     *  </p>
      */
     DecryptKey getPassword();
     void setPassword(DecryptKey password);
@@ -87,12 +124,28 @@ public interface TransportableFileWrapper {
     }
 
     /**
-     *  Wrapper Factory
+     *  Factory interface for creating {@link TransportableFileWrapper} instances.
+     *  <p>
+     *  Implement this interface to provide custom wrapper implementations
+     *  (e.g., for different serialization formats).
+     *  </p>
      */
     interface Factory {
 
+        /**
+         *  Create a wrapper with the given content only.
+         */
         TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content);
 
+        /**
+         *  Create a wrapper with the given content and overrides.
+         *
+         *  @param content   base Map to initialize the wrapper
+         *  @param data      binary file data (overrides {@code content["data"]})
+         *  @param filename  original file name (overrides {@code content["filename"]})
+         *  @param url       remote CDN URL (overrides {@code content["URL"]})
+         *  @param password  decryption key (overrides {@code content["key"]})
+         */
         TransportableFileWrapper createTransportableFileWrapper(Map<String, Object> content,
                                                                 TransportableData data, String filename, URI url, DecryptKey password);
 

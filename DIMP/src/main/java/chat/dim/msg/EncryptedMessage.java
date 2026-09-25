@@ -49,10 +49,10 @@ import chat.dim.protocol.TransportableData;
  *      //-- envelope
  *      "sender"   : "moki@xxx",
  *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
+ *      "time"     : 123.45,
  *
  *      //-- content data and keys
- *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
+ *      "data"     : "...",    // base64_encode( symmetric_encrypt(content))
  *      "keys"     : {
  *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
  *          "digest" : "..."   // hash(pwd.data)
@@ -70,6 +70,12 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
         data = null;
     }
 
+    /**
+     *  Get encrypted content data.
+     *
+     *  If this is a broadcast message, the content will not be encrypted
+     *  (just encoded to JsON), so return the string data directly.
+     */
     @Override
     public TransportableData getData() {
         TransportableData ted = data;
@@ -94,6 +100,9 @@ public class EncryptedMessage extends BaseMessage implements SecureMessage {
         return ted;
     }
 
+    /**
+     *  Get encrypted keys map: {ID: base64(key)}, plus a "digest" item
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> getEncryptedKeys() {
